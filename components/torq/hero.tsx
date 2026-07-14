@@ -5,7 +5,7 @@ import { EVENT } from '@/lib/torq-data'
 import { ChevronDown, MapPin, Ticket } from 'lucide-react'
 import { Countdown } from './countdown'
 import { useRegistration } from './registration'
-
+import Image from 'next/image'
 export function Hero() {
   const { open } = useRegistration()
 
@@ -16,11 +16,13 @@ export function Hero() {
     >
       {/* Background image */}
       <div className="absolute inset-0">
-        <img
-          src="/images/hero-mustang-drift.png"
-          alt="A Ford Mustang drifting in a cloud of tire smoke"
-          className="animate-slow-zoom h-full w-full object-cover"
-        />
+        <Image
+  src="/images/hero/hero.jpg"
+  alt="TOR'Q Burnout"
+  fill
+  priority
+  className="animate-slow-zoom object-cover"
+/>
         <div className="absolute inset-0 bg-gradient-to-t from-background via-background/70 to-background/40" />
         <div className="absolute inset-0 bg-gradient-to-r from-background/90 via-background/30 to-transparent" />
       </div>
