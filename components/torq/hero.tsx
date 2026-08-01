@@ -16,12 +16,10 @@ export function Hero() {
     >
       {/* Background image */}
       <div className="absolute inset-0">
-        <Image
+        <img
   src="/images/hero-drift-red-mustang.webp"
-  alt="TOR'Q Burnout"
-  fill
-  priority
-  className="animate-slow-zoom object-cover"
+  alt="A Ford Mustang drifting in a cloud of tire smoke"
+  className="animate-slow-zoom h-full w-full object-cover"
 />
         <div className="absolute inset-0 bg-gradient-to-t from-background via-background/70 to-background/40" />
         <div className="absolute inset-0 bg-gradient-to-r from-background/90 via-background/30 to-transparent" />
