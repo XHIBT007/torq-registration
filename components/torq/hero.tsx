@@ -34,20 +34,24 @@ export function Hero() {
               {EVENT.dateLabel}
             </span>
           </div>
-
-          <h1
-            className="animate-fade-up font-display mt-6 text-7xl font-bold tracking-tight text-balance sm:text-8xl lg:text-[9rem]"
-            style={{ animationDelay: '80ms' }}
-          >
-            TOR<span className="text-primary">&apos;</span>Q
-          </h1>
-
-          <p
-            className="animate-fade-up text-gold-shimmer font-display mt-2 text-2xl font-medium tracking-[0.25em] uppercase sm:text-3xl"
-            style={{ animationDelay: '160ms' }}
-          >
-            {EVENT.tagline}
-          </p>
+<div className="mb-6 inline-flex items-center rounded-full border border-red-500/40 bg-black/40 px-5 py-2 backdrop-blur">
+  <span className="mr-2 h-2 w-2 rounded-full bg-red-500"></span>
+  <span className="text-sm font-semibold tracking-[0.2em] text-white uppercase">
+    Lagos • December 2026
+  </span>
+</div>
+         <h1 className="animate-fade-up text-5xl font-black uppercase leading-none tracking-tight text-white md:text-7xl lg:text-8xl">
+  AFRICA'S BIGGEST
+  <span className="block text-red-500">
+    MOTORSPORT
+  </span>
+  SPECTACLE
+</h1>
+            <p className="mt-8 max-w-2xl text-lg leading-8 text-white/80 md:text-xl">
+TOR'Q brings together drifting, burnout battles, superbikes, luxury cars,
+music, fashion and immersive entertainment into one unforgettable live
+experience.
+</p>
 
           <p
             className="animate-fade-up mt-6 max-w-xl text-base leading-relaxed text-muted-foreground sm:text-lg"
@@ -67,7 +71,7 @@ export function Hero() {
               className="h-12 px-7 text-base"
             >
               <Ticket className="size-4" />
-              Register Now
+              GET TICKETS
             </Button>
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <MapPin className="size-4 text-accent" />
