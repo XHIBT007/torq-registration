@@ -46,12 +46,19 @@ export function Hero() {
     MOTORSPORT
   </span>
   SPECTACLE
+<h1 className="animate-fade-up text-5xl font-black uppercase leading-[0.9] md:text-7xl lg:text-8xl">
+  <span className="bg-gradient-to-r from-white via-white to-red-500 bg-clip-text text-transparent">
+    AFRICA'S BIGGEST
+  </span>
+  <br />
+  <span className="text-red-500">
+    MOTORSPORT
+  </span>
+  <br />
+  <span className="text-white">
+    SPECTACLE
+  </span>
 </h1>
-            <p className="mt-8 max-w-2xl text-lg leading-8 text-white/80 md:text-xl">
-TOR'Q brings together drifting, burnout battles, superbikes, luxury cars,
-music, fashion and immersive entertainment into one unforgettable live
-experience.
-</p>
 
           <p
             className="animate-fade-up mt-6 max-w-xl text-base leading-relaxed text-muted-foreground sm:text-lg"
@@ -68,7 +75,7 @@ experience.
             <Button
               size="lg"
               onClick={open}
-              className="h-12 px-7 text-base"
+              className="h-14 rounded-full bg-red-600 px-8 text-base font-bold transition-all duration-300 hover:scale-105 hover:bg-red-500"
             >
               <Ticket className="size-4" />
               GET TICKETS
@@ -78,6 +85,22 @@ experience.
               {EVENT.location}
             </div>
           </div>
+           <div className="mt-10 flex flex-wrap gap-8 text-white">
+  <div>
+    <p className="text-3xl font-bold">100+</p>
+    <p className="text-sm text-white/70 uppercase">Performance Cars</p>
+  </div>
+
+  <div>
+    <p className="text-3xl font-bold">5,000+</p>
+    <p className="text-sm text-white/70 uppercase">Attendees</p>
+  </div>
+
+  <div>
+    <p className="text-3xl font-bold">1</p>
+    <p className="text-sm text-white/70 uppercase">Epic Experience</p>
+  </div>
+</div>
 
           <div
             className="animate-fade-up mt-12"
