@@ -1,11 +1,15 @@
 import { Reveal } from './reveal'
 
-const STATS = [
-  { value: '3', label: 'Days of racing' },
-  { value: '40+', label: 'Pro drivers & riders' },
-  { value: '120', label: 'Machines on display' },
-  { value: '50K', label: 'Expected attendees' },
-]
+const TITLE = "Where Horsepower Meets Culture"
+
+const DESCRIPTION = `
+TOR'Q is Africa's premier automotive festival, bringing together drifting,
+burnout battles, superbikes, luxury vehicles, live music, fashion,
+gaming, food and creator culture in one unforgettable experience.
+
+More than an event, TOR'Q is a celebration of speed, style, engineering
+and entertainment.
+`
 
 export function About() {
   return (
