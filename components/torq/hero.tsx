@@ -17,7 +17,7 @@ export function Hero() {
       {/* Background image */}
       <div className="absolute inset-0">
         <Image
-  src="/images/hero/hero.jpg"
+  src="/images/hero-drift-red-mustang.webp"
   alt="TOR'Q Burnout"
   fill
   priority
