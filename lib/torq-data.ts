@@ -14,43 +14,39 @@ export type Experience = {
   tag: string
 }
 
-export const EXPERIENCES: Experience[] = [
+export const EXPERIENCES = [
   {
-    title: 'Drift Experience',
-    tag: 'Track',
+    title: "Cars on the Runway",
     description:
-      'Feel the g-force as professional drivers slide 700bhp machines inches from the apex in a symphony of smoke and controlled chaos.',
-    image: '/images/exp-drift.png',
+      "A curated exhibition where engineering meets artistry. Discover the world's most desirable machines up close.",
+    image: "/images/exp-supercar.png",
   },
   {
-    title: 'Bike Stunts',
-    tag: 'Arena',
+    title: "Drift Theatre",
     description:
-      'World-champion freestyle riders defy gravity with wheelies, backflips and burnouts in the floodlit stunt arena.',
-    image: '/images/exp-bike.png',
+      "Professional drift drivers perform precision smoke shows and synchronized tandem drifting.",
+    image: "/images/exp-drift.png",
   },
   {
-    title: 'Supercar Showcase',
-    tag: 'Paddock',
+    title: "Stunt District",
     description:
-      'An open-air gallery of the rarest hypercars on earth, each one lit like a sculpture and ready to roar.',
-    image: '/images/exp-supercar.png',
+      "High-energy motorcycle stunt performances featuring wheelies, stoppies and freestyle tricks.",
+    image: "/images/exp-bike.png",
   },
   {
-    title: 'Sim Racing',
-    tag: 'Esports',
+    title: "TOR'Q Lounge",
     description:
-      'Compete on motion-rig simulators against the fastest virtual drivers and chase a place on the leaderboard.',
-    image: '/images/exp-sim.png',
+      "Premium hospitality with the best views, networking opportunities and luxury experiences.",
+    image: "/images/exp-vip.png",
   },
   {
-    title: 'VIP Lounge',
-    tag: 'Hospitality',
+    title: "Simulator Championship",
     description:
-      'Trackside luxury with champagne service, private viewing decks and access to the drivers behind the wheel.',
-    image: '/images/exp-vip.png',
+      "Nigeria's best sim racers compete in a live esports motorsport championship before thousands of spectators.",
+    image: "/images/exp-sim.png",
   },
 ]
+  
 
 export const GALLERY = [
   { src: '/images/gallery-1.png', alt: 'Crowd watching cars at golden hour' },
