@@ -20,24 +20,22 @@ export function About() {
             <p className="font-display text-sm tracking-[0.3em] text-accent uppercase">
               About the festival
             </p>
-            <h2 className="font-display mt-4 text-4xl font-bold tracking-tight text-balance sm:text-5xl">
-              Where engineering becomes{' '}
-              <span className="text-primary">art</span>
-            </h2>
+            <h2 className="font-display mt-4 text-4xl font-bold">
+    Not Just an Event.
+    <br />
+    A Motorsport Experience.
+</h2>
             <div className="mt-6 space-y-4 text-base leading-relaxed text-muted-foreground">
               <p>
-                TOR&apos;Q is a premium motorsport festival built for those who
-                see beauty in the burnout. Inspired by the grandeur of Formula
-                One and the heritage of the Goodwood Festival of Speed, we bring
-                together the world&apos;s finest drivers, riders and machines
-                for three unforgettable days.
-              </p>
+TOR'Q is where engineering meets artistry, and speed meets culture.
+
+Created for enthusiasts, collectors, manufacturers and curious newcomers alike, TOR'Q brings together the machines, the people and the stories shaping Africa's motorsport movement.
+</p>
               <p>
-                From tire-shredding drift battles to gravity-defying stunt shows
-                and a paddock of the rarest hypercars alive, every moment is
-                choreographed like a performance — because to us, motorsport has
-                always been an art form.
-              </p>
+From tyre-smoking drift demonstrations and precision stunt riding to luxury automotive showcases, simulator championships and immersive brand experiences, every moment is designed to celebrate the beauty of performance.
+
+In a world obsessed with speed, TOR'Q invites you to slow down, look closer and appreciate the engineering, craftsmanship and passion behind every machine.
+</p>
             </div>
 
             <dl className="mt-10 grid grid-cols-2 gap-6 sm:grid-cols-4">
