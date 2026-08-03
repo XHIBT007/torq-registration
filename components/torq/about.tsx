@@ -1,14 +1,15 @@
 import { Reveal } from './reveal'
 
-const TITLE = "Where Horsepower Meets Culture"
+const TITLE = "Africa's Motorsport Festival"
 
 const DESCRIPTION = `
-TOR'Q is Africa's premier automotive festival, bringing together drifting,
-burnout battles, superbikes, luxury vehicles, live music, fashion,
-gaming, food and creator culture in one unforgettable experience.
+TOR'Q is where horsepower meets culture.
 
-More than an event, TOR'Q is a celebration of speed, style, engineering
-and entertainment.
+Created for people who believe motorsport deserves more than a parking lot, TOR'Q brings together drifting, burnouts, stunt riding, supercars, sim racing, music, fashion, food and creator culture into one unforgettable destination.
+
+Every arena is carefully designed to immerse guests in a different side of automotive passion—from tire smoke and precision driving to luxury vehicles and cutting-edge gaming.
+
+More than an event, TOR'Q is creating a new culture for African motorsport.
 `
 
 export function About() {
@@ -18,7 +19,7 @@ export function About() {
         <div className="grid items-center gap-12 lg:grid-cols-2 lg:gap-16">
           <Reveal>
             <p className="font-display text-sm tracking-[0.3em] text-accent uppercase">
-              About the festival
+              Africa's Biggest Motorsport Experience
             </p>
             <h2 className="font-display mt-4 text-4xl font-bold">
     Not Just an Event.
@@ -27,14 +28,10 @@ export function About() {
 </h2>
             <div className="mt-6 space-y-4 text-base leading-relaxed text-muted-foreground">
               <p>
-TOR'Q is where engineering meets artistry, and speed meets culture.
-
-Created for enthusiasts, collectors, manufacturers and curious newcomers alike, TOR'Q brings together the machines, the people and the stories shaping Africa's motorsport movement.
+TOR'Q is Africa's premier motorsport festival, bringing together drifting, burnouts, stunt riding, luxury automobiles, motorsport simulators, music, food, fashion and creator culture into one unforgettable destination.
 </p>
               <p>
-From tyre-smoking drift demonstrations and precision stunt riding to luxury automotive showcases, simulator championships and immersive brand experiences, every moment is designed to celebrate the beauty of performance.
-
-In a world obsessed with speed, TOR'Q invites you to slow down, look closer and appreciate the engineering, craftsmanship and passion behind every machine.
+Designed to inspire enthusiasts and newcomers alike, TOR'Q transforms motorsport into a shared cultural experience—where every arena tells a different story and every visitor becomes part of the spectacle.
 </p>
             </div>
 
