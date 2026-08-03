@@ -111,7 +111,7 @@ export function Hero() {
             </p>
             <Countdown date={EVENT.date} />
           </div>
-        </div>
+    
       </div>
 
       <a
