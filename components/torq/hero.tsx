@@ -5,7 +5,6 @@ import { EVENT } from '@/lib/torq-data'
 import { ChevronDown, MapPin, Ticket } from 'lucide-react'
 import { Countdown } from './countdown'
 import { useRegistration } from './registration'
-import Image from 'next/image'
 export function Hero() {
   const { open } = useRegistration()
 
@@ -40,23 +39,7 @@ export function Hero() {
     Lagos • December 2026
   </span>
 </div>
-         <h1 className="animate-fade-up text-5xl font-black uppercase leading-none tracking-tight text-white md:text-7xl lg:text-8xl">
-  AFRICA'S BIGGEST
-  <span className="block text-red-500">
-    MOTORSPORT
-  </span>
-  SPECTACLE
-<h1 className="animate-fade-up text-5xl font-black uppercase leading-[0.9] md:text-7xl lg:text-8xl">
-  <span className="bg-gradient-to-r from-white via-white to-red-500 bg-clip-text text-transparent">
-    AFRICA'S BIGGEST
-  </span>
-  <br />
-  <span className="text-red-500">
-    MOTORSPORT
-  </span>
-  <br />
-  <span className="text-white">
-    SPECTACLE
+         
   </span>
 </h1>
 
@@ -110,8 +93,7 @@ export function Hero() {
               Lights out in
             </p>
             <Countdown date={EVENT.date} />
-          </div>
-    
+          </div>    
       </div>
 
       <a
