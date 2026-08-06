@@ -39,10 +39,23 @@ export function Hero() {
     Lagos • December 2026
   </span>
 </div>
-         
+<h1 className="animate-fade-up mt-6 text-5xl font-black uppercase leading-[0.9] md:text-7xl lg:text-8xl">
+  <span className="bg-gradient-to-r from-white via-white to-red-500 bg-clip-text text-transparent">
+    AFRICA'S BIGGEST
+  </span>
+
+  <br />
+
+  <span className="text-red-500">
+    MOTORSPORT
+  </span>
+
+  <br />
+
+  <span className="text-white">
+    SPECTACLE
   </span>
 </h1>
-
           <p
             className="animate-fade-up mt-6 max-w-xl text-base leading-relaxed text-muted-foreground sm:text-lg"
             style={{ animationDelay: '240ms' }}
@@ -93,7 +106,9 @@ export function Hero() {
               Lights out in
             </p>
             <Countdown date={EVENT.date} />
-          </div>    
+          </div>  
+          </div> 
+        
       </div>
 
       <a
