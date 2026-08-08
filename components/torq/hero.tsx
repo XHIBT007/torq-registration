@@ -14,7 +14,7 @@ export function Hero() {
       id="top"
       className="relative flex min-h-screen items-center overflow-hidden bg-black"
     >
-      {/* Background */}
+      {/* Background image */}
       <div className="absolute inset-0">
         <img
           src="/images/hero-drift-red-mustang.webp"
@@ -27,23 +27,23 @@ export function Hero() {
         <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-black/20" />
       </div>
 
-      {/* Content */}
+      {/* Main content */}
       <div className="relative z-10 mx-auto w-full max-w-7xl px-6 py-32">
-
         <div className="max-w-3xl">
 
+          {/* Location / Date */}
           <div className="mb-6 inline-flex items-center rounded-full border border-red-500/40 bg-black/40 px-5 py-2 backdrop-blur-md">
-            <span className="mr-2 h-2 w-2 rounded-full bg-red-500"></span>
+            <span className="mr-2 h-2 w-2 rounded-full bg-red-500" />
 
             <span className="text-sm font-semibold uppercase tracking-[0.25em] text-white">
               Lagos • December 2026
             </span>
           </div>
 
+          {/* Main headline */}
           <h1 className="text-5xl font-black uppercase leading-[0.9] tracking-tight text-white md:text-7xl lg:text-8xl">
-
             <span className="block">
-              AFRICA'S BIGGEST
+              AFRICA&apos;S BIGGEST
             </span>
 
             <span className="block text-red-500">
@@ -53,15 +53,17 @@ export function Hero() {
             <span className="block">
               SPECTACLE
             </span>
-
           </h1>
 
+          {/* Description */}
           <p className="mt-8 max-w-2xl text-lg leading-8 text-gray-300">
             A cinematic celebration of speed, sound and precision where
             drifting legends, stunt riders, performance cars and motorsport
             culture collide for one unforgettable weekend.
           </p>
-                    <div className="mt-10 flex flex-col gap-5 sm:flex-row sm:items-center">
+
+          {/* CTA */}
+          <div className="mt-10 flex flex-col gap-5 sm:flex-row sm:items-center">
 
             <Button
               size="lg"
@@ -79,12 +81,14 @@ export function Hero() {
 
           </div>
 
+          {/* Event statistics */}
           <div className="mt-14 grid grid-cols-3 gap-8 border-t border-white/10 pt-8">
 
             <div>
               <p className="text-4xl font-black text-white">
                 100+
               </p>
+
               <p className="mt-2 text-xs uppercase tracking-[0.25em] text-white/60">
                 Performance Cars
               </p>
@@ -94,6 +98,7 @@ export function Hero() {
               <p className="text-4xl font-black text-white">
                 5,000+
               </p>
+
               <p className="mt-2 text-xs uppercase tracking-[0.25em] text-white/60">
                 Attendees
               </p>
@@ -103,6 +108,7 @@ export function Hero() {
               <p className="text-4xl font-black text-white">
                 1
               </p>
+
               <p className="mt-2 text-xs uppercase tracking-[0.25em] text-white/60">
                 Epic Experience
               </p>
@@ -110,16 +116,21 @@ export function Hero() {
 
           </div>
 
+          {/* Countdown */}
           <div className="mt-14">
+
             <p className="mb-4 text-xs uppercase tracking-[0.35em] text-white/50">
               Lights Out In
             </p>
 
             <Countdown date={EVENT.date} />
+
           </div>
-                  </div>
+
+        </div>
       </div>
 
+      {/* Scroll indicator */}
       <a
         href="#about"
         aria-label="Scroll to About"
@@ -127,6 +138,7 @@ export function Hero() {
       >
         <ChevronDown className="h-8 w-8 animate-bounce" />
       </a>
+
     </section>
   )
 }
