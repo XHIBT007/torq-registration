@@ -11,7 +11,24 @@ Every arena is carefully designed to immerse guests in a different side of autom
 
 More than an event, TOR'Q is creating a new culture for African motorsport.
 `
-
+const STATS = [
+  {
+    value: '100+',
+    label: 'Performance Cars',
+  },
+  {
+    value: '50+',
+    label: 'Drivers & Riders',
+  },
+  {
+    value: '3',
+    label: 'Days of Action',
+  },
+  {
+    value: '1',
+    label: 'Epic Experience',
+  },
+]
 export function About() {
   return (
     <section id="about" className="relative py-24 sm:py-32">
