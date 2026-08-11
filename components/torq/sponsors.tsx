@@ -1,5 +1,4 @@
-import Image from "next/image"
-import { SPONSORS } from "@/lib/torq-data"
+import { SPONSORS } from '@/lib/torq-data'
 
 export function Sponsors() {
   const row = [...SPONSORS, ...SPONSORS]
@@ -7,60 +6,65 @@ export function Sponsors() {
   return (
     <section
       id="sponsors"
-      className="relative overflow-hidden border-y border-white/10 bg-black py-20 md:py-28"
+      className="relative overflow-hidden border-y border-white/10 py-24 md:py-32"
     >
       <div className="mx-auto max-w-7xl px-6 md:px-10">
-        {/* Header */}
-        <div className="mb-12 text-center md:mb-16">
-          <p className="mb-4 text-xs font-bold uppercase tracking-[0.35em] text-red-500">
+
+        {/* Heading */}
+        <div className="mx-auto max-w-3xl text-center">
+          <p className="text-sm font-bold uppercase tracking-[0.45em] text-red-500">
             The Partners
           </p>
 
-          <h2 className="font-display text-4xl font-black uppercase leading-none tracking-tight text-white md:text-6xl">
-            POWERED BY
+          <h2 className="mt-6 font-display text-5xl font-black uppercase leading-[0.9] tracking-tight text-white md:text-7xl">
+            Powered By
             <br />
-            <span className="text-red-500">THE BEST.</span>
+            <span className="text-red-500">The Best.</span>
           </h2>
 
-          <p className="mx-auto mt-6 max-w-2xl text-base leading-7 text-white/50 md:text-lg">
+          <p className="mt-8 text-lg leading-relaxed text-white/55 md:text-xl">
             TOR&apos;Q is made possible by brands that believe in
-            performance, culture, innovation and unforgettable experiences.
+            performance, culture, innovation and unforgettable
+            experiences.
           </p>
         </div>
 
         {/* Sponsor marquee */}
-        <div className="relative overflow-hidden">
+        <div className="relative mt-16 overflow-hidden">
+          
           {/* Fade edges */}
-          <div className="pointer-events-none absolute left-0 top-0 z-10 h-full w-20 bg-gradient-to-r from-black to-transparent md:w-40" />
-          <div className="pointer-events-none absolute right-0 top-0 z-10 h-full w-20 bg-gradient-to-l from-black to-transparent md:w-40" />
+          <div className="pointer-events-none absolute left-0 top-0 z-10 h-full w-24 bg-gradient-to-r from-black to-transparent" />
+          <div className="pointer-events-none absolute right-0 top-0 z-10 h-full w-24 bg-gradient-to-l from-black to-transparent" />
 
-          <div className="flex w-max animate-marquee items-center gap-6">
-            {row.map((sponsor, index) => (
+          <div className="flex w-max animate-marquee gap-6">
+            {row.map((name, i) => (
               <div
-                key={`${sponsor}-${index}`}
-                className="group flex h-28 w-48 items-center justify-center rounded-2xl border border-white/10 bg-white/[0.03] px-8 transition-all duration-300 hover:border-white/20 hover:bg-white/[0.06] md:h-36 md:w-64"
+                key={`${name}-${i}`}
+                className="flex h-36 w-64 shrink-0 items-center justify-center rounded-2xl border border-white/10 bg-white/[0.02] px-8 transition-all duration-300 hover:border-red-500/40 hover:bg-white/[0.04]"
               >
-                <span className="text-center text-sm font-bold uppercase tracking-[0.2em] text-white/50 transition-colors duration-300 group-hover:text-white md:text-base">
-                  {sponsor}
+                <span className="text-center text-xl font-bold uppercase tracking-[0.2em] text-white/70">
+                  {name}
                 </span>
               </div>
             ))}
           </div>
         </div>
 
-        {/* Bottom statement */}
-        <div className="mt-16 border-t border-white/10 pt-8 text-center">
-          <p className="text-xs uppercase tracking-[0.3em] text-white/30">
+        {/* Partnership CTA */}
+        <div className="mt-20 border-t border-white/10 pt-10 text-center">
+          <p className="text-sm uppercase tracking-[0.3em] text-white/35">
             Interested in partnering with TOR&apos;Q?
           </p>
 
           <a
             href="#contact"
-            className="mt-3 inline-block text-sm font-bold uppercase tracking-widest text-white transition-colors hover:text-red-500"
+            className="mt-5 inline-flex items-center gap-3 text-lg font-bold uppercase tracking-wide text-white transition-colors hover:text-red-500"
           >
-            Become a partner →
+            Become a partner
+            <span className="text-red-500">↗</span>
           </a>
         </div>
+
       </div>
     </section>
   )
