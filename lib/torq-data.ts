@@ -72,31 +72,39 @@ export const SPONSORS = [
 ]
 
 export const FAQS = [
-{
-  q: "When and where does TOR'Q take place?",
-  a: "TOR'Q takes place on December 6, 2026 in Lagos, Nigeria. Full venue and access details will be announced ahead of the event.",
-},
-{
-  q: "What is included in a general admission ticket?",
-  a: "General admission grants access to the main TOR'Q experience, including the drift displays, performance cars, live stunt shows, entertainment and other public areas.",
-},
-    q: 'Can I participate as a driver or rider?',
-    a: 'Yes. Select your participant type during registration. Drivers and riders must hold a valid competition licence and will be contacted by our scrutineering team.',
+  {
+    q: "When and where does TOR'Q take place?",
+    a: "TOR'Q takes place on December 6, 2026 in Lagos, Nigeria. Full venue and access details will be announced ahead of the event.",
   },
   {
-    q: 'Is there parking and camping on site?',
-    a: 'Complimentary parking is available, and premium camping pods can be added to any registration while spaces last.',
+    q: "What is included in a general admission ticket?",
+    a: "General admission grants access to the main TOR'Q experience, including the drift displays, performance cars, live stunt shows, entertainment and other public areas.",
   },
   {
-    q: 'What does the VIP experience include?',
-    a: 'The VIP Lounge offers trackside hospitality, gourmet catering, champagne service, priority paddock access and meet-and-greets with headline drivers.',
+    q: "Can I participate as a driver or rider?",
+    a: "Yes. Select your participant type during registration. Drivers and riders must meet TOR'Q safety and eligibility requirements before participating.",
   },
   {
-    q: 'What is your refund policy?',
-    a: 'Registrations are fully refundable up to 30 days before the event. After that, they can be transferred to another attendee free of charge.',
+    q: "Is TOR'Q a racing event?",
+    a: "TOR'Q is not a conventional racing event. It is a celebration of motorsport culture featuring drifting, burnouts, stunt riding, performance cars, sim racing, music and immersive experiences.",
+  },
+  {
+    q: "Can I bring my family?",
+    a: "Yes. TOR'Q is designed as a celebration of motorsport culture for enthusiasts, friends and families. Specific age and access requirements will be communicated ahead of the event.",
+  },
+  {
+    q: "Can I display my car at TOR'Q?",
+    a: "Yes. Vehicle display opportunities will be available for selected performance, modified, classic and enthusiast vehicles. Details on applications and eligibility will be announced.",
+  },
+  {
+    q: "How can brands partner with TOR'Q?",
+    a: "Brands can partner with TOR'Q through sponsorships, experience partnerships, media partnerships and branded activations. Contact the TOR'Q team to discuss partnership opportunities.",
+  },
+  {
+    q: "How do I get tickets?",
+    a: "Ticket registration and purchase information will be announced through the official TOR'Q channels. Stay connected for ticket release announcements.",
   },
 ]
-
 export const PARTICIPANT_TYPES = [
   'Driver',
   'Rider',
