@@ -135,11 +135,32 @@ function RegistrationDialog({ onClose }: { onClose: () => void }) {
     return false
   }, [step, form])
 
-  const handleSubmit = () => {
-    const n = Math.floor(Math.random() * 999999) + 1
-    setRegNumber(`TORQ-2026-${String(n).padStart(6, '0')}`)
-    setSubmitted(true)
+  const handleSubmit = async () => {
+  const n = Math.floor(Math.random() * 999999) + 1
+  const registrationNumber = `TORQ-2026-${String(n).padStart(6, '0')}`
+
+  const { error } = await supabase.from('registrations').insert({
+    full_name: form.fullName,
+    email: form.email,
+    phone: form.phone,
+    city: form.city,
+    participant_type: form.participantType,
+    emergency_contact: form.emergencyContact,
+    vehicle_make: form.vehicleMake || null,
+    vehicle_model: form.vehicleModel || null,
+    instagram: form.instagram || null,
+    registration_number: registrationNumber,
+  })
+
+  if (error) {
+    console.error('Registration error:', error)
+    alert('Registration could not be completed. Please try again.')
+    return
   }
+
+  setRegNumber(registrationNumber)
+  setSubmitted(true)
+}
 
   const copyNumber = () => {
     navigator.clipboard?.writeText(regNumber).then(() => {
