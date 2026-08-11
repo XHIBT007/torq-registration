@@ -1,10 +1,13 @@
 export const EVENT = {
   name: "TOR'Q",
-  tagline: 'Artistry in Motorsport',
+  tagline: "Artistry in Motorsport",
+
   // Event day used for the countdown
-  date: '2026-11-14T10:00:00',
-  dateLabel: 'November 14–16, 2026',
-  location: 'Silverstone Grand Circuit, United Kingdom',
+  date: "2026-12-06T10:00:00",
+
+  dateLabel: "December 6, 2026",
+
+  location: "Lagos, Nigeria",
 }
 
 export type Experience = {
@@ -70,10 +73,9 @@ export const SPONSORS = [
 
 export const FAQS = [
   {
-    q: 'When and where does TOR\u2019Q take place?',
-    a: 'TOR\u2019Q runs November 14\u201316, 2026 at the Silverstone Grand Circuit in the United Kingdom. Gates open at 09:00 each day.',
-  },
-  {
+  q: "When and where does TOR'Q take place?",
+  a: "TOR'Q takes place on December 6, 2026 in Lagos, Nigeria. Full venue and access details will be announced ahead of the event.",
+},
     q: 'What is included in a general admission ticket?',
     a: 'General admission grants access to the drift track grandstands, the supercar paddock, the stunt arena and the sim-racing zone across all three days.',
   },
