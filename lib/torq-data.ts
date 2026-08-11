@@ -72,14 +72,14 @@ export const SPONSORS = [
 ]
 
 export const FAQS = [
-  {
+{
   q: "When and where does TOR'Q take place?",
   a: "TOR'Q takes place on December 6, 2026 in Lagos, Nigeria. Full venue and access details will be announced ahead of the event.",
 },
-    q: 'What is included in a general admission ticket?',
-    a: 'General admission grants access to the drift track grandstands, the supercar paddock, the stunt arena and the sim-racing zone across all three days.',
-  },
-  {
+{
+  q: "What is included in a general admission ticket?",
+  a: "General admission grants access to the main TOR'Q experience, including the drift displays, performance cars, live stunt shows, entertainment and other public areas.",
+},
     q: 'Can I participate as a driver or rider?',
     a: 'Yes. Select your participant type during registration. Drivers and riders must hold a valid competition licence and will be contacted by our scrutineering team.',
   },
