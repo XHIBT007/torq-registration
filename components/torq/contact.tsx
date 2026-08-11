@@ -7,12 +7,37 @@ import { Reveal } from './reveal'
 import { useRegistration } from './registration'
 
 const DETAILS = [
-  { icon: Mail, label: 'Email', value: 'hello@torq.events' },
-  { icon: Phone, label: 'Phone', value: '+44 20 7946 0000' },
-  { icon: MapPin, label: 'Venue', value: EVENT.location },
-  { icon: AtSign, label: 'Social', value: '@torq.motorsport' },
+  {
+    icon: Mail,
+    label: 'Email',
+    value: 'baiohpm007@gmail.com',
+  },
+  {
+    icon: Mail,
+    label: 'Email',
+    value: 'Adeniyie.b115@yahoo.com',
+  },
+  {
+    icon: Phone,
+    label: 'Phone',
+    value: '+234 903 018 8030',
+  },
+  {
+    icon: Phone,
+    label: 'Phone',
+    value: '+234 814 339 2465',
+  },
+  {
+    icon: MapPin,
+    label: 'Location',
+    value: 'Lagos, Nigeria',
+  },
+  {
+    icon: AtSign,
+    label: 'Social',
+    value: '@torq.motorsport',
+  },
 ]
-
 export function Contact() {
   const { open } = useRegistration()
 
