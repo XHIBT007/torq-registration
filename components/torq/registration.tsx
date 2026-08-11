@@ -2,6 +2,7 @@
 
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
+import { supabase } from '@/lib/supabase'
 import { PARTICIPANT_TYPES, type ParticipantType } from '@/lib/torq-data'
 import {
   Bike,
