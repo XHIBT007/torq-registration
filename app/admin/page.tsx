@@ -42,6 +42,8 @@ export default function AdminPage() {
   const [search, setSearch] = useState('')
   const [filter, setFilter] = useState('All')
   const [loading, setLoading] = useState(true)
+  const [selectedRegistration, setSelectedRegistration] =
+  useState<Registration | null>(null)
   
   async function handleLogout() {
   await supabase.auth.signOut()
@@ -264,10 +266,11 @@ const response = await fetch('/api/admin/registrations', {
                       ] || Users
 
                     return (
-                      <tr
-                        key={registration.id}
-                        className="transition hover:bg-white/[0.03]"
-                      >
+  <tr
+    key={registration.id}
+    onClick={() => setSelectedRegistration(registration)}
+    className="cursor-pointer transition hover:bg-white/5"
+  >
                         <td className="px-6 py-5">
                           <p className="font-mono text-sm font-semibold text-red-400">
                             {registration.registration_number || '—'}
@@ -315,6 +318,130 @@ const response = await fetch('/api/admin/registrations', {
           )}
         </section>
       </div>
+      {selectedRegistration && (
+  <div
+    className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 p-4 backdrop-blur-sm"
+    onClick={() => setSelectedRegistration(null)}
+  >
+    <div
+      className="relative max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-2xl border border-white/10 bg-[#111318] p-6 shadow-2xl"
+      onClick={(event) => event.stopPropagation()}
+    >
+      <button
+        onClick={() => setSelectedRegistration(null)}
+        className="absolute right-4 top-4 rounded-full border border-white/10 px-3 py-1 text-sm text-white/60 transition hover:bg-white/10 hover:text-white"
+      >
+        ✕
+      </button>
+
+      <div className="mb-6 pr-10">
+        <p className="text-xs uppercase tracking-[0.25em] text-red-500">
+          Registration Details
+        </p>
+
+        <h2 className="mt-2 text-2xl font-bold text-white">
+          {selectedRegistration.full_name}
+        </h2>
+
+        <p className="mt-1 text-sm text-white/50">
+          {selectedRegistration.registration_number || 'Registration number pending'}
+        </p>
+      </div>
+
+      <div className="grid gap-4 sm:grid-cols-2">
+
+        <div className="rounded-xl border border-white/10 bg-white/[0.03] p-4">
+          <p className="text-xs uppercase tracking-wider text-white/40">
+            Email
+          </p>
+          <p className="mt-1 break-all text-sm text-white">
+            {selectedRegistration.email}
+          </p>
+        </div>
+
+        <div className="rounded-xl border border-white/10 bg-white/[0.03] p-4">
+          <p className="text-xs uppercase tracking-wider text-white/40">
+            Phone
+          </p>
+          <p className="mt-1 text-sm text-white">
+            {selectedRegistration.phone || '—'}
+          </p>
+        </div>
+
+        <div className="rounded-xl border border-white/10 bg-white/[0.03] p-4">
+          <p className="text-xs uppercase tracking-wider text-white/40">
+            City
+          </p>
+          <p className="mt-1 text-sm text-white">
+            {selectedRegistration.city || '—'}
+          </p>
+        </div>
+
+        <div className="rounded-xl border border-white/10 bg-white/[0.03] p-4">
+          <p className="text-xs uppercase tracking-wider text-white/40">
+            Participant Type
+          </p>
+          <p className="mt-1 text-sm font-medium text-white">
+            {selectedRegistration.participant_type || '—'}
+          </p>
+        </div>
+
+        <div className="rounded-xl border border-white/10 bg-white/[0.03] p-4 sm:col-span-2">
+          <p className="text-xs uppercase tracking-wider text-white/40">
+            Emergency Contact
+          </p>
+          <p className="mt-1 text-sm text-white">
+            {selectedRegistration.emergency_contact || '—'}
+          </p>
+        </div>
+
+        <div className="rounded-xl border border-white/10 bg-white/[0.03] p-4">
+          <p className="text-xs uppercase tracking-wider text-white/40">
+            Vehicle Make
+          </p>
+          <p className="mt-1 text-sm text-white">
+            {selectedRegistration.vehicle_make || '—'}
+          </p>
+        </div>
+
+        <div className="rounded-xl border border-white/10 bg-white/[0.03] p-4">
+          <p className="text-xs uppercase tracking-wider text-white/40">
+            Vehicle Model
+          </p>
+          <p className="mt-1 text-sm text-white">
+            {selectedRegistration.vehicle_model || '—'}
+          </p>
+        </div>
+
+        <div className="rounded-xl border border-white/10 bg-white/[0.03] p-4 sm:col-span-2">
+          <p className="text-xs uppercase tracking-wider text-white/40">
+            Instagram
+          </p>
+          <p className="mt-1 text-sm text-white">
+            {selectedRegistration.instagram || '—'}
+          </p>
+        </div>
+
+        <div className="rounded-xl border border-white/10 bg-white/[0.03] p-4 sm:col-span-2">
+          <p className="text-xs uppercase tracking-wider text-white/40">
+            Registered
+          </p>
+          <p className="mt-1 text-sm text-white">
+            {new Date(selectedRegistration.created_at).toLocaleString()}
+          </p>
+        </div>
+
+      </div>
+
+      <button
+        onClick={() => setSelectedRegistration(null)}
+        className="mt-6 w-full rounded-xl bg-red-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-red-500"
+      >
+        Close
+      </button>
+    </div>
+  </div>
+)}
     </main>
   )
 }
