@@ -172,7 +172,8 @@ async function loadRegistrations() {
       </header>
 
       <div className="mx-auto max-w-7xl px-6 py-10">
-        {/* Stats */}
+{/* Stats */}
+<div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
   <StatCard
     label="Total Registrations"
     value={registrations.length}
@@ -280,10 +281,10 @@ async function loadRegistrations() {
                     <th className="px-6 py-4">Type</th>
                     <th className="px-6 py-4">City</th>
                     <th className="px-6 py-4">Vehicle</th>
-                    <th className="px-6 py-4">Date</th>
                     <th className="px-6 py-4 text-left">
   Status
 </th>
+<th className="px-6 py-4">Date</th>
                   </tr>
                 </thead>
 
