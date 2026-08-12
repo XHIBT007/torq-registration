@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { supabase } from '@/lib/supabase'
 import {
   Car,
   Bike,
@@ -47,7 +48,20 @@ export default function AdminPage() {
 
   async function loadRegistrations() {
     try {
-      const response = await fetch('/api/admin/registrations')
+      const {
+  data: { session },
+} = await supabase.auth.getSession()
+
+if (!session) {
+  window.location.href = '/admin/login'
+  return
+}
+
+const response = await fetch('/api/admin/registrations', {
+  headers: {
+    Authorization: `Bearer ${session.access_token}`,
+  },
+})
 
       if (!response.ok) {
         throw new Error('Failed to load registrations')
