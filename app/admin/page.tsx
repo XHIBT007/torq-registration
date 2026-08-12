@@ -61,10 +61,10 @@ async function updateStatus(
     .eq('id', registrationId)
 
   if (error) {
-    alert('Unable to update registration status')
-    console.error(error)
-    return
-  }
+  alert(`Status update failed: ${error.message}`)
+  console.error(error)
+  return
+}
 
   setRegistrations((current) =>
     current.map((registration) =>
