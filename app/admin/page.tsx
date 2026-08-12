@@ -27,6 +27,7 @@ type Registration = {
   instagram: string | null
   registration_number: string | null
   created_at: string
+  status: 'Pending' | 'Approved' | 'Rejected'
 }
 
 const participantIcons: Record<string, any> = {
@@ -46,6 +47,54 @@ export default function AdminPage() {
   useState<Registration | null>(null)
   
   async function handleLogout() {
+  await supabase.auth.signOut()
+  window.location.href = '/admin/login'
+}
+
+async function updateStatus(
+  registrationId: string,
+  status: 'Pending' | 'Approved' | 'Rejected'
+) {
+  const { error } = await supabase
+    .from('registrations')
+    .update({ status })
+    .eq('id', registrationId)
+
+  if (error) {
+    alert('Unable to update registration status.')
+    console.error(error)
+    return
+  }
+
+  setRegistrations((current) =>
+    current.map((registration) =>
+      registration.id === registrationId
+        ? { ...registration, status }
+        : registration
+    )
+  )
+
+  setSelectedRegistration((current) =>
+    current && current.id === registrationId
+      ? { ...current, status }
+      : current
+  )
+}
+
+  setRegistrations((current) =>
+    current.map((registration) =>
+      registration.id === registrationId
+        ? { ...registration, status }
+        : registration
+    )
+  )
+
+  setSelectedRegistration((current) =>
+    current && current.id === registrationId
+      ? { ...current, status }
+      : current
+  )
+}
   await supabase.auth.signOut()
   window.location.href = '/admin/login'
 }
@@ -147,6 +196,52 @@ const response = await fetch('/api/admin/registrations', {
       <div className="mx-auto max-w-7xl px-6 py-10">
         {/* Stats */}
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="rounded-xl border border-white/10 bg-white/[0.03] p-4 sm:col-span-2">
+  <p className="text-xs uppercase tracking-wider text-white/40">
+    Registration Status
+  </p>
+
+  <div className="mt-3 flex flex-wrap gap-2">
+    <button
+      onClick={() =>
+        updateStatus(selectedRegistration.id, 'Pending')
+      }
+      className={`rounded-full px-4 py-2 text-xs font-semibold transition ${
+        selectedRegistration.status === 'Pending'
+          ? 'bg-yellow-500 text-black'
+          : 'border border-white/10 text-white/60 hover:bg-white/10'
+      }`}
+    >
+      Pending
+    </button>
+
+    <button
+      onClick={() =>
+        updateStatus(selectedRegistration.id, 'Approved')
+      }
+      className={`rounded-full px-4 py-2 text-xs font-semibold transition ${
+        selectedRegistration.status === 'Approved'
+          ? 'bg-green-500 text-black'
+          : 'border border-white/10 text-white/60 hover:bg-white/10'
+      }`}
+    >
+      Approved
+    </button>
+
+    <button
+      onClick={() =>
+        updateStatus(selectedRegistration.id, 'Rejected')
+      }
+      className={`rounded-full px-4 py-2 text-xs font-semibold transition ${
+        selectedRegistration.status === 'Rejected'
+          ? 'bg-red-600 text-white'
+          : 'border border-white/10 text-white/60 hover:bg-white/10'
+      }`}
+    >
+      Rejected
+    </button>
+  </div>
+</div>
   <StatCard
     label="Total Registrations"
     value={registrations.length}
@@ -255,6 +350,9 @@ const response = await fetch('/api/admin/registrations', {
                     <th className="px-6 py-4">City</th>
                     <th className="px-6 py-4">Vehicle</th>
                     <th className="px-6 py-4">Date</th>
+                    <th className="px-6 py-4 text-left">
+  Status
+</th>
                   </tr>
                 </thead>
 
@@ -303,6 +401,19 @@ const response = await fetch('/api/admin/registrations', {
                             ? `${registration.vehicle_make} ${registration.vehicle_model || ''}`
                             : '—'}
                         </td>
+    <td className="px-6 py-4">
+  <span
+    className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${
+      registration.status === 'Approved'
+        ? 'bg-green-500/15 text-green-400'
+        : registration.status === 'Rejected'
+          ? 'bg-red-500/15 text-red-400'
+          : 'bg-yellow-500/15 text-yellow-400'
+    }`}
+  >
+    {registration.status || 'Pending'}
+  </span>
+</td>
 
                         <td className="px-6 py-5 text-sm text-white/40">
                           {new Date(
