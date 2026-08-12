@@ -122,7 +122,7 @@ const response = await fetch('/api/admin/registrations', {
             </h1>
           </div>
 
-          <<div className="flex items-center gap-3">
+          <div className="flex items-center gap-3">
   <a
     href="/"
     className="flex items-center gap-2 rounded-full border border-white/10 px-4 py-2 text-sm text-white/70 transition hover:border-red-500 hover:text-white"
