@@ -61,7 +61,7 @@ async function updateStatus(
     .eq('id', registrationId)
 
   if (error) {
-    alert('Unable to update registration status.')
+    alert('Unable to update registration status')
     console.error(error)
     return
   }
@@ -81,59 +81,37 @@ async function updateStatus(
   )
 }
 
-  setRegistrations((current) =>
-    current.map((registration) =>
-      registration.id === registrationId
-        ? { ...registration, status }
-        : registration
-    )
-  )
+useEffect(() => {
+  loadRegistrations()
+}, [])
 
-  setSelectedRegistration((current) =>
-    current && current.id === registrationId
-      ? { ...current, status }
-      : current
-  )
-}
-  await supabase.auth.signOut()
-  window.location.href = '/admin/login'
-}
+async function loadRegistrations() {
+  try {
+    const sessionResponse = await supabase.auth.getSession()
+    const session = sessionResponse.data.session
 
-  useEffect(() => {
-    loadRegistrations()
-  }, [])
-
-  async function loadRegistrations() {
-    try {
-      const {
-  data: { session },
-} = await supabase.auth.getSession()
-
-if (!session) {
-  window.location.href = '/admin/login'
-  return
-}
-
-const response = await fetch('/api/admin/registrations', {
-  headers: {
-    Authorization: `Bearer ${session.access_token}`,
-  },
-})
-
-      if (!response.ok) {
-        throw new Error('Failed to load registrations')
-      }
-
-      const data = await response.json()
-
-      setRegistrations(data)
-    } catch (error) {
-      console.error(error)
-    } finally {
-      setLoading(false)
+    if (!session) {
+      window.location.href = '/admin/login'
+      return
     }
-  }
 
+    const response = await fetch('/api/admin/registrations', {
+      headers: {Authorization: `Bearer ${session.access_token}`,
+      },
+    })
+
+    if (!response.ok) {
+      throw new Error('Failed to load registrations')
+    }
+
+    const data = await response.json()
+    setRegistrations(data)
+  } catch (error) {
+    console.error(error)
+  } finally {
+    setLoading(false)
+  }
+}
   const filteredRegistrations = registrations.filter((registration) => {
     const matchesSearch =
       registration.full_name
