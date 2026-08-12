@@ -144,37 +144,43 @@ const response = await fetch('/api/admin/registrations', {
 
       <div className="mx-auto max-w-7xl px-6 py-10">
         {/* Stats */}
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
-          <StatCard
-            label="Total Registrations"
-            value={registrations.length}
-            icon={Users}
-          />
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+  <StatCard
+    label="Total Registrations"
+    value={registrations.length}
+    icon={Users}
+  />
 
-          <StatCard
-            label="Spectators"
-            value={count('Spectator')}
-            icon={Eye}
-          />
+  <StatCard
+    label="Drivers"
+    value={count('Driver')}
+    icon={Car}
+  />
 
-          <StatCard
-            label="Drivers"
-            value={count('Driver')}
-            icon={Car}
-          />
+  <StatCard
+    label="Riders"
+    value={count('Rider')}
+    icon={Bike}
+  />
 
-          <StatCard
-            label="Riders"
-            value={count('Rider')}
-            icon={Bike}
-          />
+  <StatCard
+    label="Spectators"
+    value={count('Spectator')}
+    icon={Eye}
+  />
 
-          <StatCard
-            label="VIP"
-            value={count('VIP')}
-            icon={Crown}
-          />
-        </div>
+  <StatCard
+    label="VIP"
+    value={count('VIP')}
+    icon={Crown}
+  />
+
+  <StatCard
+    label="Sim Racers"
+    value={count('Sim Racer')}
+    icon={Gamepad2}
+  />
+</div>
 
         {/* Controls */}
         <div className="mt-10 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
