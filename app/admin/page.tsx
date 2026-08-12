@@ -11,6 +11,7 @@ import {
   Search,
   Users,
   ArrowLeft,
+  LogOut,
 } from 'lucide-react'
 
 type Registration = {
@@ -41,6 +42,11 @@ export default function AdminPage() {
   const [search, setSearch] = useState('')
   const [filter, setFilter] = useState('All')
   const [loading, setLoading] = useState(true)
+  
+  async function handleLogout() {
+  await supabase.auth.signOut()
+  window.location.href = '/admin/login'
+}
 
   useEffect(() => {
     loadRegistrations()
@@ -116,13 +122,23 @@ const response = await fetch('/api/admin/registrations', {
             </h1>
           </div>
 
-          <a
-            href="/"
-            className="flex items-center gap-2 rounded-full border border-white/10 px-4 py-2 text-sm text-white/70 transition hover:border-red-500 hover:text-white"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            Website
-          </a>
+          <<div className="flex items-center gap-3">
+  <a
+    href="/"
+    className="flex items-center gap-2 rounded-full border border-white/10 px-4 py-2 text-sm text-white/70 transition hover:border-red-500 hover:text-white"
+  >
+    <ArrowLeft className="h-4 w-4" />
+    Website
+  </a>
+
+  <button
+    onClick={handleLogout}
+    className="flex items-center gap-2 rounded-full border border-white/10 px-4 py-2 text-sm text-white/70 transition hover:border-red-500 hover:text-white"
+  >
+    <LogOut className="h-4 w-4" />
+    Logout
+  </button>
+</div>
         </div>
       </header>
 
