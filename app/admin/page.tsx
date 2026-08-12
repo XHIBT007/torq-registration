@@ -521,6 +521,52 @@ async function loadRegistrations() {
         </div>
 
       </div>
+      <div className="mt-6 rounded-xl border border-white/10 bg-white/[0.03] p-4">
+  <p className="text-xs uppercase tracking-wider text-white/40">
+    Registration Status
+  </p>
+
+  <div className="mt-3 flex flex-wrap gap-2">
+    <button
+      onClick={() =>
+        updateStatus(selectedRegistration.id, 'Pending')
+      }
+      className={`rounded-full px-4 py-2 text-xs font-semibold transition ${
+        selectedRegistration.status === 'Pending'
+          ? 'bg-yellow-500 text-black'
+          : 'border border-white/10 text-white/60 hover:bg-white/10'
+      }`}
+    >
+      Pending
+    </button>
+
+    <button
+      onClick={() =>
+        updateStatus(selectedRegistration.id, 'Approved')
+      }
+      className={`rounded-full px-4 py-2 text-xs font-semibold transition ${
+        selectedRegistration.status === 'Approved'
+          ? 'bg-green-500 text-black'
+          : 'border border-white/10 text-white/60 hover:bg-white/10'
+      }`}
+    >
+      Approved
+    </button>
+
+    <button
+      onClick={() =>
+        updateStatus(selectedRegistration.id, 'Rejected')
+      }
+      className={`rounded-full px-4 py-2 text-xs font-semibold transition ${
+        selectedRegistration.status === 'Rejected'
+          ? 'bg-red-600 text-white'
+          : 'border border-white/10 text-white/60 hover:bg-white/10'
+      }`}
+    >
+      Rejected
+    </button>
+  </div>
+</div>
 
       <button
         onClick={() => setSelectedRegistration(null)}
