@@ -135,6 +135,70 @@ const matchesStatus =
 
 return matchesSearch && matchesFilter && matchesStatus
   })
+ const exportRegistrations = () => {
+  if (filteredRegistrations.length === 0) {
+    alert('There are no registrations to export.')
+    return
+  }
+
+  const headers = [
+    'Registration Number',
+    'Full Name',
+    'Email',
+    'Phone',
+    'City',
+    'Participant Type',
+    'Status',
+    'Vehicle Make',
+    'Vehicle Model',
+    'Instagram',
+    'Emergency Contact',
+    'Registered At',
+  ]
+
+  const rows = filteredRegistrations.map((registration) => [
+    registration.registration_number || '',
+    registration.full_name || '',
+    registration.email || '',
+    registration.phone || '',
+    registration.city || '',
+    registration.participant_type || '',
+    registration.status || 'Pending',
+    registration.vehicle_make || '',
+    registration.vehicle_model || '',
+    registration.instagram || '',
+    registration.emergency_contact || '',
+    new Date(registration.created_at).toLocaleString('en-NG'),
+  ])
+
+  const csv = [
+    headers,
+    ...rows,
+  ]
+    .map((row) =>
+      row
+        .map((value) => `"${String(value).replace(/"/g, '""')}"`)
+        .join(','),
+    )
+    .join('\n')
+
+  const blob = new Blob([csv], {
+    type: 'text/csv;charset=utf-8;',
+  })
+
+  const url = URL.createObjectURL(blob)
+  const link = document.createElement('a')
+
+  link.href = url
+  link.download = `torq-registrations-${new Date()
+    .toISOString()
+    .slice(0, 10)}.csv`
+
+  document.body.appendChild(link)
+  link.click()
+  document.body.removeChild(link)
+  URL.revokeObjectURL(url)
+} 
 
   const count = (type: string) =>
     registrations.filter(
@@ -258,49 +322,58 @@ const rejectedCount = registrations.filter(
             />
           </div>
 
-          <select
-            value={filter}
-            onChange={(event) => setFilter(event.target.value)}
-            className="rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white outline-none"
-          >
-            <select
-  value={statusFilter}
-  onChange={(event) => setStatusFilter(event.target.value)}
-  className="rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white outline-none"
->
-  <option value="All" className="bg-black">
-    All Statuses
-  </option>
-  <option value="Pending" className="bg-black">
-    Pending
-  </option>
-  <option value="Approved" className="bg-black">
-    Approved
-  </option>
-  <option value="Rejected" className="bg-black">
-    Rejected
-  </option>
-</select>
-            <option value="All" className="bg-black">
-              All Participants
-            </option>
-            <option value="Spectator" className="bg-black">
-              Spectators
-            </option>
-            <option value="Driver" className="bg-black">
-              Drivers
-            </option>
-            <option value="Rider" className="bg-black">
-              Riders
-            </option>
-            <option value="VIP" className="bg-black">
-              VIP
-            </option>
-            <option value="Sim Racer" className="bg-black">
-              Sim Racers
-            </option>
-          </select>
-        </div>
+          <div className="flex flex-col gap-3 sm:flex-row">
+  <select
+    value={filter}
+    onChange={(event) => setFilter(event.target.value)}
+    className="rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white outline-none"
+  >
+    <option value="All" className="bg-black">
+      All Participants
+    </option>
+    <option value="Spectator" className="bg-black">
+      Spectators
+    </option>
+    <option value="Driver" className="bg-black">
+      Drivers
+    </option>
+    <option value="Rider" className="bg-black">
+      Riders
+    </option>
+    <option value="VIP" className="bg-black">
+      VIP
+    </option>
+    <option value="Sim Racer" className="bg-black">
+      Sim Racers
+    </option>
+  </select>
+
+  <select
+    value={statusFilter}
+    onChange={(event) => setStatusFilter(event.target.value)}
+    className="rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white outline-none"
+  >
+    <option value="All" className="bg-black">
+      All Statuses
+    </option>
+    <option value="Pending" className="bg-black">
+      Pending
+    </option>
+    <option value="Approved" className="bg-black">
+      Approved
+    </option>
+    <option value="Rejected" className="bg-black">
+      Rejected
+    </option>
+  </select>
+
+  <button
+    onClick={exportRegistrations}
+    className="rounded-xl bg-red-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-red-500"
+  >
+    Export CSV
+  </button>
+</div>
 
         {/* Registrations */}
         <section className="mt-8 overflow-hidden rounded-2xl border border-white/10 bg-white/[0.03]">
