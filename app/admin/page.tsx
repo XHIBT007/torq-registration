@@ -71,30 +71,51 @@ async function updateStatus(
   registrationId: string,
   status: 'Pending' | 'Approved' | 'Rejected'
 ) {
-  const { error } = await supabase
-    .from('registrations')
-    .update({ status: status })
-    .eq('id', registrationId)
+  try {
+    const sessionResponse = await supabase.auth.getSession()
+    const session = sessionResponse.data.session
 
-  if (error) {
-    alert(`Status update failed: ${error.message}`)
-    console.error(error)
-    return
-  }
+    if (!session) {
+      window.location.href = '/admin/login'
+      return
+    }
 
-  setRegistrations((current) =>
-    current.map((registration) =>
-      registration.id === registrationId
-        ? { ...registration, status }
-        : registration
+    const response = await fetch('/api/admin/registrations', {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${session.access_token}`,
+      },
+      body: JSON.stringify({
+        registrationId,
+        status,
+      }),
+    })
+
+    const data = await response.json()
+
+    if (!response.ok) {
+      alert(`Status update failed: ${data.error || 'Unknown error'}`)
+      return
+    }
+
+    setRegistrations((current) =>
+      current.map((registration) =>
+        registration.id === registrationId
+          ? { ...registration, status }
+          : registration
+      )
     )
-  )
 
-  setSelectedRegistration((current) =>
-    current
-      ? { ...current, status }
-      : current
-  )
+    setSelectedRegistration((current) =>
+      current && current.id === registrationId
+        ? { ...current, status }
+        : current
+    )
+  } catch (error) {
+    console.error(error)
+    alert('Status update failed')
+  }
 }
 
 async function bulkUpdateStatus(
