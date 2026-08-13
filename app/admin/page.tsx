@@ -374,6 +374,7 @@ const rejectedCount = registrations.filter(
     Export CSV
   </button>
 </div>
+</div>
 
         {/* Registrations */}
         <section className="mt-8 overflow-hidden rounded-2xl border border-white/10 bg-white/[0.03]">
