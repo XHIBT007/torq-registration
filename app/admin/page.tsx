@@ -46,6 +46,7 @@ export default function AdminPage() {
   const [loading, setLoading] = useState(true)
   const [selectedRegistration, setSelectedRegistration] =
   useState<Registration | null>(null)
+  const [selectedIds, setSelectedIds] = useState<string[]>([])
   
   async function handleLogout() {
   await supabase.auth.signOut()
@@ -66,6 +67,35 @@ async function updateStatus(
   console.error(error)
   return
 }
+ async function bulkUpdateStatus(
+  status: 'Pending' | 'Approved' | 'Rejected'
+) {
+  if (selectedIds.length === 0) {
+    alert('Please select at least one registration.')
+    return
+  }
+
+  const { error } = await supabase
+    .from('registrations')
+    .update({ status })
+    .in('id', selectedIds)
+
+  if (error) {
+    alert('Unable to update selected registrations')
+    console.error(error)
+    return
+  }
+
+  setRegistrations((current) =>
+    current.map((registration) =>
+      selectedIds.includes(registration.id)
+        ? { ...registration, status }
+        : registration
+    )
+  )
+
+  setSelectedIds([])
+} 
 
   setRegistrations((current) =>
     current.map((registration) =>
@@ -124,6 +154,39 @@ async function loadRegistrations() {
       registration.registration_number
         ?.toLowerCase()
         .includes(search.toLowerCase())
+    const allFilteredSelected =
+  filteredRegistrations.length > 0 &&
+  filteredRegistrations.every((registration) =>
+    selectedIds.includes(registration.id),
+  )
+
+const toggleSelectAll = () => {
+  if (allFilteredSelected) {
+    setSelectedIds((current) =>
+      current.filter(
+        (id) =>
+          !filteredRegistrations.some(
+            (registration) => registration.id === id,
+          ),
+      ),
+    )
+  } else {
+    setSelectedIds((current) => [
+      ...new Set([
+        ...current,
+        ...filteredRegistrations.map((registration) => registration.id),
+      ]),
+    ])
+  }
+}
+
+const toggleRegistration = (id: string) => {
+  setSelectedIds((current) =>
+    current.includes(id)
+      ? current.filter((selectedId) => selectedId !== id)
+      : [...current, id],
+  )
+}
 
     const matchesFilter =
   filter === 'All' ||
