@@ -254,29 +254,49 @@ const rejectedCount = registrations.filter(
       <div className="mx-auto max-w-7xl px-6 py-10">
 {/* Stats */}
 <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+  <button
+  onClick={() => setStatusFilter('All')}
+  className="text-left"
+>
   <StatCard
     label="Total Registrations"
     value={registrations.length}
     icon={Users}
   />
+</button>
 
+  <button
+  onClick={() => setStatusFilter('Pending')}
+  className="text-left"
+>
   <StatCard
-  label="Pending"
-  value={pendingCount}
-  icon={Users}
-/>
+    label="Pending"
+    value={pendingCount}
+    icon={Users}
+  />
+</button>
 
-<StatCard
-  label="Approved"
-  value={approvedCount}
-  icon={Users}
-/>
+<button
+  onClick={() => setStatusFilter('Approved')}
+  className="text-left"
+>
+  <StatCard
+    label="Approved"
+    value={approvedCount}
+    icon={Users}
+  />
+</button>
 
-<StatCard
-  label="Rejected"
-  value={rejectedCount}
-  icon={Users}
-/>
+<button
+  onClick={() => setStatusFilter('Rejected')}
+  className="text-left"
+>
+  <StatCard
+    label="Rejected"
+    value={rejectedCount}
+    icon={Users}
+  />
+</button>
 
   <StatCard
     label="Drivers"
@@ -717,7 +737,7 @@ function StatCard({
   icon: any
 }) {
   return (
-    <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-5">
+    className="rounded-2xl border border-white/10 bg-white/[0.03] p-5 transition hover:border-red-500/40 hover:bg-white/[0.05]"
       <div className="flex items-center justify-between">
         <p className="text-xs uppercase tracking-[0.2em] text-white/40">
           {label}
