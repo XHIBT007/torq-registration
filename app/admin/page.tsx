@@ -52,7 +52,21 @@ export default function AdminPage() {
   await supabase.auth.signOut()
   window.location.href = '/admin/login'
 }
+  
+function confirmStatusUpdate(
+  registrationId: string,
+  status: 'Pending' | 'Approved' | 'Rejected'
+) {
+  const confirmed = window.confirm(
+    `Are you sure you want to change this registration to ${status}?`
+  )
 
+  if (!confirmed) {
+    return
+  }
+
+  updateStatus(registrationId, status)
+}
 async function updateStatus(
   registrationId: string,
   status: 'Pending' | 'Approved' | 'Rejected'
@@ -610,8 +624,8 @@ const rejectedCount = registrations.filter(
   <div className="mt-3 flex flex-wrap gap-2">
     <button
       onClick={() =>
-        updateStatus(selectedRegistration.id, 'Pending')
-      }
+  confirmStatusUpdate(selectedRegistration.id, 'Pending')
+}
       className={`rounded-full px-4 py-2 text-xs font-semibold transition ${
         selectedRegistration.status === 'Pending'
           ? 'bg-yellow-500 text-black'
@@ -623,8 +637,8 @@ const rejectedCount = registrations.filter(
 
     <button
       onClick={() =>
-        updateStatus(selectedRegistration.id, 'Approved')
-      }
+  confirmStatusUpdate(selectedRegistration.id, 'Approved')
+}
       className={`rounded-full px-4 py-2 text-xs font-semibold transition ${
         selectedRegistration.status === 'Approved'
           ? 'bg-green-500 text-black'
@@ -636,8 +650,8 @@ const rejectedCount = registrations.filter(
 
     <button
       onClick={() =>
-        updateStatus(selectedRegistration.id, 'Rejected')
-      }
+  confirmStatusUpdate(selectedRegistration.id, 'Rejected')
+}
       className={`rounded-full px-4 py-2 text-xs font-semibold transition ${
         selectedRegistration.status === 'Rejected'
           ? 'bg-red-600 text-white'
