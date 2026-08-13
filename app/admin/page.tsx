@@ -73,15 +73,31 @@ async function updateStatus(
 ) {
   const { error } = await supabase
     .from('registrations')
-    .update({ status })
+    .update({ Status: status })
     .eq('id', registrationId)
 
   if (error) {
-  alert(`Status update failed: ${error.message}`)
-  console.error(error)
-  return
+    alert(`Status update failed: ${error.message}`)
+    console.error(error)
+    return
+  }
+
+  setRegistrations((current) =>
+    current.map((registration) =>
+      registration.id === registrationId
+        ? { ...registration, status }
+        : registration
+    )
+  )
+
+  setSelectedRegistration((current) =>
+    current
+      ? { ...current, status }
+      : current
+  )
 }
- async function bulkUpdateStatus(
+
+async function bulkUpdateStatus(
   status: 'Pending' | 'Approved' | 'Rejected'
 ) {
   if (selectedIds.length === 0) {
@@ -91,11 +107,11 @@ async function updateStatus(
 
   const { error } = await supabase
     .from('registrations')
-    .update({ status })
+    .update({ Status: status })
     .in('id', selectedIds)
 
   if (error) {
-    alert('Unable to update selected registrations')
+    alert(`Unable to update selected registrations: ${error.message}`)
     console.error(error)
     return
   }
@@ -109,21 +125,6 @@ async function updateStatus(
   )
 
   setSelectedIds([])
-} 
-
-  setRegistrations((current) =>
-    current.map((registration) =>
-      registration.id === registrationId
-        ? { ...registration, status }
-        : registration
-    )
-  )
-
-  setSelectedRegistration((current) =>
-    current && current.id === registrationId
-      ? { ...current, status }
-      : current
-  )
 }
 
 useEffect(() => {
