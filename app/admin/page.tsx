@@ -42,6 +42,7 @@ export default function AdminPage() {
   const [registrations, setRegistrations] = useState<Registration[]>([])
   const [search, setSearch] = useState('')
   const [filter, setFilter] = useState('All')
+  const [statusFilter, setStatusFilter] = useState('All')
   const [loading, setLoading] = useState(true)
   const [selectedRegistration, setSelectedRegistration] =
   useState<Registration | null>(null)
@@ -125,10 +126,14 @@ async function loadRegistrations() {
         .includes(search.toLowerCase())
 
     const matchesFilter =
-      filter === 'All' ||
-      registration.participant_type === filter
+  filter === 'All' ||
+  registration.participant_type === filter
 
-    return matchesSearch && matchesFilter
+const matchesStatus =
+  statusFilter === 'All' ||
+  registration.status === statusFilter
+
+return matchesSearch && matchesFilter && matchesStatus
   })
 
   const count = (type: string) =>
@@ -229,6 +234,24 @@ async function loadRegistrations() {
             onChange={(event) => setFilter(event.target.value)}
             className="rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white outline-none"
           >
+            <select
+  value={statusFilter}
+  onChange={(event) => setStatusFilter(event.target.value)}
+  className="rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white outline-none"
+>
+  <option value="All" className="bg-black">
+    All Statuses
+  </option>
+  <option value="Pending" className="bg-black">
+    Pending
+  </option>
+  <option value="Approved" className="bg-black">
+    Approved
+  </option>
+  <option value="Rejected" className="bg-black">
+    Rejected
+  </option>
+</select>
             <option value="All" className="bg-black">
               All Participants
             </option>
