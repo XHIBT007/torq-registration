@@ -73,7 +73,7 @@ async function updateStatus(
 ) {
   const { error } = await supabase
     .from('registrations')
-    .update({ Status: status })
+    .update({ status: status })
     .eq('id', registrationId)
 
   if (error) {
@@ -107,7 +107,7 @@ async function bulkUpdateStatus(
 
   const { error } = await supabase
     .from('registrations')
-    .update({ Status: status })
+    .update({ status: status })
     .in('id', selectedIds)
 
   if (error) {
