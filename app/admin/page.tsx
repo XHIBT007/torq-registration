@@ -159,17 +159,29 @@ async function loadRegistrations() {
   }
 }
   const filteredRegistrations = registrations.filter((registration) => {
-    const matchesSearch =
-      registration.full_name
-        ?.toLowerCase()
-        .includes(search.toLowerCase()) ||
-      registration.email
-        ?.toLowerCase()
-        .includes(search.toLowerCase()) ||
-      registration.registration_number
-        ?.toLowerCase()
-        .includes(search.toLowerCase())
-    const allFilteredSelected =
+  const matchesSearch =
+    registration.full_name
+      ?.toLowerCase()
+      .includes(search.toLowerCase()) ||
+    registration.email
+      ?.toLowerCase()
+      .includes(search.toLowerCase()) ||
+    registration.registration_number
+      ?.toLowerCase()
+      .includes(search.toLowerCase())
+
+  const matchesFilter =
+    filter === 'All' ||
+    registration.participant_type === filter
+
+  const matchesStatus =
+    statusFilter === 'All' ||
+    registration.status === statusFilter
+
+  return matchesSearch && matchesFilter && matchesStatus
+})
+
+const allFilteredSelected =
   filteredRegistrations.length > 0 &&
   filteredRegistrations.every((registration) =>
     selectedIds.includes(registration.id),
