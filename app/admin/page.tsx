@@ -214,17 +214,6 @@ const toggleRegistration = (id: string) => {
       : [...current, id],
   )
 }
-
-    const matchesFilter =
-  filter === 'All' ||
-  registration.participant_type === filter
-
-const matchesStatus =
-  statusFilter === 'All' ||
-  registration.status === statusFilter
-
-return matchesSearch && matchesFilter && matchesStatus
-  })
  const exportRegistrations = () => {
   if (filteredRegistrations.length === 0) {
     alert('There are no registrations to export.')
