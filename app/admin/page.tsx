@@ -140,6 +140,17 @@ return matchesSearch && matchesFilter && matchesStatus
     registrations.filter(
       (registration) => registration.participant_type === type,
     ).length
+  const pendingCount = registrations.filter(
+  (registration) => registration.status === 'Pending',
+).length
+
+const approvedCount = registrations.filter(
+  (registration) => registration.status === 'Approved',
+).length
+
+const rejectedCount = registrations.filter(
+  (registration) => registration.status === 'Rejected',
+).length
 
   return (
     <main className="min-h-screen bg-black text-white">
@@ -184,6 +195,24 @@ return matchesSearch && matchesFilter && matchesStatus
     value={registrations.length}
     icon={Users}
   />
+
+  <StatCard
+  label="Pending"
+  value={pendingCount}
+  icon={Users}
+/>
+
+<StatCard
+  label="Approved"
+  value={approvedCount}
+  icon={Users}
+/>
+
+<StatCard
+  label="Rejected"
+  value={rejectedCount}
+  icon={Users}
+/>
 
   <StatCard
     label="Drivers"
