@@ -126,26 +126,75 @@ async function bulkUpdateStatus(
     return
   }
 
-  const { error } = await supabase
-    .from('registrations')
-    .update({ status: status })
-    .in('id', selectedIds)
+  const confirmed = window.confirm(
+    `Are you sure you want to change ${selectedIds.length} registration${
+      selectedIds.length === 1 ? '' : 's'
+    } to ${status}?`
+  )
 
-  if (error) {
-    alert(`Unable to update selected registrations: ${error.message}`)
-    console.error(error)
+  if (!confirmed) {
     return
   }
 
-  setRegistrations((current) =>
-    current.map((registration) =>
-      selectedIds.includes(registration.id)
-        ? { ...registration, status }
-        : registration
-    )
-  )
+  try {
+    const sessionResponse = await supabase.auth.getSession()
+    const session = sessionResponse.data.session
 
-  setSelectedIds([])
+    if (!session) {
+      window.location.href = '/admin/login'
+      return
+    }
+
+    for (const registrationId of selectedIds) {
+      const response = await fetch('/api/admin/registrations', {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${session.access_token}`,
+        },
+        body: JSON.stringify({
+          registrationId,
+          status,
+        }),
+      })
+
+      if (!response.ok) {
+        const data = await response.json()
+        throw new Error(
+          data.error || 'Unable to update registration'
+        )
+      }
+    }
+
+    setRegistrations((current) =>
+      current.map((registration) =>
+        selectedIds.includes(registration.id)
+          ? { ...registration, status }
+          : registration
+      )
+    )
+
+    setSelectedRegistration((current) =>
+      current && selectedIds.includes(current.id)
+        ? { ...current, status }
+        : current
+    )
+
+    setSelectedIds([])
+
+    alert(
+      `${selectedIds.length} registration${
+        selectedIds.length === 1 ? '' : 's'
+      } updated to ${status}.`
+    )
+  } catch (error) {
+    console.error(error)
+    alert(
+      error instanceof Error
+        ? error.message
+        : 'Unable to update selected registrations'
+    )
+  }
 }
 
 useEffect(() => {
