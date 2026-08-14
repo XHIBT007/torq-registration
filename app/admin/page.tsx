@@ -284,9 +284,19 @@ const toggleRegistration = (id: string) => {
       : [...current, id],
   )
 }
- const exportRegistrations = () => {
-  if (filteredRegistrations.length === 0) {
-    alert('There are no registrations to export.')
+ const exportRegistrations = (status?: string) => {
+  const dataToExport = status
+    ? registrations.filter(
+        (registration) => registration.status === status
+      )
+    : filteredRegistrations
+
+  if (dataToExport.length === 0) {
+    alert(
+      status
+        ? `There are no ${status.toLowerCase()} registrations to export.`
+        : 'There are no registrations to export.'
+    )
     return
   }
 
@@ -305,7 +315,7 @@ const toggleRegistration = (id: string) => {
     'Registered At',
   ]
 
-  const rows = filteredRegistrations.map((registration) => [
+  const rows = dataToExport.map((registration) => [
     registration.registration_number || '',
     registration.full_name || '',
     registration.email || '',
@@ -317,7 +327,7 @@ const toggleRegistration = (id: string) => {
     registration.vehicle_model || '',
     registration.instagram || '',
     registration.emergency_contact || '',
-    new Date(registration.created_at).toLocaleString('en-NG'),
+    new Date(registration.created_at).toLocaleString(),
   ])
 
   const csv = [
@@ -327,7 +337,7 @@ const toggleRegistration = (id: string) => {
     .map((row) =>
       row
         .map((value) => `"${String(value).replace(/"/g, '""')}"`)
-        .join(','),
+        .join(',')
     )
     .join('\n')
 
@@ -339,16 +349,21 @@ const toggleRegistration = (id: string) => {
   const link = document.createElement('a')
 
   link.href = url
-  link.download = `torq-registrations-${new Date()
+
+  const fileName = status
+    ? `torq-${status.toLowerCase()}-registrations`
+    : 'torq-registrations'
+
+  link.download = `${fileName}-${new Date()
     .toISOString()
     .slice(0, 10)}.csv`
 
   document.body.appendChild(link)
   link.click()
   document.body.removeChild(link)
-  URL.revokeObjectURL(url)
-} 
 
+  URL.revokeObjectURL(url)
+}
   const count = (type: string) =>
     registrations.filter(
       (registration) => registration.participant_type === type,
@@ -536,12 +551,35 @@ const rejectedCount = registrations.filter(
     </option>
   </select>
 
+  <div className="flex flex-wrap gap-2">
   <button
-    onClick={exportRegistrations}
-    className="rounded-xl bg-red-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-red-500"
+    onClick={() => exportRegistrations()}
+    className="rounded-xl bg-red-600 px-5 py-3 text-sm font-semibold text-white"
   >
-    Export CSV
+    Export Current
   </button>
+
+  <button
+    onClick={() => exportRegistrations('Approved')}
+    className="rounded-xl bg-green-600 px-5 py-3 text-sm font-semibold text-white"
+  >
+    Export Approved
+  </button>
+
+  <button
+    onClick={() => exportRegistrations('Pending')}
+    className="rounded-xl bg-yellow-600 px-5 py-3 text-sm font-semibold text-white"
+  >
+    Export Pending
+  </button>
+
+  <button
+    onClick={() => exportRegistrations('Rejected')}
+    className="rounded-xl bg-gray-700 px-5 py-3 text-sm font-semibold text-white"
+  >
+    Export Rejected
+  </button>
+</div>
 </div>
 </div>
 
