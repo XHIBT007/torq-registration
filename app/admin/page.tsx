@@ -545,6 +545,44 @@ const rejectedCount = registrations.filter(
 </div>
 </div>
 
+        {selectedIds.length > 0 && (
+  <div className="mt-6 flex flex-col gap-3 rounded-2xl border border-red-500/20 bg-red-500/5 p-4 sm:flex-row sm:items-center sm:justify-between">
+    <p className="text-sm font-semibold text-white">
+      {selectedIds.length} registration
+      {selectedIds.length === 1 ? '' : 's'} selected
+    </p>
+
+    <div className="flex flex-wrap gap-2">
+      <button
+        onClick={() => bulkUpdateStatus('Approved')}
+        className="rounded-xl bg-green-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-green-500"
+      >
+        Approve
+      </button>
+
+      <button
+        onClick={() => bulkUpdateStatus('Rejected')}
+        className="rounded-xl bg-red-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-red-500"
+      >
+        Reject
+      </button>
+
+      <button
+        onClick={() => bulkUpdateStatus('Pending')}
+        className="rounded-xl border border-white/10 px-4 py-2 text-sm font-semibold text-white/70 transition hover:bg-white/10 hover:text-white"
+      >
+        Set Pending
+      </button>
+
+      <button
+        onClick={() => setSelectedIds([])}
+        className="rounded-xl border border-white/10 px-4 py-2 text-sm text-white/50 transition hover:bg-white/10 hover:text-white"
+      >
+        Clear
+      </button>
+    </div>
+  </div>
+)}
         {/* Registrations */}
         <section className="mt-8 overflow-hidden rounded-2xl border border-white/10 bg-white/[0.03]">
           <div className="border-b border-white/10 px-6 py-5">
@@ -571,6 +609,15 @@ const rejectedCount = registrations.filter(
               <table className="w-full min-w-[900px] text-left">
                 <thead className="border-b border-white/10 bg-white/[0.02]">
                   <tr className="text-xs uppercase tracking-wider text-white/40">
+
+                    <th className="px-6 py-4">
+  <input
+    type="checkbox"
+    checked={allFilteredSelected}
+    onChange={toggleSelectAll}
+    className="h-4 w-4 accent-red-600"
+  />
+</th>
                     <th className="px-6 py-4">Registration</th>
                     <th className="px-6 py-4">Name</th>
                     <th className="px-6 py-4">Type</th>
@@ -596,6 +643,17 @@ const rejectedCount = registrations.filter(
     onClick={() => setSelectedRegistration(registration)}
     className="cursor-pointer transition hover:bg-white/5"
   >
+    <td
+  className="px-6 py-5"
+  onClick={(event) => event.stopPropagation()}
+>
+  <input
+    type="checkbox"
+    checked={selectedIds.includes(registration.id)}
+    onChange={() => toggleRegistration(registration.id)}
+    className="h-4 w-4 accent-red-600"
+  />
+</td>
                         <td className="px-6 py-5">
                           <p className="font-mono text-sm font-semibold text-red-400">
                             {registration.registration_number || '—'}
