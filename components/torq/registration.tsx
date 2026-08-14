@@ -153,10 +153,14 @@ function RegistrationDialog({ onClose }: { onClose: () => void }) {
   })
 
   if (error) {
-    console.error('Registration error:', error)
-    alert('Registration could not be completed. Please try again.')
-    return
-  }
+  console.error('Registration error:', error)
+
+  alert(
+    `Registration failed:\n\n${error.message}`
+  )
+
+  return
+}
 
   setRegNumber(registrationNumber)
   setSubmitted(true)
