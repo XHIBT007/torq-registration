@@ -12,46 +12,60 @@ export default function RegistrationQR({
   fullName,
 }: RegistrationQRProps) {
   const downloadQR = () => {
-    const canvas = document.getElementById(
-      `qr-${registrationNumber}`,
-    ) as HTMLCanvasElement | null
+  const canvas = document.getElementById(
+    `qr-${registrationNumber}`,
+  ) as HTMLCanvasElement | null
 
-    if (!canvas) return
-
-    const link = document.createElement('a')
-
-    link.download = `${registrationNumber}-QR.png`
-    link.href = canvas.toDataURL('image/png')
-    link.click()
+  if (!canvas) {
+    alert('QR code is not ready yet.')
+    return
   }
 
-  return (
-    <div className="rounded-2xl border border-white/10 bg-black p-6 text-center">
-      <p className="text-sm font-semibold text-white">
-        {fullName}
-      </p>
+  const dataUrl = canvas.toDataURL('image/png')
 
-      <p className="mt-1 text-xs text-white/50">
-        {registrationNumber}
-      </p>
+  const newWindow = window.open()
 
-      <div className="mt-5 flex justify-center rounded-xl bg-white p-4">
-        <QRCodeCanvas
-          id={`qr-${registrationNumber}`}
-          value={registrationNumber}
-          size={240}
-          level="H"
-          includeMargin
-        />
-      </div>
+  if (!newWindow) {
+    alert('Please allow pop-ups to download the QR code.')
+    return
+  }
 
-      <button
-        type="button"
-        onClick={downloadQR}
-        className="mt-5 w-full rounded-xl bg-red-600 px-5 py-3 font-bold text-white transition hover:bg-red-700"
-      >
-        DOWNLOAD QR
-      </button>
-    </div>
-  )
+  newWindow.document.write(`
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <title>${registrationNumber} QR Code</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <style>
+          body {
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: white;
+            font-family: Arial, sans-serif;
+          }
+
+          img {
+            width: 300px;
+            height: 300px;
+          }
+
+          p {
+            margin-top: 20px;
+            font-weight: bold;
+            color: #111;
+          }
+        </style>
+      </head>
+      <body>
+        <img src="${dataUrl}" alt="QR Code" />
+        <p>${registrationNumber}</p>
+      </body>
+    </html>
+  `)
+
+  newWindow.document.close()
 }
