@@ -114,6 +114,7 @@ if (!token) {
 
   try {
     const cameras = await Html5Qrcode.getCameras()
+    console.log('Available cameras:', cameras)
 
     if (!cameras || cameras.length === 0) {
       throw new Error(
@@ -134,6 +135,7 @@ if (!token) {
 
     scannerRef.current = scanner
 
+    console.log('Starting camera:', rearCamera)
     await scanner.start(
       rearCamera.id,
       {
@@ -196,9 +198,9 @@ if (!token) {
         )}
 
         <div
-          id="torq-qr-reader"
-          className={scanning ? 'mt-4 overflow-hidden rounded-xl' : 'hidden'}
-        />
+  id="torq-qr-reader"
+  className="mt-4 min-h-[300px] w-full overflow-hidden rounded-xl"
+/>
 
         {scanning && (
           <button
