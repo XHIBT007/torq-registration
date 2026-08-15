@@ -28,18 +28,30 @@ export default function CheckInScanner() {
     useState<Registration | null>(null)
 
   const stopScanner = async () => {
-    try {
-      if (scannerRef.current) {
-        await scannerRef.current.stop()
-        scannerRef.current.clear()
-        scannerRef.current = null
-      }
-    } catch (err) {
-      console.error('Scanner stop error:', err)
-    }
+  const scanner = scannerRef.current
 
+  if (!scanner) {
     setScanning(false)
+    return
   }
+
+  try {
+    if (scanner.isScanning) {
+      await scanner.stop()
+    }
+  } catch (err) {
+    console.error('Scanner stop error:', err)
+  }
+
+  try {
+    scanner.clear()
+  } catch (err) {
+    console.error('Scanner clear error:', err)
+  }
+
+  scannerRef.current = null
+  setScanning(false)
+}
 
   const handleScan = async (decodedText: string) => {
     if (loading) return
