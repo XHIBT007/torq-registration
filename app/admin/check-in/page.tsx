@@ -137,34 +137,62 @@ export default function CheckInPage() {
   }
 
   const manualCheckIn = async (
-    registrationNumber: string,
-  ) => {
-    setManualCheckingIn(true)
-    setManualError('')
-    setManualMessage('')
+  registrationNumber: string,
+) => {
+  setManualCheckingIn(true)
+  setManualError('')
+  setManualMessage('')
 
-    try {
-      const {
-        data: { session },
-      } = await supabase.auth.getSession()
+  try {
+    const {
+      data: { session },
+    } = await supabase.auth.getSession()
 
-      const token = session?.access_token
+    const token = session?.access_token
 
-      if (!token) {
-        throw new Error('Your admin session has expired.')
-      }
+    if (!token) {
+      throw new Error('Your admin session has expired.')
+    }
 
-      const response = await fetch('/api/admin/check-in', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          registrationNumber,
-        }),
-      })
-      const reverseCheckIn = async (
+    const response = await fetch('/api/admin/check-in', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        registrationNumber,
+      }),
+    })
+
+    const data = await response.json()
+
+    if (!response.ok) {
+      throw new Error(
+        data?.error || 'Unable to check in participant.',
+      )
+    }
+
+    setManualMessage(
+      `${data.registration.full_name} has been checked in successfully.`,
+    )
+
+    await searchRegistrations()
+    await loadStats()
+  } catch (error) {
+    console.error('Manual check-in error:', error)
+
+    setManualError(
+      error instanceof Error
+        ? error.message
+        : 'Unable to check in participant.',
+    )
+  } finally {
+    setManualCheckingIn(false)
+  }
+}
+
+const reverseCheckIn = async (
   registrationNumber: string,
 ) => {
   const confirmed = window.confirm(
@@ -228,54 +256,6 @@ export default function CheckInPage() {
     setReversingCheckIn(false)
   }
 }
-
-    
-    setManualMessage(
-      `${data.registration.full_name} check-in has been reversed successfully.`,
-    )
-
-    await searchRegistrations()
-    await loadStats()
-  } catch (error) {
-    console.error('Reverse check-in error:', error)
-
-    setManualError(
-      error instanceof Error
-        ? error.message
-        : 'Unable to reverse check-in.',
-    )
-  } finally {
-    setManualCheckingIn(false)
-  }
-}
-
-      const data = await response.json()
-
-      if (!response.ok) {
-        throw new Error(
-          data?.error || 'Unable to check in participant.',
-        )
-      }
-
-      setManualMessage(
-        `${data.registration.full_name} has been checked in successfully.`,
-      )
-
-      await searchRegistrations()
-      await loadStats()
-    } catch (error) {
-      console.error('Manual check-in error:', error)
-
-      setManualError(
-        error instanceof Error
-          ? error.message
-          : 'Unable to check in participant.',
-      )
-    } finally {
-      setManualCheckingIn(false)
-    }
-  }
-
   useEffect(() => {
     loadStats()
 
