@@ -462,7 +462,7 @@ const reverseCheckIn = async (
       </p>
     )}
 
-    <<button
+    <button
   type="button"
   onClick={() =>
     reverseCheckIn(
