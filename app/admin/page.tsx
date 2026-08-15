@@ -22,7 +22,8 @@ type Registration = {
   phone: string | null
   city: string | null
   participant_type: string | null
-  emergency_contact: string | null
+  checked_in?: boolean
+  checked_in_at?: string | null
   vehicle_make: string | null
   vehicle_model: string | null
   instagram: string | null
@@ -200,6 +201,12 @@ async function bulkUpdateStatus(
 
 useEffect(() => {
   loadRegistrations()
+
+  const interval = setInterval(() => {
+    loadRegistrations()
+  }, 10000)
+
+  return () => clearInterval(interval)
 }, [])
 
 async function loadRegistrations() {
@@ -380,6 +387,20 @@ const approvedCount = registrations.filter(
 const rejectedCount = registrations.filter(
   (registration) => registration.status === 'Rejected',
 ).length
+  const checkedInCount = registrations.filter(
+  (registration) => registration.checked_in === true,
+).length
+
+const approvedNotCheckedInCount = registrations.filter(
+  (registration) =>
+    registration.status === 'Approved' &&
+    registration.checked_in !== true,
+).length
+
+const arrivalRate =
+  approvedCount > 0
+    ? Math.round((checkedInCount / approvedCount) * 100)
+    : 0
 
   return (
     <main className="min-h-screen bg-black text-white">
@@ -462,6 +483,44 @@ const rejectedCount = registrations.filter(
       icon={Users}
     />
   </button>
+  <StatCard
+  label="Checked In"
+  value={checkedInCount}
+  icon={Users}
+/>
+
+<StatCard
+  label="Awaiting Arrival"
+  value={approvedNotCheckedInCount}
+  icon={Users}
+/>
+
+<div className="rounded-2xl border border-green-500/20 bg-green-500/[0.05] p-5">
+  <div className="flex items-center justify-between">
+    <p className="text-xs uppercase tracking-[0.2em] text-white/40">
+      Arrival Rate
+    </p>
+
+    <div className="h-2.5 w-2.5 rounded-full bg-green-500 shadow-[0_0_12px_rgba(34,197,94,0.8)]" />
+  </div>
+
+  <p className="mt-4 text-4xl font-black text-green-400">
+    {arrivalRate}%
+  </p>
+
+  <div className="mt-4 h-2 overflow-hidden rounded-full bg-white/10">
+    <div
+      className="h-full rounded-full bg-green-500 transition-all duration-700"
+      style={{
+        width: `${Math.min(arrivalRate, 100)}%`,
+      }}
+    />
+  </div>
+
+  <p className="mt-2 text-xs text-white/40">
+    {checkedInCount} of {approvedCount} approved participants
+  </p>
+</div>
 
   <StatCard
     label="Drivers"
@@ -662,7 +721,8 @@ const rejectedCount = registrations.filter(
                     <th className="px-6 py-4">Type</th>
                     <th className="px-6 py-4">City</th>
                     <th className="px-6 py-4">Vehicle</th>
-                    <th className="px-6 py-4 text-left">
+<th className="px-6 py-4">Check-In</th>
+<th className="px-6 py-4 text-left">
   Status
 </th>
 <th className="px-6 py-4">Date</th>
@@ -725,6 +785,30 @@ const rejectedCount = registrations.filter(
                             ? `${registration.vehicle_make} ${registration.vehicle_model || ''}`
                             : '—'}
                         </td>
+    <td className="px-6 py-5">
+  {registration.checked_in ? (
+    <div>
+      <span className="inline-flex rounded-full bg-green-500/15 px-3 py-1 text-xs font-semibold text-green-400">
+        ✓ Checked In
+      </span>
+
+      {registration.checked_in_at && (
+        <p className="mt-1 text-[11px] text-white/30">
+          {new Date(
+            registration.checked_in_at,
+          ).toLocaleTimeString('en-NG', {
+            hour: '2-digit',
+            minute: '2-digit',
+          })}
+        </p>
+      )}
+    </div>
+  ) : (
+    <span className="inline-flex rounded-full bg-white/5 px-3 py-1 text-xs font-semibold text-white/40">
+      Not Arrived
+    </span>
+  )}
+</td>
     <td className="px-6 py-4">
   <span
     className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${
