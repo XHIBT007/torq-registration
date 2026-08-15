@@ -96,42 +96,61 @@ if (!token) {
   }
 
   const startScanner = async () => {
-    setError('')
-    setMessage('')
-    setRegistration(null)
+  setError('')
+  setMessage('')
+  setRegistration(null)
 
-    try {
-      const scanner = new Html5Qrcode('torq-qr-reader')
+  try {
+    const cameras = await Html5Qrcode.getCameras()
 
-      scannerRef.current = scanner
-
-      await scanner.start(
-        { facingMode: 'environment' },
-        {
-          fps: 10,
-          qrbox: {
-            width: 250,
-            height: 250,
-          },
-        },
-        handleScan,
-        () => {
-          // Ignore QR decoding errors while scanning.
-        },
+    if (!cameras || cameras.length === 0) {
+      throw new Error(
+        'No camera was found. Please check your browser camera permission.'
       )
-
-      setScanning(true)
-    } catch (err) {
-      console.error('Camera error:', err)
-
-      setError(
-        'Unable to access the camera. Please allow camera access and try again.',
-      )
-
-      scannerRef.current = null
-      setScanning(false)
     }
+
+    const rearCamera =
+      cameras.find((camera) =>
+        camera.label.toLowerCase().includes('back')
+      ) ||
+      cameras.find((camera) =>
+        camera.label.toLowerCase().includes('rear')
+      ) ||
+      cameras[cameras.length - 1]
+
+    const scanner = new Html5Qrcode('torq-qr-reader')
+
+    scannerRef.current = scanner
+
+    await scanner.start(
+      rearCamera.id,
+      {
+        fps: 10,
+        qrbox: {
+          width: 250,
+          height: 250,
+        },
+      },
+      handleScan,
+      () => {
+        // Ignore QR decoding errors while scanning.
+      },
+    )
+
+    setScanning(true)
+  } catch (err) {
+    console.error('Camera error:', err)
+
+    setError(
+      err instanceof Error
+        ? err.message
+        : 'Unable to access the camera. Please allow camera access and try again.',
+    )
+
+    scannerRef.current = null
+    setScanning(false)
   }
+}
 
   useEffect(() => {
     return () => {
