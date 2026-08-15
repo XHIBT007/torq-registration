@@ -46,6 +46,7 @@ export default function CheckInPage() {
   const [searchResults, setSearchResults] = useState<SearchResult[]>([])
   const [searching, setSearching] = useState(false)
   const [manualCheckingIn, setManualCheckingIn] = useState(false)
+  const [reversingCheckIn, setReversingCheckIn] = useState(false)
   const [manualMessage, setManualMessage] = useState('')
   const [manualError, setManualError] = useState('')
 
@@ -172,7 +173,7 @@ export default function CheckInPage() {
 
   if (!confirmed) return
 
-  setManualCheckingIn(true)
+  setReversingCheckIn(true)
   setManualError('')
   setManualMessage('')
 
@@ -209,6 +210,26 @@ export default function CheckInPage() {
       )
     }
 
+    setManualMessage(
+      `${data.registration.full_name} check-in has been reversed successfully.`,
+    )
+
+    await searchRegistrations()
+    await loadStats()
+  } catch (error) {
+    console.error('Reverse check-in error:', error)
+
+    setManualError(
+      error instanceof Error
+        ? error.message
+        : 'Unable to reverse check-in.',
+    )
+  } finally {
+    setReversingCheckIn(false)
+  }
+}
+
+    
     setManualMessage(
       `${data.registration.full_name} check-in has been reversed successfully.`,
     )
@@ -461,19 +482,19 @@ export default function CheckInPage() {
       </p>
     )}
 
-    <button
-      type="button"
-      onClick={() =>
-        reverseCheckIn(
-          participant.registration_number,
-        )
-      }
-      disabled={manualCheckingIn}
+    <<button
+  type="button"
+  onClick={() =>
+    reverseCheckIn(
+      participant.registration_number,
+    )
+  }
+  disabled={reversingCheckIn}
       className="mt-3 rounded-lg border border-red-500/30 px-3 py-2 text-[11px] font-bold text-red-400 transition hover:bg-red-500/10 disabled:opacity-50"
     >
-      {manualCheckingIn
-        ? 'PROCESSING...'
-        : 'UNDO CHECK-IN'}
+      {reversingCheckIn
+  ? 'PROCESSING...'
+  : 'UNDO CHECK-IN'}
     </button>
   </div>
 ) : (
