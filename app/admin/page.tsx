@@ -14,6 +14,7 @@ import {
   LogOut,
 } from 'lucide-react'
 
+import RegistrationQR from '@/components/registration-qr'
 type Registration = {
   id: string
   full_name: string
@@ -784,6 +785,17 @@ const rejectedCount = registrations.filter(
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2">
+        {selectedRegistration.status === 'Approved' &&
+  selectedRegistration.registration_number && (
+    <div className="sm:col-span-2">
+      <RegistrationQR
+        registrationNumber={
+          selectedRegistration.registration_number
+        }
+        fullName={selectedRegistration.full_name}
+      />
+    </div>
+  )}
 <div className="mt-6 rounded-xl border border-white/10 bg-white/[0.03] p-4">
   <p className="text-xs uppercase tracking-wider text-white/40">
     Registration Status
