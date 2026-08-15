@@ -163,6 +163,70 @@ export default function CheckInPage() {
           registrationNumber,
         }),
       })
+      const reverseCheckIn = async (
+  registrationNumber: string,
+) => {
+  const confirmed = window.confirm(
+    'Are you sure you want to reverse this check-in? The participant will be allowed to check in again.',
+  )
+
+  if (!confirmed) return
+
+  setManualCheckingIn(true)
+  setManualError('')
+  setManualMessage('')
+
+  try {
+    const {
+      data: { session },
+    } = await supabase.auth.getSession()
+
+    const token = session?.access_token
+
+    if (!token) {
+      throw new Error('Your admin session has expired.')
+    }
+
+    const response = await fetch(
+      '/api/admin/check-in/reverse',
+      {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          registrationNumber,
+        }),
+      },
+    )
+
+    const data = await response.json()
+
+    if (!response.ok) {
+      throw new Error(
+        data?.error || 'Unable to reverse check-in.',
+      )
+    }
+
+    setManualMessage(
+      `${data.registration.full_name} check-in has been reversed successfully.`,
+    )
+
+    await searchRegistrations()
+    await loadStats()
+  } catch (error) {
+    console.error('Reverse check-in error:', error)
+
+    setManualError(
+      error instanceof Error
+        ? error.message
+        : 'Unable to reverse check-in.',
+    )
+  } finally {
+    setManualCheckingIn(false)
+  }
+}
 
       const data = await response.json()
 
@@ -381,23 +445,38 @@ export default function CheckInPage() {
 
                     <div>
                       {participant.checked_in ? (
-                        <div className="rounded-xl bg-green-500/10 px-4 py-3 text-center">
-                          <p className="text-xs font-bold text-green-400">
-                            ✓ ALREADY CHECKED IN
-                          </p>
+  <div className="rounded-xl bg-green-500/10 p-3 text-center">
+    <p className="text-xs font-bold text-green-400">
+      ✓ ALREADY CHECKED IN
+    </p>
 
-                          {participant.checked_in_at && (
-                            <p className="mt-1 text-[11px] text-white/40">
-                              {new Date(
-                                participant.checked_in_at,
-                              ).toLocaleTimeString([], {
-                                hour: '2-digit',
-                                minute: '2-digit',
-                              })}
-                            </p>
-                          )}
-                        </div>
-                      ) : (
+    {participant.checked_in_at && (
+      <p className="mt-1 text-[11px] text-white/40">
+        {new Date(
+          participant.checked_in_at,
+        ).toLocaleTimeString([], {
+          hour: '2-digit',
+          minute: '2-digit',
+        })}
+      </p>
+    )}
+
+    <button
+      type="button"
+      onClick={() =>
+        reverseCheckIn(
+          participant.registration_number,
+        )
+      }
+      disabled={manualCheckingIn}
+      className="mt-3 rounded-lg border border-red-500/30 px-3 py-2 text-[11px] font-bold text-red-400 transition hover:bg-red-500/10 disabled:opacity-50"
+    >
+      {manualCheckingIn
+        ? 'PROCESSING...'
+        : 'UNDO CHECK-IN'}
+    </button>
+  </div>
+) : (
                         <button
                           type="button"
                           onClick={() =>
