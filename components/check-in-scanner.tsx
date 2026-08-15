@@ -20,8 +20,8 @@ type Registration = {
 
 export default function CheckInScanner() {
   const scannerRef = useRef<Html5Qrcode | null>(null)
-  const successAudioRef = useRef<AudioContext | null>(null)
-  const errorAudioRef = useRef<AudioContext | null>(null)
+  const processingRef = useRef(false)
+  const restartTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const [scanning, setScanning] = useState(false)
   const [loading, setLoading] = useState(false)
@@ -29,121 +29,6 @@ export default function CheckInScanner() {
   const [error, setError] = useState('')
   const [registration, setRegistration] =
     useState<Registration | null>(null)
-
-  const playSuccessSound = () => {
-    try {
-      const AudioContextClass =
-        window.AudioContext ||
-        (
-          window as typeof window & {
-            webkitAudioContext?: typeof AudioContext
-          }
-        ).webkitAudioContext
-
-      if (!AudioContextClass) return
-
-      if (!successAudioRef.current) {
-        successAudioRef.current = new AudioContextClass()
-      }
-
-      const context = successAudioRef.current
-
-      const oscillator = context.createOscillator()
-      const gain = context.createGain()
-
-      oscillator.type = 'sine'
-      oscillator.frequency.setValueAtTime(
-        880,
-        context.currentTime,
-      )
-
-      oscillator.frequency.setValueAtTime(
-        1174,
-        context.currentTime + 0.12,
-      )
-
-      gain.gain.setValueAtTime(
-        0.001,
-        context.currentTime,
-      )
-
-      gain.gain.exponentialRampToValueAtTime(
-        0.25,
-        context.currentTime + 0.02,
-      )
-
-      gain.gain.exponentialRampToValueAtTime(
-        0.001,
-        context.currentTime + 0.35,
-      )
-
-      oscillator.connect(gain)
-      gain.connect(context.destination)
-
-      oscillator.start()
-      oscillator.stop(context.currentTime + 0.35)
-    } catch (err) {
-      console.error('Success sound error:', err)
-    }
-  }
-
-  const playErrorSound = () => {
-    try {
-      const AudioContextClass =
-        window.AudioContext ||
-        (
-          window as typeof window & {
-            webkitAudioContext?: typeof AudioContext
-          }
-        ).webkitAudioContext
-
-      if (!AudioContextClass) return
-
-      if (!errorAudioRef.current) {
-        errorAudioRef.current = new AudioContextClass()
-      }
-
-      const context = errorAudioRef.current
-
-      const oscillator = context.createOscillator()
-      const gain = context.createGain()
-
-      oscillator.type = 'square'
-
-      oscillator.frequency.setValueAtTime(
-        220,
-        context.currentTime,
-      )
-
-      oscillator.frequency.setValueAtTime(
-        160,
-        context.currentTime + 0.18,
-      )
-
-      gain.gain.setValueAtTime(
-        0.001,
-        context.currentTime,
-      )
-
-      gain.gain.exponentialRampToValueAtTime(
-        0.18,
-        context.currentTime + 0.02,
-      )
-
-      gain.gain.exponentialRampToValueAtTime(
-        0.001,
-        context.currentTime + 0.45,
-      )
-
-      oscillator.connect(gain)
-      gain.connect(context.destination)
-
-      oscillator.start()
-      oscillator.stop(context.currentTime + 0.45)
-    } catch (err) {
-      console.error('Error sound error:', err)
-    }
-  }
 
   const stopScanner = async () => {
     const scanner = scannerRef.current
@@ -171,9 +56,74 @@ export default function CheckInScanner() {
     setScanning(false)
   }
 
-  const handleScan = async (decodedText: string) => {
-    if (loading) return
+  const startScanner = async () => {
+    if (processingRef.current) return
 
+    setError('')
+    setMessage('')
+    setRegistration(null)
+
+    try {
+      const cameras = await Html5Qrcode.getCameras()
+
+      console.log('Available cameras:', cameras)
+
+      if (!cameras || cameras.length === 0) {
+        throw new Error(
+          'No camera was found. Please check your browser camera permission.',
+        )
+      }
+
+      const rearCamera =
+        cameras.find((camera) =>
+          camera.label.toLowerCase().includes('back'),
+        ) ||
+        cameras.find((camera) =>
+          camera.label.toLowerCase().includes('rear'),
+        ) ||
+        cameras[cameras.length - 1]
+
+      const scanner = new Html5Qrcode('torq-qr-reader')
+
+      scannerRef.current = scanner
+
+      console.log('Starting camera:', rearCamera)
+
+      await scanner.start(
+        rearCamera.id,
+        {
+          fps: 10,
+          qrbox: {
+            width: 280,
+            height: 280,
+          },
+        },
+        handleScan,
+        () => {
+          // Ignore QR decoding errors while scanning.
+        },
+      )
+
+      setScanning(true)
+    } catch (err) {
+      console.error('Camera error:', err)
+
+      scannerRef.current = null
+      setScanning(false)
+
+      setError(
+        err instanceof Error
+          ? err.message
+          : 'Unable to access the camera. Please allow camera access and try again.',
+      )
+    }
+  }
+
+  const handleScan = async (decodedText: string) => {
+    // Prevent the same QR from firing multiple times.
+    if (processingRef.current) return
+
+    processingRef.current = true
     setLoading(true)
     setError('')
     setMessage('')
@@ -193,26 +143,20 @@ export default function CheckInScanner() {
         )
       }
 
-      const response = await fetch(
-        '/api/admin/check-in',
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({
-            registrationNumber:
-              decodedText.trim(),
-          }),
+      const response = await fetch('/api/admin/check-in', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
         },
-      )
+        body: JSON.stringify({
+          registrationNumber: decodedText.trim(),
+        }),
+      })
 
       const result = await response.json()
 
       if (!response.ok) {
-        playErrorSound()
-
         throw new Error(
           result?.error ||
             'Unable to check in registration.',
@@ -221,103 +165,48 @@ export default function CheckInScanner() {
 
       setRegistration(result.registration)
       setMessage('CHECK-IN SUCCESSFUL')
+      setLoading(false)
 
-      playSuccessSound()
+      /*
+       * Give the entrance staff a moment to see
+       * the successful check-in before automatically
+       * returning to the scanner.
+       */
+      restartTimerRef.current = setTimeout(async () => {
+        processingRef.current = false
+        await startScanner()
+      }, 1500)
     } catch (err) {
       console.error('Check-in error:', err)
+
+      setLoading(false)
 
       setError(
         err instanceof Error
           ? err.message
           : 'Unable to complete check-in.',
       )
-    } finally {
-      setLoading(false)
-    }
-  }
 
-  const startScanner = async () => {
-    setError('')
-    setMessage('')
-    setRegistration(null)
-
-    try {
-      const cameras =
-        await Html5Qrcode.getCameras()
-
-      console.log(
-        'Available cameras:',
-        cameras,
-      )
-
-      if (!cameras || cameras.length === 0) {
-        throw new Error(
-          'No camera was found. Please check your browser camera permission.',
-        )
-      }
-
-      const rearCamera =
-        cameras.find((camera) =>
-          camera.label
-            .toLowerCase()
-            .includes('back'),
-        ) ||
-        cameras.find((camera) =>
-          camera.label
-            .toLowerCase()
-            .includes('rear'),
-        ) ||
-        cameras[cameras.length - 1]
-
-      const scanner =
-        new Html5Qrcode('torq-qr-reader')
-
-      scannerRef.current = scanner
-
-      console.log(
-        'Starting camera:',
-        rearCamera,
-      )
-
-      await scanner.start(
-        rearCamera.id,
-        {
-          fps: 10,
-          qrbox: {
-            width: 280,
-            height: 280,
-          },
-        },
-        handleScan,
-        () => {
-          // Ignore QR decoding errors.
-        },
-      )
-
-      setScanning(true)
-    } catch (err) {
-      console.error(
-        'Camera error:',
-        err,
-      )
-
-      setError(
-        err instanceof Error
-          ? err.message
-          : 'Unable to access the camera. Please allow camera access and try again.',
-      )
-
-      scannerRef.current = null
-      setScanning(false)
+      /*
+       * Keep the error visible long enough for staff
+       * to read it before returning to the scanner.
+       */
+      restartTimerRef.current = setTimeout(async () => {
+        processingRef.current = false
+        await startScanner()
+      }, 2500)
     }
   }
 
   useEffect(() => {
     return () => {
-      stopScanner()
+      if (restartTimerRef.current) {
+        clearTimeout(restartTimerRef.current)
+      }
 
-      successAudioRef.current?.close()
-      errorAudioRef.current?.close()
+      processingRef.current = false
+
+      stopScanner()
     }
   }, [])
 
@@ -342,18 +231,21 @@ export default function CheckInScanner() {
               className={`rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-wider ${
                 scanning
                   ? 'bg-green-500/10 text-green-400'
-                  : 'bg-white/5 text-white/40'
+                  : loading
+                    ? 'bg-yellow-500/10 text-yellow-400'
+                    : 'bg-white/5 text-white/40'
               }`}
             >
               {scanning
-                ? 'Scanner Ready'
-                : 'Standby'}
+                ? 'READY TO SCAN'
+                : loading
+                  ? 'VERIFYING'
+                  : 'STANDBY'}
             </div>
           </div>
 
           <p className="mt-2 text-sm text-white/40">
-            Scan the participant QR code to verify
-            and admit them.
+            Scan participant QR codes continuously.
           </p>
         </div>
 
@@ -377,28 +269,45 @@ export default function CheckInScanner() {
                   </button>
                 </div>
               )}
+
+              {loading && (
+                <div className="absolute inset-0 flex items-center justify-center bg-black/70">
+                  <div className="rounded-2xl border border-yellow-500/20 bg-black/80 px-7 py-5 text-center">
+                    <p className="text-sm font-black uppercase tracking-wider text-yellow-400">
+                      VERIFYING
+                    </p>
+
+                    <p className="mt-1 text-xs text-white/40">
+                      Please wait...
+                    </p>
+                  </div>
+                </div>
+              )}
             </div>
+
+            {scanning && (
+              <div className="mt-4 rounded-xl border border-green-500/20 bg-green-500/[0.05] px-4 py-3 text-center">
+                <p className="text-xs font-black uppercase tracking-[0.2em] text-green-400">
+                  READY TO SCAN
+                </p>
+
+                <p className="mt-1 text-[11px] text-white/40">
+                  Hold the participant&apos;s QR code inside the frame.
+                </p>
+              </div>
+            )}
 
             {scanning && (
               <button
                 type="button"
-                onClick={stopScanner}
+                onClick={() => {
+                  processingRef.current = true
+                  stopScanner()
+                }}
                 className="mt-4 w-full rounded-xl border border-white/10 px-5 py-3 text-sm font-bold text-white/60 transition hover:bg-white/5 hover:text-white"
               >
                 STOP SCANNER
               </button>
-            )}
-
-            {loading && (
-              <div className="mt-5 rounded-2xl border border-white/10 bg-white/[0.03] p-5 text-center">
-                <div className="text-sm font-bold uppercase tracking-wider text-white">
-                  Verifying Registration
-                </div>
-
-                <p className="mt-1 text-xs text-white/40">
-                  Please wait...
-                </p>
-              </div>
             )}
           </div>
         )}
@@ -451,13 +360,11 @@ export default function CheckInScanner() {
                 )}
               </div>
 
-              <button
-                type="button"
-                onClick={startScanner}
-                className="mt-7 w-full rounded-2xl bg-white px-6 py-5 text-base font-black text-black transition hover:bg-white/90 active:scale-[0.99]"
-              >
-                SCAN NEXT PARTICIPANT
-              </button>
+              <div className="mt-7 rounded-xl bg-green-500/10 px-4 py-3">
+                <p className="text-xs font-bold text-green-400">
+                  READYING NEXT SCAN...
+                </p>
+              </div>
             </div>
           </div>
         )}
@@ -483,13 +390,11 @@ export default function CheckInScanner() {
                 {error}
               </p>
 
-              <button
-                type="button"
-                onClick={startScanner}
-                className="mt-7 w-full rounded-2xl bg-red-600 px-6 py-5 text-base font-black text-white transition hover:bg-red-700 active:scale-[0.99]"
-              >
-                TRY AGAIN
-              </button>
+              <div className="mt-7 rounded-xl bg-red-500/10 px-4 py-3">
+                <p className="text-xs font-bold text-red-400">
+                  RETURNING TO SCANNER...
+                </p>
+              </div>
             </div>
           </div>
         )}
