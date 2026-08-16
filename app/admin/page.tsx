@@ -819,6 +819,7 @@ const arrivalActivity = Object.entries(arrivalByHour)
     </div>
   </div>
 )}
+        {/* Peak Arrival */}
         <div className="mt-6 grid gap-4 sm:grid-cols-2">
   <div className="rounded-2xl border border-red-500/20 bg-red-500/5 p-5">
     <div className="flex items-center justify-between">
