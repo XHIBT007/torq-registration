@@ -427,61 +427,7 @@ const arrivalActivity = Object.entries(arrivalByHour)
     hour,
     count,
   }))
-  <section className="mt-6 rounded-2xl border border-white/10 bg-white/[0.03] overflow-hidden">
-  <div className="border-b border-white/10 px-6 py-5">
-    <h2 className="font-bold uppercase tracking-wider">
-      Arrival Activity
-    </h2>
-
-    <p className="mt-1 text-sm text-white/40">
-      Check-ins grouped by arrival hour
-    </p>
-  </div>
-
-  {arrivalActivity.length === 0 ? (
-    <div className="px-6 py-10 text-center text-sm text-white/40">
-      Arrival activity will appear here once participants check in.
-    </div>
-  ) : (
-    <div className="space-y-4 p-6">
-      {arrivalActivity.map(({ hour, count }) => {
-        const maxCount = Math.max(
-          ...arrivalActivity.map((item) => item.count),
-          1
-        )
-
-        const width = Math.max(
-          4,
-          Math.round((count / maxCount) * 100)
-        )
-
-        return (
-          <div key={hour}>
-            <div className="mb-2 flex items-center justify-between text-xs">
-              <span className="font-mono text-white/50">
-                {hour}
-              </span>
-
-              <span className="font-semibold text-white">
-                {count}{' '}
-                {count === 1 ? 'arrival' : 'arrivals'}
-              </span>
-            </div>
-
-            <div className="h-3 overflow-hidden rounded-full bg-white/5">
-              <div
-                className="h-full rounded-full bg-red-500 transition-all duration-700"
-                style={{
-                  width: `${width}%`,
-                }}
-              />
-            </div>
-          </div>
-        )
-      })}
-    </div>
-  )}
-</section>
+  
 
   return (
     <main className="min-h-screen bg-black text-white">
@@ -868,6 +814,62 @@ const arrivalActivity = Object.entries(arrivalByHour)
     </div>
   </div>
 )}
+        {/* Arrival Activity */}
+       <section className="mt-6 rounded-2xl border border-white/10 bg-white/[0.03] overflow-hidden">
+  <div className="border-b border-white/10 px-6 py-5">
+    <h2 className="font-bold uppercase tracking-wider">
+      Arrival Activity
+    </h2>
+
+    <p className="mt-1 text-sm text-white/40">
+      Check-ins grouped by arrival hour
+    </p>
+  </div>
+
+  {arrivalActivity.length === 0 ? (
+    <div className="px-6 py-10 text-center text-sm text-white/40">
+      Arrival activity will appear here once participants check in.
+    </div>
+  ) : (
+    <div className="space-y-4 p-6">
+      {arrivalActivity.map(({ hour, count }) => {
+        const maxCount = Math.max(
+          ...arrivalActivity.map((item) => item.count),
+          1
+        )
+
+        const width = Math.max(
+          4,
+          Math.round((count / maxCount) * 100)
+        )
+
+        return (
+          <div key={hour}>
+            <div className="mb-2 flex items-center justify-between text-xs">
+              <span className="font-mono text-white/50">
+                {hour}
+              </span>
+
+              <span className="font-semibold text-white">
+                {count}{' '}
+                {count === 1 ? 'arrival' : 'arrivals'}
+              </span>
+            </div>
+
+            <div className="h-3 overflow-hidden rounded-full bg-white/5">
+              <div
+                className="h-full rounded-full bg-red-500 transition-all duration-700"
+                style={{
+                  width: `${width}%`,
+                }}
+              />
+            </div>
+          </div>
+        )
+      })}
+    </div>
+  )}
+</section> 
         {/* Registrations */}
         <section className="mt-8 overflow-hidden rounded-2xl border border-white/10 bg-white/[0.03]">
           <div className="border-b border-white/10 px-6 py-5">
