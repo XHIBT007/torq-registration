@@ -553,6 +553,112 @@ const arrivalRate =
   />
 </div>
 
+        {/* Live Arrivals */}
+<section className="mt-8 rounded-2xl border border-green-500/20 bg-green-500/[0.03] overflow-hidden">
+  <div className="flex items-center justify-between border-b border-white/10 px-6 py-5">
+    <div>
+      <div className="flex items-center gap-2">
+        <span className="h-2.5 w-2.5 rounded-full bg-green-500 shadow-[0_0_12px_rgba(34,197,94,0.8)]" />
+        <h2 className="font-bold uppercase tracking-wider">
+          Live Arrivals
+        </h2>
+      </div>
+
+      <p className="mt-1 text-sm text-white/40">
+        Most recent participant check-ins
+      </p>
+    </div>
+
+    <span className="rounded-full bg-green-500/10 px-3 py-1 text-xs font-semibold text-green-400">
+      LIVE
+    </span>
+  </div>
+
+  {registrations.filter(
+    (registration) => registration.checked_in === true
+  ).length === 0 ? (
+    <div className="px-6 py-10 text-center text-sm text-white/40">
+      No participants have checked in yet.
+    </div>
+  ) : (
+    <div className="divide-y divide-white/5">
+      {registrations
+        .filter(
+          (registration) => registration.checked_in === true
+        )
+        .sort(
+          (a, b) =>
+            new Date(b.checked_in_at || 0).getTime() -
+            new Date(a.checked_in_at || 0).getTime()
+        )
+        .slice(0, 8)
+        .map((registration) => {
+          const Icon =
+            participantIcons[
+              registration.participant_type || ''
+            ] || Users
+
+          return (
+            <div
+              key={registration.id}
+              className="flex items-center justify-between px-6 py-4 transition hover:bg-white/[0.03]"
+            >
+              <div className="flex min-w-0 items-center gap-4">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-green-500/10">
+                  <Icon className="h-4 w-4 text-green-400" />
+                </div>
+
+                <div className="min-w-0">
+                  <p className="truncate font-semibold text-white">
+                    {registration.full_name}
+                  </p>
+
+                  <div className="mt-1 flex flex-wrap items-center gap-2 text-xs text-white/40">
+                    <span className="font-mono text-red-400">
+                      {registration.registration_number || '—'}
+                    </span>
+
+                    <span>•</span>
+
+                    <span>
+                      {registration.participant_type || 'Participant'}
+                    </span>
+
+                    {registration.vehicle_make && (
+                      <>
+                        <span>•</span>
+                        <span>
+                          {registration.vehicle_make}{' '}
+                          {registration.vehicle_model || ''}
+                        </span>
+                      </>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              <div className="ml-4 shrink-0 text-right">
+                <span className="text-sm font-semibold text-green-400">
+                  ✓
+                </span>
+
+                <p className="mt-1 text-xs text-white/40">
+                  {registration.checked_in_at
+                    ? new Date(
+                        registration.checked_in_at
+                      ).toLocaleTimeString('en-NG', {
+                        hour: '2-digit',
+                        minute: '2-digit',
+                      })
+                    : '—'}
+                </p>
+              </div>
+            </div>
+          )
+        })}
+    </div>
+  )}
+</section>
         {/* Controls */}
         <div className="mt-10 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           <div className="relative w-full md:max-w-md">
