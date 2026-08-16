@@ -428,6 +428,11 @@ const arrivalActivity = Object.entries(arrivalByHour)
     count,
   }))
   
+ const peakArrival = arrivalActivity.reduce(
+  (peak, current) =>
+    current.count > peak.count ? current : peak,
+  { hour: '—', count: 0 }
+) 
 
   return (
     <main className="min-h-screen bg-black text-white">
@@ -814,6 +819,29 @@ const arrivalActivity = Object.entries(arrivalByHour)
     </div>
   </div>
 )}
+        <div className="mt-6 grid gap-4 sm:grid-cols-2">
+  <div className="rounded-2xl border border-red-500/20 bg-red-500/5 p-5">
+    <div className="flex items-center justify-between">
+      <p className="text-xs uppercase tracking-[0.2em] text-white/40">
+        Peak Arrival Period
+      </p>
+
+      <span className="text-lg">🔥</span>
+    </div>
+
+    <p className="mt-4 text-3xl font-black text-white">
+      {peakArrival.hour}
+    </p>
+
+    <p className="mt-2 text-sm text-white/50">
+      {peakArrival.count === 0
+        ? 'No check-ins yet'
+        : `${peakArrival.count} ${
+            peakArrival.count === 1 ? 'arrival' : 'arrivals'
+          } during this period`}
+    </p>
+  </div>
+</div>
         {/* Arrival Activity */}
        <section className="mt-6 rounded-2xl border border-white/10 bg-white/[0.03] overflow-hidden">
   <div className="border-b border-white/10 px-6 py-5">
