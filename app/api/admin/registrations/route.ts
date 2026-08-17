@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server'
 import { supabase } from '@/lib/supabase'
 import { supabaseAdmin } from '@/lib/supabase-admin'
+import { Resend } from 'resend'
+import QRCode from 'qrcode'
 
 export async function GET(request: Request) {
   try {
