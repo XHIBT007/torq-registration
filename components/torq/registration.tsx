@@ -162,8 +162,31 @@ function RegistrationDialog({ onClose }: { onClose: () => void }) {
   return
 }
 
-  setRegNumber(registrationNumber)
-  setSubmitted(true)
+// Send confirmation email
+try {
+  const emailResponse = await fetch('/api/send-confirmation', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      email: form.email,
+      fullName: form.fullName,
+      registrationNumber,
+      participantType: form.participantType,
+    }),
+  })
+
+  if (!emailResponse.ok) {
+    const emailError = await emailResponse.json()
+    console.error('Confirmation email error:', emailError)
+  }
+} catch (emailError) {
+  console.error('Failed to send confirmation email:', emailError)
+}
+
+setRegNumber(registrationNumber)
+setSubmitted(true)
 }
 
   const copyNumber = () => {
