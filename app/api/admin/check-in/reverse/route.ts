@@ -1,9 +1,11 @@
 import { NextResponse } from 'next/server'
 import { supabase } from '@/lib/supabase'
-import { supabaseAdmin } from '@/lib/supabase-admin'
+import { getSupabaseAdmin } from '@/lib/supabase-admin'
 
 export async function PATCH(request: Request) {
   try {
+    const supabaseAdmin = getSupabaseAdmin()
+    
     const authHeader = request.headers.get('authorization')
 
     if (!authHeader?.startsWith('Bearer ')) {
