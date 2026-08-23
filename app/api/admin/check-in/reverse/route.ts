@@ -4,8 +4,6 @@ import { supabaseAdmin } from '@/lib/supabase-admin'
 
 export async function PATCH(request: Request) {
   try {
-    const supabaseAdmin = getSupabaseAdmin()
-    
     const authHeader = request.headers.get('authorization')
 
     if (!authHeader?.startsWith('Bearer ')) {
@@ -42,15 +40,13 @@ export async function PATCH(request: Request) {
     const { data: registration, error: findError } =
       await supabaseAdmin
         .from('registrations')
-        .select(
-          `
+        .select(`
           id,
           registration_number,
           full_name,
           checked_in,
           checked_in_at
-          `,
-        )
+        `)
         .eq('registration_number', registrationNumber)
         .single()
 
@@ -75,15 +71,13 @@ export async function PATCH(request: Request) {
         checked_in_at: null,
       })
       .eq('id', registration.id)
-      .select(
-        `
+      .select(`
         id,
         registration_number,
         full_name,
         checked_in,
         checked_in_at
-        `,
-      )
+      `)
       .single()
 
     if (updateError) {
