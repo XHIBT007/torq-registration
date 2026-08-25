@@ -9,61 +9,15 @@ import {
   Flame,
 } from "lucide-react"
 
-export const EXPERIENCES: Experience[] = [
-  {
-    number: "01",
-    title: "DRIFT & BURNOUT",
-    category: "MOTORSPORT",
-    description:
-      "Smoke. Sound. Sideways precision. Watch fearless drivers push performance machines to their limits in one of TOR'Q's most explosive spectacles.",
-    image: "/images/exp-drift.png",
-    label: "RAW POWER",
-  },
-  {
-    number: "02",
-    title: "POWER BIKE STUNTS",
-    category: "LIVE ACTION",
-    description:
-      "Two wheels. No limits. Precision riding, fearless stunts and incredible control delivered by some of the most daring riders on two wheels.",
-    image: "/images/exp-bike.png",
-    label: "TWO-WHEEL ACTION",
-  },
-  {
-    number: "03",
-    title: "CARS ON THE RUNWAY",
-    category: "AUTOMOTIVE ART",
-    description:
-      "Where automotive engineering becomes art. Performance cars, rare machines and automotive icons take centre stage in a runway built for them.",
-    image: "/images/exp-supercar.png",
-    label: "AUTOMOTIVE ARTISTRY",
-  },
-  {
-    number: "04",
-    title: "MOTORSPORT THEATRE",
-    category: "THE SPECTACLE",
-    description:
-      "An immersive arena where motorsport, storytelling, sound and technology come together to turn machines into unforgettable moments.",
-    image: "/images/exp-drift.png",
-    label: "IMMERSIVE",
-  },
-  {
-    number: "05",
-    title: "SIM RACING",
-    category: "DIGITAL MOTORSPORT",
-    description:
-      "Take the wheel and compete. TOR'Q brings competitive sim racing into the festival, connecting virtual drivers with the real world of motorsport.",
-    image: "/images/exp-sim.png",
-    label: "COMPETE",
-  },
-  {
-    number: "06",
-    title: "THE TOR'Q RAVE",
-    category: "MUSIC & CULTURE",
-    description:
-      "When the engines stop, the energy doesn't. Music, lights, creators and car culture collide in one unforgettable celebration.",
-    image: "/images/exp-vip.png",
-    label: "MUSIC & CULTURE",
-  },
+import { EXPERIENCES } from "@/lib/torq-data"
+
+const ICONS = [
+  Flame,
+  Bike,
+  Car,
+  Flame,
+  Gamepad2,
+  Music2,
 ]
 
 export function Experiences() {
@@ -75,6 +29,7 @@ export function Experiences() {
       <div className="pointer-events-none absolute left-1/2 top-0 h-[500px] w-[700px] -translate-x-1/2 rounded-full bg-red-600/10 blur-[140px]" />
 
       <div className="relative mx-auto max-w-7xl px-6 lg:px-10">
+
         {/* Header */}
         <div className="mb-16 flex flex-col justify-between gap-8 md:flex-row md:items-end">
           <div className="max-w-3xl">
@@ -98,14 +53,23 @@ export function Experiences() {
 
         {/* Cards */}
         <div className="grid gap-4 md:grid-cols-2">
-          {EXPERIENCES.map((experience) => {
-            const Icon = experience.icon
+          {EXPERIENCES.map((experience, index) => {
+            const Icon = ICONS[index] ?? Flame
 
             return (
               <article
                 key={experience.number}
                 className="group relative min-h-[390px] overflow-hidden rounded-2xl border border-white/10 bg-neutral-950 p-7 transition-all duration-500 hover:border-red-500/50 md:min-h-[420px]"
               >
+
+                {/* Background image */}
+                <div
+                  className="absolute inset-0 bg-cover bg-center opacity-0 transition-all duration-700 group-hover:scale-105 group-hover:opacity-20"
+                  style={{
+                    backgroundImage: `url(${experience.image})`,
+                  }}
+                />
+
                 {/* Hover glow */}
                 <div className="absolute inset-0 bg-gradient-to-br from-red-600/10 via-transparent to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
 
@@ -142,7 +106,7 @@ export function Experiences() {
                   </p>
                 </div>
 
-                {/* Explore button */}
+                {/* Explore indicator */}
                 <div className="absolute bottom-7 right-7 flex h-11 w-11 items-center justify-center rounded-full border border-white/15 transition-all duration-300 group-hover:border-red-500 group-hover:bg-red-500">
                   <ArrowUpRight
                     size={18}
@@ -165,6 +129,7 @@ export function Experiences() {
             <span className="text-red-500"> Leave with a story.</span>
           </p>
         </div>
+
       </div>
     </section>
   )
