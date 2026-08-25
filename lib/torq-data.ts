@@ -96,43 +96,39 @@ export const SPONSORS: string[] = []
 export const FAQS = [
   {
     q: "When and where does TOR'Q take place?",
-    a: "TOR'Q takes place on December 6, 2026 in Lagos, Nigeria. Full venue, access and parking details will be announced ahead of the event.",
+    a: "TOR'Q 2026 takes place on December 6, 2026 in Lagos, Nigeria. Full venue and access details will be communicated to registered participants ahead of the event.",
   },
   {
     q: "How do I register for TOR'Q?",
-    a: "Complete the official registration form on the TOR'Q website. Your registration will be reviewed by the TOR'Q team. Approved participants will receive their official TOR'Q QR pass by email.",
+    a: "Click REGISTER NOW and complete the registration form with your details. Once submitted, your registration will be reviewed by the TOR'Q team.",
   },
   {
     q: "What happens after I register?",
-    a: "After submitting your registration, you will receive a confirmation email containing your registration number. Your registration will then be reviewed. If approved, your official TOR'Q QR pass will be sent to your email.",
+    a: "You'll receive a registration confirmation with your unique registration number. Your application will then be reviewed. If approved, you'll receive your official TOR'Q QR pass by email.",
   },
   {
-    q: "What is included in general access?",
-    a: "General access gives you entry into the main TOR'Q experience, including drift displays, performance cars, stunt shows, entertainment, sim racing and other public areas.",
-  },
-  {
-    q: "What is VIP access?",
-    a: "VIP access offers a more elevated TOR'Q experience, including premium viewing areas, dedicated access, hospitality and other exclusive benefits. VIP access is limited and subject to approval.",
-  },
-  {
-    q: "Can I request VIP access?",
-    a: "Yes. VIP access is limited. Select VIP during registration to submit a request. The TOR'Q team will review VIP requests and confirm approved guests separately.",
+    q: "What do I need my QR pass for?",
+    a: "Your QR pass is your official digital access pass for TOR'Q. Keep it accessible on your phone or save the attached QR image. It will be scanned at the entrance during check-in.",
   },
   {
     q: "Can I participate as a driver or rider?",
-    a: "Yes. Select your participant type during registration. Drivers and riders must meet TOR'Q safety and eligibility requirements before participating.",
+    a: "Yes. Drivers and riders can select their participant type during registration. Participation is subject to TOR'Q's safety, eligibility and event requirements.",
+  },
+  {
+    q: "Can I display my car at TOR'Q?",
+    a: "Yes. Selected performance, modified, classic and enthusiast vehicles may be featured as part of the TOR'Q automotive experience. Vehicle display opportunities are subject to approval.",
+  },
+  {
+    q: "What is VIP access?",
+    a: "VIP access is a premium TOR'Q experience designed for guests who want elevated hospitality, exclusive viewing and a more private way to experience the event. VIP access is limited and subject to availability.",
+  },
+  {
+    q: "Can I bring my family?",
+    a: "Yes. TOR'Q is designed to bring together motorsport enthusiasts, friends and families. Specific age and access requirements will be communicated ahead of the event.",
   },
   {
     q: "Is TOR'Q a racing event?",
     a: "TOR'Q is not a conventional racing event. It is a celebration of motorsport culture featuring drifting, burnouts, stunt riding, performance cars, sim racing, music and immersive experiences.",
-  },
-  {
-    q: "Can I bring my family?",
-    a: "Yes. TOR'Q is designed as a celebration of motorsport culture for enthusiasts, friends and families. Specific age and access requirements will be communicated ahead of the event.",
-  },
-  {
-    q: "Can I display my car at TOR'Q?",
-    a: "Yes. Vehicle display opportunities will be available for selected performance, modified, classic and enthusiast vehicles. Details on applications and eligibility will be announced.",
   },
   {
     q: "How can brands partner with TOR'Q?",
