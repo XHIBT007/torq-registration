@@ -9,14 +9,14 @@ import {
   Flame,
 } from "lucide-react"
 
-const EXPERIENCES = [
+export const EXPERIENCES: Experience[] = [
   {
     number: "01",
     title: "DRIFT & BURNOUT",
     category: "MOTORSPORT",
     description:
       "Smoke. Sound. Sideways precision. Watch fearless drivers push performance machines to their limits in one of TOR'Q's most explosive spectacles.",
-    icon: Flame,
+    image: "/images/exp-drift.png",
     label: "RAW POWER",
   },
   {
@@ -25,7 +25,7 @@ const EXPERIENCES = [
     category: "LIVE ACTION",
     description:
       "Two wheels. No limits. Precision riding, fearless stunts and incredible control delivered by some of the most daring riders on two wheels.",
-    icon: Bike,
+    image: "/images/exp-bike.png",
     label: "TWO-WHEEL ACTION",
   },
   {
@@ -34,7 +34,7 @@ const EXPERIENCES = [
     category: "AUTOMOTIVE ART",
     description:
       "Where automotive engineering becomes art. Performance cars, rare machines and automotive icons take centre stage in a runway built for them.",
-    icon: Car,
+    image: "/images/exp-supercar.png",
     label: "AUTOMOTIVE ARTISTRY",
   },
   {
@@ -43,7 +43,7 @@ const EXPERIENCES = [
     category: "THE SPECTACLE",
     description:
       "An immersive arena where motorsport, storytelling, sound and technology come together to turn machines into unforgettable moments.",
-    icon: Flame,
+    image: "/images/exp-drift.png",
     label: "IMMERSIVE",
   },
   {
@@ -52,7 +52,7 @@ const EXPERIENCES = [
     category: "DIGITAL MOTORSPORT",
     description:
       "Take the wheel and compete. TOR'Q brings competitive sim racing into the festival, connecting virtual drivers with the real world of motorsport.",
-    icon: Gamepad2,
+    image: "/images/exp-sim.png",
     label: "COMPETE",
   },
   {
@@ -61,8 +61,8 @@ const EXPERIENCES = [
     category: "MUSIC & CULTURE",
     description:
       "When the engines stop, the energy doesn't. Music, lights, creators and car culture collide in one unforgettable celebration.",
-    icon: Music2,
-    label: "AFTER DARK",
+    image: "/images/exp-vip.png",
+    label: "MUSIC & CULTURE",
   },
 ]
 
