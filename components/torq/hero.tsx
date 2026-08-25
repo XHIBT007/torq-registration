@@ -36,7 +36,7 @@ export function Hero() {
             <span className="mr-2 h-2 w-2 rounded-full bg-red-500" />
 
             <span className="text-sm font-semibold uppercase tracking-[0.25em] text-white">
-              Lagos • December 2026
+              Lagos • December 6, 2026
             </span>
           </div>
 
@@ -59,7 +59,7 @@ export function Hero() {
           <p className="mt-8 max-w-2xl text-lg leading-8 text-gray-300">
             A cinematic celebration of speed, sound and precision where
             drifting legends, stunt riders, performance cars and motorsport
-            culture collide for one unforgettable weekend.
+            culture collide for one unforgettable experience.
           </p>
 
           {/* CTA */}
@@ -70,7 +70,7 @@ export function Hero() {
               className="h-14 rounded-full bg-red-600 px-8 text-base font-bold text-white transition-all duration-300 hover:scale-105 hover:bg-red-500"
             >
               <Ticket className="mr-2 h-5 w-5" />
-              GET TICKETS
+              REGISTER NOW
             </Button>
 
             <div className="flex items-center gap-2 text-base text-white/80">
