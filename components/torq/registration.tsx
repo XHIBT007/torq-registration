@@ -274,54 +274,151 @@ setSubmitted(true)
               )}
 
               {step === 1 && (
-                <div className="grid gap-5">
-                  <div className="grid gap-2">
-                    <span className="text-xs font-medium tracking-wide text-muted-foreground uppercase">
-                      Participant Type
-                    </span>
-                    <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
-                      {PARTICIPANT_TYPES.map((type) => {
-                        const Icon = PARTICIPANT_ICONS[type]
-                        const active = form.participantType === type
-                        return (
-                          <button
-                            key={type}
-                            type="button"
-                            onClick={() => update('participantType', type)}
-                            className={cn(
-                              'flex flex-col items-center gap-2 rounded-md border px-3 py-4 text-center text-sm transition-all',
-                              active
-                                ? 'border-primary bg-primary/10 text-foreground'
-                                : 'border-border bg-secondary/40 text-muted-foreground hover:border-accent/50 hover:text-foreground',
-                            )}
-                          >
-                            <Icon
-                              className={cn(
-                                'size-5',
-                                active ? 'text-primary' : 'text-accent',
-                              )}
-                            />
-                            {type}
-                          </button>
-                        )
-                      })}
-                    </div>
-                  </div>
-                  <Field
-                    label="Emergency Contact"
-                    value={form.emergencyContact}
-                    onChange={(v) => update('emergencyContact', v)}
-                    placeholder="Name & phone number"
-                  />
-                </div>
+  <div className="grid gap-5">
+
+    <div className="grid gap-5">
+
+      {/* Standard participation */}
+      <div className="grid gap-2">
+        <span className="text-xs font-medium tracking-wide text-muted-foreground uppercase">
+          Join the action
+        </span>
+
+        <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+          {PARTICIPANT_TYPES.filter((type) => type !== 'VIP').map((type) => {
+            const Icon = PARTICIPANT_ICONS[type]
+            const active = form.participantType === type
+
+            return (
+              <button
+                key={type}
+                type="button"
+                onClick={() => update('participantType', type)}
+                className={cn(
+                  'flex min-h-[105px] flex-col items-center justify-center gap-2 rounded-md border px-3 py-4 text-center text-sm transition-all',
+                  active
+                    ? 'border-primary bg-primary/10 text-foreground'
+                    : 'border-border bg-secondary/40 text-muted-foreground hover:border-accent/50 hover:text-foreground',
+                )}
+              >
+                <Icon
+                  className={cn(
+                    'size-5',
+                    active ? 'text-primary' : 'text-accent',
+                  )}
+                />
+
+                {type}
+              </button>
+            )
+          })}
+        </div>
+      </div>
+
+      {/* VIP */}
+      <div className="relative overflow-hidden rounded-lg border border-gold/30 bg-gradient-to-br from-gold/10 via-background to-primary/5 p-5">
+
+        <div className="pointer-events-none absolute -right-10 -top-10 size-32 rounded-full bg-gold/10 blur-3xl" />
+
+        <div className="relative">
+
+          <div className="flex items-start justify-between gap-4">
+
+            <div>
+              <div className="flex items-center gap-2">
+                <Crown className="size-4 text-gold" />
+
+                <span className="text-[10px] font-bold tracking-[0.25em] text-gold uppercase">
+                  VIP & Hospitality
+                </span>
+              </div>
+
+              <h3 className="mt-2 font-display text-xl font-bold tracking-wide">
+                Experience TOR&apos;Q differently.
+              </h3>
+
+              <p className="mt-2 max-w-md text-sm leading-relaxed text-muted-foreground">
+                Request access to our premium hospitality experience with
+                elevated viewing, dedicated access and an exclusive way to
+                experience the spectacle.
+              </p>
+            </div>
+
+            <div className="hidden shrink-0 rounded-full border border-gold/30 bg-gold/10 px-3 py-1 text-[9px] font-bold tracking-[0.2em] text-gold uppercase sm:block">
+              Limited
+            </div>
+
+          </div>
+
+          <button
+            type="button"
+            onClick={() => update('participantType', 'VIP')}
+            className={cn(
+              'mt-5 flex w-full items-center justify-between rounded-md border px-4 py-3 text-left transition-all',
+              form.participantType === 'VIP'
+                ? 'border-gold bg-gold/15 text-foreground'
+                : 'border-gold/30 bg-background/40 text-muted-foreground hover:border-gold/60 hover:text-foreground',
+            )}
+          >
+            <div className="flex items-center gap-3">
+              <div
+                className={cn(
+                  'flex size-9 items-center justify-center rounded-full border',
+                  form.participantType === 'VIP'
+                    ? 'border-gold bg-gold text-black'
+                    : 'border-gold/30 text-gold',
+                )}
+              >
+                <Crown className="size-4" />
+              </div>
+
+              <div>
+                <p className="text-sm font-semibold">
+                  Request VIP Access
+                </p>
+
+                <p className="mt-0.5 text-xs text-muted-foreground">
+                  Subject to approval
+                </p>
+              </div>
+            </div>
+
+            <span
+              className={cn(
+                'text-xs font-bold uppercase tracking-wider',
+                form.participantType === 'VIP'
+                  ? 'text-gold'
+                  : 'text-muted-foreground',
               )}
+            >
+              {form.participantType === 'VIP'
+                ? 'Selected'
+                : 'Request'}
+            </span>
+          </button>
+
+        </div>
+      </div>
+
+    </div>
+
+    {/* Emergency Contact */}
+    <Field
+      label="Emergency Contact"
+      value={form.emergencyContact}
+      onChange={(v) => update('emergencyContact', v)}
+      placeholder="Name & phone number"
+    />
+
+  </div>
+)}
 
               {step === 2 && (
                 <div className="grid gap-4">
                   <p className="text-sm text-muted-foreground">
-                    Bringing a machine? Tell us what you&apos;ll be running.
-                    Leave blank if you&apos;re joining as a spectator or VIP.
-                  </p>
+  Bringing a machine? Tell us what you&apos;ll be running.
+  Vehicle details are optional for spectators, sim racers and VIP guests.
+</p>
                   <div className="grid gap-4 sm:grid-cols-2">
                     <Field
                       label="Vehicle Make"
