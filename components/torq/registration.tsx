@@ -228,12 +228,13 @@ setSubmitted(true)
 
         {submitted ? (
           <SuccessView
-            regNumber={regNumber}
-            name={form.fullName}
-            copied={copied}
-            onCopy={copyNumber}
-            onClose={onClose}
-          />
+  regNumber={regNumber}
+  name={form.fullName}
+  participantType={form.participantType}
+  copied={copied}
+  onCopy={copyNumber}
+  onClose={onClose}
+/>
         ) : (
           <div className="p-6 sm:p-8">
             <p className="font-display text-xs tracking-[0.3em] text-accent uppercase">
@@ -590,16 +591,95 @@ function SummaryRow({ label, value }: { label: string; value: string }) {
 function SuccessView({
   regNumber,
   name,
+  participantType,
   copied,
   onCopy,
   onClose,
 }: {
   regNumber: string
   name: string
+  participantType: ParticipantType | ''
   copied: boolean
   onCopy: () => void
   onClose: () => void
 }) {
+  const isVip = participantType === 'VIP'
+
+  return (
+    <div className="p-8 text-center">
+
+      <div
+        className={cn(
+          'animate-scale-in mx-auto flex size-16 items-center justify-center rounded-full ring-4',
+          isVip
+            ? 'bg-gold/15 text-gold ring-gold/10'
+            : 'bg-primary/15 text-primary ring-primary/10',
+        )}
+      >
+        {isVip ? (
+          <Crown className="size-8" />
+        ) : (
+          <Trophy className="size-8" />
+        )}
+      </div>
+
+      <h2 className="font-display mt-6 text-3xl font-bold tracking-wide">
+        {isVip ? 'VIP Request Received' : 'Registration Successful'}
+      </h2>
+
+      <p className="mt-2 text-sm text-muted-foreground">
+        {name ? `See you at the grid, ${name.split(' ')[0]}. ` : ''}
+
+        {isVip
+          ? 'Your VIP access request has been received and is subject to approval.'
+          : 'Your registration has been received and a confirmation has been sent to your inbox.'}
+      </p>
+
+      {isVip && (
+        <div className="mt-5 rounded-lg border border-gold/30 bg-gold/5 p-4 text-left">
+          <div className="flex items-start gap-3">
+            <Crown className="mt-0.5 size-4 shrink-0 text-gold" />
+
+            <div>
+              <p className="text-sm font-semibold text-foreground">
+                VIP access is limited
+              </p>
+
+              <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
+                Your registration number confirms that your request has been
+                received. It does not guarantee VIP access. Our team will
+                review your request and contact you with the outcome.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <div className="mt-6 rounded-lg border border-border bg-secondary/40 p-5">
+        <p className="text-xs tracking-[0.25em] text-muted-foreground uppercase">
+          Your Registration Number
+        </p>
+
+        <p className="text-gold-shimmer font-display mt-2 text-2xl font-bold tracking-[0.15em] sm:text-3xl">
+          {regNumber}
+        </p>
+
+        <button
+          onClick={onCopy}
+          className="mt-3 inline-flex items-center gap-1.5 text-xs text-accent transition-opacity hover:opacity-80"
+        >
+          <Copy className="size-3.5" />
+          {copied ? 'Copied!' : 'Copy number'}
+        </button>
+      </div>
+
+      <Button size="lg" className="mt-6 w-full" onClick={onClose}>
+        Done
+      </Button>
+
+    </div>
+  )
+}
   return (
     <div className="p-8 text-center">
       <div className="animate-scale-in mx-auto flex size-16 items-center justify-center rounded-full bg-primary/15 text-primary ring-4 ring-primary/10">
