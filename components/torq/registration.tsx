@@ -2,7 +2,6 @@
 
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
-import { supabase } from '@/lib/supabase'
 import { PARTICIPANT_TYPES, type ParticipantType } from '@/lib/torq-data'
 import {
   Bike,
@@ -136,31 +135,37 @@ function RegistrationDialog({ onClose }: { onClose: () => void }) {
   }, [step, form])
 
   const handleSubmit = async () => {
-  const n = Math.floor(Math.random() * 999999) + 1
-  const registrationNumber = `TORQ-2026-${String(n).padStart(6, '0')}`
-
-  const { error } = await supabase.from('registrations').insert({
-    full_name: form.fullName,
+  const response = await fetch('/api/register', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+  },
+  body: JSON.stringify({
+    fullName: form.fullName,
     email: form.email,
     phone: form.phone,
     city: form.city,
-    participant_type: form.participantType,
-    emergency_contact: form.emergencyContact,
-    vehicle_make: form.vehicleMake || null,
-    vehicle_model: form.vehicleModel || null,
-    instagram: form.instagram || null,
-    registration_number: registrationNumber,
-  })
+    participantType: form.participantType,
+    emergencyContact: form.emergencyContact,
+    vehicleMake: form.vehicleMake,
+    vehicleModel: form.vehicleModel,
+    instagram: form.instagram,
+  }),
+})
 
-  if (error) {
-  console.error('Registration error:', error)
+const result = await response.json()
+
+if (!response.ok) {
+  console.error('Registration error:', result)
 
   alert(
-    `Registration failed:\n\n${error.message}`
+    `Registration failed:\n\n${result.error || 'Please try again.'}`
   )
 
   return
 }
+
+const registrationNumber = result.registrationNumber
 
 // Send confirmation email
 try {
