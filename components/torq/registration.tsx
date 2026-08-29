@@ -897,88 +897,207 @@ function SuccessView({
   onCopy: () => void
   onClose: () => void
 }) {
-  const isVip =
-    participantType === 'VIP'
+  const isVip = participantType === 'VIP'
+
+  const firstName = name
+    ? name.trim().split(/\s+/)[0]
+    : ''
 
   return (
-    <div className="p-8 text-center">
-      <div
-        className={cn(
-          'animate-scale-in mx-auto flex size-16 items-center justify-center rounded-full ring-4',
-          isVip
-            ? 'bg-gold/15 text-gold ring-gold/10'
-            : 'bg-primary/15 text-primary ring-primary/10',
-        )}
-      >
-        {isVip ? (
-          <Crown className="size-8" />
-        ) : (
-          <Trophy className="size-8" />
-        )}
-      </div>
-
-      <h2 className="font-display mt-6 text-3xl font-bold tracking-wide">
-        {isVip
-          ? 'VIP Request Received'
-          : 'Registration Successful'}
-      </h2>
-
-      <p className="mt-2 text-sm text-muted-foreground">
-        {name
-          ? `See you at the grid, ${name.split(' ')[0]}. `
-          : ''}
-
-        {isVip
-          ? 'Your VIP access request has been received and is subject to approval.'
-          : 'Your registration has been received and a confirmation has been sent to your inbox.'}
-      </p>
-
+    <div className="relative overflow-hidden p-6 text-center sm:p-8">
+      {/* VIP ambient glow */}
       {isVip && (
-        <div className="mt-5 rounded-lg border border-gold/30 bg-gold/5 p-4 text-left">
-          <div className="flex items-start gap-3">
-            <Crown className="mt-0.5 size-4 shrink-0 text-gold" />
+        <>
+          <div className="pointer-events-none absolute -top-32 left-1/2 size-72 -translate-x-1/2 rounded-full bg-gold/10 blur-3xl" />
 
-            <div>
-              <p className="text-sm font-semibold text-foreground">
-                VIP access is limited
-              </p>
-
-              <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
-                Your registration number confirms that your request has been received. It does not guarantee VIP access. Our team will review your request and contact you with the outcome.
-              </p>
-            </div>
-          </div>
-        </div>
+          <div className="pointer-events-none absolute -bottom-32 -left-20 size-64 rounded-full bg-primary/10 blur-3xl" />
+        </>
       )}
 
-      <div className="mt-6 rounded-lg border border-border bg-secondary/40 p-5">
-        <p className="text-xs tracking-[0.25em] text-muted-foreground uppercase">
-          Your Registration Number
-        </p>
-
-        <p className="text-gold-shimmer font-display mt-2 text-2xl font-bold tracking-[0.15em] sm:text-3xl">
-          {regNumber}
-        </p>
-
-        <button
-          onClick={onCopy}
-          className="mt-3 inline-flex items-center gap-1.5 text-xs text-accent transition-opacity hover:opacity-80"
+      <div className="relative">
+        {/* Success Icon */}
+        <div
+          className={cn(
+            'animate-scale-in mx-auto flex size-20 items-center justify-center rounded-full border',
+            isVip
+              ? 'border-gold/40 bg-gold/10 text-gold'
+              : 'border-primary/30 bg-primary/10 text-primary',
+          )}
         >
-          <Copy className="size-3.5" />
+          {isVip ? (
+            <Crown className="size-9" />
+          ) : (
+            <Trophy className="size-9" />
+          )}
+        </div>
 
-          {copied
-            ? 'Copied!'
-            : 'Copy number'}
-        </button>
+        {/* Eyebrow */}
+        <div className="mt-6">
+          <p
+            className={cn(
+              'text-[10px] font-bold tracking-[0.35em] uppercase',
+              isVip
+                ? 'text-gold'
+                : 'text-accent',
+            )}
+          >
+            TOR&apos;Q 2026
+          </p>
+        </div>
+
+        {/* Heading */}
+        <h2 className="font-display mt-2 text-3xl font-bold tracking-wide sm:text-4xl">
+          {isVip
+            ? 'VIP Request Received'
+            : 'Registration Confirmed'}
+        </h2>
+
+        {/* Intro */}
+        <p className="mx-auto mt-3 max-w-md text-sm leading-relaxed text-muted-foreground">
+          {isVip ? (
+            <>
+              {firstName
+                ? `Welcome, ${firstName}. `
+                : ''}
+              Your request for the TOR&apos;Q VIP
+              experience has been successfully
+              received.
+            </>
+          ) : (
+            <>
+              {firstName
+                ? `You're in, ${firstName}. `
+                : ''}
+              Your registration has been successfully
+              received and a confirmation has been
+              sent to your email.
+            </>
+          )}
+        </p>
+
+        {/* VIP Status Banner */}
+        {isVip && (
+          <div className="mt-6 rounded-lg border border-gold/30 bg-gradient-to-br from-gold/10 via-background to-gold/5 p-5 text-left">
+            <div className="flex items-start gap-3">
+              <div className="flex size-9 shrink-0 items-center justify-center rounded-full border border-gold/30 bg-gold/10">
+                <Crown className="size-4 text-gold" />
+              </div>
+
+              <div>
+                <p className="text-sm font-semibold text-foreground">
+                  You&apos;re on the VIP list.
+                </p>
+
+                <p className="mt-1.5 text-xs leading-relaxed text-muted-foreground">
+                  VIP access is limited and subject to
+                  approval. Our team will review your
+                  request and contact you with the outcome.
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Registration Number */}
+        <div
+          className={cn(
+            'mt-5 rounded-lg border p-5',
+            isVip
+              ? 'border-gold/30 bg-gold/[0.04]'
+              : 'border-border bg-secondary/40',
+          )}
+        >
+          <p className="text-[10px] font-medium tracking-[0.3em] text-muted-foreground uppercase">
+            Registration Number
+          </p>
+
+          <p
+            className={cn(
+              'font-display mt-2 break-all text-2xl font-bold tracking-[0.12em] sm:text-3xl',
+              isVip
+                ? 'text-gold'
+                : 'text-foreground',
+            )}
+          >
+            {regNumber}
+          </p>
+
+          <button
+            type="button"
+            onClick={onCopy}
+            className="mt-3 inline-flex items-center gap-1.5 text-xs text-accent transition-opacity hover:opacity-80"
+          >
+            <Copy className="size-3.5" />
+
+            {copied
+              ? 'Registration number copied'
+              : 'Copy registration number'}
+          </button>
+        </div>
+
+        {/* VIP Approval Information */}
+        {isVip && (
+          <div className="mt-5 grid gap-3 text-left">
+            <div className="flex items-start gap-3 rounded-md border border-border bg-secondary/20 p-4">
+              <CheckCircle2 className="mt-0.5 size-4 shrink-0 text-accent" />
+
+              <div>
+                <p className="text-xs font-semibold text-foreground">
+                  Request submitted
+                </p>
+
+                <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
+                  Your details have been received by
+                  the TOR&apos;Q team.
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-start gap-3 rounded-md border border-border bg-secondary/20 p-4">
+              <ShieldCheck className="mt-0.5 size-4 shrink-0 text-accent" />
+
+              <div>
+                <p className="text-xs font-semibold text-foreground">
+                  Awaiting approval
+                </p>
+
+                <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
+                  If your VIP request is approved,
+                  you&apos;ll receive your official TOR&apos;Q
+                  pass and access details by email.
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Email reminder */}
+        <p className="mt-5 text-xs leading-relaxed text-muted-foreground">
+          {isVip
+            ? 'Keep your registration number for your records.'
+            : 'Please keep your registration number for your records.'}
+        </p>
+
+        {/* CTA */}
+        <Button
+          size="lg"
+          className={cn(
+            'mt-6 w-full',
+            isVip &&
+              'border border-gold/30 bg-gold text-black hover:bg-gold/90',
+          )}
+          onClick={onClose}
+        >
+          {isVip
+            ? 'Return to TOR&apos;Q'
+            : 'Done'}
+        </Button>
+
+        {/* Closing line */}
+        <p className="mt-4 text-[10px] font-medium tracking-[0.25em] text-muted-foreground uppercase">
+          Artistry in Motorsport
+        </p>
       </div>
-
-      <Button
-        size="lg"
-        className="mt-6 w-full"
-        onClick={onClose}
-      >
-        Done
-      </Button>
     </div>
   )
 }
