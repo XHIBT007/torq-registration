@@ -1,98 +1,118 @@
 'use client'
 
+import { useEffect, useState } from 'react'
+import { ChevronDown, MapPin, Ticket } from 'lucide-react'
+
 import { Button } from '@/components/ui/button'
 import { EVENT } from '@/lib/torq-data'
-import { ChevronDown, MapPin, Ticket } from 'lucide-react'
-import { useEffect, useState } from 'react'
 import { Countdown } from './countdown'
 import { useRegistration } from './registration'
 
 export function Hero() {
   const { open } = useRegistration()
+
   const [scrollProgress, setScrollProgress] = useState(0)
 
   useEffect(() => {
-    let ticking = false
+    const handleScroll = () => {
+      const maxScroll =
+        window.innerHeight * 0.9
 
-    const update = () => {
-      const maxScroll = window.innerHeight * 0.75
       const progress = Math.min(
         1,
-        Math.max(0, window.scrollY / maxScroll),
+        Math.max(
+          0,
+          window.scrollY / maxScroll,
+        ),
       )
 
       setScrollProgress(progress)
-      ticking = false
     }
 
-    const onScroll = () => {
-      if (!ticking) {
-        window.requestAnimationFrame(update)
-        ticking = true
-      }
-    }
+    handleScroll()
 
-    update()
-
-    window.addEventListener('scroll', onScroll, {
-      passive: true,
-    })
+    window.addEventListener(
+      'scroll',
+      handleScroll,
+      { passive: true },
+    )
 
     return () =>
-      window.removeEventListener('scroll', onScroll)
+      window.removeEventListener(
+        'scroll',
+        handleScroll,
+      )
   }, [])
 
   /*
-   * HERO LOGO
+   * ============================================================
+   * HERO ANIMATION
+   * ============================================================
    *
-   * Starts huge and centred.
-   * Moves vertically upward as the user scrolls.
-   * Slowly scales down.
-   * Fades completely away.
+   * 0   → opening logo
+   * 0.2 → logo begins leaving
+   * 0.4 → spectacle begins appearing
+   * 0.7 → main content becomes fully visible
    */
-  const logoY = scrollProgress * -28
-  const logoScale = 1 - scrollProgress * 0.18
+
   const logoOpacity = Math.max(
     0,
-    1 - scrollProgress * 1.35,
+    1 - scrollProgress * 1.2,
   )
 
-  /*
-   * BACKGROUND
-   *
-   * Starts completely black.
-   * Gradually reveals the hero image.
-   */
-  const backgroundOpacity =
-    Math.min(1, scrollProgress * 1.8)
+  const logoY =
+    scrollProgress * -34
 
-  /*
-   * HERO CONTENT
-   *
-   * Appears after the initial logo movement begins.
-   */
-  const contentOpacity = Math.min(
+  const welcomeOpacity = Math.max(
+    0,
+    1 - scrollProgress * 1.5,
+  )
+
+  const contentProgress = Math.min(
     1,
-    Math.max(0, (scrollProgress - 0.16) / 0.5),
+    Math.max(
+      0,
+      (scrollProgress - 0.16) / 0.5,
+    ),
   )
+
+  const contentOpacity =
+    contentProgress
 
   const contentY =
-    Math.max(0, 24 - scrollProgress * 45)
+    35 - contentProgress * 35
+
+  const backgroundOpacity = Math.min(
+    1,
+    scrollProgress * 1.35,
+  )
+
+  const scrollPromptOpacity = Math.max(
+    0,
+    1 - scrollProgress * 4,
+  )
+
+  const navbarOpacity = Math.min(
+    1,
+    Math.max(
+      0,
+      (scrollProgress - 0.45) / 0.35,
+    ),
+  )
 
   return (
     <section
       id="top"
-      className="relative min-h-[125vh] overflow-hidden bg-black"
+      className="relative min-h-[135vh] overflow-hidden bg-black"
     >
-      {/* ====================================================== */}
-      {/* BACKGROUND IMAGE                                       */}
-      {/* ====================================================== */}
+      {/* ======================================================== */}
+      {/* BACKGROUND                                                */}
+      {/* ======================================================== */}
 
       <div
-        className="pointer-events-none absolute inset-0"
+        className="pointer-events-none fixed inset-0 z-0"
         style={{
           opacity: backgroundOpacity,
-          transition: 'opacity 120ms linear',
         }}
       >
         <img
@@ -109,50 +129,77 @@ export function Hero() {
         <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-black/20" />
       </div>
 
-      {/* ====================================================== */}
-      {/* INITIAL BLACK OVERLAY                                  */}
-      {/* ====================================================== */}
+      {/* ======================================================== */}
+      {/* BLACK OPENING LAYER                                       */}
+      {/* ======================================================== */}
 
       <div
-        className="pointer-events-none absolute inset-0 bg-black"
+        className="pointer-events-none fixed inset-0 z-10 bg-black"
         style={{
           opacity: Math.max(
             0,
-            1 - scrollProgress * 1.8,
+            1 - backgroundOpacity,
           ),
         }}
       />
 
-      {/* ====================================================== */}
-{/* HERO LOGO                                              */}
-{/* ====================================================== */}
-
-<div
-  className="pointer-events-none absolute inset-0 z-30 flex items-center justify-center"
-  style={{
-    opacity: logoOpacity,
-    transform: `translate3d(0, ${scrollProgress * -28}vh, 0)`,
-  }}
->
-  <div className="flex w-[88vw] max-w-[720px] -translate-y-[3vh] flex-col items-center text-center">
-    <p className="mb-6 text-[11px] font-semibold uppercase tracking-[0.55em] text-white/50 sm:text-xs">
-      Welcome to
-    </p>
-
-    <img
-      src="/images/torq-logo.png"
-      alt="TOR'Q"
-      className="block w-full object-contain"
-    />
-  </div>
-</div>
-
-      {/* ====================================================== */}
-      {/* HERO CONTENT                                           */}
-      {/* ====================================================== */}
+      {/* ======================================================== */}
+      {/* BIG OPENING LOGO                                          */}
+      {/* ======================================================== */}
 
       <div
-        className="relative z-20 mx-auto flex min-h-screen w-full max-w-7xl items-end px-6 pb-24 pt-40 md:px-10 md:pb-32"
+        className="pointer-events-none fixed inset-0 z-30 flex items-center justify-center"
+        style={{
+          opacity: logoOpacity,
+          transform: `translate3d(0, ${logoY}vh, 0)`,
+        }}
+      >
+        <div className="flex w-[88vw] max-w-[720px] -translate-y-[3vh] flex-col items-center text-center">
+
+          {/* Welcome */}
+          <p
+            className="mb-6 text-[11px] font-semibold uppercase tracking-[0.55em] text-white/50 sm:text-xs"
+            style={{
+              opacity: welcomeOpacity,
+            }}
+          >
+            Welcome to
+          </p>
+
+          {/* Logo */}
+          <img
+            src="/images/torq-logo.png"
+            alt="TOR'Q"
+            className="block w-full object-contain"
+          />
+
+          {/* Scroll instruction */}
+          <div
+            className="mt-12 flex flex-col items-center gap-3"
+            style={{
+              opacity:
+                scrollPromptOpacity,
+            }}
+          >
+            <span className="text-[9px] font-semibold uppercase tracking-[0.35em] text-white/45 sm:text-[10px]">
+              Scroll down to experience TOR&apos;Q
+            </span>
+
+            <div className="flex flex-col items-center">
+              <div className="h-8 w-px bg-gradient-to-b from-white/50 to-transparent" />
+
+              <ChevronDown className="mt-1 h-4 w-4 animate-bounce text-white/50" />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* ======================================================== */}
+      {/* MAIN HERO CONTENT                                         */}
+      {/* ======================================================== */}
+
+      <div
+        className="relative z-20 mx-auto flex min-h-screen w-full max-w-7xl items-center px-6 py-32 lg:px-10"
         style={{
           opacity: contentOpacity,
           transform: `translate3d(0, ${contentY}px, 0)`,
@@ -160,40 +207,56 @@ export function Hero() {
       >
         <div className="max-w-4xl">
 
-          {/* Date */}
+          {/* Date / Location */}
           <div className="mb-6 inline-flex items-center rounded-full border border-red-500/40 bg-black/40 px-5 py-2 backdrop-blur-md">
             <span className="mr-2 h-2 w-2 rounded-full bg-red-500" />
 
-            <span className="text-xs font-semibold uppercase tracking-[0.25em] text-white sm:text-sm">
+            <span className="text-sm font-semibold uppercase tracking-[0.25em] text-white">
               Lagos • December 6, 2026
             </span>
           </div>
 
-          {/* Main heading */}
-          <h1 className="text-5xl font-black uppercase leading-[0.88] tracking-[-0.04em] text-white sm:text-6xl md:text-8xl lg:text-[7rem]">
-            Africa&apos;s Biggest
-            <br />
-            <span className="text-red-500">
-              Motorsport
+          {/* ================================================== */}
+          {/* MAIN HEADLINE                                       */}
+          {/* ================================================== */}
+
+          <h1 className="text-5xl font-black uppercase leading-[0.88] tracking-[-0.04em] text-white md:text-7xl lg:text-[6.5rem]">
+
+            <span className="block">
+              AFRICA&apos;S BIGGEST
             </span>
-            <br />
-            Spectacle
+
+            <span className="block text-red-500">
+              MOTORSPORT
+            </span>
+
+            <span className="block">
+              SPECTACLE
+            </span>
+
           </h1>
 
-          {/* Description */}
-          <p className="mt-8 max-w-2xl text-base leading-7 text-white/65 sm:text-lg sm:leading-8">
-            A cinematic celebration of speed, sound and
-            precision where drifting legends, stunt riders,
-            performance cars and motorsport culture collide
-            for one unforgettable experience.
+          {/* ================================================== */}
+          {/* DESCRIPTION                                         */}
+          {/* ================================================== */}
+
+          <p className="mt-8 max-w-2xl text-lg leading-8 text-white/70 md:text-xl">
+            A cinematic celebration of speed, sound and precision
+            where drifting legends, stunt riders, performance cars
+            and motorsport culture collide for one unforgettable
+            experience.
           </p>
 
-          {/* CTA */}
-          <div className="mt-9 flex flex-col gap-5 sm:flex-row sm:items-center">
+          {/* ================================================== */}
+          {/* CTA                                                  */}
+          {/* ================================================== */}
+
+          <div className="mt-10 flex flex-col gap-5 sm:flex-row sm:items-center">
+
             <Button
               size="lg"
               onClick={open}
-              className="h-14 rounded-full bg-red-600 px-8 text-base font-bold text-white transition-transform duration-300 hover:scale-[1.03] hover:bg-red-500"
+              className="h-14 rounded-full bg-red-600 px-8 text-base font-bold text-white transition-all duration-300 hover:scale-105 hover:bg-red-500"
             >
               <Ticket className="mr-2 h-5 w-5" />
               REGISTER NOW
@@ -203,30 +266,42 @@ export function Hero() {
               <MapPin className="h-5 w-5 text-red-500" />
               {EVENT.location}
             </div>
+
           </div>
 
           {/* ================================================== */}
-          {/* STATS                                               */}
+          {/* STATS                                                */}
           {/* ================================================== */}
 
-          <div className="mt-14 grid grid-cols-3 gap-5 border-t border-white/10 pt-8 sm:gap-8">
+          <div className="mt-14 grid grid-cols-2 gap-x-8 gap-y-8 border-t border-white/10 pt-8 sm:grid-cols-4">
+
             <div>
               <p className="text-3xl font-black text-white sm:text-4xl">
                 100+
               </p>
 
-              <p className="mt-2 text-[9px] uppercase tracking-[0.25em] text-white/50 sm:text-xs">
+              <p className="mt-2 text-[10px] uppercase tracking-[0.2em] text-white/45">
                 Performance Cars
               </p>
             </div>
 
             <div>
               <p className="text-3xl font-black text-white sm:text-4xl">
-                5,000+
+                50+
               </p>
 
-              <p className="mt-2 text-[9px] uppercase tracking-[0.25em] text-white/50 sm:text-xs">
-                Attendees
+              <p className="mt-2 text-[10px] uppercase tracking-[0.2em] text-white/45">
+                Drivers & Riders
+              </p>
+            </div>
+
+            <div>
+              <p className="text-3xl font-black text-white sm:text-4xl">
+                3
+              </p>
+
+              <p className="mt-2 text-[10px] uppercase tracking-[0.2em] text-white/45">
+                Days of Action
               </p>
             </div>
 
@@ -235,51 +310,57 @@ export function Hero() {
                 1
               </p>
 
-              <p className="mt-2 text-[9px] uppercase tracking-[0.25em] text-white/50 sm:text-xs">
+              <p className="mt-2 text-[10px] uppercase tracking-[0.2em] text-white/45">
                 Epic Experience
               </p>
             </div>
+
           </div>
 
           {/* ================================================== */}
-          {/* COUNTDOWN                                           */}
+          {/* COUNTDOWN                                            */}
           {/* ================================================== */}
 
           <div className="mt-12">
-            <p className="mb-4 text-[10px] uppercase tracking-[0.35em] text-white/40 sm:text-xs">
+
+            <p className="mb-4 text-[10px] uppercase tracking-[0.35em] text-white/40">
               Lights Out In
             </p>
 
             <Countdown date={EVENT.date} />
+
           </div>
+
         </div>
       </div>
 
-      {/* ====================================================== */}
-      {/* SCROLL INDICATOR                                      */}
-      {/* ====================================================== */}
+      {/* ======================================================== */}
+      {/* SCROLL INDICATOR AFTER REVEAL                             */}
+      {/* ======================================================== */}
 
       <div
-        className="absolute bottom-8 left-1/2 z-30 -translate-x-1/2 transition-opacity duration-500"
+        className="pointer-events-none absolute bottom-8 left-1/2 z-30 -translate-x-1/2"
         style={{
           opacity: Math.max(
             0,
-            1 - scrollProgress * 4,
+            1 - contentProgress,
           ),
         }}
       >
-        <a
-          href="#about"
-          aria-label="Scroll to About"
-          className="flex flex-col items-center gap-2 text-white/50 transition-colors hover:text-white"
-        >
-          <span className="text-[9px] uppercase tracking-[0.35em]">
-            Scroll
-          </span>
-
-          <ChevronDown className="h-6 w-6 animate-bounce" />
-        </a>
+        <ChevronDown className="h-7 w-7 animate-bounce text-white/50" />
       </div>
+
+      {/* ======================================================== */}
+      {/* HERO NAVBAR FADE                                          */}
+      {/* ======================================================== */}
+
+      <div
+        className="pointer-events-none fixed inset-x-0 top-0 z-40 h-20 bg-gradient-to-b from-black/80 to-transparent"
+        style={{
+          opacity: navbarOpacity,
+        }}
+      />
+
     </section>
   )
 }
