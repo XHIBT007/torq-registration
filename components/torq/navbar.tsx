@@ -34,11 +34,15 @@ export function Navbar() {
        * but reaches full visibility as the hero logo disappears.
        */
       const progress = Math.min(
-        1,
-        Math.max(0, scroll / (window.innerHeight * 0.4)),
-      )
+  1,
+  Math.max(
+    0,
+    (scroll - window.innerHeight * 0.08) /
+      (window.innerHeight * 0.25),
+  ),
+)
 
-      setVisible(progress)
+setVisible(progress)
 
       ticking = false
     }
@@ -65,14 +69,14 @@ export function Navbar() {
       className={cn(
         'fixed inset-x-0 top-0 z-50 transition-all duration-700',
         scrolled
-          ? 'border-b border-white/10 bg-black/75 backdrop-blur-xl'
-          : 'border-b border-transparent bg-transparent',
+  ? 'border-b border-white/10 bg-black/90 backdrop-blur-xl'
+  : 'border-b border-transparent bg-black/20 backdrop-blur-sm',
       )}
       style={{
-        opacity: visible,
-        transform: `translateY(${(1 - visible) * -18}px)`,
-        pointerEvents: visible > 0.05 ? 'auto' : 'none',
-      }}
+  opacity: visible,
+  transform: `translateY(${(1 - visible) * -12}px)`,
+  pointerEvents: visible > 0.05 ? 'auto' : 'none',
+}}
     >
       <nav className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
 
