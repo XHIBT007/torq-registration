@@ -72,10 +72,9 @@ export function Navbar() {
           className="group flex items-center"
           aria-label="TOR'Q home"
         >
-          <img
-  src="/images/torq-logo.png"
-  alt="TOR'Q Motorsport — Artistry in Motorsport"
-  className="h-10 w-auto object-contain"
+          <div
+  className="h-10 w-[120px]"
+  aria-hidden="true"
 />
         </a>
 
