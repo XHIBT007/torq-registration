@@ -273,6 +273,79 @@
   color: transparent;
   animation: shimmer 6s linear infinite;
 }
+@keyframes hero-word {
+  from {
+    opacity: 0;
+    transform: translateY(40px);
+    filter: blur(8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+    filter: blur(0);
+  }
+}
+
+@keyframes scan {
+  0% {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+
+  15% {
+    opacity: 0.5;
+  }
+
+  50% {
+    opacity: 0.25;
+  }
+
+  85% {
+    opacity: 0.5;
+  }
+
+  100% {
+    transform: translateY(100vh);
+    opacity: 0;
+  }
+}
+
+@keyframes scroll-pulse {
+  0%,
+  100% {
+    transform: translateY(0);
+    opacity: 0.5;
+  }
+
+  50% {
+    transform: translateY(6px);
+    opacity: 1;
+  }
+}
+
+@utility animate-hero-word {
+  animation: hero-word 0.9s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@utility animate-scan {
+  animation: scan 7s linear infinite;
+}
+
+@utility animate-scroll-pulse {
+  animation: scroll-pulse 1.8s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
 
 ::selection {
   background: var(--primary);
