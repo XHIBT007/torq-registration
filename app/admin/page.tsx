@@ -22,13 +22,34 @@ type Registration = {
   phone: string | null
   city: string | null
   participant_type: string | null
+
+  vip_category?: string | null
+  vip_organisation?: string | null
+  vip_role?: string | null
+  vip_reason?: string | null
+  vip_referral_source?: string | null
+  vip_represents_organisation?: boolean | null
+  vip_website?: string | null
+
+  vip_relevance_score?: number | null
+  vip_strategic_value_score?: number | null
+  vip_professional_profile_score?: number | null
+  vip_motorsport_affinity_score?: number | null
+  vip_brand_audience_score?: number | null
+  vip_completeness_score?: number | null
+  vip_total_score?: number | null
+  vip_assessment_notes?: string | null
+
   checked_in?: boolean
   checked_in_at?: string | null
+
   vehicle_make: string | null
   vehicle_model: string | null
   instagram: string | null
+  emergency_contact: string | null
   registration_number: string | null
   created_at: string
+
   status: 'Pending' | 'Approved' | 'Rejected'
 }
 
