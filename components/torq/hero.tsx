@@ -150,10 +150,10 @@ export function Hero() {
    * Layer 2 DOES NOT MOVE here.
    */
   const layerTwoOpacity =
-    easeOut(
-      (scrollProgress - 0.52) /
-        0.12,
-    )
+  easeOut(
+    (scrollProgress - 0.49) /
+      0.09,
+  )
 
   /*
    * Main content remains completely
@@ -185,10 +185,10 @@ export function Hero() {
    * time Layer 2 starts fading in.
    */
   const backgroundOpacity =
-    easeInOut(
-      (scrollProgress - 0.48) /
-        0.30,
-    )
+  easeInOut(
+    (scrollProgress - 0.44) /
+      0.22,
+  )
 
   /* ============================================================
      NAVBAR
