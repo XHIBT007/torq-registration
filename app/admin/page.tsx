@@ -31,14 +31,16 @@ type Registration = {
   vip_represents_organisation?: boolean | null
   vip_website?: string | null
 
-  vip_relevance_score?: number | null
-  vip_strategic_value_score?: number | null
-  vip_professional_profile_score?: number | null
-  vip_motorsport_affinity_score?: number | null
-  vip_brand_audience_score?: number | null
-  vip_completeness_score?: number | null
-  vip_total_score?: number | null
-  vip_assessment_notes?: string | null
+vip_relevance_score?: number | null
+vip_strategic_score?: number | null
+vip_profile_score?: number | null
+vip_motorsport_score?: number | null
+vip_brand_score?: number | null
+vip_completeness_score?: number | null
+vip_score?: number | null
+vip_assessment_notes?: string | null
+vip_assessed_at?: string | null
+vip_assessed_by?: string | null
 
   checked_in?: boolean
   checked_in_at?: string | null
