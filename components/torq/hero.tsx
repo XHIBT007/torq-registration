@@ -50,7 +50,7 @@ export function Hero() {
    * Slowly scales down.
    * Fades completely away.
    */
-  const logoY = scrollProgress * -34
+  const logoY = scrollProgress * -28
   const logoScale = 1 - scrollProgress * 0.18
   const logoOpacity = Math.max(
     0,
@@ -128,12 +128,12 @@ export function Hero() {
       {/* ====================================================== */}
 
       <div
-        className="pointer-events-none absolute left-1/2 top-[43%] z-30 w-[82vw] max-w-[680px] -translate-x-1/2"
-        style={{
-          transform: `translate3d(-50%, ${logoY}vh, 0) scale(${logoScale})`,
-          opacity: logoOpacity,
-        }}
-      >
+  className="pointer-events-none absolute left-1/2 top-1/2 z-30 w-[82vw] max-w-[680px]"
+  style={{
+    transform: `translate3d(-50%, calc(-50% + ${logoY * 0.35}vh), 0) scale(${logoScale})`,
+    opacity: logoOpacity,
+  }}
+>
         <div className="text-center">
           <p className="mb-5 text-[10px] font-semibold uppercase tracking-[0.55em] text-white/45 sm:text-xs">
             Welcome to
