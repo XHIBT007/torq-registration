@@ -13,94 +13,152 @@ export function Hero() {
 
   const [scrollProgress, setScrollProgress] = useState(0)
 
+  /* ============================================================
+     SCROLL TRACKING
+     ============================================================ */
+
   useEffect(() => {
-  const handleScroll = () => {
-    const maxScroll = window.innerHeight * 1.5
+    const handleScroll = () => {
+      const maxScroll = window.innerHeight * 1.8
 
-    const progress = Math.min(
-      1,
-      Math.max(
-        0,
-        window.scrollY / maxScroll,
-      ),
-    )
+      const progress = Math.min(
+        1,
+        Math.max(
+          0,
+          window.scrollY / maxScroll,
+        ),
+      )
 
-    setScrollProgress(progress)
-  }
+      setScrollProgress(progress)
+    }
 
-  handleScroll()
+    handleScroll()
 
-  window.addEventListener(
-    'scroll',
-    handleScroll,
-    { passive: true },
-  )
-
-  return () => {
-    window.removeEventListener(
+    window.addEventListener(
       'scroll',
       handleScroll,
+      { passive: true },
     )
+
+    return () => {
+      window.removeEventListener(
+        'scroll',
+        handleScroll,
+      )
+    }
+  }, [])
+
+  /* ============================================================
+     EASING
+     ============================================================ */
+
+  const easeOut = (value: number) => {
+    const t = Math.min(1, Math.max(0, value))
+
+    return 1 - Math.pow(1 - t, 3)
   }
-}, [])
+
+  const easeInOut = (value: number) => {
+    const t = Math.min(1, Math.max(0, value))
+
+    return t < 0.5
+      ? 4 * t * t * t
+      : 1 - Math.pow(-2 * t + 2, 3) / 2
+  }
+
+  /* ============================================================
+     PHASE 1 — OPENING LOGO
+     ============================================================ */
 
   /*
-   * ============================================================
-   * HERO ANIMATION
-   * ============================================================
+   * The logo begins moving first.
    *
-   * 0   → opening logo
-   * 0.2 → logo begins leaving
-   * 0.4 → spectacle begins appearing
-   * 0.7 → main content becomes fully visible
+   * Nothing else moves with it.
    */
+  const logoProgress = easeInOut(
+    scrollProgress / 0.55,
+  )
 
   const logoOpacity = Math.max(
-  0,
-  1 - scrollProgress * 1.35,
-)
+    0,
+    1 -
+      easeOut(
+        (scrollProgress - 0.05) / 0.48,
+      ),
+  )
 
   const logoY =
-  scrollProgress * -42
+    -42 * logoProgress
 
   const welcomeOpacity = Math.max(
     0,
-    1 - scrollProgress * 1.5,
+    1 -
+      easeOut(
+        scrollProgress / 0.28,
+      ),
   )
 
-  const contentProgress = Math.min(
-    1,
-    Math.max(
-      0,
-      (scrollProgress - 0.28) / 0.5,
-    ),
+  /* ============================================================
+     PHASE 2 — BACKGROUND
+     ============================================================ */
+
+  /*
+   * Background intentionally appears slowly.
+   *
+   * This keeps the opening predominantly black.
+   */
+  const backgroundOpacity = easeInOut(
+    (scrollProgress - 0.30) / 0.65,
+  )
+
+  /* ============================================================
+     PHASE 3 — MAIN HERO CONTENT REVEAL
+     ============================================================ */
+
+  /*
+   * Headline begins appearing while the logo
+   * is finishing its exit.
+   */
+  const contentReveal = easeOut(
+    (scrollProgress - 0.42) / 0.28,
   )
 
   const contentOpacity =
-    contentProgress
+    contentReveal
+
+  /*
+   * IMPORTANT:
+   *
+   * The main hero does NOT move initially.
+   *
+   * Only after the logo is essentially gone
+   * does the entire hero begin moving upward.
+   */
+  const contentMoveProgress = easeOut(
+    (scrollProgress - 0.68) / 0.32,
+  )
 
   const contentY =
-    35 - contentProgress * 35
+    -70 * contentMoveProgress
 
-  const backgroundOpacity = Math.min(
-  1,
-  Math.max(
-    0,
-    (scrollProgress - 0.08) / 0.65,
-  ),
-)
+  /* ============================================================
+     SCROLL PROMPT
+     ============================================================ */
 
   const scrollPromptOpacity = Math.max(
     0,
-    1 - scrollProgress * 4,
+    1 -
+      easeOut(
+        scrollProgress / 0.18,
+      ),
   )
 
-  const navbarOpacity = Math.min(
-    1,
-    Math.max(
-      0,
-      (scrollProgress - 0.45) / 0.35,
-    ),
+  /* ============================================================
+     NAVBAR
+     ============================================================ */
+
+  const navbarOpacity = easeOut(
+    (scrollProgress - 0.55) / 0.25,
   )
 
   return (
@@ -108,9 +166,10 @@ export function Hero() {
       id="top"
       className="relative min-h-[135vh] overflow-hidden bg-black"
     >
-      {/* ======================================================== */}
-      {/* BACKGROUND                                                */}
-      {/* ======================================================== */}
+
+      {/* ========================================================
+          BACKGROUND
+          ======================================================== */}
 
       <div
         className="pointer-events-none fixed inset-0 z-0"
@@ -132,9 +191,9 @@ export function Hero() {
         <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-black/20" />
       </div>
 
-      {/* ======================================================== */}
-      {/* BLACK OPENING LAYER                                       */}
-      {/* ======================================================== */}
+      {/* ========================================================
+          BLACK OPENING LAYER
+          ======================================================== */}
 
       <div
         className="pointer-events-none fixed inset-0 z-10 bg-black"
@@ -146,9 +205,9 @@ export function Hero() {
         }}
       />
 
-      {/* ======================================================== */}
-      {/* BIG OPENING LOGO                                          */}
-      {/* ======================================================== */}
+      {/* ========================================================
+          OPENING TOR'Q LOGO
+          ======================================================== */}
 
       <div
         className="pointer-events-none fixed inset-0 z-30 flex items-center justify-center"
@@ -169,14 +228,14 @@ export function Hero() {
             Welcome to
           </p>
 
-          {/* Logo */}
+          {/* TOR'Q Logo */}
           <img
             src="/images/torq-logo.png"
             alt="TOR'Q"
             className="block w-full object-contain"
           />
 
-          {/* Scroll instruction */}
+          {/* Scroll Instruction */}
           <div
             className="mt-12 flex flex-col items-center gap-3"
             style={{
@@ -197,9 +256,9 @@ export function Hero() {
         </div>
       </div>
 
-      {/* ======================================================== */}
-      {/* MAIN HERO CONTENT                                         */}
-      {/* ======================================================== */}
+      {/* ========================================================
+          MAIN HERO CONTENT
+          ======================================================== */}
 
       <div
         className="relative z-20 mx-auto flex min-h-screen w-full max-w-7xl items-center px-6 py-32 lg:px-10"
@@ -211,6 +270,7 @@ export function Hero() {
         <div className="max-w-4xl">
 
           {/* Date / Location */}
+
           <div className="mb-6 inline-flex items-center rounded-full border border-red-500/40 bg-black/40 px-5 py-2 backdrop-blur-md">
             <span className="mr-2 h-2 w-2 rounded-full bg-red-500" />
 
@@ -219,9 +279,9 @@ export function Hero() {
             </span>
           </div>
 
-          {/* ================================================== */}
-          {/* MAIN HEADLINE                                       */}
-          {/* ================================================== */}
+          {/* ==================================================
+              HEADLINE
+              ================================================== */}
 
           <h1 className="text-5xl font-black uppercase leading-[0.88] tracking-[-0.04em] text-white md:text-7xl lg:text-[6.5rem]">
 
@@ -239,9 +299,9 @@ export function Hero() {
 
           </h1>
 
-          {/* ================================================== */}
-          {/* DESCRIPTION                                         */}
-          {/* ================================================== */}
+          {/* ==================================================
+              DESCRIPTION
+              ================================================== */}
 
           <p className="mt-8 max-w-2xl text-lg leading-8 text-white/70 md:text-xl">
             A cinematic celebration of speed, sound and precision
@@ -250,9 +310,9 @@ export function Hero() {
             experience.
           </p>
 
-          {/* ================================================== */}
-          {/* CTA                                                  */}
-          {/* ================================================== */}
+          {/* ==================================================
+              CTA
+              ================================================== */}
 
           <div className="mt-10 flex flex-col gap-5 sm:flex-row sm:items-center">
 
@@ -272,9 +332,9 @@ export function Hero() {
 
           </div>
 
-          {/* ================================================== */}
-          {/* STATS                                                */}
-          {/* ================================================== */}
+          {/* ==================================================
+              STATS
+              ================================================== */}
 
           <div className="mt-14 grid grid-cols-2 gap-x-8 gap-y-8 border-t border-white/10 pt-8 sm:grid-cols-4">
 
@@ -320,9 +380,9 @@ export function Hero() {
 
           </div>
 
-          {/* ================================================== */}
-          {/* COUNTDOWN                                            */}
-          {/* ================================================== */}
+          {/* ==================================================
+              COUNTDOWN
+              ================================================== */}
 
           <div className="mt-12">
 
@@ -337,25 +397,9 @@ export function Hero() {
         </div>
       </div>
 
-      {/* ======================================================== */}
-      {/* SCROLL INDICATOR AFTER REVEAL                             */}
-      {/* ======================================================== */}
-
-      <div
-        className="pointer-events-none absolute bottom-8 left-1/2 z-30 -translate-x-1/2"
-        style={{
-          opacity: Math.max(
-            0,
-            1 - contentProgress,
-          ),
-        }}
-      >
-        <ChevronDown className="h-7 w-7 animate-bounce text-white/50" />
-      </div>
-
-      {/* ======================================================== */}
-      {/* HERO NAVBAR FADE                                          */}
-      {/* ======================================================== */}
+      {/* ========================================================
+          NAVBAR FADE
+          ======================================================== */}
 
       <div
         className="pointer-events-none fixed inset-x-0 top-0 z-40 h-20 bg-gradient-to-b from-black/80 to-transparent"
