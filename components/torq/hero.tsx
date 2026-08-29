@@ -14,34 +14,35 @@ export function Hero() {
   const [scrollProgress, setScrollProgress] = useState(0)
 
   useEffect(() => {
-    const maxScroll =
-  window.innerHeight * 1.5
+  const handleScroll = () => {
+    const maxScroll = window.innerHeight * 1.5
 
-      const progress = Math.min(
-        1,
-        Math.max(
-          0,
-          window.scrollY / maxScroll,
-        ),
-      )
-
-      setScrollProgress(progress)
-    }
-
-    handleScroll()
-
-    window.addEventListener(
-      'scroll',
-      handleScroll,
-      { passive: true },
+    const progress = Math.min(
+      1,
+      Math.max(
+        0,
+        window.scrollY / maxScroll,
+      ),
     )
 
-    return () =>
-      window.removeEventListener(
-        'scroll',
-        handleScroll,
-      )
-  }, [])
+    setScrollProgress(progress)
+  }
+
+  handleScroll()
+
+  window.addEventListener(
+    'scroll',
+    handleScroll,
+    { passive: true },
+  )
+
+  return () => {
+    window.removeEventListener(
+      'scroll',
+      handleScroll,
+    )
+  }
+}, [])
 
   /*
    * ============================================================
