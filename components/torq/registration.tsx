@@ -191,11 +191,21 @@ function RegistrationDialog({
     }
 
     if (step === 1) {
-      return (
-        form.participantType !== '' &&
-        form.emergencyContact.trim() !== ''
-      )
-    }
+  const basicValid =
+    form.participantType !== '' &&
+    form.emergencyContact.trim() !== ''
+
+  if (form.participantType !== 'VIP') {
+    return basicValid
+  }
+
+  return (
+    basicValid &&
+    form.vipCategory.trim() !== '' &&
+    form.vipReason.trim() !== '' &&
+    form.vipReferralSource.trim() !== ''
+  )
+}
 
     if (step === 2) {
       return true
@@ -504,107 +514,316 @@ function RegistrationDialog({
                   </div>
 
                   {/* VIP EXPERIENCE */}
-                  <div className="relative overflow-hidden rounded-lg border border-gold/30 bg-gradient-to-br from-gold/10 via-background to-primary/5 p-5">
-                    <div className="pointer-events-none absolute -right-10 -top-10 size-32 rounded-full bg-gold/10 blur-3xl" />
+<div className="relative overflow-hidden rounded-lg border border-gold/30 bg-gradient-to-br from-gold/10 via-background to-primary/5 p-5">
+  <div className="pointer-events-none absolute -right-10 -top-10 size-32 rounded-full bg-gold/10 blur-3xl" />
 
-                    <div className="relative">
-                      <div className="flex items-start justify-between gap-4">
-                        <div>
-                          <div className="flex items-center gap-2">
-                            <Crown className="size-4 text-gold" />
+  <div className="relative">
+    <div className="flex items-start justify-between gap-4">
+      <div>
+        <div className="flex items-center gap-2">
+          <Crown className="size-4 text-gold" />
 
-                            <span className="text-[10px] font-bold tracking-[0.25em] text-gold uppercase">
-                              VIP & Hospitality
-                            </span>
-                          </div>
+          <span className="text-[10px] font-bold tracking-[0.25em] text-gold uppercase">
+            VIP & Hospitality
+          </span>
+        </div>
 
-                          <h3 className="mt-2 font-display text-xl font-bold tracking-wide">
-                            Experience TOR&apos;Q differently.
-                          </h3>
+        <h3 className="mt-2 font-display text-xl font-bold tracking-wide">
+          Experience TOR&apos;Q differently.
+        </h3>
 
-                          <p className="mt-2 max-w-md text-sm leading-relaxed text-muted-foreground">
-                            Request access to our premium hospitality experience with elevated viewing, dedicated access and an exclusive way to experience the spectacle.
-                          </p>
-                        </div>
+        <p className="mt-2 max-w-md text-sm leading-relaxed text-muted-foreground">
+          Request access to our premium hospitality
+          experience with elevated viewing, dedicated
+          access and an exclusive way to experience
+          the spectacle.
+        </p>
+      </div>
 
-                        <div className="hidden shrink-0 rounded-full border border-gold/30 bg-gold/10 px-3 py-1 text-[9px] font-bold tracking-[0.2em] text-gold uppercase sm:block">
-                          Limited
-                        </div>
-                      </div>
+      <div className="hidden shrink-0 rounded-full border border-gold/30 bg-gold/10 px-3 py-1 text-[9px] font-bold tracking-[0.2em] text-gold uppercase sm:block">
+        Limited
+      </div>
+    </div>
 
-                      <button
-                        type="button"
-                        onClick={() =>
-                          update(
-                            'participantType',
-                            'VIP',
-                          )
-                        }
-                        className={cn(
-                          'mt-5 flex w-full items-center justify-between rounded-md border px-4 py-3 text-left transition-all',
-                          form.participantType ===
-                            'VIP'
-                            ? 'border-gold bg-gold/15 text-foreground'
-                            : 'border-gold/30 bg-background/40 text-muted-foreground hover:border-gold/60 hover:text-foreground',
-                        )}
-                      >
-                        <div className="flex items-center gap-3">
-                          <div
-                            className={cn(
-                              'flex size-9 items-center justify-center rounded-full border',
-                              form.participantType ===
-                                'VIP'
-                                ? 'border-gold bg-gold text-black'
-                                : 'border-gold/30 text-gold',
-                            )}
-                          >
-                            <Crown className="size-4" />
-                          </div>
+    {/* VIP selection */}
+    <button
+      type="button"
+      onClick={() =>
+        update(
+          'participantType',
+          'VIP',
+        )
+      }
+      className={cn(
+        'mt-5 flex w-full items-center justify-between rounded-md border px-4 py-3 text-left transition-all',
+        form.participantType === 'VIP'
+          ? 'border-gold bg-gold/15 text-foreground'
+          : 'border-gold/30 bg-background/40 text-muted-foreground hover:border-gold/60 hover:text-foreground',
+      )}
+    >
+      <div className="flex items-center gap-3">
+        <div
+          className={cn(
+            'flex size-9 items-center justify-center rounded-full border',
+            form.participantType === 'VIP'
+              ? 'border-gold bg-gold text-black'
+              : 'border-gold/30 text-gold',
+          )}
+        >
+          <Crown className="size-4" />
+        </div>
 
-                          <div>
-                            <p className="text-sm font-semibold">
-                              Request VIP Access
-                            </p>
+        <div>
+          <p className="text-sm font-semibold">
+            Request VIP Access
+          </p>
 
-                            <p className="mt-0.5 text-xs text-muted-foreground">
-                              Subject to approval
-                            </p>
-                          </div>
-                        </div>
+          <p className="mt-0.5 text-xs text-muted-foreground">
+            Subject to approval
+          </p>
+        </div>
+      </div>
 
-                        <span
-                          className={cn(
-                            'text-xs font-bold uppercase tracking-wider',
-                            form.participantType ===
-                              'VIP'
-                              ? 'text-gold'
-                              : 'text-muted-foreground',
-                          )}
-                        >
-                          {form.participantType ===
-                          'VIP'
-                            ? 'Selected'
-                            : 'Request'}
-                        </span>
-                      </button>
-                    </div>
-                  </div>
+      <span
+        className={cn(
+          'text-xs font-bold uppercase tracking-wider',
+          form.participantType === 'VIP'
+            ? 'text-gold'
+            : 'text-muted-foreground',
+        )}
+      >
+        {form.participantType === 'VIP'
+          ? 'Selected'
+          : 'Request'}
+      </span>
+    </button>
 
-                  <Field
-                    label="Emergency Contact"
-                    value={
-                      form.emergencyContact
-                    }
-                    onChange={(value) =>
-                      update(
-                        'emergencyContact',
-                        value,
-                      )
-                    }
-                    placeholder="Name & phone number"
-                  />
-                </div>
-              )}
+    {/* VIP APPLICATION */}
+    {form.participantType === 'VIP' && (
+      <div className="mt-5 grid gap-4 border-t border-gold/20 pt-5">
+        <div>
+          <p className="text-xs font-bold tracking-[0.2em] text-gold uppercase">
+            VIP Application
+          </p>
+
+          <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
+            VIP access is curated. Tell us a little about
+            yourself so our team can review your request.
+          </p>
+        </div>
+
+        {/* VIP Category */}
+        <label className="grid gap-2">
+          <span className="text-xs font-medium tracking-wide text-muted-foreground uppercase">
+            What best describes you?
+          </span>
+
+          <select
+            value={form.vipCategory}
+            onChange={(e) =>
+              update(
+                'vipCategory',
+                e.target.value,
+              )
+            }
+            className="h-11 rounded-md border border-input bg-background px-3.5 text-sm text-foreground outline-none transition-colors focus:border-gold focus:ring-2 focus:ring-gold/30"
+          >
+            <option value="">
+              Select a category
+            </option>
+
+            <option value="Business Executive">
+              Business Executive
+            </option>
+
+            <option value="Sponsor / Brand Representative">
+              Sponsor / Brand Representative
+            </option>
+
+            <option value="Motorsport Professional">
+              Motorsport Professional
+            </option>
+
+            <option value="Automotive Industry">
+              Automotive Industry
+            </option>
+
+            <option value="Content Creator / Media">
+              Content Creator / Media
+            </option>
+
+            <option value="Celebrity / Public Figure">
+              Celebrity / Public Figure
+            </option>
+
+            <option value="Investor">
+              Investor
+            </option>
+
+            <option value="TOR'Q Community">
+              TOR&apos;Q Community
+            </option>
+
+            <option value="Other">
+              Other
+            </option>
+          </select>
+        </label>
+
+        {/* Organisation + Role */}
+        <div className="grid gap-4 sm:grid-cols-2">
+          <Field
+            label="Organisation / Company"
+            value={form.vipOrganisation}
+            onChange={(value) =>
+              update(
+                'vipOrganisation',
+                value,
+              )
+            }
+            placeholder="Company name"
+          />
+
+          <Field
+            label="Your Role"
+            value={form.vipRole}
+            onChange={(value) =>
+              update(
+                'vipRole',
+                value,
+              )
+            }
+            placeholder="CEO, Founder, Driver..."
+          />
+        </div>
+
+        {/* Represents organisation */}
+        <label className="flex cursor-pointer items-start gap-3 rounded-md border border-border bg-secondary/30 p-4">
+          <span
+            className={cn(
+              'mt-0.5 flex size-5 shrink-0 items-center justify-center rounded border transition-colors',
+              form.vipRepresentsOrganisation
+                ? 'border-gold bg-gold text-black'
+                : 'border-border bg-background',
+            )}
+          >
+            {form.vipRepresentsOrganisation && (
+              <CheckCircle2 className="size-4" />
+            )}
+          </span>
+
+          <input
+            type="checkbox"
+            className="sr-only"
+            checked={
+              form.vipRepresentsOrganisation
+            }
+            onChange={(e) =>
+              update(
+                'vipRepresentsOrganisation',
+                e.target.checked,
+              )
+            }
+          />
+
+          <span>
+            <span className="block text-sm font-medium text-foreground">
+              I am attending on behalf of an organisation
+            </span>
+
+            <span className="mt-1 block text-xs leading-relaxed text-muted-foreground">
+              For example, a brand, company, media
+              organisation or business.
+            </span>
+          </span>
+        </label>
+
+        {/* Why VIP? */}
+        <label className="grid gap-2">
+          <span className="text-xs font-medium tracking-wide text-muted-foreground uppercase">
+            Why would you like to experience TOR&apos;Q as a VIP?
+          </span>
+
+          <textarea
+            value={form.vipReason}
+            onChange={(e) =>
+              update(
+                'vipReason',
+                e.target.value,
+              )
+            }
+            placeholder="Tell us briefly why you'd like VIP access..."
+            rows={4}
+            className="resize-none rounded-md border border-input bg-background px-3.5 py-3 text-sm text-foreground outline-none transition-colors placeholder:text-muted-foreground/60 focus:border-gold focus:ring-2 focus:ring-gold/30"
+          />
+        </label>
+
+        {/* Referral source */}
+        <label className="grid gap-2">
+          <span className="text-xs font-medium tracking-wide text-muted-foreground uppercase">
+            How did you hear about TOR&apos;Q?
+          </span>
+
+          <select
+            value={form.vipReferralSource}
+            onChange={(e) =>
+              update(
+                'vipReferralSource',
+                e.target.value,
+              )
+            }
+            className="h-11 rounded-md border border-input bg-background px-3.5 text-sm text-foreground outline-none transition-colors focus:border-gold focus:ring-2 focus:ring-gold/30"
+          >
+            <option value="">
+              Select an option
+            </option>
+
+            <option value="Previous TOR'Q">
+              Previous TOR&apos;Q
+            </option>
+
+            <option value="Friend / Referral">
+              Friend / Referral
+            </option>
+
+            <option value="Sponsor">
+              Sponsor
+            </option>
+
+            <option value="Social Media">
+              Social Media
+            </option>
+
+            <option value="Media">
+              Media
+            </option>
+
+            <option value="Partner">
+              Partner
+            </option>
+
+            <option value="Other">
+              Other
+            </option>
+          </select>
+        </label>
+
+        {/* Website */}
+        <Field
+          label="Website / Professional Profile"
+          value={form.vipWebsite}
+          onChange={(value) =>
+            update(
+              'vipWebsite',
+              value,
+            )
+          }
+          placeholder="https://..."
+        />
+      </div>
+    )}
+  </div>
+</div>
 
               {/* STEP 3 — MACHINE */}
               {step === 2 && (
