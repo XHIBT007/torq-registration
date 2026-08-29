@@ -236,16 +236,26 @@ function RegistrationDialog({
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          fullName: form.fullName,
-          email: form.email,
-          phone: form.phone,
-          city: form.city,
-          participantType: form.participantType,
-          emergencyContact: form.emergencyContact,
-          vehicleMake: form.vehicleMake,
-          vehicleModel: form.vehicleModel,
-          instagram: form.instagram,
-        }),
+  fullName: form.fullName,
+  email: form.email,
+  phone: form.phone,
+  city: form.city,
+  participantType: form.participantType,
+  emergencyContact: form.emergencyContact,
+  vehicleMake: form.vehicleMake,
+  vehicleModel: form.vehicleModel,
+  instagram: form.instagram,
+
+  // VIP application
+  vipCategory: form.vipCategory,
+  vipOrganisation: form.vipOrganisation,
+  vipRole: form.vipRole,
+  vipReason: form.vipReason,
+  vipReferralSource: form.vipReferralSource,
+  vipRepresentsOrganisation:
+    form.vipRepresentsOrganisation,
+  vipWebsite: form.vipWebsite,
+}),
       })
 
       const result = await response.json()
