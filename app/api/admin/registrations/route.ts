@@ -170,28 +170,20 @@ const {
   status,
 
   vipRelevanceScore,
-  vipStrategicValueScore,
-  vipProfessionalProfileScore,
-  vipMotorsportAffinityScore,
-  vipBrandAudienceScore,
+  vipStrategicScore,
+  vipProfileScore,
+  vipMotorsportScore,
+  vipBrandScore,
   vipCompletenessScore,
-  vipTotalScore,
+  vipScore,
   vipAssessmentNotes,
 } = body
-    
-const isAssessmentUpdate =
-  registrationId &&
-  (
-    vipRelevanceScore !== undefined ||
-    vipStrategicValueScore !== undefined ||
-    vipProfessionalProfileScore !== undefined ||
-    vipMotorsportAffinityScore !== undefined ||
-    vipBrandAudienceScore !== undefined ||
-    vipCompletenessScore !== undefined ||
-    vipTotalScore !== undefined ||
-    vipAssessmentNotes !== undefined
-  )
-    if (!registrationId) {
+
+/* ---------------------------------------------------------------------- */
+/* Validate request                                                       */
+/* ---------------------------------------------------------------------- */
+
+if (!registrationId) {
   return NextResponse.json(
     { error: 'Registration ID is required' },
     { status: 400 },
@@ -199,7 +191,7 @@ const isAssessmentUpdate =
 }
 
 if (
-  status &&
+  status !== undefined &&
   !['Pending', 'Approved', 'Rejected'].includes(status)
 ) {
   return NextResponse.json(
@@ -207,270 +199,234 @@ if (
     { status: 400 },
   )
 }
-      // -------------------------------------------------------
-    // VIP ASSESSMENT UPDATE
-    // -------------------------------------------------------
 
-    const isVipAssessmentUpdate =
-      vipRelevanceScore !== undefined ||
-      vipStrategicScore !== undefined ||
-      vipProfileScore !== undefined ||
-      vipMotorsportScore !== undefined ||
-      vipBrandScore !== undefined ||
-      vipCompletenessScore !== undefined ||
-      vipScore !== undefined ||
-      vipAssessmentNotes !== undefined
+/* ---------------------------------------------------------------------- */
+/* Determine whether this is a VIP assessment update                     */
+/* ---------------------------------------------------------------------- */
 
-    if (isVipAssessmentUpdate) {
-      const {
-        data: assessmentData,
-        error: assessmentError,
-      } = await supabaseAdmin
-        .from('registrations')
-        .update({
-          vip_relevance_score:
-            Number(vipRelevanceScore ?? 0),
+const isVipAssessmentUpdate =
+  vipRelevanceScore !== undefined ||
+  vipStrategicScore !== undefined ||
+  vipProfileScore !== undefined ||
+  vipMotorsportScore !== undefined ||
+  vipBrandScore !== undefined ||
+  vipCompletenessScore !== undefined ||
+  vipScore !== undefined ||
+  vipAssessmentNotes !== undefined
 
-          vip_strategic_score:
-            Number(vipStrategicScore ?? 0),
+/* ---------------------------------------------------------------------- */
+/* Get current registration                                               */
+/* ---------------------------------------------------------------------- */
 
-          vip_profile_score:
-            Number(vipProfileScore ?? 0),
+const {
+  data: existingRegistration,
+  error: findError,
+} = await supabaseAdmin
+  .from('registrations')
+  .select(
+    `
+    id,
+    full_name,
+    email,
+    registration_number,
+    participant_type,
+    status
+    `,
+  )
+  .eq('id', registrationId)
+  .single()
 
-          vip_motorsport_score:
-            Number(vipMotorsportScore ?? 0),
+if (findError || !existingRegistration) {
+  console.error(
+    'Registration lookup error:',
+    findError,
+  )
 
-          vip_brand_score:
-            Number(vipBrandScore ?? 0),
+  return NextResponse.json(
+    { error: 'Registration not found' },
+    { status: 404 },
+  )
+}
 
-          vip_completeness_score:
-            Number(vipCompletenessScore ?? 0),
+const previousStatus =
+  existingRegistration.status
 
-          vip_score:
-            Number(vipScore ?? 0),
+/* ---------------------------------------------------------------------- */
+/* Build update payload                                                   */
+/* ---------------------------------------------------------------------- */
 
-          vip_assessment_notes:
-            vipAssessmentNotes?.trim() || null,
+const updatePayload: Record<string, unknown> = {}
 
-          vip_assessed_at:
-            new Date().toISOString(),
+/* ---------------------------- Status update --------------------------- */
 
-          vip_assessed_by:
-            user.id,
-        })
-        .eq('id', registrationId)
-        .select()
-        .single()
+if (status !== undefined) {
+  updatePayload.status = status
+}
 
-      if (assessmentError) {
-        console.error(
-          'VIP assessment update error:',
-          assessmentError,
-        )
+/* ------------------------- VIP assessment ----------------------------- */
 
-        return NextResponse.json(
-          {
-            error:
-              'Unable to save VIP assessment.',
-          },
-          { status: 500 },
-        )
-      }
+if (isVipAssessmentUpdate) {
+  if (
+    existingRegistration.participant_type !==
+    'VIP'
+  ) {
+    return NextResponse.json(
+      {
+        error:
+          'VIP assessment can only be performed on VIP registrations.',
+      },
+      { status: 400 },
+    )
+  }
 
-      return NextResponse.json({
-        success: true,
-        assessment: assessmentData,
-        message:
-          'VIP assessment saved successfully.',
-      })
-    }
+  const relevanceScore = Math.min(
+    20,
+    Math.max(
+      0,
+      Number(vipRelevanceScore ?? 0),
+    ),
+  )
 
-    /* ---------------------------------------------------------------------- */
-    /* Get current registration                                                */
-    /* ---------------------------------------------------------------------- */
+  const strategicScore = Math.min(
+    20,
+    Math.max(
+      0,
+      Number(vipStrategicScore ?? 0),
+    ),
+  )
 
-    const { data: existingRegistration, error: findError } =
-      await supabaseAdmin
-        .from('registrations')
-        .select(
-          `
-          id,
-          full_name,
-          email,
-          registration_number,
-          participant_type,
-          status,
+  const profileScore = Math.min(
+    15,
+    Math.max(
+      0,
+      Number(vipProfileScore ?? 0),
+    ),
+  )
 
-          vip_category,
-          vip_organisation,
-          vip_role,
-          vip_reason,
-          vip_referral_source,
-          vip_represents_organisation,
-          vip_website,
+  const motorsportScore = Math.min(
+    15,
+    Math.max(
+      0,
+      Number(vipMotorsportScore ?? 0),
+    ),
+  )
 
-          vip_score,
-          vip_relevance_score,
-          vip_strategic_score,
-          vip_profile_score,
-          vip_motorsport_score,
-          vip_brand_score,
-          vip_completeness_score,
-          vip_assessment_notes
-          `,
-        )
-        .eq('id', registrationId)
-        .single()
+  const brandScore = Math.min(
+    15,
+    Math.max(
+      0,
+      Number(vipBrandScore ?? 0),
+    ),
+  )
 
-    if (findError || !existingRegistration) {
-      console.error('Registration lookup error:', findError)
+  const completenessScore = Math.min(
+    15,
+    Math.max(
+      0,
+      Number(vipCompletenessScore ?? 0),
+    ),
+  )
 
-      return NextResponse.json(
-        { error: 'Registration not found' },
-        { status: 404 },
-      )
-    }
+  const totalScore =
+    relevanceScore +
+    strategicScore +
+    profileScore +
+    motorsportScore +
+    brandScore +
+    completenessScore
 
-    const previousStatus = existingRegistration.status
+  updatePayload.vip_relevance_score =
+    relevanceScore
 
-    /* ---------------------------------------------------------------------- */
-    /* Build update payload                                                    */
-    /* ---------------------------------------------------------------------- */
+  updatePayload.vip_strategic_value_score =
+    strategicScore
 
-    const updatePayload: Record<string, unknown> = {}
+  updatePayload.vip_professional_profile_score =
+    profileScore
 
-    /* ---------------------------- Status update --------------------------- */
+  updatePayload.vip_motorsport_affinity_score =
+    motorsportScore
 
-    if (status !== undefined) {
-      if (
-        typeof status !== 'string' ||
-        !isValidStatus(status)
-      ) {
-        return NextResponse.json(
-          { error: 'Invalid status' },
-          { status: 400 },
-        )
-      }
+  updatePayload.vip_brand_audience_score =
+    brandScore
 
-      updatePayload.status = status
-    }
+  updatePayload.vip_completeness_score =
+    completenessScore
 
-    /* ------------------------- VIP assessment ----------------------------- */
+  updatePayload.vip_total_score =
+    totalScore
 
-    if (vipAssessment) {
-      if (existingRegistration.participant_type !== 'VIP') {
-        return NextResponse.json(
-          {
-            error:
-              'VIP assessment can only be performed on VIP registrations.',
-          },
-          { status: 400 },
-        )
-      }
+  updatePayload.vip_assessment_notes =
+    typeof vipAssessmentNotes === 'string'
+      ? vipAssessmentNotes.trim() || null
+      : null
 
-      const relevanceScore = clampScore(
-        vipAssessment.relevanceScore,
-        25,
-      )
+  updatePayload.vip_assessed_at =
+    new Date().toISOString()
 
-      const strategicScore = clampScore(
-        vipAssessment.strategicScore,
-        25,
-      )
+  updatePayload.vip_assessed_by =
+    user.email || user.id
+}
 
-      const profileScore = clampScore(
-        vipAssessment.profileScore,
-        20,
-      )
+/* ---------------------------------------------------------------------- */
+/* Make sure something is being updated                                   */
+/* ---------------------------------------------------------------------- */
 
-      const motorsportScore = clampScore(
-        vipAssessment.motorsportScore,
-        15,
-      )
+if (
+  Object.keys(updatePayload).length === 0
+) {
+  return NextResponse.json(
+    {
+      error:
+        'No status or VIP assessment data was provided.',
+    },
+    { status: 400 },
+  )
+}
 
-      const brandScore = clampScore(
-        vipAssessment.brandScore,
-        10,
-      )
+/* ---------------------------------------------------------------------- */
+/* Update registration                                                    */
+/* ---------------------------------------------------------------------- */
 
-      const completenessScore = clampScore(
-        vipAssessment.completenessScore,
-        5,
-      )
+const {
+  data,
+  error,
+} = await supabaseAdmin
+  .from('registrations')
+  .update(updatePayload)
+  .eq('id', registrationId)
+  .select()
+  .single()
 
-      const totalScore =
-        relevanceScore +
-        strategicScore +
-        profileScore +
-        motorsportScore +
-        brandScore +
-        completenessScore
+if (error) {
+  console.error(
+    'Registration update error:',
+    error,
+  )
 
-      updatePayload.vip_relevance_score =
-        relevanceScore
+  return NextResponse.json(
+    { error: error.message },
+    { status: 500 },
+  )
+}
 
-      updatePayload.vip_strategic_score =
-        strategicScore
+/* ---------------------------------------------------------------------- */
+/* Return assessment response                                             */
+/* ---------------------------------------------------------------------- */
 
-      updatePayload.vip_profile_score =
-        profileScore
+if (isVipAssessmentUpdate) {
+  return NextResponse.json({
+    success: true,
+    assessment: data,
+    message:
+      'VIP assessment saved successfully.',
+  })
+}
 
-      updatePayload.vip_motorsport_score =
-        motorsportScore
-
-      updatePayload.vip_brand_score =
-        brandScore
-
-      updatePayload.vip_completeness_score =
-        completenessScore
-
-      updatePayload.vip_score = totalScore
-
-      updatePayload.vip_assessment_notes =
-        typeof vipAssessment.notes === 'string'
-          ? vipAssessment.notes.trim() || null
-          : null
-
-      updatePayload.vip_assessed_at =
-        new Date().toISOString()
-
-      updatePayload.vip_assessed_by =
-        user.email || user.id
-    }
-
-    /* ---------------------------------------------------------------------- */
-    /* Make sure something is actually being updated                           */
-    /* ---------------------------------------------------------------------- */
-
-    if (Object.keys(updatePayload).length === 0) {
-      return NextResponse.json(
-        {
-          error:
-            'No status or VIP assessment data was provided.',
-        },
-        { status: 400 },
-      )
-    }
-
-    /* ---------------------------------------------------------------------- */
-    /* Update registration                                                     */
-    /* ---------------------------------------------------------------------- */
-
-    const { data, error } = await supabaseAdmin
-      .from('registrations')
-      .update(updatePayload)
-      .eq('id', registrationId)
-      .select()
-      .single()
-
-    if (error) {
-      console.error('Registration update error:', error)
-
-      return NextResponse.json(
-        { error: error.message },
-        { status: 500 },
-      )
-    }
+const newStatus =
+  status !== undefined
+    ? status
+    : existingRegistration.status
 
     /* ---------------------------------------------------------------------- */
     /* Send approval email only when status changes to Approved               */
