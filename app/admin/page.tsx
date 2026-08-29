@@ -1453,3 +1453,354 @@ function StatCard({
     </div>
   )
 }
+function VIPAssessment({
+  registration,
+  onSaved,
+}: {
+  registration: Registration
+  onSaved: (updatedRegistration: Registration) => void
+}) {
+  const [relevance, setRelevance] = useState(
+    registration.vip_relevance_score ?? 0,
+  )
+
+  const [strategic, setStrategic] = useState(
+    registration.vip_strategic_score ?? 0,
+  )
+
+  const [profile, setProfile] = useState(
+    registration.vip_profile_score ?? 0,
+  )
+
+  const [motorsport, setMotorsport] = useState(
+    registration.vip_motorsport_score ?? 0,
+  )
+
+  const [brand, setBrand] = useState(
+    registration.vip_brand_score ?? 0,
+  )
+
+  const [completeness, setCompleteness] = useState(
+    registration.vip_completeness_score ?? 0,
+  )
+
+  const [notes, setNotes] = useState(
+    registration.vip_assessment_notes ?? '',
+  )
+
+  const [saving, setSaving] = useState(false)
+
+  const total =
+    relevance +
+    strategic +
+    profile +
+    motorsport +
+    brand +
+    completeness
+
+  const getRecommendation = () => {
+    if (total >= 80) {
+      return {
+        label: 'Strong VIP Candidate',
+        description:
+          'High-value candidate with strong reasons for VIP access.',
+        className:
+          'border-green-500/30 bg-green-500/10 text-green-400',
+      }
+    }
+
+    if (total >= 65) {
+      return {
+        label: 'Recommended',
+        description:
+          'Good candidate. Review the application context before approving.',
+        className:
+          'border-yellow-500/30 bg-yellow-500/10 text-yellow-400',
+      }
+    }
+
+    if (total >= 50) {
+      return {
+        label: 'Needs Review',
+        description:
+          'Some value is present, but the application requires closer consideration.',
+        className:
+          'border-orange-500/30 bg-orange-500/10 text-orange-400',
+      }
+    }
+
+    return {
+      label: 'Low Priority',
+      description:
+        'The application currently shows limited justification for VIP access.',
+      className:
+        'border-red-500/30 bg-red-500/10 text-red-400',
+    }
+  }
+
+  const recommendation = getRecommendation()
+
+  const handleSave = async () => {
+    if (saving) return
+
+    setSaving(true)
+
+    try {
+      const sessionResponse = await supabase.auth.getSession()
+      const session = sessionResponse.data.session
+
+      if (!session) {
+        window.location.href = '/admin/login'
+        return
+      }
+
+      const response = await fetch('/api/admin/registrations', {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${session.access_token}`,
+        },
+        body: JSON.stringify({
+          registrationId: registration.id,
+
+          vipRelevanceScore: relevance,
+          vipStrategicScore: strategic,
+          vipProfileScore: profile,
+          vipMotorsportScore: motorsport,
+          vipBrandScore: brand,
+          vipCompletenessScore: completeness,
+
+          vipScore: total,
+
+          vipAssessmentNotes: notes,
+        }),
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        alert(
+          data.error ||
+            'Unable to save VIP assessment.',
+        )
+        return
+      }
+
+      const updatedRegistration: Registration = {
+        ...registration,
+        ...data.assessment,
+      }
+
+      onSaved(updatedRegistration)
+
+      alert('VIP assessment saved successfully.')
+    } catch (error) {
+      console.error(
+        'VIP assessment save error:',
+        error,
+      )
+
+      alert(
+        'Unable to save VIP assessment.',
+      )
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  const ScoreInput = ({
+    label,
+    value,
+    max,
+    onChange,
+  }: {
+    label: string
+    value: number
+    max: number
+    onChange: (value: number) => void
+  }) => {
+    return (
+      <div className="rounded-xl border border-white/10 bg-black/20 p-4">
+        <div className="flex items-center justify-between gap-4">
+          <label className="text-sm font-semibold text-white">
+            {label}
+          </label>
+
+          <span className="text-xs font-mono text-white/40">
+            Max {max}
+          </span>
+        </div>
+
+        <div className="mt-3 flex items-center gap-3">
+          <input
+            type="range"
+            min="0"
+            max={max}
+            value={value}
+            onChange={(event) =>
+              onChange(
+                Math.min(
+                  max,
+                  Math.max(
+                    0,
+                    Number(event.target.value),
+                  ),
+                ),
+              )
+            }
+            className="flex-1 accent-yellow-500"
+          />
+
+          <input
+            type="number"
+            min="0"
+            max={max}
+            value={value}
+            onChange={(event) =>
+              onChange(
+                Math.min(
+                  max,
+                  Math.max(
+                    0,
+                    Number(event.target.value) || 0,
+                  ),
+                ),
+              )
+            }
+            className="h-10 w-16 rounded-lg border border-white/10 bg-white/5 px-2 text-center text-sm font-bold text-white outline-none focus:border-yellow-500"
+          />
+
+          <span className="text-sm text-white/40">
+            / {max}
+          </span>
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <div className="sm:col-span-2 rounded-2xl border border-yellow-500/20 bg-yellow-500/[0.02] p-5">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-yellow-400">
+            VIP Assessment
+          </p>
+
+          <p className="mt-1 text-sm text-white/40">
+            Score this applicant before making the final VIP decision.
+          </p>
+        </div>
+
+        <div className="rounded-xl border border-yellow-500/20 bg-yellow-500/10 px-5 py-3 text-center">
+          <p className="text-[10px] uppercase tracking-[0.2em] text-yellow-400/70">
+            Total Score
+          </p>
+
+          <p className="mt-1 text-3xl font-black text-yellow-400">
+            {total}
+            <span className="text-sm font-medium text-white/40">
+              {' '}
+              / 100
+            </span>
+          </p>
+        </div>
+      </div>
+
+      <div className="mt-5 grid gap-3">
+        <ScoreInput
+          label="Event Relevance"
+          value={relevance}
+          max={20}
+          onChange={setRelevance}
+        />
+
+        <ScoreInput
+          label="Strategic Value"
+          value={strategic}
+          max={20}
+          onChange={setStrategic}
+        />
+
+        <ScoreInput
+          label="Professional Profile"
+          value={profile}
+          max={15}
+          onChange={setProfile}
+        />
+
+        <ScoreInput
+          label="Motorsport Affinity"
+          value={motorsport}
+          max={15}
+          onChange={setMotorsport}
+        />
+
+        <ScoreInput
+          label="Brand / Audience Value"
+          value={brand}
+          max={15}
+          onChange={setBrand}
+        />
+
+        <ScoreInput
+          label="Application Completeness"
+          value={completeness}
+          max={15}
+          onChange={setCompleteness}
+        />
+      </div>
+
+      <div
+        className={`mt-5 rounded-xl border p-4 ${recommendation.className}`}
+      >
+        <div className="flex items-start gap-3">
+          <div className="flex-1">
+            <p className="text-sm font-bold uppercase tracking-wide">
+              {recommendation.label}
+            </p>
+
+            <p className="mt-1 text-xs leading-relaxed opacity-70">
+              {recommendation.description}
+            </p>
+          </div>
+
+          <span className="text-2xl font-black">
+            {total}
+          </span>
+        </div>
+      </div>
+
+      <div className="mt-5">
+        <label className="text-xs font-semibold uppercase tracking-wider text-white/40">
+          Assessment Notes
+        </label>
+
+        <textarea
+          value={notes}
+          onChange={(event) =>
+            setNotes(event.target.value)
+          }
+          rows={4}
+          placeholder="Explain why this applicant should or should not receive VIP access..."
+          className="mt-2 w-full resize-none rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white outline-none placeholder:text-white/25 focus:border-yellow-500"
+        />
+      </div>
+
+      <div className="mt-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <p className="text-xs text-white/30">
+          Saving the assessment does not approve the applicant.
+        </p>
+
+        <button
+          onClick={handleSave}
+          disabled={saving}
+          className="rounded-xl bg-yellow-500 px-6 py-3 text-sm font-bold text-black transition hover:bg-yellow-400 disabled:cursor-not-allowed disabled:opacity-50"
+        >
+          {saving
+            ? 'Saving Assessment...'
+            : 'Save Assessment'}
+        </button>
+      </div>
+    </div>
+  )
+}
