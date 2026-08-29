@@ -124,28 +124,28 @@ export function Hero() {
       />
 
       {/* ====================================================== */}
-      {/* HERO LOGO                                              */}
-      {/* ====================================================== */}
+{/* HERO LOGO                                              */}
+{/* ====================================================== */}
 
-      <div
-  className="pointer-events-none absolute left-1/2 top-1/2 z-30 w-[82vw] max-w-[680px]"
+<div
+  className="pointer-events-none absolute inset-0 z-30 flex items-center justify-center"
   style={{
-    transform: `translate3d(-50%, calc(-50% + ${logoY * 0.35}vh), 0) scale(${logoScale})`,
     opacity: logoOpacity,
+    transform: `translate3d(0, ${scrollProgress * -28}vh, 0)`,
   }}
 >
-        <div className="text-center">
-          <p className="mb-5 text-[10px] font-semibold uppercase tracking-[0.55em] text-white/45 sm:text-xs">
-            Welcome to
-          </p>
+  <div className="flex w-[88vw] max-w-[720px] -translate-y-[3vh] flex-col items-center text-center">
+    <p className="mb-6 text-[11px] font-semibold uppercase tracking-[0.55em] text-white/50 sm:text-xs">
+      Welcome to
+    </p>
 
-          <img
-            src="/images/torq-logo.png"
-            alt="TOR'Q — Artistry in Motorsport"
-            className="mx-auto w-full object-contain"
-          />
-        </div>
-      </div>
+    <img
+      src="/images/torq-logo.png"
+      alt="TOR'Q"
+      className="block w-full object-contain"
+    />
+  </div>
+</div>
 
       {/* ====================================================== */}
       {/* HERO CONTENT                                           */}
