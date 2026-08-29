@@ -14,9 +14,8 @@ export function Hero() {
   const [scrollProgress, setScrollProgress] = useState(0)
 
   useEffect(() => {
-    const handleScroll = () => {
-      const maxScroll =
-        window.innerHeight * 0.9
+    const maxScroll =
+  window.innerHeight * 1.5
 
       const progress = Math.min(
         1,
@@ -56,12 +55,12 @@ export function Hero() {
    */
 
   const logoOpacity = Math.max(
-    0,
-    1 - scrollProgress * 1.2,
-  )
+  0,
+  1 - scrollProgress * 1.35,
+)
 
   const logoY =
-    scrollProgress * -34
+  scrollProgress * -42
 
   const welcomeOpacity = Math.max(
     0,
@@ -72,7 +71,7 @@ export function Hero() {
     1,
     Math.max(
       0,
-      (scrollProgress - 0.16) / 0.5,
+      (scrollProgress - 0.28) / 0.5,
     ),
   )
 
@@ -83,9 +82,12 @@ export function Hero() {
     35 - contentProgress * 35
 
   const backgroundOpacity = Math.min(
-    1,
-    scrollProgress * 1.35,
-  )
+  1,
+  Math.max(
+    0,
+    (scrollProgress - 0.08) / 0.65,
+  ),
+)
 
   const scrollPromptOpacity = Math.max(
     0,
