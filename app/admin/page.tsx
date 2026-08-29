@@ -1215,6 +1215,22 @@ const arrivalActivity = Object.entries(arrivalByHour)
     </div>
   </div>
 )}
+        {selectedRegistration.participant_type === 'VIP' && (
+  <VIPAssessment
+    registration={selectedRegistration}
+    onSaved={(updatedRegistration) => {
+      setRegistrations((current) =>
+        current.map((registration) =>
+          registration.id === updatedRegistration.id
+            ? updatedRegistration
+            : registration,
+        ),
+      )
+
+      setSelectedRegistration(updatedRegistration)
+    }}
+  />
+)}
         {selectedRegistration.status === 'Approved' &&
   selectedRegistration.registration_number && (
     <div className="sm:col-span-2">
