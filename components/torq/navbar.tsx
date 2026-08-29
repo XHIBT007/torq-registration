@@ -5,7 +5,6 @@ import { cn } from '@/lib/utils'
 import { Menu, X, ArrowUpRight } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { useRegistration } from './registration'
-import { TorqLogo } from './logo'
 
 const LINKS = [
   { label: 'About', href: '#about' },
@@ -73,13 +72,11 @@ export function Navbar() {
           className="group flex items-center"
           aria-label="TOR'Q home"
         >
-          <TorqLogo
-            className="
-              text-2xl
-              transition-transform duration-300
-              group-hover:scale-105
-            "
-          />
+          <img
+  src="/images/torq-logo.png"
+  alt="TOR'Q Motorsport — Artistry in Motorsport"
+  className="h-10 w-auto object-contain"
+/>
         </a>
 
         {/* ====================================================== */}
