@@ -5,6 +5,7 @@ import {
   useRef,
   useState,
 } from 'react'
+
 import {
   ChevronDown,
   MapPin,
@@ -30,10 +31,10 @@ export function Hero() {
      ============================================================ */
 
   useEffect(() => {
-    let raf = 0
+    let frame = 0
 
     const update = () => {
-      raf = 0
+      frame = 0
 
       const section =
         sectionRef.current
@@ -43,31 +44,35 @@ export function Hero() {
       const rect =
         section.getBoundingClientRect()
 
-      const scrollDistance =
+      const total =
         section.offsetHeight -
         window.innerHeight
 
-      if (scrollDistance <= 0) {
+      if (total <= 0) {
         setProgress(0)
         return
       }
 
       const travelled =
-        Math.min(
-          scrollDistance,
-          Math.max(0, -rect.top),
+        Math.max(
+          0,
+          Math.min(
+            total,
+            -rect.top,
+          ),
         )
 
       setProgress(
-        travelled / scrollDistance,
+        travelled / total,
       )
     }
 
     const onScroll = () => {
-      if (!raf) {
-        raf = window.requestAnimationFrame(
-          update,
-        )
+      if (!frame) {
+        frame =
+          window.requestAnimationFrame(
+            update,
+          )
       }
     }
 
@@ -95,14 +100,16 @@ export function Hero() {
         update,
       )
 
-      if (raf) {
-        window.cancelAnimationFrame(raf)
+      if (frame) {
+        window.cancelAnimationFrame(
+          frame,
+        )
       }
     }
   }, [])
 
   /* ============================================================
-     EASING
+     HELPERS
      ============================================================ */
 
   const clamp = (
@@ -131,10 +138,7 @@ export function Hero() {
     const t = clamp(value)
 
     return t < 0.5
-      ? 4 *
-          t *
-          t *
-          t
+      ? 4 * t * t * t
       : 1 -
           Math.pow(
             -2 * t + 2,
@@ -144,37 +148,33 @@ export function Hero() {
   }
 
   /* ============================================================
-     OPENING TIMELINE
+     LAYER 1
      
-     0.00 → 0.95
-     ONLY LAYER 1 MOVES
+     LOGO MOVES FIRST
      ============================================================ */
 
-  const layerOneProgress =
+  const logoProgress =
     easeInOut(
       progress / 0.95,
     )
 
-  /*
-   * Logo travels upward.
-   */
   const logoY =
-    -100 *
-    layerOneProgress
+    -105 * logoProgress
 
   /*
-   * Logo begins fading slightly after
-   * it starts moving.
+   * Logo remains strong at the beginning,
+   * then fades during the second half.
    */
   const logoOpacity =
     1 -
     easeOut(
-      (progress - 0.08) /
-        0.87,
+      (progress - 0.48) /
+        0.47,
     )
 
   /*
-   * Welcome disappears earlier.
+   * "Welcome to" disappears before
+   * the actual logo.
    */
   const welcomeOpacity =
     1 -
@@ -183,8 +183,7 @@ export function Hero() {
     )
 
   /*
-   * Scroll instruction disappears
-   * almost immediately.
+   * Scroll instruction disappears early.
    */
   const scrollPromptOpacity =
     1 -
@@ -193,40 +192,16 @@ export function Hero() {
     )
 
   /* ============================================================
-     LAYER 2 REVEAL
+     LAYER 2
      
-     BEGINS AT 95%
+     BEGINS APPEARING WHILE LOGO IS STILL VISIBLE
      ============================================================ */
 
-  const layerTwoProgress =
-    easeOut(
-      (progress - 0.88) /
-        0.12,
-    )
-
-  /*
-   * Layer 2 is one complete composition.
-   *
-   * Background + headline + copy +
-   * CTA + stats + countdown all fade
-   * together.
-   */
   const layerTwoOpacity =
-    layerTwoProgress
-
-  /* ============================================================
-     BACKGROUND
-     ============================================================ */
-
-  const backgroundOpacity =
-    layerTwoProgress
-
-  /* ============================================================
-     NAVBAR
-     
-     We let the existing Navbar handle
-     its own scroll state.
-     ============================================================ */
+    easeOut(
+      (progress - 0.55) /
+        0.40,
+    )
 
   return (
     <section
@@ -238,24 +213,19 @@ export function Hero() {
           STICKY STAGE
           ======================================================== */}
 
-      <div className="sticky top-0 h-screen overflow-hidden">
+      <div className="sticky top-0 h-screen overflow-hidden bg-black">
 
         {/* ======================================================
             BACKGROUND
             ====================================================== */}
 
-        <div
-          className="absolute inset-0 bg-black"
-          style={{
-            opacity: 1,
-          }}
-        />
+        <div className="absolute inset-0 bg-black" />
 
         <div
-          className="absolute inset-0"
+          className="absolute inset-0 transition-none"
           style={{
             opacity:
-              backgroundOpacity,
+              layerTwoOpacity,
           }}
         >
           <img
@@ -265,17 +235,15 @@ export function Hero() {
             className="h-full w-full object-cover"
           />
 
-          <div className="absolute inset-0 bg-black/60" />
+          <div className="absolute inset-0 bg-black/65" />
 
-          <div className="absolute inset-0 bg-gradient-to-r from-black via-black/65 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-r from-black via-black/65 to-black/20" />
 
-          <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-black/30" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-black/50" />
         </div>
 
         {/* ======================================================
-            LAYER 2
-             
-            THE COMPLETE WEBSITE HERO
+            LAYER 2 — MAIN WEBSITE
             ====================================================== */}
 
         <div
@@ -285,26 +253,45 @@ export function Hero() {
               layerTwoOpacity,
           }}
         >
-          <div className="mx-auto flex h-full w-full max-w-7xl items-center px-6 py-28 lg:px-10">
-
+          <div
+            className="
+              mx-auto
+              flex
+              h-full
+              w-full
+              max-w-7xl
+              items-start
+              px-6
+              pt-[92px]
+              pb-8
+              sm:px-8
+              sm:pt-28
+              lg:items-center
+              lg:px-10
+              lg:pt-0
+            "
+          >
             <div className="w-full max-w-5xl">
 
-              {/* DATE */}
-
-              <div className="mb-6 inline-flex items-center rounded-full border border-red-500/40 bg-black/40 px-5 py-2 backdrop-blur-md">
-                <span className="mr-2 h-2 w-2 rounded-full bg-red-500" />
-
-                <span className="text-xs font-semibold uppercase tracking-[0.25em] text-white sm:text-sm">
-                  Lagos • December 6, 2026
-                </span>
-              </div>
-
               {/* ==================================================
-                  MAIN HEADLINE
+                  HEADLINE
                   ================================================== */}
 
-              <h1 className="text-[3.2rem] font-black uppercase leading-[0.88] tracking-[-0.045em] text-white sm:text-6xl md:text-7xl lg:text-[6.5rem]">
+              <h1
+                className="
+                  font-black
+                  uppercase
+                  leading-[0.88]
+                  tracking-[-0.045em]
+                  text-white
 
+                  text-[3.05rem]
+
+                  sm:text-6xl
+                  md:text-7xl
+                  lg:text-[6.5rem]
+                "
+              >
                 <span className="block">
                   AFRICA&apos;S BIGGEST
                 </span>
@@ -316,99 +303,154 @@ export function Hero() {
                 <span className="block">
                   SPECTACLE
                 </span>
-
               </h1>
 
               {/* ==================================================
                   CINEMATIC COPY
                   ================================================== */}
 
-              <p className="mt-7 max-w-2xl text-base leading-7 text-white/70 sm:text-lg sm:leading-8 md:text-xl">
-                A cinematic celebration of
-                speed, sound and precision where
-                drifting legends, stunt riders,
-                performance cars and motorsport
-                culture collide for one
+              <p
+                className="
+                  mt-5
+                  max-w-2xl
+                  text-[14px]
+                  leading-[1.55]
+                  text-white/70
+
+                  sm:mt-7
+                  sm:text-lg
+                  sm:leading-8
+
+                  md:text-xl
+                "
+              >
+                A cinematic celebration of speed,
+                sound and precision where drifting
+                legends, stunt riders, performance cars
+                and motorsport culture collide for one
                 unforgettable experience.
               </p>
 
               {/* ==================================================
-                  CTA
+                  CTA + LOCATION
                   ================================================== */}
 
-              <div className="mt-8 flex flex-col gap-5 sm:flex-row sm:items-center">
+              <div
+                className="
+                  mt-6
+                  flex
+                  flex-col
+                  gap-4
 
+                  sm:mt-8
+                  sm:flex-row
+                  sm:items-center
+                "
+              >
                 <Button
                   size="lg"
                   onClick={open}
-                  className="h-14 rounded-full bg-red-600 px-8 text-base font-bold text-white transition-all duration-300 hover:scale-105 hover:bg-red-500"
+                  className="
+                    h-12
+                    w-full
+                    rounded-full
+                    bg-red-600
+                    px-7
+                    text-sm
+                    font-bold
+                    text-white
+                    transition-all
+                    duration-300
+                    hover:bg-red-500
+
+                    sm:h-14
+                    sm:w-auto
+                    sm:px-8
+                    sm:text-base
+                  "
                 >
                   <Ticket className="mr-2 h-5 w-5" />
+
                   REGISTER NOW
                 </Button>
 
-                <div className="flex items-center gap-2 text-base text-white/70">
+                <div
+                  className="
+                    flex
+                    items-center
+                    gap-2
+                    text-sm
+                    text-white/70
+
+                    sm:text-base
+                  "
+                >
                   <MapPin className="h-5 w-5 text-red-500" />
+
                   {EVENT.location}
                 </div>
-
               </div>
 
               {/* ==================================================
                   STATS
                   ================================================== */}
 
-              <div className="mt-10 grid grid-cols-2 gap-x-8 gap-y-7 border-t border-white/10 pt-7 sm:grid-cols-4">
+              <div
+                className="
+                  mt-7
+                  grid
+                  grid-cols-2
+                  gap-x-8
+                  gap-y-5
+                  border-t
+                  border-white/10
+                  pt-6
 
-                <div>
-                  <p className="text-3xl font-black text-white sm:text-4xl">
-                    100+
-                  </p>
+                  sm:mt-9
+                  sm:grid-cols-4
+                  sm:gap-y-0
+                  sm:pt-7
+                "
+              >
+                <HeroStat
+                  value="100+"
+                  label="Performance Cars"
+                />
 
-                  <p className="mt-1 text-[10px] uppercase tracking-[0.2em] text-white/45">
-                    Performance Cars
-                  </p>
-                </div>
+                <HeroStat
+                  value="50+"
+                  label="Drivers & Riders"
+                />
 
-                <div>
-                  <p className="text-3xl font-black text-white sm:text-4xl">
-                    50+
-                  </p>
+                <HeroStat
+                  value="3"
+                  label="Days of Action"
+                />
 
-                  <p className="mt-1 text-[10px] uppercase tracking-[0.2em] text-white/45">
-                    Drivers & Riders
-                  </p>
-                </div>
-
-                <div>
-                  <p className="text-3xl font-black text-white sm:text-4xl">
-                    3
-                  </p>
-
-                  <p className="mt-1 text-[10px] uppercase tracking-[0.2em] text-white/45">
-                    Days of Action
-                  </p>
-                </div>
-
-                <div>
-                  <p className="text-3xl font-black text-white sm:text-4xl">
-                    1
-                  </p>
-
-                  <p className="mt-1 text-[10px] uppercase tracking-[0.2em] text-white/45">
-                    Epic Experience
-                  </p>
-                </div>
-
+                <HeroStat
+                  value="1"
+                  label="Epic Experience"
+                />
               </div>
 
               {/* ==================================================
                   COUNTDOWN
                   ================================================== */}
 
-              <div className="mt-10">
+              <div className="mt-7 sm:mt-9">
 
-                <p className="mb-4 text-[10px] uppercase tracking-[0.35em] text-white/40">
+                <p
+                  className="
+                    mb-3
+                    text-[9px]
+                    uppercase
+                    tracking-[0.35em]
+                    text-white/40
+
+                    sm:mb-4
+                    sm:text-[10px]
+                  "
+                >
                   Lights Out In
                 </p>
 
@@ -423,26 +465,52 @@ export function Hero() {
         </div>
 
         {/* ======================================================
-            LAYER 1
-             
-            OPENING TOR'Q
+            LAYER 1 — TOR'Q OPENING
             ====================================================== */}
 
         <div
-          className="pointer-events-none absolute inset-0 z-30 flex items-center justify-center"
+          className="
+            pointer-events-none
+            absolute
+            inset-0
+            z-30
+            flex
+            items-center
+            justify-center
+          "
           style={{
             opacity:
               logoOpacity,
+
             transform:
               `translate3d(0, ${logoY}vh, 0)`,
           }}
         >
-          <div className="flex w-[88vw] max-w-[720px] -translate-y-[3vh] flex-col items-center text-center">
+          <div
+            className="
+              flex
+              w-[86vw]
+              max-w-[720px]
+              -translate-y-[4vh]
+              flex-col
+              items-center
+              text-center
+            "
+          >
 
             {/* WELCOME */}
 
             <p
-              className="mb-6 text-[11px] font-semibold uppercase tracking-[0.55em] text-white/50 sm:text-xs"
+              className="
+                mb-6
+                text-[10px]
+                font-semibold
+                uppercase
+                tracking-[0.55em]
+                text-white/50
+
+                sm:text-xs
+              "
               style={{
                 opacity:
                   welcomeOpacity,
@@ -456,24 +524,46 @@ export function Hero() {
             <img
               src="/images/torq-logo.png"
               alt="TOR'Q"
-              className="block w-full object-contain"
+              className="
+                block
+                w-full
+                object-contain
+              "
             />
 
             {/* SCROLL PROMPT */}
 
             <div
-              className="mt-12 flex flex-col items-center gap-3"
+              className="
+                mt-10
+                flex
+                flex-col
+                items-center
+                gap-2
+
+                sm:mt-12
+              "
               style={{
                 opacity:
                   scrollPromptOpacity,
               }}
             >
-              <span className="text-[9px] font-semibold uppercase tracking-[0.35em] text-white/45 sm:text-[10px]">
+              <span
+                className="
+                  text-[8px]
+                  font-semibold
+                  uppercase
+                  tracking-[0.35em]
+                  text-white/45
+
+                  sm:text-[10px]
+                "
+              >
                 Scroll down to experience TOR&apos;Q
               </span>
 
               <div className="flex flex-col items-center">
-                <div className="h-8 w-px bg-gradient-to-b from-white/50 to-transparent" />
+                <div className="h-7 w-px bg-gradient-to-b from-white/50 to-transparent" />
 
                 <ChevronDown className="mt-1 h-4 w-4 animate-bounce text-white/50" />
               </div>
@@ -484,5 +574,49 @@ export function Hero() {
 
       </div>
     </section>
+  )
+}
+
+/* ================================================================
+   STAT
+   ================================================================ */
+
+function HeroStat({
+  value,
+  label,
+}: {
+  value: string
+  label: string
+}) {
+  return (
+    <div>
+      <p
+        className="
+          text-3xl
+          font-black
+          leading-none
+          text-white
+
+          sm:text-4xl
+        "
+      >
+        {value}
+      </p>
+
+      <p
+        className="
+          mt-2
+          max-w-[140px]
+          text-[9px]
+          uppercase
+          tracking-[0.2em]
+          text-white/45
+
+          sm:text-[10px]
+        "
+      >
+        {label}
+      </p>
+    </div>
   )
 }
