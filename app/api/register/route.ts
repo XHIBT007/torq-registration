@@ -9,6 +9,28 @@ const PARTICIPANT_TYPES = [
   'Sim Racer',
 ] as const
 
+const VIP_CATEGORIES = [
+  'Business Executive',
+  'Sponsor / Brand Representative',
+  'Motorsport Professional',
+  'Automotive Industry',
+  'Content Creator / Media',
+  'Celebrity / Public Figure',
+  'Investor',
+  "TOR'Q Community",
+  'Other',
+] as const
+
+const VIP_REFERRAL_SOURCES = [
+  "Previous TOR'Q",
+  'Friend / Referral',
+  'Sponsor',
+  'Social Media',
+  'Media',
+  'Partner',
+  'Other',
+] as const
+
 function generateRegistrationNumber() {
   const number = Math.floor(Math.random() * 1_000_000)
 
@@ -29,6 +51,15 @@ export async function POST(request: Request) {
       vehicleMake,
       vehicleModel,
       instagram,
+
+      // VIP application
+      vipCategory,
+      vipOrganisation,
+      vipRole,
+      vipReason,
+      vipReferralSource,
+      vipRepresentsOrganisation,
+      vipWebsite,
     } = body
 
     // Basic validation
@@ -51,6 +82,35 @@ export async function POST(request: Request) {
         { error: 'Invalid participant type.' },
         { status: 400 },
       )
+    }
+
+    // VIP-specific validation
+    if (participantType === 'VIP') {
+      if (
+        !vipCategory?.trim() ||
+        !vipReason?.trim() ||
+        !vipReferralSource?.trim()
+      ) {
+        return NextResponse.json(
+          {
+            error:
+              'Please complete the required VIP application fields.',
+          },
+          { status: 400 },
+        )
+      }
+
+      if (
+        !VIP_CATEGORIES.includes(vipCategory) ||
+        !VIP_REFERRAL_SOURCES.includes(vipReferralSource)
+      ) {
+        return NextResponse.json(
+          {
+            error: 'Invalid VIP application information.',
+          },
+          { status: 400 },
+        )
+      }
     }
 
     // Generate a registration number.
@@ -76,6 +136,42 @@ export async function POST(request: Request) {
           vehicle_model: vehicleModel?.trim() || null,
           instagram: instagram?.trim() || null,
           registration_number: registrationNumber,
+
+          // VIP application
+          vip_category:
+            participantType === 'VIP'
+              ? vipCategory.trim()
+              : null,
+
+          vip_organisation:
+            participantType === 'VIP'
+              ? vipOrganisation?.trim() || null
+              : null,
+
+          vip_role:
+            participantType === 'VIP'
+              ? vipRole?.trim() || null
+              : null,
+
+          vip_reason:
+            participantType === 'VIP'
+              ? vipReason.trim()
+              : null,
+
+          vip_referral_source:
+            participantType === 'VIP'
+              ? vipReferralSource.trim()
+              : null,
+
+          vip_represents_organisation:
+            participantType === 'VIP'
+              ? Boolean(vipRepresentsOrganisation)
+              : false,
+
+          vip_website:
+            participantType === 'VIP'
+              ? vipWebsite?.trim() || null
+              : null,
         })
         .select()
         .single()
@@ -92,7 +188,10 @@ export async function POST(request: Request) {
         continue
       }
 
-      console.error('Registration insert error:', result.error)
+      console.error(
+        'Registration insert error:',
+        result.error,
+      )
 
       return NextResponse.json(
         { error: result.error.message },
@@ -120,10 +219,16 @@ export async function POST(request: Request) {
       registration: data,
     })
   } catch (error) {
-    console.error('Registration API error:', error)
+    console.error(
+      'Registration API error:',
+      error,
+    )
 
     return NextResponse.json(
-      { error: 'Something went wrong. Please try again.' },
+      {
+        error:
+          'Something went wrong. Please try again.',
+      },
       { status: 500 },
     )
   }
