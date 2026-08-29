@@ -165,18 +165,124 @@ export async function PATCH(request: Request) {
 
     const body = await request.json()
 
-    const {
-      registrationId,
-      status,
+const {
+  registrationId,
+  status,
 
-      vipAssessment,
-    } = body
-
+  vipRelevanceScore,
+  vipStrategicValueScore,
+  vipProfessionalProfileScore,
+  vipMotorsportAffinityScore,
+  vipBrandAudienceScore,
+  vipCompletenessScore,
+  vipTotalScore,
+  vipAssessmentNotes,
+} = body
+    
+const isAssessmentUpdate =
+  registrationId &&
+  (
+    vipRelevanceScore !== undefined ||
+    vipStrategicValueScore !== undefined ||
+    vipProfessionalProfileScore !== undefined ||
+    vipMotorsportAffinityScore !== undefined ||
+    vipBrandAudienceScore !== undefined ||
+    vipCompletenessScore !== undefined ||
+    vipTotalScore !== undefined ||
+    vipAssessmentNotes !== undefined
+  )
     if (!registrationId) {
-      return NextResponse.json(
-        { error: 'Registration ID is required' },
-        { status: 400 },
-      )
+  return NextResponse.json(
+    { error: 'Registration ID is required' },
+    { status: 400 },
+  )
+}
+
+if (
+  status &&
+  !['Pending', 'Approved', 'Rejected'].includes(status)
+) {
+  return NextResponse.json(
+    { error: 'Invalid status' },
+    { status: 400 },
+  )
+}
+      // -------------------------------------------------------
+    // VIP ASSESSMENT UPDATE
+    // -------------------------------------------------------
+
+    const isVipAssessmentUpdate =
+      vipRelevanceScore !== undefined ||
+      vipStrategicScore !== undefined ||
+      vipProfileScore !== undefined ||
+      vipMotorsportScore !== undefined ||
+      vipBrandScore !== undefined ||
+      vipCompletenessScore !== undefined ||
+      vipScore !== undefined ||
+      vipAssessmentNotes !== undefined
+
+    if (isVipAssessmentUpdate) {
+      const {
+        data: assessmentData,
+        error: assessmentError,
+      } = await supabaseAdmin
+        .from('registrations')
+        .update({
+          vip_relevance_score:
+            Number(vipRelevanceScore ?? 0),
+
+          vip_strategic_score:
+            Number(vipStrategicScore ?? 0),
+
+          vip_profile_score:
+            Number(vipProfileScore ?? 0),
+
+          vip_motorsport_score:
+            Number(vipMotorsportScore ?? 0),
+
+          vip_brand_score:
+            Number(vipBrandScore ?? 0),
+
+          vip_completeness_score:
+            Number(vipCompletenessScore ?? 0),
+
+          vip_score:
+            Number(vipScore ?? 0),
+
+          vip_assessment_notes:
+            vipAssessmentNotes?.trim() || null,
+
+          vip_assessed_at:
+            new Date().toISOString(),
+
+          vip_assessed_by:
+            user.id,
+        })
+        .eq('id', registrationId)
+        .select()
+        .single()
+
+      if (assessmentError) {
+        console.error(
+          'VIP assessment update error:',
+          assessmentError,
+        )
+
+        return NextResponse.json(
+          {
+            error:
+              'Unable to save VIP assessment.',
+          },
+          { status: 500 },
+        )
+      }
+
+      return NextResponse.json({
+        success: true,
+        assessment: assessmentData,
+        message:
+          'VIP assessment saved successfully.',
+      })
     }
 
     /* ---------------------------------------------------------------------- */
