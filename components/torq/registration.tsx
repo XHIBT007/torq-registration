@@ -1025,7 +1025,7 @@ function SuccessView({
           <button
             type="button"
             onClick={onCopy}
-            className="mt-3 inline-flex items-center gap-1.5 text-xs text-accent transition-opacity hover:opacity-80"
+            className="mt-3 inline-flex items-center gap-1.5 text-xs text-gold transition-opacity hover:opacity-80"
           >
             <Copy className="size-3.5" />
 
@@ -1089,8 +1089,8 @@ function SuccessView({
           onClick={onClose}
         >
           {isVip
-            ? 'Return to TOR&apos;Q'
-            : 'Done'}
+  ? "Return to TOR'Q"
+  : 'Done'}
         </Button>
 
         {/* Closing line */}
