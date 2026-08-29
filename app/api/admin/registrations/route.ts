@@ -432,11 +432,6 @@ const newStatus =
     /* Send approval email only when status changes to Approved               */
     /* ---------------------------------------------------------------------- */
 
-    const newStatus =
-      status !== undefined
-        ? status
-        : existingRegistration.status
-
     if (
       newStatus === 'Approved' &&
       previousStatus !== 'Approved'
