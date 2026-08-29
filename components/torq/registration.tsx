@@ -59,6 +59,15 @@ type FormData = {
   vehicleModel: string
   instagram: string
   agree: boolean
+
+  // VIP application
+  vipCategory: string
+  vipOrganisation: string
+  vipRole: string
+  vipReason: string
+  vipReferralSource: string
+  vipRepresentsOrganisation: boolean
+  vipWebsite: string
 }
 
 const EMPTY_FORM: FormData = {
@@ -72,6 +81,14 @@ const EMPTY_FORM: FormData = {
   vehicleModel: '',
   instagram: '',
   agree: false,
+
+  vipCategory: '',
+  vipOrganisation: '',
+  vipRole: '',
+  vipReason: '',
+  vipReferralSource: '',
+  vipRepresentsOrganisation: false,
+  vipWebsite: '',
 }
 
 const PARTICIPANT_ICONS: Record<
