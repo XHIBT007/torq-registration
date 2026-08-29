@@ -151,8 +151,8 @@ export function Hero() {
    */
   const layerTwoOpacity =
   easeOut(
-    (scrollProgress - 0.49) /
-      0.09,
+    (scrollProgress - 0.48) /
+      0.14,
   )
 
   /*
@@ -187,7 +187,7 @@ export function Hero() {
   const backgroundOpacity =
   easeInOut(
     (scrollProgress - 0.44) /
-      0.22,
+      0.20,
   )
 
   /* ============================================================
