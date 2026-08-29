@@ -336,25 +336,25 @@ if (isVipAssessmentUpdate) {
     completenessScore
 
   updatePayload.vip_relevance_score =
-    relevanceScore
+  relevanceScore
 
-  updatePayload.vip_strategic_value_score =
-    strategicScore
+updatePayload.vip_strategic_score =
+  strategicScore
 
-  updatePayload.vip_professional_profile_score =
-    profileScore
+updatePayload.vip_profile_score =
+  profileScore
 
-  updatePayload.vip_motorsport_affinity_score =
-    motorsportScore
+updatePayload.vip_motorsport_score =
+  motorsportScore
 
-  updatePayload.vip_brand_audience_score =
-    brandScore
+updatePayload.vip_brand_score =
+  brandScore
 
-  updatePayload.vip_completeness_score =
-    completenessScore
+updatePayload.vip_completeness_score =
+  completenessScore
 
-  updatePayload.vip_total_score =
-    totalScore
+updatePayload.vip_score =
+  totalScore
 
   updatePayload.vip_assessment_notes =
     typeof vipAssessmentNotes === 'string'
