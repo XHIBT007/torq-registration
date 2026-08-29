@@ -1110,6 +1110,111 @@ const arrivalActivity = Object.entries(arrivalByHour)
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2">
+        
+        {selectedRegistration.participant_type === 'VIP' && (
+  <div className="sm:col-span-2 rounded-2xl border border-yellow-500/20 bg-yellow-500/[0.03] p-5">
+    <div className="flex items-center gap-3">
+      <div className="flex h-10 w-10 items-center justify-center rounded-full bg-yellow-500/10">
+        <Crown className="h-5 w-5 text-yellow-400" />
+      </div>
+
+      <div>
+        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-yellow-400">
+          VIP Application
+        </p>
+
+        <p className="mt-1 text-sm text-white/40">
+          Review the applicant's VIP profile before making a decision.
+        </p>
+      </div>
+    </div>
+
+    <div className="mt-5 grid gap-4 sm:grid-cols-2">
+      <div>
+        <p className="text-xs uppercase tracking-wider text-white/40">
+          VIP Category
+        </p>
+
+        <p className="mt-1 text-sm font-medium text-white">
+          {selectedRegistration.vip_category || '—'}
+        </p>
+      </div>
+
+      <div>
+        <p className="text-xs uppercase tracking-wider text-white/40">
+          Organisation
+        </p>
+
+        <p className="mt-1 text-sm font-medium text-white">
+          {selectedRegistration.vip_organisation || '—'}
+        </p>
+      </div>
+
+      <div>
+        <p className="text-xs uppercase tracking-wider text-white/40">
+          Role / Position
+        </p>
+
+        <p className="mt-1 text-sm font-medium text-white">
+          {selectedRegistration.vip_role || '—'}
+        </p>
+      </div>
+
+      <div>
+        <p className="text-xs uppercase tracking-wider text-white/40">
+          Referral Source
+        </p>
+
+        <p className="mt-1 text-sm font-medium text-white">
+          {selectedRegistration.vip_referral_source || '—'}
+        </p>
+      </div>
+
+      <div className="sm:col-span-2">
+        <p className="text-xs uppercase tracking-wider text-white/40">
+          Reason for VIP Access
+        </p>
+
+        <p className="mt-2 text-sm leading-relaxed text-white/80">
+          {selectedRegistration.vip_reason || '—'}
+        </p>
+      </div>
+
+      <div>
+        <p className="text-xs uppercase tracking-wider text-white/40">
+          Represents Organisation
+        </p>
+
+        <p className="mt-1 text-sm font-medium text-white">
+          {selectedRegistration.vip_represents_organisation
+            ? 'Yes'
+            : 'No'}
+        </p>
+      </div>
+
+      <div>
+        <p className="text-xs uppercase tracking-wider text-white/40">
+          Website
+        </p>
+
+        {selectedRegistration.vip_website ? (
+          <a
+            href={selectedRegistration.vip_website}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mt-1 block truncate text-sm font-medium text-yellow-400 hover:underline"
+          >
+            {selectedRegistration.vip_website}
+          </a>
+        ) : (
+          <p className="mt-1 text-sm font-medium text-white">
+            —
+          </p>
+        )}
+      </div>
+    </div>
+  </div>
+)}
         {selectedRegistration.status === 'Approved' &&
   selectedRegistration.registration_number && (
     <div className="sm:col-span-2">
