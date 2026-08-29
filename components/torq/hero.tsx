@@ -1,7 +1,11 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { ChevronDown, MapPin, Ticket } from 'lucide-react'
+import {
+  ChevronDown,
+  MapPin,
+  Ticket,
+} from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
 import { EVENT } from '@/lib/torq-data'
@@ -11,7 +15,8 @@ import { useRegistration } from './registration'
 export function Hero() {
   const { open } = useRegistration()
 
-  const [scrollProgress, setScrollProgress] = useState(0)
+  const [scrollProgress, setScrollProgress] =
+    useState(0)
 
   /* ============================================================
      SCROLL TRACKING
@@ -19,7 +24,8 @@ export function Hero() {
 
   useEffect(() => {
     const handleScroll = () => {
-      const maxScroll = window.innerHeight * 1.8
+      const maxScroll =
+        window.innerHeight * 1.8
 
       const progress = Math.min(
         1,
@@ -53,122 +59,154 @@ export function Hero() {
      ============================================================ */
 
   const easeOut = (value: number) => {
-    const t = Math.min(1, Math.max(0, value))
+    const t = Math.min(
+      1,
+      Math.max(0, value),
+    )
 
     return 1 - Math.pow(1 - t, 3)
   }
 
   const easeInOut = (value: number) => {
-    const t = Math.min(1, Math.max(0, value))
+    const t = Math.min(
+      1,
+      Math.max(0, value),
+    )
 
     return t < 0.5
       ? 4 * t * t * t
-      : 1 - Math.pow(-2 * t + 2, 3) / 2
+      : 1 -
+          Math.pow(
+            -2 * t + 2,
+            3,
+          ) /
+            2
   }
 
   /* ============================================================
-     PHASE 1 — OPENING LOGO
+     LAYER 1
+     
+     OPENING TOR'Q LOGO
      ============================================================ */
 
   /*
-   * The logo begins moving first.
+   * Layer 1 owns the first part of the scroll.
    *
-   * Nothing else moves with it.
+   * It moves upward and fades away.
    */
-  const logoProgress = easeInOut(
+  const layerOneProgress = easeInOut(
     scrollProgress / 0.55,
   )
 
-  const logoOpacity = Math.max(
-    0,
-    1 -
-      easeOut(
-        (scrollProgress - 0.05) / 0.48,
-      ),
-  )
+  const layerOneY =
+    -100 * layerOneProgress
 
-  const logoY =
-    -42 * logoProgress
+  const layerOneOpacity =
+    Math.max(
+      0,
+      1 -
+        easeOut(
+          (scrollProgress - 0.05) /
+            0.50,
+        ),
+    )
 
-  const welcomeOpacity = Math.max(
-    0,
-    1 -
-      easeOut(
-        scrollProgress / 0.28,
-      ),
-  )
+  /*
+   * Welcome text disappears slightly
+   * before the logo itself.
+   */
+  const welcomeOpacity =
+    Math.max(
+      0,
+      1 -
+        easeOut(
+          scrollProgress / 0.25,
+        ),
+    )
+
+  /*
+   * Scroll instruction disappears
+   * very early.
+   */
+  const scrollPromptOpacity =
+    Math.max(
+      0,
+      1 -
+        easeOut(
+          scrollProgress / 0.16,
+        ),
+    )
 
   /* ============================================================
-     PHASE 2 — BACKGROUND
+     LAYER 2
+     
+     MAIN WEBSITE
      ============================================================ */
 
   /*
-   * Background intentionally appears slowly.
+   * Layer 2 starts appearing at 95%
+   * of Layer 1's exit.
    *
-   * This keeps the opening predominantly black.
+   * Layer 2 DOES NOT MOVE here.
    */
-  const backgroundOpacity = easeInOut(
-    (scrollProgress - 0.30) / 0.65,
-  )
+  const layerTwoOpacity =
+    easeOut(
+      (scrollProgress - 0.52) /
+        0.12,
+    )
+
+  /*
+   * Main content remains completely
+   * stationary during the handoff.
+   */
+  const layerTwoY = 0
+
+  /*
+   * Once Layer 2 is visible, normal
+   * hero movement can begin.
+   */
+  const normalScrollProgress =
+    easeOut(
+      (scrollProgress - 0.70) /
+        0.30,
+    )
+
+  const heroY =
+    -70 * normalScrollProgress
 
   /* ============================================================
-     PHASE 3 — MAIN HERO CONTENT REVEAL
+     BACKGROUND
      ============================================================ */
 
   /*
-   * Headline begins appearing while the logo
-   * is finishing its exit.
-   */
-  const contentReveal = easeOut(
-  (scrollProgress - 0.28) / 0.30,
-)
-
-const contentOpacity =
-  contentReveal
-
-  /*
-   * IMPORTANT:
+   * Background belongs to Layer 2.
    *
-   * The main hero does NOT move initially.
-   *
-   * Only after the logo is essentially gone
-   * does the entire hero begin moving upward.
+   * It begins appearing around the same
+   * time Layer 2 starts fading in.
    */
-  const contentMoveProgress = easeOut(
-  (scrollProgress - 0.62) / 0.38,
-)
-
-  const contentY =
-    -70 * contentMoveProgress
-
-  /* ============================================================
-     SCROLL PROMPT
-     ============================================================ */
-
-  const scrollPromptOpacity = Math.max(
-    0,
-    1 -
-      easeOut(
-        scrollProgress / 0.18,
-      ),
-  )
+  const backgroundOpacity =
+    easeInOut(
+      (scrollProgress - 0.48) /
+        0.30,
+    )
 
   /* ============================================================
      NAVBAR
      ============================================================ */
 
-  const navbarOpacity = easeOut(
-    (scrollProgress - 0.55) / 0.25,
-  )
+  const navbarOpacity =
+    easeOut(
+      (scrollProgress - 0.60) /
+        0.20,
+    )
 
   return (
     <section
       id="top"
-      className="relative min-h-[135vh] overflow-hidden bg-black"
+      className="relative min-h-[180vh] overflow-hidden bg-black"
     >
-
       {/* ========================================================
-          BACKGROUND
+          LAYER 2 BACKGROUND
           ======================================================== */}
 
       <div
@@ -192,33 +230,32 @@ const contentOpacity =
       </div>
 
       {/* ========================================================
-          BLACK OPENING LAYER
+          BLACK OPENING BACKGROUND
           ======================================================== */}
 
       <div
         className="pointer-events-none fixed inset-0 z-10 bg-black"
         style={{
-          opacity: Math.max(
-            0,
+          opacity:
             1 - backgroundOpacity,
-          ),
         }}
       />
 
       {/* ========================================================
-          OPENING TOR'Q LOGO
+          LAYER 1 — OPENING
           ======================================================== */}
 
       <div
         className="pointer-events-none fixed inset-0 z-30 flex items-center justify-center"
         style={{
-          opacity: logoOpacity,
-          transform: `translate3d(0, ${logoY}vh, 0)`,
+          opacity: layerOneOpacity,
+          transform: `translate3d(0, ${layerOneY}vh, 0)`,
         }}
       >
         <div className="flex w-[88vw] max-w-[720px] -translate-y-[3vh] flex-col items-center text-center">
 
           {/* Welcome */}
+
           <p
             className="mb-6 text-[11px] font-semibold uppercase tracking-[0.55em] text-white/50 sm:text-xs"
             style={{
@@ -228,14 +265,16 @@ const contentOpacity =
             Welcome to
           </p>
 
-          {/* TOR'Q Logo */}
+          {/* TOR'Q LOGO */}
+
           <img
             src="/images/torq-logo.png"
             alt="TOR'Q"
             className="block w-full object-contain"
           />
 
-          {/* Scroll Instruction */}
+          {/* Scroll instruction */}
+
           <div
             className="mt-12 flex flex-col items-center gap-3"
             style={{
@@ -257,148 +296,152 @@ const contentOpacity =
       </div>
 
       {/* ========================================================
-          MAIN HERO CONTENT
+          LAYER 2 — MAIN WEBSITE
           ======================================================== */}
 
       <div
-        className="relative z-20 mx-auto flex min-h-screen w-full max-w-7xl items-center px-6 py-32 lg:px-10"
+        className="relative z-20 flex min-h-screen w-full items-center"
         style={{
-          opacity: contentOpacity,
-          transform: `translate3d(0, ${contentY}px, 0)`,
+          opacity: layerTwoOpacity,
+          transform: `translate3d(0, ${heroY + layerTwoY}px, 0)`,
         }}
       >
-        <div className="max-w-4xl">
+        <div className="mx-auto w-full max-w-7xl px-6 py-32 lg:px-10">
 
-          {/* Date / Location */}
+          <div className="max-w-4xl">
 
-          <div className="mb-6 inline-flex items-center rounded-full border border-red-500/40 bg-black/40 px-5 py-2 backdrop-blur-md">
-            <span className="mr-2 h-2 w-2 rounded-full bg-red-500" />
+            {/* Date */}
 
-            <span className="text-sm font-semibold uppercase tracking-[0.25em] text-white">
-              Lagos • December 6, 2026
-            </span>
-          </div>
+            <div className="mb-6 inline-flex items-center rounded-full border border-red-500/40 bg-black/40 px-5 py-2 backdrop-blur-md">
+              <span className="mr-2 h-2 w-2 rounded-full bg-red-500" />
 
-          {/* ==================================================
-              HEADLINE
-              ================================================== */}
-
-          <h1 className="text-5xl font-black uppercase leading-[0.88] tracking-[-0.04em] text-white md:text-7xl lg:text-[6.5rem]">
-
-            <span className="block">
-              AFRICA&apos;S BIGGEST
-            </span>
-
-            <span className="block text-red-500">
-              MOTORSPORT
-            </span>
-
-            <span className="block">
-              SPECTACLE
-            </span>
-
-          </h1>
-
-          {/* ==================================================
-              DESCRIPTION
-              ================================================== */}
-
-          <p className="mt-8 max-w-2xl text-lg leading-8 text-white/70 md:text-xl">
-            A cinematic celebration of speed, sound and precision
-            where drifting legends, stunt riders, performance cars
-            and motorsport culture collide for one unforgettable
-            experience.
-          </p>
-
-          {/* ==================================================
-              CTA
-              ================================================== */}
-
-          <div className="mt-10 flex flex-col gap-5 sm:flex-row sm:items-center">
-
-            <Button
-              size="lg"
-              onClick={open}
-              className="h-14 rounded-full bg-red-600 px-8 text-base font-bold text-white transition-all duration-300 hover:scale-105 hover:bg-red-500"
-            >
-              <Ticket className="mr-2 h-5 w-5" />
-              REGISTER NOW
-            </Button>
-
-            <div className="flex items-center gap-2 text-base text-white/70">
-              <MapPin className="h-5 w-5 text-red-500" />
-              {EVENT.location}
+              <span className="text-sm font-semibold uppercase tracking-[0.25em] text-white">
+                Lagos • December 6, 2026
+              </span>
             </div>
 
-          </div>
+            {/* ==================================================
+                MAIN HEADLINE
+                ================================================== */}
 
-          {/* ==================================================
-              STATS
-              ================================================== */}
+            <h1 className="text-5xl font-black uppercase leading-[0.88] tracking-[-0.04em] text-white md:text-7xl lg:text-[6.5rem]">
 
-          <div className="mt-14 grid grid-cols-2 gap-x-8 gap-y-8 border-t border-white/10 pt-8 sm:grid-cols-4">
+              <span className="block">
+                AFRICA&apos;S BIGGEST
+              </span>
 
-            <div>
-              <p className="text-3xl font-black text-white sm:text-4xl">
-                100+
-              </p>
+              <span className="block text-red-500">
+                MOTORSPORT
+              </span>
 
-              <p className="mt-2 text-[10px] uppercase tracking-[0.2em] text-white/45">
-                Performance Cars
-              </p>
-            </div>
+              <span className="block">
+                SPECTACLE
+              </span>
 
-            <div>
-              <p className="text-3xl font-black text-white sm:text-4xl">
-                50+
-              </p>
+            </h1>
 
-              <p className="mt-2 text-[10px] uppercase tracking-[0.2em] text-white/45">
-                Drivers & Riders
-              </p>
-            </div>
+            {/* ==================================================
+                CINEMATIC DESCRIPTION
+                ================================================== */}
 
-            <div>
-              <p className="text-3xl font-black text-white sm:text-4xl">
-                3
-              </p>
-
-              <p className="mt-2 text-[10px] uppercase tracking-[0.2em] text-white/45">
-                Days of Action
-              </p>
-            </div>
-
-            <div>
-              <p className="text-3xl font-black text-white sm:text-4xl">
-                1
-              </p>
-
-              <p className="mt-2 text-[10px] uppercase tracking-[0.2em] text-white/45">
-                Epic Experience
-              </p>
-            </div>
-
-          </div>
-
-          {/* ==================================================
-              COUNTDOWN
-              ================================================== */}
-
-          <div className="mt-12">
-
-            <p className="mb-4 text-[10px] uppercase tracking-[0.35em] text-white/40">
-              Lights Out In
+            <p className="mt-8 max-w-2xl text-lg leading-8 text-white/70 md:text-xl">
+              A cinematic celebration of speed,
+              sound and precision where drifting
+              legends, stunt riders, performance
+              cars and motorsport culture collide
+              for one unforgettable experience.
             </p>
 
-            <Countdown date={EVENT.date} />
+            {/* ==================================================
+                CTA
+                ================================================== */}
+
+            <div className="mt-10 flex flex-col gap-5 sm:flex-row sm:items-center">
+
+              <Button
+                size="lg"
+                onClick={open}
+                className="h-14 rounded-full bg-red-600 px-8 text-base font-bold text-white transition-all duration-300 hover:scale-105 hover:bg-red-500"
+              >
+                <Ticket className="mr-2 h-5 w-5" />
+                REGISTER NOW
+              </Button>
+
+              <div className="flex items-center gap-2 text-base text-white/70">
+                <MapPin className="h-5 w-5 text-red-500" />
+                {EVENT.location}
+              </div>
+
+            </div>
+
+            {/* ==================================================
+                STATS
+                ================================================== */}
+
+            <div className="mt-14 grid grid-cols-2 gap-x-8 gap-y-8 border-t border-white/10 pt-8 sm:grid-cols-4">
+
+              <div>
+                <p className="text-3xl font-black text-white sm:text-4xl">
+                  100+
+                </p>
+
+                <p className="mt-2 text-[10px] uppercase tracking-[0.2em] text-white/45">
+                  Performance Cars
+                </p>
+              </div>
+
+              <div>
+                <p className="text-3xl font-black text-white sm:text-4xl">
+                  50+
+                </p>
+
+                <p className="mt-2 text-[10px] uppercase tracking-[0.2em] text-white/45">
+                  Drivers & Riders
+                </p>
+              </div>
+
+              <div>
+                <p className="text-3xl font-black text-white sm:text-4xl">
+                  3
+                </p>
+
+                <p className="mt-2 text-[10px] uppercase tracking-[0.2em] text-white/45">
+                  Days of Action
+                </p>
+              </div>
+
+              <div>
+                <p className="text-3xl font-black text-white sm:text-4xl">
+                  1
+                </p>
+
+                <p className="mt-2 text-[10px] uppercase tracking-[0.2em] text-white/45">
+                  Epic Experience
+                </p>
+              </div>
+
+            </div>
+
+            {/* ==================================================
+                COUNTDOWN
+                ================================================== */}
+
+            <div className="mt-12">
+
+              <p className="mb-4 text-[10px] uppercase tracking-[0.35em] text-white/40">
+                Lights Out In
+              </p>
+
+              <Countdown date={EVENT.date} />
+
+            </div>
 
           </div>
-
         </div>
       </div>
 
       {/* ========================================================
-          NAVBAR FADE
+          NAVBAR TRANSITION
           ======================================================== */}
 
       <div
