@@ -120,11 +120,11 @@ export function Hero() {
    * is finishing its exit.
    */
   const contentReveal = easeOut(
-    (scrollProgress - 0.42) / 0.28,
-  )
+  (scrollProgress - 0.28) / 0.30,
+)
 
-  const contentOpacity =
-    contentReveal
+const contentOpacity =
+  contentReveal
 
   /*
    * IMPORTANT:
@@ -135,8 +135,8 @@ export function Hero() {
    * does the entire hero begin moving upward.
    */
   const contentMoveProgress = easeOut(
-    (scrollProgress - 0.68) / 0.32,
-  )
+  (scrollProgress - 0.62) / 0.38,
+)
 
   const contentY =
     -70 * contentMoveProgress
