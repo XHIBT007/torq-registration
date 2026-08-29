@@ -2,7 +2,7 @@
 
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
-import { Menu, X, ArrowUpRight } from 'lucide-react'
+import { Menu, X } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { useRegistration } from './registration'
 
@@ -19,13 +19,38 @@ export function Navbar() {
 
   const [scrolled, setScrolled] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
+  const [visible, setVisible] = useState(false)
 
   useEffect(() => {
-    const onScroll = () => {
-      setScrolled(window.scrollY > 32)
+    let ticking = false
+
+    const update = () => {
+      const scroll = window.scrollY
+
+      setScrolled(scroll > 40)
+
+      /*
+       * Navbar starts appearing almost immediately,
+       * but reaches full visibility as the hero logo disappears.
+       */
+      const progress = Math.min(
+        1,
+        Math.max(0, scroll / (window.innerHeight * 0.4)),
+      )
+
+      setVisible(progress)
+
+      ticking = false
     }
 
-    onScroll()
+    const onScroll = () => {
+      if (!ticking) {
+        window.requestAnimationFrame(update)
+        ticking = true
+      }
+    }
+
+    update()
 
     window.addEventListener('scroll', onScroll, {
       passive: true,
@@ -35,132 +60,61 @@ export function Navbar() {
       window.removeEventListener('scroll', onScroll)
   }, [])
 
-  useEffect(() => {
-    document.body.style.overflow = menuOpen
-      ? 'hidden'
-      : ''
-
-    return () => {
-      document.body.style.overflow = ''
-    }
-  }, [menuOpen])
-
   return (
     <header
       className={cn(
-        'fixed inset-x-0 top-0 z-50 transition-all duration-500',
+        'fixed inset-x-0 top-0 z-50 transition-all duration-700',
         scrolled
-          ? 'border-b border-white/10 bg-black/80 backdrop-blur-xl'
+          ? 'border-b border-white/10 bg-black/75 backdrop-blur-xl'
           : 'border-b border-transparent bg-transparent',
       )}
+      style={{
+        opacity: visible,
+        transform: `translateY(${(1 - visible) * -18}px)`,
+        pointerEvents: visible > 0.05 ? 'auto' : 'none',
+      }}
     >
-      <nav
-        className={cn(
-          'mx-auto flex max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8',
-          'transition-all duration-500',
-          scrolled
-            ? 'h-16'
-            : 'h-[72px]',
-        )}
-      >
-        {/* ====================================================== */}
-        {/* LOGO                                                     */}
-        {/* ====================================================== */}
+      <nav className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
 
+        {/* LOGO */}
         <a
           href="#top"
-          className="group flex items-center"
+          className="flex items-center"
           aria-label="TOR'Q home"
         >
-          <div
-  className="h-10 w-[120px]"
-  aria-hidden="true"
-/>
+          <img
+            src="/images/torq-logo.png"
+            alt="TOR'Q"
+            className="h-9 w-auto object-contain sm:h-10"
+          />
         </a>
 
-        {/* ====================================================== */}
-        {/* DESKTOP NAV                                              */}
-        {/* ====================================================== */}
-
-        <div className="hidden items-center gap-7 md:flex">
+        {/* DESKTOP NAV */}
+        <div className="hidden items-center gap-8 md:flex">
           {LINKS.map((link) => (
             <a
               key={link.href}
               href={link.href}
-              className="
-                group relative py-2
-                text-xs font-semibold uppercase
-                tracking-[0.18em]
-                text-white/55
-                transition-colors duration-300
-                hover:text-white
-              "
+              className="text-sm font-medium tracking-wide text-white/60 transition-colors duration-300 hover:text-white"
             >
               {link.label}
-
-              {/* Hover underline */}
-              <span
-                className="
-                  absolute bottom-0 left-0 h-px w-0
-                  bg-red-500
-                  transition-all duration-300
-                  group-hover:w-full
-                "
-              />
             </a>
           ))}
         </div>
 
-        {/* ====================================================== */}
-        {/* ACTIONS                                                  */}
-        {/* ====================================================== */}
-
-        <div className="flex items-center gap-3">
+        {/* ACTIONS */}
+        <div className="flex items-center gap-2">
           <Button
             size="lg"
+            className="hidden sm:inline-flex"
             onClick={open}
-            className="
-              hidden rounded-full
-              bg-red-600 px-6
-              text-xs font-bold uppercase
-              tracking-[0.12em]
-              text-white
-              transition-all duration-300
-              hover:scale-105
-              hover:bg-red-500
-              hover:shadow-[0_0_25px_rgba(239,68,68,0.3)]
-              sm:inline-flex
-            "
           >
             Register Now
-
-            <ArrowUpRight
-              className="
-                ml-1 size-4
-                transition-transform duration-300
-                group-hover:-translate-y-0.5
-              "
-            />
           </Button>
 
-          {/* Mobile menu button */}
           <button
-            className="
-              flex size-10 items-center justify-center
-              rounded-full
-              border border-white/10
-              bg-white/[0.04]
-              text-white
-              transition-all duration-300
-              hover:border-red-500/50
-              hover:bg-red-500/10
-              md:hidden
-            "
-            aria-label={
-              menuOpen
-                ? 'Close menu'
-                : 'Open menu'
-            }
+            className="flex size-11 items-center justify-center rounded-full border border-white/15 bg-black/40 text-white backdrop-blur-md md:hidden"
+            aria-label="Toggle menu"
             aria-expanded={menuOpen}
             onClick={() =>
               setMenuOpen((open) => !open)
@@ -175,74 +129,34 @@ export function Navbar() {
         </div>
       </nav>
 
-      {/* ======================================================== */}
-      {/* MOBILE MENU                                               */}
-      {/* ======================================================== */}
-
-      <div
-        className={cn(
-          'overflow-hidden border-t border-white/10 bg-black/95 backdrop-blur-xl md:hidden',
-          'transition-all duration-500 ease-out',
-          menuOpen
-            ? 'max-h-[500px] opacity-100'
-            : 'max-h-0 opacity-0',
-        )}
-      >
-        <div className="px-5 pb-6 pt-4">
-          <div className="flex flex-col">
-            {LINKS.map((link, index) => (
+      {/* MOBILE MENU */}
+      {menuOpen && (
+        <div className="animate-fade-in border-t border-white/10 bg-black/95 backdrop-blur-xl md:hidden">
+          <div className="flex flex-col gap-1 px-4 py-4">
+            {LINKS.map((link) => (
               <a
                 key={link.href}
                 href={link.href}
-                onClick={() =>
-                  setMenuOpen(false)
-                }
-                className="
-                  flex items-center justify-between
-                  border-b border-white/5
-                  py-4
-                  text-sm font-semibold
-                  uppercase
-                  tracking-[0.2em]
-                  text-white/60
-                  transition-colors
-                  hover:text-white
-                "
-                style={{
-                  transitionDelay: menuOpen
-                    ? `${index * 40}ms`
-                    : '0ms',
-                }}
+                onClick={() => setMenuOpen(false)}
+                className="rounded-md px-3 py-3 text-sm font-medium text-white/60 transition-colors hover:bg-white/5 hover:text-white"
               >
                 {link.label}
-
-                <ArrowUpRight className="size-4 text-red-500" />
               </a>
             ))}
 
             <Button
               size="lg"
+              className="mt-2"
               onClick={() => {
                 setMenuOpen(false)
                 open()
               }}
-              className="
-                mt-5 h-13 w-full
-                rounded-full
-                bg-red-600
-                text-sm font-bold uppercase
-                tracking-[0.15em]
-                text-white
-                transition-all duration-300
-                hover:bg-red-500
-              "
             >
-              <span>Register Now</span>
-              <ArrowUpRight className="ml-1 size-4" />
+              Register Now
             </Button>
           </div>
         </div>
-      </div>
+      )}
     </header>
   )
 }
