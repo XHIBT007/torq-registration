@@ -30,15 +30,10 @@ export function Experiences() {
   const trackRef = useRef<HTMLDivElement>(null)
 
   const [progress, setProgress] = useState(0)
-  const [horizontalDistance, setHorizontalDistance] =
-    useState(0)
-
-  /* ============================================================
-     SCROLL ENGINE
-     ============================================================ */
+  const [distance, setDistance] = useState(0)
 
   useEffect(() => {
-    let animationFrame = 0
+    let frame = 0
 
     const measure = () => {
       const track = trackRef.current
@@ -46,60 +41,74 @@ export function Experiences() {
       if (!track) return
 
       /*
-       * Measure the actual width of the experience track.
-       *
-       * This prevents us from guessing with arbitrary vw values.
+       * Measure how far the track actually needs
+       * to travel horizontally.
        */
-      const distance = Math.max(
+      const trackWidth = track.scrollWidth
+
+      const viewportWidth = window.innerWidth
+
+      const horizontalDistance = Math.max(
         0,
-        track.scrollWidth -
-          window.innerWidth +
-          window.innerWidth * 0.18,
+        trackWidth -
+          viewportWidth +
+          viewportWidth * 0.08,
       )
 
-      setHorizontalDistance(distance)
+      setDistance(horizontalDistance)
     }
 
     const update = () => {
-      animationFrame = 0
+      frame = 0
 
       const section = sectionRef.current
 
       if (!section) return
 
-      const rect = section.getBoundingClientRect()
+      const rect =
+        section.getBoundingClientRect()
 
-      const scrollDistance =
-        section.offsetHeight -
+      /*
+       * The section remains a normal vertical section.
+       *
+       * We simply calculate where the user is
+       * within it.
+       */
+      const sectionHeight =
+        section.offsetHeight
+
+      const viewportHeight =
         window.innerHeight
 
-      if (scrollDistance <= 0) {
+      const scrollable =
+        sectionHeight -
+        viewportHeight
+
+      if (scrollable <= 0) {
         setProgress(0)
         return
       }
 
-      /*
-       * How far the user has travelled through
-       * the pinned Experiences section.
-       */
-      const travelled = Math.max(
-        0,
-        Math.min(
-          scrollDistance,
-          -rect.top,
-        ),
+      const travelled =
+        Math.max(
+          0,
+          Math.min(
+            scrollable,
+            -rect.top,
+          ),
+        )
+
+      setProgress(
+        travelled / scrollable,
       )
-
-      const nextProgress =
-        travelled / scrollDistance
-
-      setProgress(nextProgress)
     }
 
     const handleScroll = () => {
-      if (!animationFrame) {
-        animationFrame =
-          window.requestAnimationFrame(update)
+      if (!frame) {
+        frame =
+          window.requestAnimationFrame(
+            update,
+          )
       }
     }
 
@@ -114,7 +123,9 @@ export function Experiences() {
     window.addEventListener(
       'scroll',
       handleScroll,
-      { passive: true },
+      {
+        passive: true,
+      },
     )
 
     window.addEventListener(
@@ -133,35 +144,20 @@ export function Experiences() {
         handleResize,
       )
 
-      if (animationFrame) {
-        window.cancelAnimationFrame(
-          animationFrame,
-        )
+      if (frame) {
+        window.cancelAnimationFrame(frame)
       }
     }
   }, [])
 
-  /* ============================================================
-     CONTINUOUS HORIZONTAL MOVEMENT
-     ============================================================ */
-
-  const translateX =
-    progress * horizontalDistance
-
   /*
-   * Continuous position of the "focus".
+   * Continuous horizontal movement.
    *
-   * This is deliberately NOT rounded.
-   *
-   * Rounding this value was one of the things
-   * making the journey feel like it was stopping.
+   * Nothing here locks the page or intercepts
+   * the user's scrolling.
    */
-  const activePosition =
-    progress *
-    Math.max(
-      0,
-      EXPERIENCES.length - 1,
-    )
+  const translateX =
+    progress * distance
 
   return (
     <section
@@ -169,63 +165,49 @@ export function Experiences() {
       id="experiences"
       className="
         relative
-        h-[300vh]
+        overflow-hidden
         bg-black
+        py-24
         text-white
+        md:py-32
       "
     >
-      <div className="sticky top-0 h-screen overflow-hidden">
+
+      {/* ========================================================
+          ATMOSPHERE
+          ======================================================== */}
+
+      <div
+        className="
+          pointer-events-none
+          absolute
+          left-1/2
+          top-0
+          h-[500px]
+          w-[700px]
+          -translate-x-1/2
+          rounded-full
+          bg-red-600/[0.06]
+          blur-[140px]
+        "
+      />
+
+      {/* ========================================================
+          CONTENT
+          ======================================================== */}
+
+      <div className="relative">
 
         {/* ======================================================
-            ATMOSPHERE
+            HEADER
             ====================================================== */}
 
         <div
           className="
-            pointer-events-none
-            absolute
-            left-1/2
-            top-0
-            h-[500px]
-            w-[700px]
-            -translate-x-1/2
-            rounded-full
-            bg-red-600/[0.06]
-            blur-[140px]
-          "
-        />
-
-        <div
-          className="
-            pointer-events-none
-            absolute
-            bottom-0
-            right-0
-            h-[400px]
-            w-[400px]
-            rounded-full
-            bg-red-600/[0.04]
-            blur-[120px]
-          "
-        />
-
-        {/* ======================================================
-            SECTION HEADER
-            ====================================================== */}
-
-        <div
-          className="
-            absolute
-            left-0
-            right-0
-            top-0
-            z-20
             mx-auto
             max-w-7xl
             px-6
-            pt-14
             md:px-10
-            md:pt-20
           "
         >
           <div
@@ -240,7 +222,7 @@ export function Experiences() {
             <div>
               <p
                 className="
-                  mb-4
+                  mb-5
                   text-xs
                   font-bold
                   uppercase
@@ -269,9 +251,21 @@ export function Experiences() {
                   motorsport.
                 </span>
               </h2>
-            </div>
 
-            {/* Counter */}
+              <p
+                className="
+                  mt-6
+                  max-w-xl
+                  text-base
+                  leading-7
+                  text-white/45
+                  md:text-lg
+                "
+              >
+                Six experiences. One destination.
+                Move through the world of TOR&apos;Q.
+              </p>
+            </div>
 
             <div
               className="
@@ -288,36 +282,11 @@ export function Experiences() {
                   text-white/30
                 "
               >
-                Journey
-              </p>
-
-              <p
-                className="
-                  mt-1
-                  text-2xl
-                  font-black
-                "
-              >
                 {String(
-                  Math.min(
-                    EXPERIENCES.length,
-                    Math.floor(
-                      activePosition + 1.5,
-                    ),
-                  ),
+                  EXPERIENCES.length,
                 ).padStart(2, '0')}
-
-                <span
-                  className="
-                    text-white/20
-                  "
-                >
-                  {' '}
-                  /{' '}
-                  {String(
-                    EXPERIENCES.length,
-                  ).padStart(2, '0')}
-                </span>
+                {' '}
+                Experiences
               </p>
             </div>
 
@@ -325,356 +294,315 @@ export function Experiences() {
         </div>
 
         {/* ======================================================
-            DESKTOP HORIZONTAL TRACK
+            HORIZONTAL JOURNEY
             ====================================================== */}
 
         <div
-          ref={trackRef}
           className="
-            absolute
-            left-0
-            top-[57%]
-            hidden
-            -translate-y-1/2
-            md:block
+            relative
+            mt-14
+            overflow-hidden
+            md:mt-20
           "
-          style={{
-            transform:
-              `translate3d(${-translateX}px, -50%, 0)`,
-          }}
         >
+
+          {/* DESKTOP TRACK */}
+
           <div
+            ref={trackRef}
             className="
-              flex
-              items-center
-              gap-6
-              pl-[8vw]
-              pr-[18vw]
+              hidden
+              md:block
             "
+            style={{
+              transform:
+                `translate3d(${-translateX}px, 0, 0)`,
+            }}
           >
+            <div
+              className="
+                flex
+                gap-6
+                pl-[8vw]
+                pr-[8vw]
+              "
+            >
 
-            {EXPERIENCES.map(
-              (experience, index) => {
-                const Icon =
-                  ICONS[index] ?? Flame
+              {EXPERIENCES.map(
+                (experience, index) => {
+                  const Icon =
+                    ICONS[index] ?? Flame
 
-                /*
-                 * Continuous distance from the current
-                 * scroll position.
-                 */
-                const distance =
-                  Math.abs(
-                    activePosition - index,
-                  )
-
-                /*
-                 * Very subtle visual emphasis.
-                 *
-                 * The movement itself NEVER depends on this.
-                 */
-                const scale = Math.max(
-                  0.94,
-                  1 -
-                    distance * 0.035,
-                )
-
-                const opacity = Math.max(
-                  0.5,
-                  1 -
-                    distance * 0.2,
-                )
-
-                const isNearActive =
-                  distance < 0.5
-
-                return (
-                  <article
-                    key={experience.number}
-                    className="
-                      group
-                      relative
-                      h-[390px]
-                      w-[58vw]
-                      max-w-[820px]
-                      shrink-0
-                      overflow-hidden
-                      rounded-2xl
-                      border
-                      border-white/10
-                      bg-neutral-950
-                      transition-[opacity,transform]
-                      duration-300
-                      ease-out
-                    "
-                    style={{
-                      transform:
-                        `scale(${scale})`,
-                      opacity,
-                    }}
-                  >
-
-                    {/* ==================================================
-                        IMAGE
-                        ================================================== */}
-
-                    <div
+                  return (
+                    <article
+                      key={
+                        experience.number
+                      }
                       className="
-                        absolute
-                        inset-0
-                        bg-cover
-                        bg-center
-                        opacity-40
-                        transition-all
-                        duration-700
-                        group-hover:scale-105
-                        group-hover:opacity-55
-                      "
-                      style={{
-                        backgroundImage:
-                          `url(${experience.image})`,
-                      }}
-                    />
-
-                    {/* ==================================================
-                        GRADIENT
-                        ================================================== */}
-
-                    <div
-                      className="
-                        absolute
-                        inset-0
-                        bg-gradient-to-r
-                        from-black
-                        via-black/65
-                        to-black/10
-                      "
-                    />
-
-                    <div
-                      className="
-                        absolute
-                        inset-0
-                        bg-gradient-to-t
-                        from-black
-                        via-transparent
-                        to-transparent
-                      "
-                    />
-
-                    {/* ==================================================
-                        CONTENT
-                        ================================================== */}
-
-                    <div
-                      className="
+                        group
                         relative
-                        flex
-                        h-full
-                        flex-col
-                        justify-between
-                        p-8
-                        lg:p-10
+                        h-[430px]
+                        w-[58vw]
+                        max-w-[820px]
+                        shrink-0
+                        overflow-hidden
+                        rounded-2xl
+                        border
+                        border-white/10
+                        bg-neutral-950
                       "
                     >
 
-                      {/* TOP */}
+                      {/* IMAGE */}
 
                       <div
                         className="
+                          absolute
+                          inset-0
+                          bg-cover
+                          bg-center
+                          opacity-45
+                          transition-all
+                          duration-700
+                          group-hover:scale-105
+                          group-hover:opacity-60
+                        "
+                        style={{
+                          backgroundImage:
+                            `url(${experience.image})`,
+                        }}
+                      />
+
+                      {/* OVERLAYS */}
+
+                      <div
+                        className="
+                          absolute
+                          inset-0
+                          bg-gradient-to-r
+                          from-black
+                          via-black/60
+                          to-transparent
+                        "
+                      />
+
+                      <div
+                        className="
+                          absolute
+                          inset-0
+                          bg-gradient-to-t
+                          from-black
+                          via-transparent
+                          to-transparent
+                        "
+                      />
+
+                      {/* CONTENT */}
+
+                      <div
+                        className="
+                          relative
                           flex
-                          items-start
+                          h-full
+                          flex-col
                           justify-between
+                          p-8
+                          lg:p-10
                         "
                       >
+
+                        {/* TOP */}
+
                         <div
                           className="
                             flex
-                            h-12
-                            w-12
+                            items-start
+                            justify-between
+                          "
+                        >
+                          <div
+                            className="
+                              flex
+                              h-12
+                              w-12
+                              items-center
+                              justify-center
+                              rounded-full
+                              border
+                              border-white/20
+                              bg-white/5
+                            "
+                          >
+                            <Icon
+                              size={21}
+                              strokeWidth={1.7}
+                            />
+                          </div>
+
+                          <span
+                            className="
+                              text-7xl
+                              font-black
+                              leading-none
+                              text-white/[0.07]
+                            "
+                          >
+                            {
+                              experience.number
+                            }
+                          </span>
+                        </div>
+
+                        {/* BOTTOM */}
+
+                        <div
+                          className="
+                            max-w-xl
+                          "
+                        >
+
+                          <div
+                            className="
+                              mb-4
+                              flex
+                              items-center
+                              gap-3
+                            "
+                          >
+                            <span
+                              className="
+                                text-[10px]
+                                font-bold
+                                uppercase
+                                tracking-[0.3em]
+                                text-red-500
+                              "
+                            >
+                              {
+                                experience.category
+                              }
+                            </span>
+
+                            <span
+                              className="
+                                h-1
+                                w-1
+                                rounded-full
+                                bg-white/30
+                              "
+                            />
+
+                            <span
+                              className="
+                                text-[9px]
+                                uppercase
+                                tracking-[0.2em]
+                                text-white/40
+                              "
+                            >
+                              {
+                                experience.label
+                              }
+                            </span>
+                          </div>
+
+                          <h3
+                            className="
+                              text-4xl
+                              font-black
+                              uppercase
+                              leading-none
+                              tracking-tight
+                              lg:text-5xl
+                            "
+                          >
+                            {
+                              experience.title
+                            }
+                          </h3>
+
+                          <p
+                            className="
+                              mt-5
+                              max-w-lg
+                              text-sm
+                              leading-7
+                              text-white/55
+                            "
+                          >
+                            {
+                              experience.description
+                            }
+                          </p>
+
+                        </div>
+
+                        {/* ARROW */}
+
+                        <div
+                          className="
+                            absolute
+                            bottom-8
+                            right-8
+                            flex
+                            h-11
+                            w-11
                             items-center
                             justify-center
                             rounded-full
                             border
                             border-white/20
-                            bg-white/5
+                            transition-all
+                            duration-500
+                            group-hover:border-red-500
+                            group-hover:bg-red-500
                           "
                         >
-                          <Icon
-                            size={21}
-                            strokeWidth={1.7}
+                          <ArrowUpRight
+                            size={18}
+                            className="
+                              transition-transform
+                              duration-500
+                              group-hover:rotate-45
+                            "
                           />
                         </div>
 
-                        <span
-                          className="
-                            text-7xl
-                            font-black
-                            leading-none
-                            text-white/[0.06]
-                          "
-                        >
-                          {experience.number}
-                        </span>
                       </div>
 
-                      {/* BOTTOM */}
-
-                      <div className="max-w-xl">
-
-                        <div
-                          className="
-                            mb-4
-                            flex
-                            items-center
-                            gap-3
-                          "
-                        >
-                          <span
-                            className="
-                              text-[10px]
-                              font-bold
-                              uppercase
-                              tracking-[0.3em]
-                              text-red-500
-                            "
-                          >
-                            {experience.category}
-                          </span>
-
-                          <span
-                            className="
-                              h-1
-                              w-1
-                              rounded-full
-                              bg-white/30
-                            "
-                          />
-
-                          <span
-                            className="
-                              text-[9px]
-                              uppercase
-                              tracking-[0.2em]
-                              text-white/40
-                            "
-                          >
-                            {experience.label}
-                          </span>
-                        </div>
-
-                        <h3
-                          className="
-                            text-4xl
-                            font-black
-                            uppercase
-                            leading-none
-                            tracking-tight
-                            lg:text-5xl
-                          "
-                        >
-                          {experience.title}
-                        </h3>
-
-                        <p
-                          className="
-                            mt-5
-                            max-w-lg
-                            text-sm
-                            leading-7
-                            text-white/55
-                          "
-                        >
-                          {experience.description}
-                        </p>
-
-                      </div>
-
-                      {/* ARROW */}
+                      {/* RED ACCENT */}
 
                       <div
                         className="
                           absolute
-                          bottom-8
-                          right-8
-                          flex
-                          h-11
-                          w-11
-                          items-center
-                          justify-center
-                          rounded-full
-                          border
-                          border-white/20
-                          transition-all
-                          duration-500
-                          group-hover:border-red-500
-                          group-hover:bg-red-500
+                          bottom-0
+                          left-0
+                          h-[2px]
+                          w-full
+                          bg-red-500
                         "
-                      >
-                        <ArrowUpRight
-                          size={18}
-                          className="
-                            transition-transform
-                            duration-500
-                            group-hover:rotate-45
-                          "
-                        />
-                      </div>
+                      />
 
-                    </div>
+                    </article>
+                  )
+                },
+              )}
 
-                    {/* ==================================================
-                        ACTIVE ACCENT
-                        ================================================== */}
-
-                    <div
-                      className="
-                        absolute
-                        bottom-0
-                        left-0
-                        h-[2px]
-                        bg-red-500
-                        transition-opacity
-                        duration-300
-                      "
-                      style={{
-                        opacity:
-                          isNearActive
-                            ? 1
-                            : 0,
-                      }}
-                    />
-
-                  </article>
-                )
-              },
-            )}
-
+            </div>
           </div>
-        </div>
 
-        {/* ======================================================
-            MOBILE HORIZONTAL JOURNEY
-            ====================================================== */}
+          {/* ====================================================
+              MOBILE
+              ==================================================== */}
 
-        <div
-          className="
-            absolute
-            left-0
-            right-0
-            top-[52%]
-            -translate-y-1/2
-            md:hidden
-          "
-        >
           <div
             className="
               flex
-              snap-x
-              snap-mandatory
               gap-4
               overflow-x-auto
               px-6
-              pb-4
+              pb-3
+              md:hidden
               [scrollbar-width:none]
               [&::-webkit-scrollbar]:hidden
             "
@@ -687,13 +615,14 @@ export function Experiences() {
 
                 return (
                   <article
-                    key={experience.number}
+                    key={
+                      experience.number
+                    }
                     className="
                       relative
-                      h-[370px]
+                      h-[390px]
                       w-[82vw]
                       shrink-0
-                      snap-center
                       overflow-hidden
                       rounded-2xl
                       border
@@ -708,7 +637,7 @@ export function Experiences() {
                         inset-0
                         bg-cover
                         bg-center
-                        opacity-40
+                        opacity-45
                       "
                       style={{
                         backgroundImage:
@@ -722,7 +651,7 @@ export function Experiences() {
                         inset-0
                         bg-gradient-to-t
                         from-black
-                        via-black/55
+                        via-black/50
                         to-transparent
                       "
                     />
@@ -768,7 +697,9 @@ export function Experiences() {
                             text-white/[0.07]
                           "
                         >
-                          {experience.number}
+                          {
+                            experience.number
+                          }
                         </span>
                       </div>
 
@@ -784,7 +715,9 @@ export function Experiences() {
                             text-red-500
                           "
                         >
-                          {experience.category}
+                          {
+                            experience.category
+                          }
                         </p>
 
                         <h3
@@ -795,7 +728,9 @@ export function Experiences() {
                             leading-none
                           "
                         >
-                          {experience.title}
+                          {
+                            experience.title
+                          }
                         </h3>
 
                         <p
@@ -806,12 +741,25 @@ export function Experiences() {
                             text-white/55
                           "
                         >
-                          {experience.description}
+                          {
+                            experience.description
+                          }
                         </p>
 
                       </div>
 
                     </div>
+
+                    <div
+                      className="
+                        absolute
+                        bottom-0
+                        left-0
+                        h-[2px]
+                        w-full
+                        bg-red-500
+                      "
+                    />
 
                   </article>
                 )
@@ -819,96 +767,53 @@ export function Experiences() {
             )}
 
           </div>
+
         </div>
 
         {/* ======================================================
-            PROGRESS BAR
+            BOTTOM LABEL
             ====================================================== */}
 
         <div
           className="
-            absolute
-            bottom-9
-            left-6
-            right-6
-            z-20
-            md:left-10
-            md:right-10
+            mx-auto
+            mt-8
+            flex
+            max-w-7xl
+            items-center
+            gap-4
+            px-6
+            md:px-10
           "
         >
-
           <div
             className="
-              flex
-              items-center
-              gap-4
+              h-px
+              flex-1
+              bg-white/10
             "
-          >
-
-            <span
-              className="
-                text-[9px]
-                font-bold
-                tracking-[0.25em]
-                text-white/40
-              "
-            >
-              01
-            </span>
-
-            <div
-              className="
-                relative
-                h-px
-                flex-1
-                overflow-hidden
-                bg-white/10
-              "
-            >
-              <div
-                className="
-                  absolute
-                  inset-y-0
-                  left-0
-                  bg-red-500
-                "
-                style={{
-                  width:
-                    `${progress * 100}%`,
-                }}
-              />
-            </div>
-
-            <span
-              className="
-                text-[9px]
-                font-bold
-                tracking-[0.25em]
-                text-white/40
-              "
-            >
-              {String(
-                EXPERIENCES.length,
-              ).padStart(2, '0')}
-            </span>
-
-          </div>
+          />
 
           <p
             className="
-              mt-3
-              text-center
-              text-[8px]
+              shrink-0
+              text-[9px]
               font-semibold
               uppercase
               tracking-[0.35em]
               text-white/25
-              md:text-[9px]
             "
           >
             Scroll to explore
           </p>
 
+          <div
+            className="
+              h-px
+              flex-1
+              bg-white/10
+            "
+          />
         </div>
 
       </div>
