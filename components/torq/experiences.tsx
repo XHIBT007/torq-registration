@@ -8,11 +8,6 @@ import {
   Gamepad2,
   Music2,
 } from 'lucide-react'
-import {
-  useEffect,
-  useRef,
-  useState,
-} from 'react'
 
 import { EXPERIENCES } from '@/lib/torq-data'
 
@@ -26,139 +21,8 @@ const ICONS = [
 ]
 
 export function Experiences() {
-  const sectionRef =
-    useRef<HTMLElement>(null)
-
-  const trackRef =
-    useRef<HTMLDivElement>(null)
-
-  const [progress, setProgress] =
-    useState(0)
-
-  const [travel, setTravel] =
-    useState(0)
-
-  useEffect(() => {
-    let frame = 0
-
-    const measure = () => {
-      const track =
-        trackRef.current
-
-      if (!track) return
-
-      const viewportWidth =
-        window.innerWidth
-
-      const trackWidth =
-        track.scrollWidth
-
-      const calculatedTravel =
-        Math.max(
-          0,
-          trackWidth -
-            viewportWidth +
-            viewportWidth * 0.08,
-        )
-
-      setTravel(
-        calculatedTravel,
-      )
-    }
-
-    const update = () => {
-      frame = 0
-
-      const section =
-        sectionRef.current
-
-      if (!section) return
-
-      const rect =
-        section.getBoundingClientRect()
-
-      const sectionHeight =
-        section.offsetHeight
-
-      const viewportHeight =
-        window.innerHeight
-
-      const scrollable =
-        sectionHeight -
-        viewportHeight
-
-      if (scrollable <= 0) {
-        setProgress(0)
-        return
-      }
-
-      const travelled =
-        Math.max(
-          0,
-          Math.min(
-            scrollable,
-            -rect.top,
-          ),
-        )
-
-      setProgress(
-        travelled / scrollable,
-      )
-    }
-
-    const handleScroll = () => {
-      if (!frame) {
-        frame =
-          window.requestAnimationFrame(
-            update,
-          )
-      }
-    }
-
-    const handleResize = () => {
-      measure()
-      update()
-    }
-
-    measure()
-    update()
-
-    window.addEventListener(
-      'scroll',
-      handleScroll,
-      { passive: true },
-    )
-
-    window.addEventListener(
-      'resize',
-      handleResize,
-    )
-
-    return () => {
-      window.removeEventListener(
-        'scroll',
-        handleScroll,
-      )
-
-      window.removeEventListener(
-        'resize',
-        handleResize,
-      )
-
-      if (frame) {
-        window.cancelAnimationFrame(
-          frame,
-        )
-      }
-    }
-  }, [])
-
-  const translateX =
-    progress * travel
-
   return (
     <section
-      ref={sectionRef}
       id="experiences"
       className="
         relative
@@ -169,7 +33,6 @@ export function Experiences() {
         md:py-32
       "
     >
-
       {/* ======================================================
           ATMOSPHERE
           ====================================================== */}
@@ -210,7 +73,6 @@ export function Experiences() {
             gap-8
           "
         >
-
           <div>
             <p
               className="
@@ -274,7 +136,7 @@ export function Experiences() {
                 text-white/25
               "
             >
-              Scroll journey
+              Explore
             </p>
 
             <p
@@ -293,42 +155,74 @@ export function Experiences() {
               Experiences
             </p>
           </div>
-
         </div>
       </div>
 
       {/* ======================================================
-          DESKTOP HORIZONTAL JOURNEY
+          INDEPENDENT HORIZONTAL JOURNEY
           ====================================================== */}
 
-      <div
-        className="
-          relative
-          mt-16
-          overflow-hidden
-          md:mt-20
-        "
-      >
+      <div className="relative mt-16 md:mt-20">
+
+        {/* LEFT FADE */}
+
         <div
-          ref={trackRef}
           className="
-            hidden
-            md:block
+            pointer-events-none
+            absolute
+            left-0
+            top-0
+            z-10
+            h-full
+            w-16
+            bg-gradient-to-r
+            from-black
+            to-transparent
+            md:w-28
           "
-          style={{
-            transform:
-              `translate3d(${-translateX}px, 0, 0)`,
-          }}
+        />
+
+        {/* RIGHT FADE */}
+
+        <div
+          className="
+            pointer-events-none
+            absolute
+            right-0
+            top-0
+            z-10
+            h-full
+            w-16
+            bg-gradient-to-l
+            from-black
+            to-transparent
+            md:w-28
+          "
+        />
+
+        {/* ==================================================
+            SCROLLABLE RAIL
+            ================================================== */}
+
+        <div
+          className="
+            overflow-x-auto
+            overscroll-x-contain
+            overscroll-y-none
+            px-6
+            pb-5
+            [scrollbar-width:none]
+            [&::-webkit-scrollbar]:hidden
+            md:px-[8vw]
+          "
         >
           <div
             className="
               flex
-              gap-6
-              pl-[8vw]
-              pr-[8vw]
+              w-max
+              gap-5
             "
           >
-
             {EXPERIENCES.map(
               (
                 experience,
@@ -346,15 +240,19 @@ export function Experiences() {
                     className="
                       group
                       relative
-                      h-[430px]
-                      w-[60vw]
-                      max-w-[860px]
+                      h-[390px]
+                      w-[82vw]
                       shrink-0
                       overflow-hidden
                       rounded-2xl
                       border
                       border-white/10
                       bg-neutral-950
+                      sm:h-[420px]
+                      sm:w-[70vw]
+                      md:h-[430px]
+                      md:w-[58vw]
+                      md:max-w-[860px]
                     "
                   >
 
@@ -367,10 +265,10 @@ export function Experiences() {
                         bg-cover
                         bg-center
                         opacity-45
-                        transition-transform
-                        duration-[1200ms]
-                        ease-out
+                        transition-all
+                        duration-700
                         group-hover:scale-105
+                        group-hover:opacity-60
                       "
                       style={{
                         backgroundImage:
@@ -378,7 +276,7 @@ export function Experiences() {
                       }}
                     />
 
-                    {/* OVERLAYS */}
+                    {/* GRADIENTS */}
 
                     <div
                       className="
@@ -411,10 +309,13 @@ export function Experiences() {
                         h-full
                         flex-col
                         justify-between
-                        p-8
+                        p-7
+                        sm:p-8
                         lg:p-10
                       "
                     >
+
+                      {/* TOP */}
 
                       <div
                         className="
@@ -456,11 +357,10 @@ export function Experiences() {
                         </span>
                       </div>
 
-                      <div
-                        className="
-                          max-w-xl
-                        "
-                      >
+                      {/* CONTENT */}
+
+                      <div className="max-w-xl">
+
                         <div
                           className="
                             mb-4
@@ -513,7 +413,7 @@ export function Experiences() {
                             uppercase
                             leading-none
                             tracking-tight
-                            lg:text-5xl
+                            sm:text-5xl
                           "
                         >
                           {
@@ -534,6 +434,7 @@ export function Experiences() {
                             experience.description
                           }
                         </p>
+
                       </div>
 
                       {/* ARROW */}
@@ -541,8 +442,8 @@ export function Experiences() {
                       <div
                         className="
                           absolute
-                          bottom-8
-                          right-8
+                          bottom-7
+                          right-7
                           flex
                           h-11
                           w-11
@@ -555,6 +456,8 @@ export function Experiences() {
                           duration-500
                           group-hover:border-red-500
                           group-hover:bg-red-500
+                          sm:bottom-8
+                          sm:right-8
                         "
                       >
                         <ArrowUpRight
@@ -566,7 +469,6 @@ export function Experiences() {
                           "
                         />
                       </div>
-
                     </div>
 
                     {/* RED ACCENT */}
@@ -590,193 +492,16 @@ export function Experiences() {
           </div>
         </div>
 
-        {/* ====================================================
-            MOBILE
-            ==================================================== */}
-
-        <div
-          className="
-            flex
-            gap-4
-            overflow-x-auto
-            px-6
-            pb-3
-            md:hidden
-            [scrollbar-width:none]
-            [&::-webkit-scrollbar]:hidden
-          "
-        >
-          {EXPERIENCES.map(
-            (
-              experience,
-              index,
-            ) => {
-              const Icon =
-                ICONS[index] ??
-                Flame
-
-              return (
-                <article
-                  key={
-                    `${experience.number}-${index}`
-                  }
-                  className="
-                    relative
-                    h-[390px]
-                    w-[82vw]
-                    shrink-0
-                    overflow-hidden
-                    rounded-2xl
-                    border
-                    border-white/10
-                    bg-neutral-950
-                  "
-                >
-
-                  <div
-                    className="
-                      absolute
-                      inset-0
-                      bg-cover
-                      bg-center
-                      opacity-45
-                    "
-                    style={{
-                      backgroundImage:
-                        `url(${experience.image})`,
-                    }}
-                  />
-
-                  <div
-                    className="
-                      absolute
-                      inset-0
-                      bg-gradient-to-t
-                      from-black
-                      via-black/50
-                      to-transparent
-                    "
-                  />
-
-                  <div
-                    className="
-                      relative
-                      flex
-                      h-full
-                      flex-col
-                      justify-between
-                      p-6
-                    "
-                  >
-
-                    <div
-                      className="
-                        flex
-                        items-center
-                        justify-between
-                      "
-                    >
-                      <div
-                        className="
-                          flex
-                          h-10
-                          w-10
-                          items-center
-                          justify-center
-                          rounded-full
-                          border
-                          border-white/20
-                          bg-white/5
-                        "
-                      >
-                        <Icon size={18} />
-                      </div>
-
-                      <span
-                        className="
-                          text-5xl
-                          font-black
-                          text-white/[0.07]
-                        "
-                      >
-                        {
-                          experience.number
-                        }
-                      </span>
-                    </div>
-
-                    <div>
-                      <p
-                        className="
-                          mb-3
-                          text-[9px]
-                          font-bold
-                          uppercase
-                          tracking-[0.3em]
-                          text-red-500
-                        "
-                      >
-                        {
-                          experience.category
-                        }
-                      </p>
-
-                      <h3
-                        className="
-                          text-3xl
-                          font-black
-                          uppercase
-                          leading-none
-                        "
-                      >
-                        {
-                          experience.title
-                        }
-                      </h3>
-
-                      <p
-                        className="
-                          mt-4
-                          text-sm
-                          leading-6
-                          text-white/55
-                        "
-                      >
-                        {
-                          experience.description
-                        }
-                      </p>
-                    </div>
-
-                  </div>
-
-                  <div
-                    className="
-                      absolute
-                      bottom-0
-                      left-0
-                      h-[2px]
-                      w-full
-                      bg-red-500
-                    "
-                  />
-
-                </article>
-              )
-            },
-          )}
-        </div>
-
       </div>
 
       {/* ======================================================
-          PROGRESS
+          HORIZONTAL SCROLL CUE
           ====================================================== */}
 
       <div
         className="
           mx-auto
-          mt-10
+          mt-7
           flex
           max-w-7xl
           items-center
@@ -785,68 +510,51 @@ export function Experiences() {
           md:px-10
         "
       >
-        <span
+        <div
           className="
-            text-[9px]
-            font-bold
-            tracking-[0.25em]
-            text-white/30
+            h-px
+            flex-1
+            bg-white/10
           "
-        >
-          01
-        </span>
+        />
 
         <div
           className="
-            relative
-            h-px
-            flex-1
-            overflow-hidden
-            bg-white/10
+            flex
+            shrink-0
+            items-center
+            gap-3
           "
         >
-          <div
+          <span
             className="
-              absolute
-              inset-y-0
-              left-0
-              bg-red-500
+              text-[9px]
+              font-semibold
+              uppercase
+              tracking-[0.35em]
+              text-white/25
             "
-            style={{
-              width:
-                `${progress * 100}%`,
-            }}
+          >
+            Swipe / Scroll horizontally
+          </span>
+
+          <ArrowUpRight
+            size={13}
+            className="
+              rotate-45
+              text-red-500
+            "
           />
         </div>
 
-        <span
+        <div
           className="
-            text-[9px]
-            font-bold
-            tracking-[0.25em]
-            text-white/30
+            h-px
+            flex-1
+            bg-white/10
           "
-        >
-          {String(
-            EXPERIENCES.length,
-          ).padStart(2, '0')}
-        </span>
+        />
       </div>
-
-      <p
-        className="
-          mt-3
-          text-center
-          text-[8px]
-          font-semibold
-          uppercase
-          tracking-[0.35em]
-          text-white/20
-          md:text-[9px]
-        "
-      >
-        Scroll to explore
-      </p>
 
     </section>
   )
