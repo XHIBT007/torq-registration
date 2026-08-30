@@ -26,33 +26,44 @@ const ICONS = [
 ]
 
 export function Experiences() {
-  const sectionRef =
-    useRef<HTMLElement>(null)
+  const sectionRef = useRef<HTMLElement>(null)
+  const trackRef = useRef<HTMLDivElement>(null)
 
-  const trackRef =
-    useRef<HTMLDivElement>(null)
-
-  const [progress, setProgress] =
-  useState(0)
-
-const [horizontalDistance, setHorizontalDistance] =
-  useState(0)
+  const [progress, setProgress] = useState(0)
+  const [horizontalDistance, setHorizontalDistance] =
+    useState(0)
 
   useEffect(() => {
     let raf = 0
 
+    const measure = () => {
+      const section = sectionRef.current
+      const track = trackRef.current
+
+      if (!section || !track) return
+
+      /*
+       * Calculate the real horizontal distance required
+       * to move through the entire experience track.
+       */
+      const distance = Math.max(
+        0,
+        track.scrollWidth -
+          window.innerWidth +
+          window.innerWidth * 0.08,
+      )
+
+      setHorizontalDistance(distance)
+    }
+
     const update = () => {
       raf = 0
 
-      const section =
-        sectionRef.current
-      const track =
-  trackRef.current
+      const section = sectionRef.current
 
       if (!section) return
 
-      const rect =
-        section.getBoundingClientRect()
+      const rect = section.getBoundingClientRect()
 
       const scrollDistance =
         section.offsetHeight -
@@ -63,98 +74,74 @@ const [horizontalDistance, setHorizontalDistance] =
         return
       }
 
-      const travelled =
-        Math.max(
-          0,
-          Math.min(
-            scrollDistance,
-            -rect.top,
-          ),
-        )
+      const travelled = Math.max(
+        0,
+        Math.min(
+          scrollDistance,
+          -rect.top,
+        ),
+      )
 
       setProgress(
         travelled / scrollDistance,
       )
     }
 
-    const onScroll = () => {
+    const handleScroll = () => {
       if (!raf) {
-        raf =
-          window.requestAnimationFrame(
-            update,
-          )
+        raf = window.requestAnimationFrame(update)
       }
     }
 
-    const measure = () => {
-  const section =
-    sectionRef.current
+    const handleResize = () => {
+      measure()
+      update()
+    }
 
-  const track =
-    trackRef.current
-
-  if (!section || !track) return
-
-  const distance =
-    Math.max(
-      0,
-      track.scrollWidth -
-        window.innerWidth +
-        window.innerWidth * 0.08,
-    )
-
-  setHorizontalDistance(distance)
-}
+    measure()
     update()
 
     window.addEventListener(
       'scroll',
-      onScroll,
+      handleScroll,
       { passive: true },
     )
 
     window.addEventListener(
-  'resize',
-  () => {
-    measure()
-    update()
-  },
-)
+      'resize',
+      handleResize,
+    )
 
     return () => {
       window.removeEventListener(
         'scroll',
-        onScroll,
+        handleScroll,
       )
 
       window.removeEventListener(
         'resize',
-        update,
+        handleResize,
       )
 
       if (raf) {
-        window.cancelAnimationFrame(
-          raf,
-        )
+        window.cancelAnimationFrame(raf)
       }
     }
   }, [])
 
   /*
-   * Desktop horizontal movement.
+   * Real horizontal movement.
    *
-   * The track moves from its starting position
-   * to the final experience.
+   * No arbitrary viewport percentage.
+   * The track moves according to its actual width.
    */
   const translatePixels =
-  progress *
-  horizontalDistance
+    progress * horizontalDistance
 
   /*
-   * Which experience is currently dominant.
+   * Determine the dominant experience.
    */
-  const activeIndex =
-  Math.min(
+  const activeIndex = Math.min(
     EXPERIENCES.length - 1,
     Math.round(
       progress *
@@ -167,11 +154,11 @@ const [horizontalDistance, setHorizontalDistance] =
       ref={sectionRef}
       id="experiences"
       className="
-  relative
-  h-[300vh]
-  bg-black
-  text-white
-"
+        relative
+        h-[300vh]
+        bg-black
+        text-white
+      "
     >
       <div className="sticky top-0 h-screen overflow-hidden">
 
@@ -179,64 +166,81 @@ const [horizontalDistance, setHorizontalDistance] =
             ATMOSPHERE
             ====================================================== */}
 
-        <div className="
-          pointer-events-none
-          absolute
-          left-1/2
-          top-0
-          h-[500px]
-          w-[700px]
-          -translate-x-1/2
-          rounded-full
-          bg-red-600/[0.07]
-          blur-[140px]
-        " />
+        <div
+          className="
+            pointer-events-none
+            absolute
+            left-1/2
+            top-0
+            h-[500px]
+            w-[700px]
+            -translate-x-1/2
+            rounded-full
+            bg-red-600/[0.06]
+            blur-[140px]
+          "
+        />
+
+        <div
+          className="
+            pointer-events-none
+            absolute
+            bottom-0
+            right-0
+            h-[400px]
+            w-[400px]
+            rounded-full
+            bg-red-600/[0.04]
+            blur-[120px]
+          "
+        />
 
         {/* ======================================================
             HEADER
             ====================================================== */}
 
-        <div className="
-          absolute
-          left-0
-          right-0
-          top-0
-          z-20
-          mx-auto
-          max-w-7xl
-          px-6
-          pt-16
-          md:px-10
-          md:pt-20
-        ">
-          <div className="
-            flex
-            items-end
-            justify-between
-            gap-8
-          ">
+        <div
+          className="
+            absolute
+            left-0
+            right-0
+            top-0
+            z-20
+            mx-auto
+            max-w-7xl
+            px-6
+            pt-14
+            md:px-10
+            md:pt-20
+          "
+        >
+          <div className="flex items-end justify-between gap-8">
 
             <div>
-              <p className="
-                mb-4
-                text-xs
-                font-bold
-                uppercase
-                tracking-[0.4em]
-                text-red-500
-              ">
+              <p
+                className="
+                  mb-4
+                  text-xs
+                  font-bold
+                  uppercase
+                  tracking-[0.4em]
+                  text-red-500
+                "
+              >
                 The TOR&apos;Q Experience
               </p>
 
-              <h2 className="
-                text-4xl
-                font-black
-                uppercase
-                leading-[0.88]
-                tracking-[-0.04em]
-                sm:text-5xl
-                md:text-7xl
-              ">
+              <h2
+                className="
+                  text-4xl
+                  font-black
+                  uppercase
+                  leading-[0.88]
+                  tracking-[-0.04em]
+                  sm:text-5xl
+                  md:text-7xl
+                "
+              >
                 More than
                 <br />
                 <span className="text-red-500">
@@ -245,28 +249,37 @@ const [horizontalDistance, setHorizontalDistance] =
               </h2>
             </div>
 
-            <div className="
-              hidden
-              text-right
-              md:block
-            ">
-              <p className="
-                text-xs
-                uppercase
-                tracking-[0.3em]
-                text-white/30
-              ">
+            {/* Experience counter */}
+
+            <div
+              className="
+                hidden
+                text-right
+                md:block
+              "
+            >
+              <p
+                className="
+                  text-[10px]
+                  uppercase
+                  tracking-[0.3em]
+                  text-white/30
+                "
+              >
                 Experience
               </p>
 
-              <p className="
-                mt-1
-                text-2xl
-                font-black
-              ">
+              <p
+                className="
+                  mt-1
+                  text-2xl
+                  font-black
+                "
+              >
                 {String(
                   activeIndex + 1,
                 ).padStart(2, '0')}
+
                 <span className="text-white/20">
                   {' '}
                   /{' '}
@@ -281,43 +294,40 @@ const [horizontalDistance, setHorizontalDistance] =
         </div>
 
         {/* ======================================================
-            DESKTOP TRACK
+            DESKTOP HORIZONTAL JOURNEY
             ====================================================== */}
 
         <div
-  ref={trackRef}
-  className="
-    absolute
-    left-0
-    top-[56%]
-    hidden
-    md:block
-    md:-translate-y-1/2
-  "
-  style={{
-    transform:
-  `translate3d(${-translatePixels}px, -50%, 0)`,
-  }}
->
-          <div className="
-            flex
-            gap-5
-            pl-[8vw]
-          ">
+          ref={trackRef}
+          className="
+            absolute
+            left-0
+            top-[57%]
+            hidden
+            -translate-y-1/2
+            md:block
+          "
+          style={{
+            transform: `translate3d(${-translatePixels}px, -50%, 0)`,
+          }}
+        >
+          <div
+            className="
+              flex
+              items-center
+              gap-6
+              pl-[8vw]
+              pr-[8vw]
+            "
+          >
             {EXPERIENCES.map(
-              (
-                experience,
-                index,
-              ) => {
+              (experience, index) => {
                 const Icon =
-                  ICONS[index] ??
-                  Flame
+                  ICONS[index] ?? Flame
 
-                const distance =
-                  Math.abs(
-                    activeIndex -
-                      index,
-                  )
+                const distance = Math.abs(
+                  activeIndex - index,
+                )
 
                 const scale =
                   distance === 0
@@ -327,13 +337,11 @@ const [horizontalDistance, setHorizontalDistance] =
                 const opacity =
                   distance <= 1
                     ? 1
-                    : 0.55
+                    : 0.45
 
                 return (
                   <article
-                    key={
-                      experience.number
-                    }
+                    key={experience.number}
                     className="
                       group
                       relative
@@ -350,8 +358,7 @@ const [horizontalDistance, setHorizontalDistance] =
                       duration-500
                     "
                     style={{
-                      transform:
-                        `scale(${scale})`,
+                      transform: `scale(${scale})`,
                       opacity,
                     }}
                   >
@@ -376,157 +383,176 @@ const [horizontalDistance, setHorizontalDistance] =
                       }}
                     />
 
-                    {/* OVERLAY */}
+                    {/* IMAGE GRADIENT */}
 
-                    <div className="
-                      absolute
-                      inset-0
-                      bg-gradient-to-r
-                      from-black
-                      via-black/65
-                      to-black/10
-                    " />
+                    <div
+                      className="
+                        absolute
+                        inset-0
+                        bg-gradient-to-r
+                        from-black
+                        via-black/65
+                        to-black/10
+                      "
+                    />
 
-                    <div className="
-                      absolute
-                      inset-0
-                      bg-gradient-to-t
-                      from-black
-                      via-transparent
-                      to-transparent
-                    " />
+                    <div
+                      className="
+                        absolute
+                        inset-0
+                        bg-gradient-to-t
+                        from-black
+                        via-transparent
+                        to-transparent
+                      "
+                    />
 
                     {/* CONTENT */}
 
-                    <div className="
-                      relative
-                      flex
-                      h-full
-                      flex-col
-                      justify-between
-                      p-8
-                      lg:p-10
-                    ">
-
-                      <div className="
+                    <div
+                      className="
+                        relative
                         flex
-                        items-start
+                        h-full
+                        flex-col
                         justify-between
-                      ">
+                        p-8
+                        lg:p-10
+                      "
+                    >
 
-                        <div className="
+                      {/* TOP */}
+
+                      <div
+                        className="
                           flex
-                          h-12
-                          w-12
-                          items-center
-                          justify-center
-                          rounded-full
-                          border
-                          border-white/20
-                          bg-white/5
-                        ">
+                          items-start
+                          justify-between
+                        "
+                      >
+                        <div
+                          className="
+                            flex
+                            h-12
+                            w-12
+                            items-center
+                            justify-center
+                            rounded-full
+                            border
+                            border-white/20
+                            bg-white/5
+                          "
+                        >
                           <Icon
                             size={21}
                             strokeWidth={1.7}
                           />
                         </div>
 
-                        <span className="
-                          text-7xl
-                          font-black
-                          leading-none
-                          text-white/[0.06]
-                        ">
-                          {
-                            experience.number
-                          }
+                        <span
+                          className="
+                            text-7xl
+                            font-black
+                            leading-none
+                            text-white/[0.06]
+                          "
+                        >
+                          {experience.number}
                         </span>
-
                       </div>
+
+                      {/* BOTTOM */}
 
                       <div className="max-w-xl">
 
-                        <div className="
-                          mb-4
-                          flex
-                          items-center
-                          gap-3
-                        ">
-                          <span className="
-                            text-[10px]
-                            font-bold
-                            uppercase
-                            tracking-[0.3em]
-                            text-red-500
-                          ">
-                            {
-                              experience.category
-                            }
+                        <div
+                          className="
+                            mb-4
+                            flex
+                            items-center
+                            gap-3
+                          "
+                        >
+                          <span
+                            className="
+                              text-[10px]
+                              font-bold
+                              uppercase
+                              tracking-[0.3em]
+                              text-red-500
+                            "
+                          >
+                            {experience.category}
                           </span>
 
-                          <span className="
-                            h-1
-                            w-1
-                            rounded-full
-                            bg-white/30
-                          " />
+                          <span
+                            className="
+                              h-1
+                              w-1
+                              rounded-full
+                              bg-white/30
+                            "
+                          />
 
-                          <span className="
-                            text-[9px]
-                            uppercase
-                            tracking-[0.2em]
-                            text-white/40
-                          ">
-                            {
-                              experience.label
-                            }
+                          <span
+                            className="
+                              text-[9px]
+                              uppercase
+                              tracking-[0.2em]
+                              text-white/40
+                            "
+                          >
+                            {experience.label}
                           </span>
                         </div>
 
-                        <h3 className="
-                          text-4xl
-                          font-black
-                          uppercase
-                          leading-none
-                          tracking-tight
-                          lg:text-5xl
-                        ">
-                          {
-                            experience.title
-                          }
+                        <h3
+                          className="
+                            text-4xl
+                            font-black
+                            uppercase
+                            leading-none
+                            tracking-tight
+                            lg:text-5xl
+                          "
+                        >
+                          {experience.title}
                         </h3>
 
-                        <p className="
-                          mt-5
-                          max-w-lg
-                          text-sm
-                          leading-7
-                          text-white/55
-                        ">
-                          {
-                            experience.description
-                          }
+                        <p
+                          className="
+                            mt-5
+                            max-w-lg
+                            text-sm
+                            leading-7
+                            text-white/55
+                          "
+                        >
+                          {experience.description}
                         </p>
-
                       </div>
 
-                      <div className="
-                        absolute
-                        bottom-8
-                        right-8
-                        flex
-                        h-11
-                        w-11
-                        items-center
-                        justify-center
-                        rounded-full
-                        border
-                        border-white/20
-                        transition-all
-                        duration-500
-                        group-hover:border-red-500
-                        group-hover:bg-red-500
-                      ">
+                      {/* ARROW */}
+
+                      <div
+                        className="
+                          absolute
+                          bottom-8
+                          right-8
+                          flex
+                          h-11
+                          w-11
+                          items-center
+                          justify-center
+                          rounded-full
+                          border
+                          border-white/20
+                          transition-all
+                          duration-500
+                          group-hover:border-red-500
+                          group-hover:bg-red-500
+                        "
+                      >
                         <ArrowUpRight
                           size={18}
                           className="
@@ -536,7 +562,6 @@ const [horizontalDistance, setHorizontalDistance] =
                           "
                         />
                       </div>
-
                     </div>
 
                     {/* ACTIVE LINE */}
@@ -553,8 +578,7 @@ const [horizontalDistance, setHorizontalDistance] =
                       "
                       style={{
                         width:
-                          activeIndex ===
-                          index
+                          activeIndex === index
                             ? '100%'
                             : '0%',
                       }}
@@ -568,45 +592,43 @@ const [horizontalDistance, setHorizontalDistance] =
         </div>
 
         {/* ======================================================
-            MOBILE HORIZONTAL RAIL
+            MOBILE EXPERIENCE RAIL
             ====================================================== */}
 
-        <div className="
-          absolute
-          left-0
-          right-0
-          top-[48%]
-          -translate-y-1/2
-          md:hidden
-        ">
-          <div className="
-            flex
-            snap-x
-            snap-mandatory
-            gap-4
-            overflow-x-auto
-            px-6
-            pb-4
-            [scrollbar-width:none]
-            [&::-webkit-scrollbar]:hidden
-          ">
+        <div
+          className="
+            absolute
+            left-0
+            right-0
+            top-[52%]
+            -translate-y-1/2
+            md:hidden
+          "
+        >
+          <div
+            className="
+              flex
+              snap-x
+              snap-mandatory
+              gap-4
+              overflow-x-auto
+              px-6
+              pb-4
+              [scrollbar-width:none]
+              [&::-webkit-scrollbar]:hidden
+            "
+          >
             {EXPERIENCES.map(
-              (
-                experience,
-                index,
-              ) => {
+              (experience, index) => {
                 const Icon =
-                  ICONS[index] ??
-                  Flame
+                  ICONS[index] ?? Flame
 
                 return (
                   <article
-                    key={
-                      experience.number
-                    }
+                    key={experience.number}
                     className="
                       relative
-                      h-[390px]
+                      h-[370px]
                       w-[82vw]
                       shrink-0
                       snap-center
@@ -632,91 +654,98 @@ const [horizontalDistance, setHorizontalDistance] =
                       }}
                     />
 
-                    <div className="
-                      absolute
-                      inset-0
-                      bg-gradient-to-t
-                      from-black
-                      via-black/50
-                      to-transparent
-                    " />
+                    <div
+                      className="
+                        absolute
+                        inset-0
+                        bg-gradient-to-t
+                        from-black
+                        via-black/55
+                        to-transparent
+                      "
+                    />
 
-                    <div className="
-                      relative
-                      flex
-                      h-full
-                      flex-col
-                      justify-between
-                      p-6
-                    ">
-
-                      <div className="
+                    <div
+                      className="
+                        relative
                         flex
-                        items-center
+                        h-full
+                        flex-col
                         justify-between
-                      ">
-                        <div className="
+                        p-6
+                      "
+                    >
+
+                      <div
+                        className="
                           flex
-                          h-10
-                          w-10
                           items-center
-                          justify-center
-                          rounded-full
-                          border
-                          border-white/20
-                          bg-white/5
-                        ">
+                          justify-between
+                        "
+                      >
+                        <div
+                          className="
+                            flex
+                            h-10
+                            w-10
+                            items-center
+                            justify-center
+                            rounded-full
+                            border
+                            border-white/20
+                            bg-white/5
+                          "
+                        >
                           <Icon size={18} />
                         </div>
 
-                        <span className="
-                          text-5xl
-                          font-black
-                          text-white/[0.07]
-                        ">
-                          {
-                            experience.number
-                          }
+                        <span
+                          className="
+                            text-5xl
+                            font-black
+                            text-white/[0.07]
+                          "
+                        >
+                          {experience.number}
                         </span>
                       </div>
 
                       <div>
 
-                        <p className="
-                          mb-3
-                          text-[9px]
-                          font-bold
-                          uppercase
-                          tracking-[0.3em]
-                          text-red-500
-                        ">
-                          {
-                            experience.category
-                          }
+                        <p
+                          className="
+                            mb-3
+                            text-[9px]
+                            font-bold
+                            uppercase
+                            tracking-[0.3em]
+                            text-red-500
+                          "
+                        >
+                          {experience.category}
                         </p>
 
-                        <h3 className="
-                          text-3xl
-                          font-black
-                          uppercase
-                          leading-none
-                        ">
-                          {
-                            experience.title
-                          }
+                        <h3
+                          className="
+                            text-3xl
+                            font-black
+                            uppercase
+                            leading-none
+                          "
+                        >
+                          {experience.title}
                         </h3>
 
-                        <p className="
-                          mt-4
-                          text-sm
-                          leading-6
-                          text-white/55
-                        ">
-                          {
-                            experience.description
-                          }
+                        <p
+                          className="
+                            mt-4
+                            text-sm
+                            leading-6
+                            text-white/55
+                          "
+                        >
+                          {experience.description}
                         </p>
-
                       </div>
 
                     </div>
@@ -731,37 +760,44 @@ const [horizontalDistance, setHorizontalDistance] =
             PROGRESS
             ====================================================== */}
 
-        <div className="
-          absolute
-          bottom-10
-          left-6
-          right-6
-          z-20
-          md:left-10
-          md:right-10
-        ">
-          <div className="
-            flex
-            items-center
-            gap-4
-          ">
-
-            <span className="
-              text-[9px]
-              font-bold
-              tracking-[0.25em]
-              text-white/40
-            ">
+        <div
+          className="
+            absolute
+            bottom-9
+            left-6
+            right-6
+            z-20
+            md:left-10
+            md:right-10
+          "
+        >
+          <div
+            className="
+              flex
+              items-center
+              gap-4
+            "
+          >
+            <span
+              className="
+                text-[9px]
+                font-bold
+                tracking-[0.25em]
+                text-white/40
+              "
+            >
               01
             </span>
 
-            <div className="
-              relative
-              h-px
-              flex-1
-              overflow-hidden
-              bg-white/10
-            ">
+            <div
+              className="
+                relative
+                h-px
+                flex-1
+                overflow-hidden
+                bg-white/10
+              "
+            >
               <div
                 className="
                   absolute
@@ -776,31 +812,32 @@ const [horizontalDistance, setHorizontalDistance] =
               />
             </div>
 
-            <span className="
-              text-[9px]
-              font-bold
-              tracking-[0.25em]
-              text-white/40
-            ">
-              {
-                String(
-                  EXPERIENCES.length,
-                ).padStart(2, '0')
-              }
+            <span
+              className="
+                text-[9px]
+                font-bold
+                tracking-[0.25em]
+                text-white/40
+              "
+            >
+              {String(
+                EXPERIENCES.length,
+              ).padStart(2, '0')}
             </span>
-
           </div>
 
-          <p className="
-            mt-3
-            text-center
-            text-[8px]
-            font-semibold
-            uppercase
-            tracking-[0.35em]
-            text-white/25
-            md:text-[9px]
-          ">
+          <p
+            className="
+              mt-3
+              text-center
+              text-[8px]
+              font-semibold
+              uppercase
+              tracking-[0.35em]
+              text-white/25
+              md:text-[9px]
+            "
+          >
             Scroll to explore
           </p>
         </div>
