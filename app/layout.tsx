@@ -1,7 +1,9 @@
 import { Analytics } from '@vercel/analytics/next'
 import type { Metadata, Viewport } from 'next'
 import { Geist, Oswald } from 'next/font/google'
+
 import './globals.css'
+import { ScrollProgress } from '@/components/torq/scroll-progress'
 
 const geist = Geist({
   subsets: ['latin'],
@@ -31,10 +33,18 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en" className={`dark ${geist.variable} ${oswald.variable}`}>
+    <html
+      lang="en"
+      className={`dark ${geist.variable} ${oswald.variable}`}
+    >
       <body className="bg-background font-sans antialiased">
+        <ScrollProgress />
+
         {children}
-        {process.env.NODE_ENV === 'production' && <Analytics />}
+
+        {process.env.NODE_ENV === 'production' && (
+          <Analytics />
+        )}
       </body>
     </html>
   )
