@@ -4,153 +4,12 @@ import {
   ArrowUpRight,
 } from 'lucide-react'
 
-import {
-  useEffect,
-  useRef,
-  useState,
-} from 'react'
-
 import { GALLERY } from '@/lib/torq-data'
 import { Reveal } from './reveal'
 
 export function Gallery() {
-  const sectionRef =
-    useRef<HTMLElement>(null)
-
-  const trackRef =
-    useRef<HTMLDivElement>(null)
-
-  const [progress, setProgress] =
-    useState(0)
-
-  const [travel, setTravel] =
-    useState(0)
-
-  /* ============================================================
-     SCROLL ENGINE
-     ============================================================ */
-
-  useEffect(() => {
-    let frame = 0
-
-    const measure = () => {
-      const track =
-        trackRef.current
-
-      if (!track) return
-
-      const viewportWidth =
-        window.innerWidth
-
-      const trackWidth =
-        track.scrollWidth
-
-      const calculatedTravel =
-        Math.max(
-          0,
-          trackWidth -
-            viewportWidth +
-            viewportWidth * 0.08,
-        )
-
-      setTravel(
-        calculatedTravel,
-      )
-    }
-
-    const update = () => {
-      frame = 0
-
-      const section =
-        sectionRef.current
-
-      if (!section) return
-
-      const rect =
-        section.getBoundingClientRect()
-
-      const sectionHeight =
-        section.offsetHeight
-
-      const viewportHeight =
-        window.innerHeight
-
-      const scrollable =
-        sectionHeight -
-        viewportHeight
-
-      if (scrollable <= 0) {
-        setProgress(0)
-        return
-      }
-
-      const travelled =
-        Math.max(
-          0,
-          Math.min(
-            scrollable,
-            -rect.top,
-          ),
-        )
-
-      setProgress(
-        travelled / scrollable,
-      )
-    }
-
-    const handleScroll = () => {
-      if (!frame) {
-        frame =
-          window.requestAnimationFrame(
-            update,
-          )
-      }
-    }
-
-    const handleResize = () => {
-      measure()
-      update()
-    }
-
-    measure()
-    update()
-
-    window.addEventListener(
-      'scroll',
-      handleScroll,
-      { passive: true },
-    )
-
-    window.addEventListener(
-      'resize',
-      handleResize,
-    )
-
-    return () => {
-      window.removeEventListener(
-        'scroll',
-        handleScroll,
-      )
-
-      window.removeEventListener(
-        'resize',
-        handleResize,
-      )
-
-      if (frame) {
-        window.cancelAnimationFrame(
-          frame,
-        )
-      }
-    }
-  }, [])
-
-  const translateX =
-    progress * travel
-
   return (
     <section
-      ref={sectionRef}
       id="gallery"
       className="
         relative
@@ -268,47 +127,91 @@ export function Gallery() {
       </div>
 
       {/* ======================================================
-          HORIZONTAL JOURNEY
+          INDEPENDENT HORIZONTAL GALLERY
           ====================================================== */}
 
       <div
         className="
           relative
           mt-16
-          overflow-hidden
           md:mt-20
         "
       >
 
         {/* ====================================================
-            DESKTOP
+            LEFT FADE
             ==================================================== */}
 
         <div
-          ref={trackRef}
           className="
-            hidden
-            md:block
+            pointer-events-none
+            absolute
+            left-0
+            top-0
+            z-10
+            h-full
+            w-12
+            bg-gradient-to-r
+            from-black
+            to-transparent
+            md:w-28
           "
-          style={{
-            transform:
-              `translate3d(${-translateX}px, 0, 0)`,
-          }}
+        />
+
+        {/* ====================================================
+            RIGHT FADE
+            ==================================================== */}
+
+        <div
+          className="
+            pointer-events-none
+            absolute
+            right-0
+            top-0
+            z-10
+            h-full
+            w-12
+            bg-gradient-to-l
+            from-black
+            to-transparent
+            md:w-28
+          "
+        />
+
+        {/* ====================================================
+            HORIZONTAL RAIL
+
+            IMPORTANT:
+            This is an independent horizontal scroller.
+
+            Vertical page scrolling does NOT control it.
+            ==================================================== */}
+
+        <div
+          className="
+            overflow-x-auto
+            overscroll-x-contain
+            overscroll-y-none
+            px-6
+            pb-5
+            [scrollbar-width:none]
+            [&::-webkit-scrollbar]:hidden
+            md:px-[8vw]
+          "
         >
           <div
             className="
               flex
+              w-max
               items-stretch
               gap-5
-              pl-[8vw]
-              pr-[8vw]
             "
           >
 
             {GALLERY.map(
               (img, index) => (
                 <GalleryCard
-                  key={img.src}
+                  key={`${img.src}-${index}`}
                   img={img}
                   index={index}
                 />
@@ -318,165 +221,16 @@ export function Gallery() {
           </div>
         </div>
 
-        {/* ====================================================
-            MOBILE
-            ==================================================== */}
-
-        <div
-          className="
-            flex
-            gap-4
-            overflow-x-auto
-            px-6
-            pb-4
-            md:hidden
-            [scrollbar-width:none]
-            [&::-webkit-scrollbar]:hidden
-          "
-        >
-          {GALLERY.map(
-            (img, index) => (
-              <div
-                key={img.src}
-                className="
-                  group
-                  relative
-                  h-[420px]
-                  w-[82vw]
-                  shrink-0
-                  overflow-hidden
-                  rounded-xl
-                  border
-                  border-white/10
-                  bg-neutral-950
-                "
-              >
-
-                <img
-                  src={
-                    img.src ||
-                    '/placeholder.svg'
-                  }
-                  alt={img.alt}
-                  className="
-                    h-full
-                    w-full
-                    object-cover
-                    transition-transform
-                    duration-1000
-                    group-hover:scale-105
-                  "
-                />
-
-                <div
-                  className="
-                    absolute
-                    inset-0
-                    bg-gradient-to-t
-                    from-black
-                    via-black/10
-                    to-transparent
-                  "
-                />
-
-                <div
-                  className="
-                    absolute
-                    left-5
-                    top-5
-                    flex
-                    h-10
-                    w-10
-                    items-center
-                    justify-center
-                    border
-                    border-white/20
-                    bg-black/50
-                    text-xs
-                    font-bold
-                    text-white
-                    backdrop-blur-sm
-                  "
-                >
-                  {String(
-                    index + 1,
-                  ).padStart(2, '0')}
-                </div>
-
-                <div
-                  className="
-                    absolute
-                    inset-x-0
-                    bottom-0
-                    flex
-                    items-end
-                    justify-between
-                    p-6
-                  "
-                >
-
-                  <div>
-                    <p
-                      className="
-                        mb-2
-                        text-[10px]
-                        font-bold
-                        uppercase
-                        tracking-[0.3em]
-                        text-red-500
-                      "
-                    >
-                      TOR&apos;Q
-                    </p>
-
-                    <p
-                      className="
-                        text-sm
-                        font-bold
-                        uppercase
-                        tracking-wide
-                        text-white
-                      "
-                    >
-                      {img.alt}
-                    </p>
-                  </div>
-
-                  <div
-                    className="
-                      flex
-                      h-10
-                      w-10
-                      shrink-0
-                      items-center
-                      justify-center
-                      rounded-full
-                      border
-                      border-white/30
-                    "
-                  >
-                    <ArrowUpRight
-                      size={17}
-                    />
-                  </div>
-
-                </div>
-
-              </div>
-            ),
-          )}
-        </div>
-
       </div>
 
       {/* ======================================================
-          PROGRESS
+          SCROLL CUE
           ====================================================== */}
 
       <div
         className="
           mx-auto
-          mt-10
+          mt-7
           flex
           max-w-7xl
           items-center
@@ -486,69 +240,52 @@ export function Gallery() {
         "
       >
 
-        <span
+        <div
           className="
-            text-[9px]
-            font-bold
-            tracking-[0.25em]
-            text-white/30
+            h-px
+            flex-1
+            bg-white/10
           "
-        >
-          01
-        </span>
+        />
 
         <div
           className="
-            relative
-            h-px
-            flex-1
-            overflow-hidden
-            bg-white/10
+            flex
+            shrink-0
+            items-center
+            gap-3
           "
         >
-          <div
+          <span
             className="
-              absolute
-              inset-y-0
-              left-0
-              bg-red-500
+              text-[9px]
+              font-semibold
+              uppercase
+              tracking-[0.35em]
+              text-white/25
             "
-            style={{
-              width:
-                `${progress * 100}%`,
-            }}
+          >
+            Swipe / Scroll horizontally
+          </span>
+
+          <ArrowUpRight
+            size={13}
+            className="
+              rotate-45
+              text-red-500
+            "
           />
         </div>
 
-        <span
+        <div
           className="
-            text-[9px]
-            font-bold
-            tracking-[0.25em]
-            text-white/30
+            h-px
+            flex-1
+            bg-white/10
           "
-        >
-          {String(
-            GALLERY.length,
-          ).padStart(2, '0')}
-        </span>
+        />
 
       </div>
-
-      <p
-        className="
-          mt-3
-          text-center
-          text-[8px]
-          font-semibold
-          uppercase
-          tracking-[0.35em]
-          text-white/20
-          md:text-[9px]
-        "
-      >
-        Scroll to explore
-      </p>
 
       {/* ======================================================
           CLOSING STATEMENT
@@ -639,7 +376,7 @@ export function Gallery() {
 }
 
 /* ================================================================
-   DESKTOP GALLERY CARD
+   GALLERY CARD
    ================================================================ */
 
 function GalleryCard({
@@ -649,6 +386,13 @@ function GalleryCard({
   img: (typeof GALLERY)[number]
   index: number
 }) {
+  /*
+   * Keep some visual variation without creating
+   * wildly different card sizes.
+   *
+   * This makes the desktop rail feel editorial
+   * while keeping the horizontal journey smooth.
+   */
   const featured =
     index === 0 ||
     index === 3 ||
@@ -679,10 +423,19 @@ function GalleryCard({
               max-w-[560px]
             `
         }
+
+        sm:
+        ${
+          featured
+            ? 'h-[520px]'
+            : 'h-[520px]'
+        }
       `}
     >
 
-      {/* IMAGE */}
+      {/* ====================================================
+          IMAGE
+          ==================================================== */}
 
       <img
         src={
@@ -690,9 +443,11 @@ function GalleryCard({
           '/placeholder.svg'
         }
         alt={img.alt}
+        draggable={false}
         className="
           h-full
           w-full
+          select-none
           object-cover
           transition-transform
           duration-[1400ms]
@@ -701,7 +456,9 @@ function GalleryCard({
         "
       />
 
-      {/* OVERLAY */}
+      {/* ====================================================
+          GRADIENT
+          ==================================================== */}
 
       <div
         className="
@@ -711,13 +468,15 @@ function GalleryCard({
           from-black/90
           via-black/10
           to-transparent
-          transition-all
+          transition-opacity
           duration-700
           group-hover:from-black
         "
       />
 
-      {/* CINEMATIC LIGHT */}
+      {/* ====================================================
+          CINEMATIC RED SWEEP
+          ==================================================== */}
 
       <div
         className="
@@ -737,7 +496,9 @@ function GalleryCard({
         "
       />
 
-      {/* NUMBER */}
+      {/* ====================================================
+          IMAGE NUMBER
+          ==================================================== */}
 
       <div
         className="
@@ -767,7 +528,9 @@ function GalleryCard({
         ).padStart(2, '0')}
       </div>
 
-      {/* CONTENT */}
+      {/* ====================================================
+          CONTENT
+          ==================================================== */}
 
       <div
         className="
@@ -784,11 +547,13 @@ function GalleryCard({
 
         <div
           className="
+            max-w-[75%]
             transition-transform
             duration-500
             group-hover:-translate-y-1
           "
         >
+
           <p
             className="
               mb-2
@@ -814,7 +579,12 @@ function GalleryCard({
           >
             {img.alt}
           </p>
+
         </div>
+
+        {/* ==================================================
+            ARROW
+            ================================================== */}
 
         <div
           className="
@@ -847,7 +617,9 @@ function GalleryCard({
 
       </div>
 
-      {/* RED ACCENT */}
+      {/* ====================================================
+          RED ACCENT
+          ==================================================== */}
 
       <div
         className="
