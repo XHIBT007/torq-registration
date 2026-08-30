@@ -3,6 +3,7 @@
 import {
   ArrowUpRight,
 } from 'lucide-react'
+
 import {
   useEffect,
   useRef,
@@ -22,7 +23,7 @@ export function Gallery() {
   const [progress, setProgress] =
     useState(0)
 
-  const [distance, setDistance] =
+  const [travel, setTravel] =
     useState(0)
 
   /* ============================================================
@@ -38,16 +39,22 @@ export function Gallery() {
 
       if (!track) return
 
-      const horizontalDistance =
+      const viewportWidth =
+        window.innerWidth
+
+      const trackWidth =
+        track.scrollWidth
+
+      const calculatedTravel =
         Math.max(
           0,
-          track.scrollWidth -
-            window.innerWidth +
-            window.innerWidth * 0.08,
+          trackWidth -
+            viewportWidth +
+            viewportWidth * 0.08,
         )
 
-      setDistance(
-        horizontalDistance,
+      setTravel(
+        calculatedTravel,
       )
     }
 
@@ -111,9 +118,7 @@ export function Gallery() {
     window.addEventListener(
       'scroll',
       handleScroll,
-      {
-        passive: true,
-      },
+      { passive: true },
     )
 
     window.addEventListener(
@@ -140,12 +145,8 @@ export function Gallery() {
     }
   }, [])
 
-  /* ============================================================
-     CONTINUOUS HORIZONTAL MOVEMENT
-     ============================================================ */
-
   const translateX =
-    progress * distance
+    progress * travel
 
   return (
     <section
@@ -161,9 +162,9 @@ export function Gallery() {
       "
     >
 
-      {/* ========================================================
+      {/* ======================================================
           ATMOSPHERE
-          ======================================================== */}
+          ====================================================== */}
 
       <div
         className="
@@ -194,9 +195,9 @@ export function Gallery() {
         "
       />
 
-      {/* ========================================================
+      {/* ======================================================
           INTRO
-          ======================================================== */}
+          ====================================================== */}
 
       <div
         className="
@@ -266,9 +267,9 @@ export function Gallery() {
         </Reveal>
       </div>
 
-      {/* ========================================================
-          HORIZONTAL GALLERY
-          ======================================================== */}
+      {/* ======================================================
+          HORIZONTAL JOURNEY
+          ====================================================== */}
 
       <div
         className="
@@ -279,9 +280,9 @@ export function Gallery() {
         "
       >
 
-        {/* ======================================================
-            DESKTOP TRACK
-            ====================================================== */}
+        {/* ====================================================
+            DESKTOP
+            ==================================================== */}
 
         <div
           ref={trackRef}
@@ -305,29 +306,21 @@ export function Gallery() {
           >
 
             {GALLERY.map(
-              (img, index) => {
-                const featured =
-                  index === 0 ||
-                  index === 3 ||
-                  index === 6
-
-                return (
-                  <GalleryCard
-                    key={img.src}
-                    img={img}
-                    index={index}
-                    featured={featured}
-                  />
-                )
-              },
+              (img, index) => (
+                <GalleryCard
+                  key={img.src}
+                  img={img}
+                  index={index}
+                />
+              ),
             )}
 
           </div>
         </div>
 
-        {/* ======================================================
-            MOBILE TRACK
-            ====================================================== */}
+        {/* ====================================================
+            MOBILE
+            ==================================================== */}
 
         <div
           className="
@@ -341,7 +334,6 @@ export function Gallery() {
             [&::-webkit-scrollbar]:hidden
           "
         >
-
           {GALLERY.map(
             (img, index) => (
               <div
@@ -461,7 +453,6 @@ export function Gallery() {
                       rounded-full
                       border
                       border-white/30
-                      text-white
                     "
                   >
                     <ArrowUpRight
@@ -474,19 +465,18 @@ export function Gallery() {
               </div>
             ),
           )}
-
         </div>
 
       </div>
 
-      {/* ========================================================
-          SCROLL INDICATOR
-          ======================================================== */}
+      {/* ======================================================
+          PROGRESS
+          ====================================================== */}
 
       <div
         className="
           mx-auto
-          mt-8
+          mt-10
           flex
           max-w-7xl
           items-center
@@ -496,40 +486,73 @@ export function Gallery() {
         "
       >
 
-        <div
+        <span
           className="
-            h-px
-            flex-1
-            bg-white/10
-          "
-        />
-
-        <p
-          className="
-            shrink-0
             text-[9px]
-            font-semibold
-            uppercase
-            tracking-[0.35em]
-            text-white/25
+            font-bold
+            tracking-[0.25em]
+            text-white/30
           "
         >
-          Scroll to explore
-        </p>
+          01
+        </span>
 
         <div
           className="
+            relative
             h-px
             flex-1
+            overflow-hidden
             bg-white/10
           "
-        />
+        >
+          <div
+            className="
+              absolute
+              inset-y-0
+              left-0
+              bg-red-500
+            "
+            style={{
+              width:
+                `${progress * 100}%`,
+            }}
+          />
+        </div>
+
+        <span
+          className="
+            text-[9px]
+            font-bold
+            tracking-[0.25em]
+            text-white/30
+          "
+        >
+          {String(
+            GALLERY.length,
+          ).padStart(2, '0')}
+        </span>
 
       </div>
 
-      {/* ========================================================
+      <p
+        className="
+          mt-3
+          text-center
+          text-[8px]
+          font-semibold
+          uppercase
+          tracking-[0.35em]
+          text-white/20
+          md:text-[9px]
+        "
+      >
+        Scroll to explore
+      </p>
+
+      {/* ======================================================
           CLOSING STATEMENT
-          ======================================================== */}
+          ====================================================== */}
 
       <Reveal
         delay={150}
@@ -616,18 +639,21 @@ export function Gallery() {
 }
 
 /* ================================================================
-   GALLERY CARD
+   DESKTOP GALLERY CARD
    ================================================================ */
 
 function GalleryCard({
   img,
   index,
-  featured,
 }: {
   img: (typeof GALLERY)[number]
   index: number
-  featured: boolean
 }) {
+  const featured =
+    index === 0 ||
+    index === 3 ||
+    index === 6
+
   return (
     <article
       className={`
@@ -643,12 +669,12 @@ function GalleryCard({
         ${
           featured
             ? `
-              h-[520px]
-              w-[62vw]
-              max-w-[900px]
+              h-[500px]
+              w-[58vw]
+              max-w-[860px]
             `
             : `
-              h-[420px]
+              h-[500px]
               w-[38vw]
               max-w-[560px]
             `
@@ -675,7 +701,7 @@ function GalleryCard({
         "
       />
 
-      {/* DARK GRADIENT */}
+      {/* OVERLAY */}
 
       <div
         className="
@@ -685,13 +711,13 @@ function GalleryCard({
           from-black/90
           via-black/10
           to-transparent
-          transition-opacity
+          transition-all
           duration-700
           group-hover:from-black
         "
       />
 
-      {/* CINEMATIC RED SWEEP */}
+      {/* CINEMATIC LIGHT */}
 
       <div
         className="
@@ -763,7 +789,6 @@ function GalleryCard({
             group-hover:-translate-y-1
           "
         >
-
           <p
             className="
               mb-2
@@ -789,10 +814,7 @@ function GalleryCard({
           >
             {img.alt}
           </p>
-
         </div>
-
-        {/* ARROW */}
 
         <div
           className="
@@ -825,7 +847,7 @@ function GalleryCard({
 
       </div>
 
-      {/* BOTTOM ACCENT */}
+      {/* RED ACCENT */}
 
       <div
         className="
@@ -835,7 +857,6 @@ function GalleryCard({
           h-[2px]
           w-full
           bg-red-500
-          opacity-70
         "
       />
 
