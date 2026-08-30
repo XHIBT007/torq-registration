@@ -33,31 +33,35 @@ export function Experiences() {
   const [horizontalDistance, setHorizontalDistance] =
     useState(0)
 
+  /* ============================================================
+     SCROLL ENGINE
+     ============================================================ */
+
   useEffect(() => {
-    let raf = 0
+    let animationFrame = 0
 
     const measure = () => {
-      const section = sectionRef.current
       const track = trackRef.current
 
-      if (!section || !track) return
+      if (!track) return
 
       /*
-       * Calculate the real horizontal distance required
-       * to move through the entire experience track.
+       * Measure the actual width of the experience track.
+       *
+       * This prevents us from guessing with arbitrary vw values.
        */
       const distance = Math.max(
         0,
         track.scrollWidth -
           window.innerWidth +
-          window.innerWidth * 0.08,
+          window.innerWidth * 0.18,
       )
 
       setHorizontalDistance(distance)
     }
 
     const update = () => {
-      raf = 0
+      animationFrame = 0
 
       const section = sectionRef.current
 
@@ -74,6 +78,10 @@ export function Experiences() {
         return
       }
 
+      /*
+       * How far the user has travelled through
+       * the pinned Experiences section.
+       */
       const travelled = Math.max(
         0,
         Math.min(
@@ -82,14 +90,16 @@ export function Experiences() {
         ),
       )
 
-      setProgress(
-        travelled / scrollDistance,
-      )
+      const nextProgress =
+        travelled / scrollDistance
+
+      setProgress(nextProgress)
     }
 
     const handleScroll = () => {
-      if (!raf) {
-        raf = window.requestAnimationFrame(update)
+      if (!animationFrame) {
+        animationFrame =
+          window.requestAnimationFrame(update)
       }
     }
 
@@ -123,31 +133,35 @@ export function Experiences() {
         handleResize,
       )
 
-      if (raf) {
-        window.cancelAnimationFrame(raf)
+      if (animationFrame) {
+        window.cancelAnimationFrame(
+          animationFrame,
+        )
       }
     }
   }, [])
 
-  /*
-   * Real horizontal movement.
-   *
-   * No arbitrary viewport percentage.
-   * The track moves according to its actual width.
-   */
-  const translatePixels =
+  /* ============================================================
+     CONTINUOUS HORIZONTAL MOVEMENT
+     ============================================================ */
+
+  const translateX =
     progress * horizontalDistance
 
   /*
-   * Determine the dominant experience.
+   * Continuous position of the "focus".
+   *
+   * This is deliberately NOT rounded.
+   *
+   * Rounding this value was one of the things
+   * making the journey feel like it was stopping.
    */
-  const activeIndex = Math.min(
-    EXPERIENCES.length - 1,
-    Math.round(
-      progress *
-        (EXPERIENCES.length - 1),
-    ),
-  )
+  const activePosition =
+    progress *
+    Math.max(
+      0,
+      EXPERIENCES.length - 1,
+    )
 
   return (
     <section
@@ -196,7 +210,7 @@ export function Experiences() {
         />
 
         {/* ======================================================
-            HEADER
+            SECTION HEADER
             ====================================================== */}
 
         <div
@@ -214,7 +228,14 @@ export function Experiences() {
             md:pt-20
           "
         >
-          <div className="flex items-end justify-between gap-8">
+          <div
+            className="
+              flex
+              items-end
+              justify-between
+              gap-8
+            "
+          >
 
             <div>
               <p
@@ -243,13 +264,14 @@ export function Experiences() {
               >
                 More than
                 <br />
+
                 <span className="text-red-500">
                   motorsport.
                 </span>
               </h2>
             </div>
 
-            {/* Experience counter */}
+            {/* Counter */}
 
             <div
               className="
@@ -266,7 +288,7 @@ export function Experiences() {
                   text-white/30
                 "
               >
-                Experience
+                Journey
               </p>
 
               <p
@@ -277,10 +299,19 @@ export function Experiences() {
                 "
               >
                 {String(
-                  activeIndex + 1,
+                  Math.min(
+                    EXPERIENCES.length,
+                    Math.floor(
+                      activePosition + 1.5,
+                    ),
+                  ),
                 ).padStart(2, '0')}
 
-                <span className="text-white/20">
+                <span
+                  className="
+                    text-white/20
+                  "
+                >
                   {' '}
                   /{' '}
                   {String(
@@ -294,7 +325,7 @@ export function Experiences() {
         </div>
 
         {/* ======================================================
-            DESKTOP HORIZONTAL JOURNEY
+            DESKTOP HORIZONTAL TRACK
             ====================================================== */}
 
         <div
@@ -308,7 +339,8 @@ export function Experiences() {
             md:block
           "
           style={{
-            transform: `translate3d(${-translatePixels}px, -50%, 0)`,
+            transform:
+              `translate3d(${-translateX}px, -50%, 0)`,
           }}
         >
           <div
@@ -317,27 +349,43 @@ export function Experiences() {
               items-center
               gap-6
               pl-[8vw]
-              pr-[8vw]
+              pr-[18vw]
             "
           >
+
             {EXPERIENCES.map(
               (experience, index) => {
                 const Icon =
                   ICONS[index] ?? Flame
 
-                const distance = Math.abs(
-                  activeIndex - index,
+                /*
+                 * Continuous distance from the current
+                 * scroll position.
+                 */
+                const distance =
+                  Math.abs(
+                    activePosition - index,
+                  )
+
+                /*
+                 * Very subtle visual emphasis.
+                 *
+                 * The movement itself NEVER depends on this.
+                 */
+                const scale = Math.max(
+                  0.94,
+                  1 -
+                    distance * 0.035,
                 )
 
-                const scale =
-                  distance === 0
-                    ? 1
-                    : 0.94
+                const opacity = Math.max(
+                  0.5,
+                  1 -
+                    distance * 0.2,
+                )
 
-                const opacity =
-                  distance <= 1
-                    ? 1
-                    : 0.45
+                const isNearActive =
+                  distance < 0.5
 
                 return (
                   <article
@@ -354,16 +402,20 @@ export function Experiences() {
                       border
                       border-white/10
                       bg-neutral-950
-                      transition-all
-                      duration-500
+                      transition-[opacity,transform]
+                      duration-300
+                      ease-out
                     "
                     style={{
-                      transform: `scale(${scale})`,
+                      transform:
+                        `scale(${scale})`,
                       opacity,
                     }}
                   >
 
-                    {/* IMAGE */}
+                    {/* ==================================================
+                        IMAGE
+                        ================================================== */}
 
                     <div
                       className="
@@ -383,7 +435,9 @@ export function Experiences() {
                       }}
                     />
 
-                    {/* IMAGE GRADIENT */}
+                    {/* ==================================================
+                        GRADIENT
+                        ================================================== */}
 
                     <div
                       className="
@@ -407,7 +461,9 @@ export function Experiences() {
                       "
                     />
 
-                    {/* CONTENT */}
+                    {/* ==================================================
+                        CONTENT
+                        ================================================== */}
 
                     <div
                       className="
@@ -530,6 +586,7 @@ export function Experiences() {
                         >
                           {experience.description}
                         </p>
+
                       </div>
 
                       {/* ARROW */}
@@ -562,9 +619,12 @@ export function Experiences() {
                           "
                         />
                       </div>
+
                     </div>
 
-                    {/* ACTIVE LINE */}
+                    {/* ==================================================
+                        ACTIVE ACCENT
+                        ================================================== */}
 
                     <div
                       className="
@@ -573,14 +633,14 @@ export function Experiences() {
                         left-0
                         h-[2px]
                         bg-red-500
-                        transition-all
-                        duration-500
+                        transition-opacity
+                        duration-300
                       "
                       style={{
-                        width:
-                          activeIndex === index
-                            ? '100%'
-                            : '0%',
+                        opacity:
+                          isNearActive
+                            ? 1
+                            : 0,
                       }}
                     />
 
@@ -588,11 +648,12 @@ export function Experiences() {
                 )
               },
             )}
+
           </div>
         </div>
 
         {/* ======================================================
-            MOBILE EXPERIENCE RAIL
+            MOBILE HORIZONTAL JOURNEY
             ====================================================== */}
 
         <div
@@ -618,6 +679,7 @@ export function Experiences() {
               [&::-webkit-scrollbar]:hidden
             "
           >
+
             {EXPERIENCES.map(
               (experience, index) => {
                 const Icon =
@@ -746,18 +808,21 @@ export function Experiences() {
                         >
                           {experience.description}
                         </p>
+
                       </div>
 
                     </div>
+
                   </article>
                 )
               },
             )}
+
           </div>
         </div>
 
         {/* ======================================================
-            PROGRESS
+            PROGRESS BAR
             ====================================================== */}
 
         <div
@@ -771,6 +836,7 @@ export function Experiences() {
             md:right-10
           "
         >
+
           <div
             className="
               flex
@@ -778,6 +844,7 @@ export function Experiences() {
               gap-4
             "
           >
+
             <span
               className="
                 text-[9px]
@@ -824,6 +891,7 @@ export function Experiences() {
                 EXPERIENCES.length,
               ).padStart(2, '0')}
             </span>
+
           </div>
 
           <p
@@ -840,6 +908,7 @@ export function Experiences() {
           >
             Scroll to explore
           </p>
+
         </div>
 
       </div>
