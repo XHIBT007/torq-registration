@@ -95,9 +95,7 @@ export function Hero() {
       )
 
       if (raf) {
-        window.cancelAnimationFrame(
-          raf,
-        )
+        window.cancelAnimationFrame(raf)
       }
     }
   }, [])
@@ -143,16 +141,12 @@ export function Hero() {
       scrollProgress / 0.95,
     )
 
-  /*
-   * Slightly less aggressive vertical
-   * movement than the previous version.
-   */
   const logoY =
     -64 * logoMovement
 
   /*
-   * Logo begins fading while it is
-   * moving upward.
+   * TOR'Q starts fading around 45%
+   * and is essentially gone by 95%.
    */
   const logoOpacity =
     1 -
@@ -162,8 +156,7 @@ export function Hero() {
     )
 
   /*
-   * "Welcome to" disappears a little
-   * earlier than the logo.
+   * Welcome disappears earlier.
    */
   const welcomeOpacity =
     1 -
@@ -172,7 +165,7 @@ export function Hero() {
     )
 
   /*
-   * Scroll instruction disappears early.
+   * Scroll instruction disappears quickly.
    */
   const scrollHintOpacity =
     1 -
@@ -184,6 +177,10 @@ export function Hero() {
      LAYER 2 — MAIN HERO
      ============================================================ */
 
+  /*
+   * Layer 2 begins appearing before
+   * Layer 1 is completely gone.
+   */
   const layerTwoOpacity =
     easeInOut(
       (scrollProgress - 0.52) /
@@ -198,6 +195,60 @@ export function Hero() {
       (scrollProgress - 0.45) /
         0.50,
     )
+
+  /* ============================================================
+     IGNITION PULSE
+     ============================================================
+
+     The pulse lives between approximately
+     76% and 98% of the opening.
+
+     It peaks around 87%.
+
+     This means:
+     
+     TOR'Q is disappearing
+          +
+     Layer 2 is already appearing
+          +
+     ignition fires between them.
+     ============================================================ */
+
+  const ignitionProgress =
+    clamp(
+      (scrollProgress - 0.76) /
+        0.22,
+    )
+
+  /*
+   * Fade in → peak → fade out.
+   */
+  const ignitionOpacity =
+    ignitionProgress <= 0.5
+      ? easeOut(
+          ignitionProgress / 0.5,
+        )
+      : 1 -
+        easeOut(
+          (ignitionProgress - 0.5) /
+            0.5,
+        )
+
+  /*
+   * The light travels from left
+   * to right across the screen.
+   */
+  const ignitionX =
+    -130 +
+    ignitionProgress * 260
+
+  /*
+   * Slight scale gives the light
+   * a sense of acceleration.
+   */
+  const ignitionScale =
+    0.85 +
+    ignitionProgress * 0.3
 
   return (
     <section
@@ -237,7 +288,7 @@ export function Hero() {
         />
 
         {/* ====================================================
-            BACKGROUND
+            BACKGROUND IMAGE
             ==================================================== */}
 
         <div
@@ -332,7 +383,9 @@ export function Hero() {
               "
             >
 
-              {/* HEADLINE */}
+              {/* ==================================================
+                  HEADLINE
+                  ================================================== */}
 
               <h1
                 className="
@@ -361,7 +414,9 @@ export function Hero() {
                 </span>
               </h1>
 
-              {/* DESCRIPTION */}
+              {/* ==================================================
+                  DESCRIPTION
+                  ================================================== */}
 
               <p
                 className="
@@ -383,7 +438,9 @@ export function Hero() {
                 unforgettable experience.
               </p>
 
-              {/* CTA */}
+              {/* ==================================================
+                  CTA
+                  ================================================== */}
 
               <div
                 className="
@@ -441,7 +498,9 @@ export function Hero() {
                 </div>
               </div>
 
-              {/* STATS */}
+              {/* ==================================================
+                  STATS
+                  ================================================== */}
 
               <div
                 className="
@@ -478,7 +537,9 @@ export function Hero() {
                 />
               </div>
 
-              {/* COUNTDOWN */}
+              {/* ==================================================
+                  COUNTDOWN
+                  ================================================== */}
 
               <div
                 className="
@@ -510,6 +571,81 @@ export function Hero() {
         </div>
 
         {/* ====================================================
+            IGNITION PULSE
+            ==================================================== */}
+
+        <div
+          className="
+            pointer-events-none
+            absolute
+            inset-0
+            z-40
+            overflow-hidden
+          "
+          aria-hidden="true"
+          style={{
+            opacity:
+              ignitionOpacity,
+          }}
+        >
+
+          {/* Main light beam */}
+
+          <div
+            className="
+              absolute
+              left-1/2
+              top-0
+              h-full
+              w-[18vw]
+              min-w-[120px]
+              max-w-[260px]
+              -translate-x-1/2
+              skew-x-[-12deg]
+              bg-gradient-to-r
+              from-transparent
+              via-red-500/25
+              to-transparent
+              blur-[18px]
+            "
+            style={{
+              transform:
+                `translate3d(${ignitionX}vw, 0, 0) scaleX(${ignitionScale}) skewX(-12deg)`,
+            }}
+          />
+
+          {/* Bright core */}
+
+          <div
+            className="
+              absolute
+              left-1/2
+              top-0
+              h-full
+              w-[2px]
+              -translate-x-1/2
+              bg-red-500
+              shadow-[0_0_35px_rgba(239,68,68,0.9),0_0_90px_rgba(239,68,68,0.5)]
+            "
+            style={{
+              transform:
+                `translate3d(${ignitionX}vw, 0, 0)`,
+            }}
+          />
+
+          {/* Soft atmospheric glow */}
+
+          <div
+            className="
+              absolute
+              inset-0
+              bg-red-500/[0.025]
+            "
+          />
+
+        </div>
+
+        {/* ====================================================
             LAYER 1 — OPENING
             ==================================================== */}
 
@@ -534,10 +670,6 @@ export function Hero() {
           }}
         >
 
-          {/* ==================================================
-              RESPONSIVE OPENING GROUP
-              ================================================== */}
-
           <div
             className="
               flex
@@ -547,11 +679,6 @@ export function Hero() {
               items-center
               justify-center
               text-center
-
-              /*
-               * Keep the complete opening safely
-               * inside the viewport on desktop.
-               */
               max-h-[72vh]
             "
           >
@@ -569,7 +696,6 @@ export function Hero() {
                 uppercase
                 tracking-[0.48em]
                 text-white/50
-
                 sm:mb-6
                 sm:text-xs
                 sm:tracking-[0.55em]
@@ -583,7 +709,7 @@ export function Hero() {
             </p>
 
             {/* ==================================================
-                LOGO
+                TOR'Q LOGO
                 ================================================== */}
 
             <div
@@ -604,13 +730,10 @@ export function Hero() {
                   w-[78vw]
                   max-w-[620px]
                   object-contain
-
                   sm:w-[72vw]
                   sm:max-w-[660px]
-
                   lg:w-[56vw]
                   lg:max-w-[680px]
-
                   xl:w-[52vw]
                   xl:max-w-[700px]
                 "
@@ -629,9 +752,7 @@ export function Hero() {
                 flex-col
                 items-center
                 gap-2
-
                 sm:mt-10
-
                 lg:mt-12
               "
               style={{
@@ -648,7 +769,6 @@ export function Hero() {
                   uppercase
                   tracking-[0.3em]
                   text-white/45
-
                   sm:text-[10px]
                   sm:tracking-[0.35em]
                 "
