@@ -33,7 +33,10 @@ export function Experiences() {
     useRef<HTMLDivElement>(null)
 
   const [progress, setProgress] =
-    useState(0)
+  useState(0)
+
+const [horizontalDistance, setHorizontalDistance] =
+  useState(0)
 
   useEffect(() => {
     let raf = 0
@@ -43,6 +46,8 @@ export function Experiences() {
 
       const section =
         sectionRef.current
+      const track =
+  trackRef.current
 
       if (!section) return
 
@@ -81,6 +86,25 @@ export function Experiences() {
       }
     }
 
+    const measure = () => {
+  const section =
+    sectionRef.current
+
+  const track =
+    trackRef.current
+
+  if (!section || !track) return
+
+  const distance =
+    Math.max(
+      0,
+      track.scrollWidth -
+        window.innerWidth +
+        window.innerWidth * 0.08,
+    )
+
+  setHorizontalDistance(distance)
+}
     update()
 
     window.addEventListener(
@@ -90,9 +114,12 @@ export function Experiences() {
     )
 
     window.addEventListener(
-      'resize',
-      update,
-    )
+  'resize',
+  () => {
+    measure()
+    update()
+  },
+)
 
     return () => {
       window.removeEventListener(
@@ -119,31 +146,32 @@ export function Experiences() {
    * The track moves from its starting position
    * to the final experience.
    */
-  const translateX =
-    progress * -76
+  const translatePixels =
+  progress *
+  horizontalDistance
 
   /*
    * Which experience is currently dominant.
    */
   const activeIndex =
-    Math.min(
-      EXPERIENCES.length - 1,
-      Math.floor(
-        progress *
-          EXPERIENCES.length,
-      ),
-    )
+  Math.min(
+    EXPERIENCES.length - 1,
+    Math.round(
+      progress *
+        (EXPERIENCES.length - 1),
+    ),
+  )
 
   return (
     <section
       ref={sectionRef}
       id="experiences"
       className="
-        relative
-        h-[350vh]
-        bg-black
-        text-white
-      "
+  relative
+  h-[300vh]
+  bg-black
+  text-white
+"
     >
       <div className="sticky top-0 h-screen overflow-hidden">
 
@@ -257,20 +285,20 @@ export function Experiences() {
             ====================================================== */}
 
         <div
-          ref={trackRef}
-          className="
-            absolute
-            left-0
-            top-[48%]
-            hidden
-            md:block
-            md:-translate-y-1/2
-          "
-          style={{
-            transform:
-              `translate3d(${translateX}vw, -50%, 0)`,
-          }}
-        >
+  ref={trackRef}
+  className="
+    absolute
+    left-0
+    top-[56%]
+    hidden
+    md:block
+    md:-translate-y-1/2
+  "
+  style={{
+    transform:
+  `translate3d(${-translatePixels}px, -50%, 0)`,
+  }}
+>
           <div className="
             flex
             gap-5
