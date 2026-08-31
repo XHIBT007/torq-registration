@@ -9,7 +9,7 @@ import {
 import { FAQS } from '@/lib/torq-data'
 import { Reveal } from './reveal'
 
-export function FAQ() {
+export function Faq() {
   const [openIndex, setOpenIndex] =
     useState<number | null>(null)
 
