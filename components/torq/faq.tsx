@@ -1,159 +1,464 @@
 'use client'
 
-import { FAQS } from '@/lib/torq-data'
-import { cn } from '@/lib/utils'
-import { Plus } from 'lucide-react'
 import { useState } from 'react'
+import {
+  ArrowUpRight,
+  ChevronDown,
+} from 'lucide-react'
+
+import { FAQS } from '@/lib/torq-data'
 import { Reveal } from './reveal'
 
-export function Faq() {
-  const [openIndex, setOpenIndex] = useState<number | null>(0)
+export function FAQ() {
+  const [openIndex, setOpenIndex] =
+    useState<number | null>(null)
+
+  const toggle = (index: number) => {
+    setOpenIndex((current) =>
+      current === index
+        ? null
+        : index,
+    )
+  }
 
   return (
     <section
       id="faq"
-      className="relative overflow-hidden py-24 sm:py-32"
+      className="
+        relative
+        overflow-hidden
+        border-t
+        border-white/10
+        bg-black
+        py-24
+        text-white
+        sm:py-32
+      "
     >
-      {/* ========================================================== */}
-      {/* ATMOSPHERE                                                   */}
-      {/* ========================================================== */}
 
-      <div className="pointer-events-none absolute right-0 top-1/2 h-[400px] w-[400px] -translate-y-1/2 rounded-full bg-red-600/[0.035] blur-[120px]" />
+      {/* ==========================================================
+          ATMOSPHERE
+          ========================================================== */}
 
-      <div className="relative mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
+      <div
+        className="
+          pointer-events-none
+          absolute
+          right-0
+          top-0
+          h-[500px]
+          w-[500px]
+          rounded-full
+          bg-red-600/[0.035]
+          blur-[140px]
+        "
+      />
 
-        {/* ======================================================== */}
-        {/* HEADER                                                     */}
-        {/* ======================================================== */}
+      <div
+        className="
+          pointer-events-none
+          absolute
+          bottom-0
+          left-0
+          h-[350px]
+          w-[350px]
+          rounded-full
+          bg-red-600/[0.025]
+          blur-[120px]
+        "
+      />
 
-        <Reveal className="text-center">
-          <p className="font-display text-sm tracking-[0.3em] text-accent uppercase">
-            Frequently asked
-          </p>
+      {/* ==========================================================
+          CONTENT
+          ========================================================== */}
 
-          <h2 className="font-display mt-4 text-4xl font-bold tracking-tight text-balance sm:text-5xl">
-            Everything you need to know
-          </h2>
+      <div
+        className="
+          relative
+          mx-auto
+          max-w-7xl
+          px-6
+          md:px-10
+        "
+      >
 
-          <p className="mx-auto mt-5 max-w-xl text-sm leading-7 text-muted-foreground">
-            Everything from registration and access to what you can expect
-            when you arrive at TOR&apos;Q.
-          </p>
-        </Reveal>
+        <div
+          className="
+            grid
+            gap-14
+            lg:grid-cols-[0.8fr_1.2fr]
+            lg:gap-20
+          "
+        >
 
-        {/* ======================================================== */}
-        {/* FAQ LIST                                                   */}
-        {/* ======================================================== */}
+          {/* ======================================================
+              INTRO
+              ====================================================== */}
 
-        <div className="mt-12 divide-y divide-border/70 border-y border-border/70">
-          {FAQS.map((faq, i) => {
-            const isOpen = openIndex === i
+          <div>
 
-            return (
-              <Reveal
-                key={faq.q}
-                delay={i * 70}
+            <Reveal>
+
+              <p
+                className="
+                  mb-5
+                  text-xs
+                  font-bold
+                  uppercase
+                  tracking-[0.4em]
+                  text-red-500
+                "
               >
+                Frequently Asked
+              </p>
+
+            </Reveal>
+
+            <Reveal delay={100}>
+
+              <h2
+                className="
+                  text-4xl
+                  font-black
+                  uppercase
+                  leading-[0.88]
+                  tracking-[-0.04em]
+                  sm:text-5xl
+                  md:text-6xl
+                "
+              >
+                Everything
+                <br />
+
+                <span className="text-red-500">
+                  you need to know.
+                </span>
+              </h2>
+
+            </Reveal>
+
+            <Reveal delay={200}>
+
+              <p
+                className="
+                  mt-7
+                  max-w-md
+                  text-base
+                  leading-7
+                  text-white/45
+                  md:text-lg
+                "
+              >
+                Your guide to experiencing
+                TOR&apos;Q. If you still have a
+                question, our team is always
+                available.
+              </p>
+
+            </Reveal>
+
+            {/* SMALL BRAND MARKER */}
+
+            <Reveal delay={300}>
+
+              <div
+                className="
+                  mt-10
+                  flex
+                  items-center
+                  gap-4
+                "
+              >
+
                 <div
-                  className={cn(
-                    'group transition-colors duration-500',
-                    isOpen && 'bg-white/[0.015]',
-                  )}
+                  className="
+                    h-px
+                    w-12
+                    bg-red-500
+                  "
+                />
+
+                <span
+                  className="
+                    text-[9px]
+                    font-semibold
+                    uppercase
+                    tracking-[0.35em]
+                    text-white/25
+                  "
                 >
-                  {/* ================================================= */}
-                  {/* QUESTION                                            */}
-                  {/* ================================================= */}
+                  Artistry in Motorsport
+                </span>
 
-                  <button
-                    type="button"
-                    onClick={() =>
-                      setOpenIndex(
-                        isOpen ? null : i,
-                      )
-                    }
-                    className="flex w-full items-center justify-between gap-4 py-6 text-left"
-                    aria-expanded={isOpen}
-                    aria-controls={`faq-answer-${i}`}
-                  >
-                    <span
-                      className={cn(
-                        'font-display text-lg font-medium tracking-wide transition-all duration-300 sm:text-xl',
-                        isOpen
-                          ? 'text-foreground'
-                          : 'text-foreground/85 group-hover:translate-x-1 group-hover:text-foreground',
-                      )}
+              </div>
+
+            </Reveal>
+
+          </div>
+
+          {/* ======================================================
+              FAQ LIST
+              ====================================================== */}
+
+          <div>
+
+            <div
+              className="
+                divide-y
+                divide-white/10
+                border-y
+                border-white/10
+              "
+            >
+
+              {FAQS.map(
+                (item, index) => {
+
+                  const isOpen =
+                    openIndex === index
+
+                  return (
+                    <Reveal
+                      key={index}
+                      delay={
+                        100 +
+                        index * 70
+                      }
                     >
-                      {faq.q}
-                    </span>
 
-                    <span
-                      className={cn(
-                        'flex size-9 shrink-0 items-center justify-center rounded-full border transition-all duration-500',
-                        isOpen
-                          ? 'rotate-45 border-primary bg-primary text-primary-foreground shadow-[0_0_20px_rgba(239,68,68,0.2)]'
-                          : 'border-border text-accent group-hover:border-accent/60',
-                      )}
-                    >
-                      <Plus className="size-4" />
-                    </span>
-                  </button>
+                      <div>
 
-                  {/* ================================================= */}
-                  {/* ANSWER                                              */}
-                  {/* ================================================= */}
+                        {/* QUESTION */}
 
-                  <div
-                    id={`faq-answer-${i}`}
-                    className={cn(
-                      'grid transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)]',
-                      isOpen
-                        ? 'grid-rows-[1fr] opacity-100'
-                        : 'grid-rows-[0fr] opacity-0',
-                    )}
-                  >
-                    <div className="overflow-hidden">
-                      <div
-                        className={cn(
-                          'max-w-3xl pb-6 pr-12 transition-transform duration-500',
-                          isOpen
-                            ? 'translate-y-0'
-                            : '-translate-y-2',
-                        )}
-                      >
-                        <p className="text-sm leading-7 text-muted-foreground sm:text-base">
-                          {faq.a}
-                        </p>
+                        <button
+                          type="button"
+                          onClick={() =>
+                            toggle(index)
+                          }
+                          aria-expanded={
+                            isOpen
+                          }
+                          className="
+                            group
+                            flex
+                            w-full
+                            items-center
+                            justify-between
+                            gap-6
+                            py-6
+                            text-left
+                            transition-colors
+                            duration-300
+                            hover:text-white
+                            sm:py-7
+                          "
+                        >
+
+                          <div
+                            className="
+                              flex
+                              items-start
+                              gap-5
+                            "
+                          >
+
+                            <span
+                              className="
+                                pt-1
+                                text-[9px]
+                                font-bold
+                                tracking-[0.2em]
+                                text-white/20
+                              "
+                            >
+                              {String(
+                                index + 1,
+                              ).padStart(
+                                2,
+                                '0',
+                              )}
+                            </span>
+
+                            <span
+                              className="
+                                text-base
+                                font-semibold
+                                leading-6
+                                text-white/75
+                                transition-colors
+                                duration-300
+                                group-hover:text-white
+                                sm:text-lg
+                              "
+                            >
+                              {item.question}
+                            </span>
+
+                          </div>
+
+                          <span
+                            className={`
+                              flex
+                              h-9
+                              w-9
+                              shrink-0
+                              items-center
+                              justify-center
+                              rounded-full
+                              border
+                              transition-all
+                              duration-500
+
+                              ${
+                                isOpen
+                                  ? `
+                                    border-red-500
+                                    bg-red-500
+                                    text-white
+                                  `
+                                  : `
+                                    border-white/15
+                                    bg-white/[0.02]
+                                    text-white/40
+                                    group-hover:border-white/30
+                                    group-hover:text-white
+                                  `
+                              }
+                            `}
+                          >
+
+                            <ChevronDown
+                              size={17}
+                              className={`
+                                transition-transform
+                                duration-500
+                                ${
+                                  isOpen
+                                    ? 'rotate-180'
+                                    : ''
+                                }
+                              `}
+                            />
+
+                          </span>
+
+                        </button>
+
+                        {/* ANSWER */}
+
+                        <div
+                          className={`
+                            grid
+                            transition-[grid-template-rows]
+                            duration-500
+                            ease-out
+
+                            ${
+                              isOpen
+                                ? 'grid-rows-[1fr]'
+                                : 'grid-rows-[0fr]'
+                            }
+                          `}
+                        >
+
+                          <div
+                            className="
+                              overflow-hidden
+                            "
+                          >
+
+                            <div
+                              className="
+                                pb-7
+                                pl-10
+                                pr-12
+                                text-sm
+                                leading-7
+                                text-white/40
+                                sm:pl-14
+                                sm:text-base
+                              "
+                            >
+                              {item.answer}
+                            </div>
+
+                          </div>
+
+                        </div>
+
                       </div>
-                    </div>
-                  </div>
-                </div>
-              </Reveal>
-            )
-          })}
+
+                    </Reveal>
+                  )
+                },
+              )}
+
+            </div>
+
+            {/* CONTACT LINK */}
+
+            <Reveal delay={300}>
+
+              <a
+                href="#contact"
+                className="
+                  group
+                  mt-8
+                  inline-flex
+                  items-center
+                  gap-3
+                  text-xs
+                  font-bold
+                  uppercase
+                  tracking-[0.2em]
+                  text-white/50
+                  transition-colors
+                  duration-300
+                  hover:text-white
+                "
+              >
+
+                Still have questions?
+
+                <span
+                  className="
+                    flex
+                    h-8
+                    w-8
+                    items-center
+                    justify-center
+                    rounded-full
+                    border
+                    border-white/15
+                    transition-all
+                    duration-300
+                    group-hover:border-red-500
+                    group-hover:bg-red-500
+                  "
+                >
+
+                  <ArrowUpRight
+                    size={14}
+                    className="
+                      transition-transform
+                      duration-300
+                      group-hover:-translate-y-0.5
+                      group-hover:translate-x-0.5
+                    "
+                  />
+
+                </span>
+
+              </a>
+
+            </Reveal>
+
+          </div>
+
         </div>
 
-        {/* ======================================================== */}
-        {/* BOTTOM NOTE                                                */}
-        {/* ======================================================== */}
-
-        <Reveal delay={200}>
-          <div className="mt-10 text-center">
-            <p className="text-xs uppercase tracking-[0.25em] text-muted-foreground/60">
-              Still have questions?
-            </p>
-
-            <a
-              href="#contact"
-              className="mt-3 inline-flex items-center gap-2 text-sm font-semibold text-accent transition-colors hover:text-primary"
-            >
-              Contact the TOR&apos;Q team
-              <span className="transition-transform duration-300 hover:translate-x-1">
-                →
-              </span>
-            </a>
-          </div>
-        </Reveal>
       </div>
+
     </section>
   )
 }
