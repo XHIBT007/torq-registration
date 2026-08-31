@@ -61,6 +61,10 @@ export function Contact() {
   const [visible, setVisible] =
     useState(false)
 
+  /* ================================================================
+     IMAGE REVEAL
+     ================================================================ */
+
   useEffect(() => {
     const element =
       imageRef.current
@@ -117,6 +121,10 @@ export function Contact() {
         "
       />
 
+      {/* ==========================================================
+          MAIN CONTAINER
+          ========================================================== */}
+
       <div
         className="
           mx-auto
@@ -128,6 +136,7 @@ export function Contact() {
       >
 
         <Reveal>
+
           <div
             ref={imageRef}
             className="
@@ -136,7 +145,7 @@ export function Contact() {
               overflow-hidden
               rounded-2xl
               border
-              border-border
+              border-white/10
             "
           >
 
@@ -151,6 +160,7 @@ export function Contact() {
                 transition-transform
                 duration-[10000ms]
                 ease-out
+
                 ${
                   visible
                     ? 'scale-100'
@@ -158,6 +168,7 @@ export function Contact() {
                 }
               `}
             >
+
               <img
                 src="/images/gallery-6.png"
                 alt=""
@@ -168,6 +179,7 @@ export function Contact() {
                   object-cover
                 "
               />
+
             </div>
 
             {/* ====================================================
@@ -187,9 +199,9 @@ export function Contact() {
                 absolute
                 inset-0
                 bg-gradient-to-br
-                from-background/95
-                via-background/80
-                to-background/55
+                from-black/95
+                via-black/80
+                to-black/50
               "
             />
 
@@ -204,7 +216,7 @@ export function Contact() {
               "
             />
 
-            {/* Red atmospheric glow */}
+            {/* ATMOSPHERIC RED GLOW */}
 
             <div
               className="
@@ -244,30 +256,32 @@ export function Contact() {
               <div>
 
                 <Reveal delay={100}>
+
                   <p
                     className="
-                      font-display
                       text-sm
                       uppercase
                       tracking-[0.3em]
-                      text-accent
+                      text-red-500
                     "
                   >
                     Contact
                   </p>
+
                 </Reveal>
 
                 <Reveal delay={180}>
+
                   <h2
                     className="
-                      font-display
                       mt-4
                       max-w-2xl
                       text-4xl
-                      font-bold
-                      leading-[0.95]
-                      tracking-tight
-                      text-balance
+                      font-black
+                      uppercase
+                      leading-[0.9]
+                      tracking-[-0.04em]
+                      text-white
                       sm:text-5xl
                       lg:text-6xl
                     "
@@ -279,23 +293,26 @@ export function Contact() {
                       the adrenaline?
                     </span>
                   </h2>
+
                 </Reveal>
 
                 <Reveal delay={260}>
+
                   <p
                     className="
                       mt-6
                       max-w-md
                       text-base
                       leading-relaxed
-                      text-muted-foreground
+                      text-white/55
                     "
                   >
-                    Reserve your place at
-                    TOR&apos;Q, or reach out to
-                    our team for partnership and
-                    hospitality enquiries.
+                    Experience TOR&apos;Q in person,
+                    or reach out to our team for
+                    partnership, hospitality and
+                    general enquiries.
                   </p>
+
                 </Reveal>
 
                 {/* ==================================================
@@ -303,6 +320,7 @@ export function Contact() {
                     ================================================== */}
 
                 <Reveal delay={330}>
+
                   <div
                     className="
                       mt-8
@@ -347,10 +365,11 @@ export function Contact() {
                         backdrop-blur-sm
                       "
                     >
-                      December 6, 2026
+                      {EVENT.dateLabel}
                     </div>
 
                   </div>
+
                 </Reveal>
 
                 {/* ==================================================
@@ -358,6 +377,7 @@ export function Contact() {
                     ================================================== */}
 
                 <Reveal delay={400}>
+
                   <Button
                     size="lg"
                     onClick={open}
@@ -378,6 +398,7 @@ export function Contact() {
                       hover:shadow-[0_0_35px_rgba(239,68,68,0.3)]
                     "
                   >
+
                     <Ticket
                       className="
                         size-4
@@ -398,7 +419,9 @@ export function Contact() {
                         group-hover:-translate-y-0.5
                       "
                     />
+
                   </Button>
+
                 </Reveal>
 
               </div>
@@ -420,6 +443,7 @@ export function Contact() {
                     detail,
                     index,
                   ) => {
+
                     const Icon =
                       detail.icon
 
@@ -431,6 +455,7 @@ export function Contact() {
                           index * 80
                         }
                       >
+
                         <div
                           className="
                             group
@@ -466,15 +491,17 @@ export function Contact() {
                               group-hover:bg-red-500/10
                             "
                           >
+
                             <Icon
                               className="
                                 size-5
-                                text-accent
+                                text-red-500
                                 transition-transform
                                 duration-500
                                 group-hover:scale-110
                               "
                             />
+
                           </div>
 
                           <p
@@ -483,7 +510,7 @@ export function Contact() {
                               text-[10px]
                               uppercase
                               tracking-[0.2em]
-                              text-muted-foreground
+                              text-white/35
                             "
                           >
                             {detail.label}
@@ -494,13 +521,14 @@ export function Contact() {
                               mt-1
                               break-words
                               font-medium
-                              text-foreground
+                              text-white/80
                             "
                           >
                             {detail.value}
                           </p>
 
                         </div>
+
                       </Reveal>
                     )
                   },
@@ -509,10 +537,13 @@ export function Contact() {
               </div>
 
             </div>
+
           </div>
+
         </Reveal>
 
       </div>
+
     </section>
   )
 }
