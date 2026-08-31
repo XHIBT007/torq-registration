@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 function getRemaining(target: number) {
   const diff = Math.max(0, target - Date.now())
@@ -10,6 +10,30 @@ function getRemaining(target: number) {
     minutes: Math.floor((diff / (1000 * 60)) % 60),
     seconds: Math.floor((diff / 1000) % 60),
   }
+}
+
+function Digit({ value }: { value: string }) {
+  const [flip, setFlip] = useState(false)
+  const prev = useRef(value)
+
+  useEffect(() => {
+    if (prev.current !== value) {
+      setFlip(true)
+      prev.current = value
+      const t = setTimeout(() => setFlip(false), 200)
+      return () => clearTimeout(t)
+    }
+  }, [value])
+
+  return (
+    <span
+      className={`inline-block transition-all duration-200 ${
+        flip ? '-translate-y-1 opacity-60' : 'translate-y-0 opacity-100'
+      }`}
+    >
+      {value}
+    </span>
+  )
 }
 
 export function Countdown({
@@ -43,7 +67,7 @@ export function Countdown({
           <div key={unit.label} className="flex items-stretch gap-2 sm:gap-3">
             <div className="flex min-w-[64px] flex-col items-center rounded-md border border-border/70 bg-card/60 px-3 py-3 backdrop-blur-sm sm:min-w-[84px] sm:py-4">
               <span className="font-display text-3xl font-bold tabular-nums text-foreground sm:text-5xl">
-                {mounted ? String(unit.value).padStart(2, '0') : '--'}
+                <Digit value={mounted ? String(unit.value).padStart(2, '0') : '--'} />
               </span>
               <span className="mt-1 text-[10px] tracking-[0.2em] text-muted-foreground uppercase sm:text-xs">
                 {unit.label}
