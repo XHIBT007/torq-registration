@@ -1,15 +1,14 @@
 'use client'
 
 import {
-  ArrowUp,
   ArrowUpRight,
+  ArrowUp,
   Ticket,
 } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
 import { EVENT } from '@/lib/torq-data'
 
-import { TorqLogo } from './logo'
 import { Reveal } from './reveal'
 import { useRegistration } from './registration'
 
@@ -43,28 +42,28 @@ export function Footer() {
       "
     >
 
-      {/* ======================================================
+      {/* ==========================================================
           ATMOSPHERE
-          ====================================================== */}
+          ========================================================== */}
 
       <div
         className="
           pointer-events-none
           absolute
-          -bottom-40
+          bottom-[-180px]
           left-1/2
           h-[500px]
           w-[800px]
           -translate-x-1/2
           rounded-full
           bg-red-600/[0.05]
-          blur-[140px]
+          blur-[150px]
         "
       />
 
-      {/* ======================================================
+      {/* ==========================================================
           MAIN FOOTER
-          ====================================================== */}
+          ========================================================== */}
 
       <div
         className="
@@ -78,11 +77,12 @@ export function Footer() {
         "
       >
 
-        {/* ====================================================
-            FINAL STATEMENT
-            ==================================================== */}
+        {/* ========================================================
+            CLOSING STATEMENT
+            ======================================================== */}
 
         <Reveal>
+
           <div
             className="
               border-b
@@ -91,6 +91,19 @@ export function Footer() {
               md:pb-20
             "
           >
+
+            <p
+              className="
+                mb-5
+                text-xs
+                font-bold
+                uppercase
+                tracking-[0.4em]
+                text-red-500
+              "
+            >
+              Artistry in Motorsport
+            </p>
 
             <h2
               className="
@@ -104,11 +117,11 @@ export function Footer() {
                 md:text-8xl
               "
             >
-              This is
+              See you
               <br />
 
               <span className="text-red-500">
-                TOR&apos;Q.
+                at TOR&apos;Q.
               </span>
             </h2>
 
@@ -129,15 +142,13 @@ export function Footer() {
                   max-w-lg
                   text-base
                   leading-7
-                  text-white/45
+                  text-white/40
                   md:text-lg
                 "
               >
-                {EVENT.dateLabel}
-                {' '}
-                ·
-                {' '}
-                {EVENT.location}.
+                {EVENT.tagline}.
+                <br />
+                {EVENT.dateLabel} · {EVENT.location}.
               </p>
 
               <Button
@@ -162,9 +173,10 @@ export function Footer() {
                   hover:shadow-[0_0_35px_rgba(239,68,68,0.3)]
                 "
               >
+
                 <Ticket className="size-4" />
 
-                Experience TOR&apos;Q
+                Register Now
 
                 <ArrowUpRight
                   className="
@@ -175,73 +187,18 @@ export function Footer() {
                     group-hover:translate-x-0.5
                   "
                 />
+
               </Button>
 
             </div>
-          </div>
-        </Reveal>
-
-        {/* ====================================================
-            BACK TO TOP
-            ==================================================== */}
-
-        <Reveal delay={120}>
-          <div
-            className="
-              flex
-              justify-center
-              border-b
-              border-white/10
-              py-12
-              md:py-16
-            "
-          >
-
-            <button
-              type="button"
-              onClick={backToTop}
-              className="
-                group
-                inline-flex
-                items-center
-                gap-3
-                rounded-full
-                border
-                border-white/15
-                bg-white/[0.03]
-                px-6
-                py-3
-                text-[10px]
-                font-bold
-                uppercase
-                tracking-[0.3em]
-                text-white/55
-                backdrop-blur-sm
-                transition-all
-                duration-500
-                hover:border-red-500/60
-                hover:bg-red-500
-                hover:text-white
-              "
-            >
-              <ArrowUp
-                className="
-                  size-4
-                  transition-transform
-                  duration-500
-                  group-hover:-translate-y-1
-                "
-              />
-
-              Back to Top
-            </button>
 
           </div>
+
         </Reveal>
 
-        {/* ====================================================
+        {/* ========================================================
             FOOTER GRID
-            ==================================================== */}
+            ======================================================== */}
 
         <div
           className="
@@ -253,52 +210,78 @@ export function Footer() {
           "
         >
 
-          {/* ==================================================
+          {/* ======================================================
               BRAND
-              ================================================== */}
+              ====================================================== */}
+
+          <Reveal
+            delay={100}
+            className="md:col-span-5"
+          >
+
+            <div>
+
+              <p
+                className="
+                  text-2xl
+                  font-black
+                  uppercase
+                  tracking-[-0.03em]
+                  text-white
+                "
+              >
+                TOR&apos;Q
+              </p>
+
+              <div
+                className="
+                  mt-3
+                  h-[2px]
+                  w-10
+                  bg-red-500
+                "
+              />
+
+              <p
+                className="
+                  mt-5
+                  max-w-sm
+                  text-sm
+                  leading-7
+                  text-white/40
+                "
+              >
+                A celebration of machines,
+                movement, creativity and
+                motorsport culture.
+              </p>
+
+              <p
+                className="
+                  mt-5
+                  text-xs
+                  font-semibold
+                  uppercase
+                  tracking-[0.25em]
+                  text-white/25
+                "
+              >
+                Artistry in Motorsport
+              </p>
+
+            </div>
+
+          </Reveal>
+
+          {/* ======================================================
+              NAVIGATION
+              ====================================================== */}
 
           <Reveal
             delay={180}
-            className="md:col-span-5"
-          >
-            <TorqLogo className="text-4xl" />
-
-            <p
-              className="
-                mt-5
-                max-w-sm
-                text-sm
-                leading-7
-                text-white/40
-              "
-            >
-              A cinematic celebration of
-              performance, sound, precision
-              and motorsport culture.
-            </p>
-
-            <p
-              className="
-                mt-5
-                text-xs
-                font-semibold
-                uppercase
-                tracking-[0.25em]
-                text-white/25
-              "
-            >
-              Artistry in Motorsport
-            </p>
-          </Reveal>
-
-          {/* ==================================================
-              NAVIGATION
-              ================================================== */}
-
-          <Reveal
-            delay={240}
             className="md:col-span-4"
           >
+
             <p
               className="
                 mb-5
@@ -320,52 +303,60 @@ export function Footer() {
                 gap-y-4
               "
             >
-              {LINKS.map((link) => (
-                <a
-                  key={link.href}
-                  href={link.href}
-                  className="
-                    group
-                    flex
-                    items-center
-                    gap-2
-                    text-sm
-                    font-medium
-                    text-white/55
-                    transition-colors
-                    duration-300
-                    hover:text-white
-                  "
-                >
-                  <span>
-                    {link.label}
-                  </span>
 
-                  <ArrowUpRight
+              {LINKS.map(
+                (link) => (
+                  <a
+                    key={link.href}
+                    href={link.href}
                     className="
-                      size-3
-                      text-red-500
-                      opacity-0
-                      transition-all
+                      group
+                      flex
+                      items-center
+                      gap-2
+                      text-sm
+                      font-medium
+                      text-white/50
+                      transition-colors
                       duration-300
-                      group-hover:translate-x-0.5
-                      group-hover:-translate-y-0.5
-                      group-hover:opacity-100
+                      hover:text-white
                     "
-                  />
-                </a>
-              ))}
+                  >
+
+                    <span>
+                      {link.label}
+                    </span>
+
+                    <ArrowUpRight
+                      className="
+                        size-3
+                        text-red-500
+                        opacity-0
+                        transition-all
+                        duration-300
+                        group-hover:translate-x-0.5
+                        group-hover:-translate-y-0.5
+                        group-hover:opacity-100
+                      "
+                    />
+
+                  </a>
+                ),
+              )}
+
             </nav>
+
           </Reveal>
 
-          {/* ==================================================
+          {/* ======================================================
               EVENT
-              ================================================== */}
+              ====================================================== */}
 
           <Reveal
-            delay={300}
+            delay={260}
             className="md:col-span-3"
           >
+
             <p
               className="
                 mb-5
@@ -385,6 +376,7 @@ export function Footer() {
                 text-sm
               "
             >
+
               <p
                 className="
                   font-semibold
@@ -397,6 +389,7 @@ export function Footer() {
               <p className="text-white/45">
                 {EVENT.location}
               </p>
+
             </div>
 
             <a
@@ -409,12 +402,13 @@ export function Footer() {
                 gap-2
                 text-sm
                 font-semibold
-                text-white/60
+                text-white/50
                 transition-colors
                 duration-300
                 hover:text-white
               "
             >
+
               Contact the team
 
               <ArrowUpRight
@@ -427,16 +421,102 @@ export function Footer() {
                   group-hover:translate-x-0.5
                 "
               />
+
             </a>
+
           </Reveal>
 
         </div>
 
-        {/* ====================================================
-            FINAL BAR
-            ==================================================== */}
+        {/* ========================================================
+            BACK TO TOP
+            ======================================================== */}
 
-        <Reveal delay={360}>
+        <Reveal delay={300}>
+
+          <div
+            className="
+              flex
+              justify-center
+              border-t
+              border-white/10
+              pt-8
+              pb-8
+            "
+          >
+
+            <button
+              type="button"
+              onClick={backToTop}
+              className="
+                group
+                flex
+                items-center
+                gap-3
+                rounded-full
+                border
+                border-white/10
+                bg-white/[0.02]
+                px-5
+                py-3
+                text-[10px]
+                font-bold
+                uppercase
+                tracking-[0.3em]
+                text-white/40
+                backdrop-blur-sm
+                transition-all
+                duration-500
+                hover:border-red-500/50
+                hover:bg-red-500/10
+                hover:text-white
+              "
+            >
+
+              <span>
+                Back to top
+              </span>
+
+              <span
+                className="
+                  flex
+                  h-7
+                  w-7
+                  items-center
+                  justify-center
+                  rounded-full
+                  border
+                  border-white/10
+                  transition-all
+                  duration-500
+                  group-hover:border-red-500
+                  group-hover:bg-red-500
+                "
+              >
+
+                <ArrowUp
+                  className="
+                    size-3.5
+                    transition-transform
+                    duration-300
+                    group-hover:-translate-y-0.5
+                  "
+                />
+
+              </span>
+
+            </button>
+
+          </div>
+
+        </Reveal>
+
+        {/* ========================================================
+            BOTTOM BAR
+            ======================================================== */}
+
+        <Reveal delay={350}>
+
           <div
             className="
               flex
@@ -454,10 +534,7 @@ export function Footer() {
           >
 
             <p>
-              © {new Date().getFullYear()}
-              {' '}
-              TOR&apos;Q Motorsport.
-              {' '}
+              © {new Date().getFullYear()} TOR&apos;Q.
               All rights reserved.
             </p>
 
@@ -467,13 +544,15 @@ export function Footer() {
                 tracking-[0.2em]
               "
             >
-              Artistry in Motorsport.
+              Artistry in Motorsport
             </p>
 
           </div>
+
         </Reveal>
 
       </div>
+
     </footer>
   )
 }
