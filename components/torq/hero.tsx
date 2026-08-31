@@ -119,7 +119,10 @@ export function Hero() {
 
     return (
       1 -
-      Math.pow(1 - t, 3)
+      Math.pow(
+        1 - t,
+        3,
+      )
     )
   }
 
@@ -140,13 +143,6 @@ export function Hero() {
      LAYER 1 — TOR'Q OPENING
      ============================================================ */
 
-  /*
-   * The logo owns the first part of
-   * the opening sequence.
-   *
-   * It slowly travels upward while
-   * remaining centered.
-   */
   const logoMovement =
     easeInOut(
       scrollProgress / 0.95,
@@ -156,8 +152,11 @@ export function Hero() {
     -64 * logoMovement
 
   /*
-   * Logo starts fading around 45%
-   * and is essentially gone by 95%.
+   * The logo remains present through
+   * the early part of the opening.
+   *
+   * It begins fading at approximately
+   * 45% and is essentially gone by 95%.
    */
   const logoOpacity =
     1 -
@@ -167,9 +166,8 @@ export function Hero() {
     )
 
   /*
-   * "Welcome to" disappears earlier
-   * so the logo becomes the final
-   * element of Layer 1.
+   * Welcome text disappears before
+   * the logo completely leaves.
    */
   const welcomeOpacity =
     1 -
@@ -179,7 +177,7 @@ export function Hero() {
 
   /*
    * Scroll instruction disappears
-   * almost immediately after scrolling.
+   * quickly once the experience begins.
    */
   const scrollHintOpacity =
     1 -
@@ -192,10 +190,10 @@ export function Hero() {
      ============================================================ */
 
   /*
-   * Layer 2 starts appearing BEFORE
+   * Layer 2 begins appearing BEFORE
    * Layer 1 has completely disappeared.
    *
-   * This is intentional.
+   * This overlap is intentional.
    */
   const layerTwoOpacity =
     easeInOut(
@@ -204,11 +202,11 @@ export function Hero() {
     )
 
   /*
-   * Background follows the main hero.
+   * Background image follows Layer 2.
    *
-   * The opening therefore begins almost
-   * completely black and gradually reveals
-   * the event atmosphere.
+   * This keeps the opening almost
+   * completely black before the
+   * atmosphere begins to emerge.
    */
   const backgroundOpacity =
     easeOut(
@@ -267,6 +265,7 @@ export function Hero() {
               backgroundOpacity,
           }}
         >
+
           <img
             src="/images/hero-drift-red-mustang.webp"
             alt=""
@@ -307,6 +306,7 @@ export function Hero() {
               to-black/40
             "
           />
+
         </div>
 
         {/* ====================================================
@@ -324,6 +324,7 @@ export function Hero() {
               layerTwoOpacity,
           }}
         >
+
           <div
             className="
               mx-auto
@@ -342,6 +343,7 @@ export function Hero() {
               lg:pt-0
             "
           >
+
             <div
               className="
                 w-full
@@ -367,6 +369,7 @@ export function Hero() {
                   lg:text-[6.5rem]
                 "
               >
+
                 <span className="block">
                   AFRICA&apos;S BIGGEST
                 </span>
@@ -378,6 +381,7 @@ export function Hero() {
                 <span className="block">
                   SPECTACLE
                 </span>
+
               </h1>
 
               {/* ==================================================
@@ -397,11 +401,12 @@ export function Hero() {
                   md:text-xl
                 "
               >
-                A cinematic celebration of speed,
-                sound and precision where drifting
-                legends, stunt riders, performance cars
-                and motorsport culture collide for one
-                unforgettable experience.
+                A cinematic celebration of
+                performance, sound and precision
+                where drifting legends, stunt riders,
+                performance cars and motorsport
+                culture collide for one unforgettable
+                experience.
               </p>
 
               {/* ==================================================
@@ -419,6 +424,7 @@ export function Hero() {
                   sm:items-center
                 "
               >
+
                 <Button
                   size="lg"
                   onClick={open}
@@ -438,6 +444,7 @@ export function Hero() {
                     sm:text-base
                   "
                 >
+
                   <Ticket
                     className="
                       mr-2
@@ -447,6 +454,7 @@ export function Hero() {
                   />
 
                   REGISTER NOW
+
                 </Button>
 
                 <div
@@ -459,6 +467,7 @@ export function Hero() {
                     sm:text-base
                   "
                 >
+
                   <MapPin
                     className="
                       h-5
@@ -468,7 +477,9 @@ export function Hero() {
                   />
 
                   {EVENT.location}
+
                 </div>
+
               </div>
 
               {/* ==================================================
@@ -489,6 +500,7 @@ export function Hero() {
                   sm:pt-7
                 "
               >
+
                 <HeroStat
                   value="100+"
                   label="Performance Cars"
@@ -508,6 +520,7 @@ export function Hero() {
                   value="1"
                   label="Epic Experience"
                 />
+
               </div>
 
               {/* ==================================================
@@ -520,6 +533,7 @@ export function Hero() {
                   sm:mt-9
                 "
               >
+
                 <p
                   className="
                     mb-3
@@ -531,16 +545,18 @@ export function Hero() {
                     sm:text-[10px]
                   "
                 >
-                  Lights Out In
+                  The Experience Begins In
                 </p>
 
                 <Countdown
                   date={EVENT.date}
                 />
+
               </div>
 
             </div>
           </div>
+
         </div>
 
         {/* ====================================================
@@ -577,11 +593,11 @@ export function Hero() {
               flex
               w-full
               max-w-[680px]
+              max-h-[72vh]
               flex-col
               items-center
               justify-center
               text-center
-              max-h-[72vh]
             "
           >
 
@@ -598,7 +614,6 @@ export function Hero() {
                 uppercase
                 tracking-[0.48em]
                 text-white/50
-
                 sm:mb-6
                 sm:text-xs
                 sm:tracking-[0.55em]
@@ -624,6 +639,7 @@ export function Hero() {
                 overflow-visible
               "
             >
+
               <img
                 src="/images/torq-logo.png"
                 alt="TOR'Q"
@@ -633,17 +649,15 @@ export function Hero() {
                   w-[78vw]
                   max-w-[620px]
                   object-contain
-
                   sm:w-[72vw]
                   sm:max-w-[660px]
-
                   lg:w-[56vw]
                   lg:max-w-[680px]
-
                   xl:w-[52vw]
                   xl:max-w-[700px]
                 "
               />
+
             </div>
 
             {/* ==================================================
@@ -658,9 +672,7 @@ export function Hero() {
                 flex-col
                 items-center
                 gap-2
-
                 sm:mt-10
-
                 lg:mt-12
               "
               style={{
@@ -677,7 +689,6 @@ export function Hero() {
                   uppercase
                   tracking-[0.3em]
                   text-white/45
-
                   sm:text-[10px]
                   sm:tracking-[0.35em]
                 "
@@ -692,6 +703,7 @@ export function Hero() {
                   items-center
                 "
               >
+
                 <div
                   className="
                     h-7
@@ -711,11 +723,13 @@ export function Hero() {
                     text-white/50
                   "
                 />
+
               </div>
 
             </div>
 
           </div>
+
         </div>
 
       </div>
