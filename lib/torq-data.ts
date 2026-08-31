@@ -2,7 +2,6 @@ export const EVENT = {
   name: "TOR'Q",
   tagline: "Artistry in Motorsport",
 
-  // Official event date/time used for the countdown
   date: "2026-12-06T10:00:00",
 
   dateLabel: "December 6, 2026",
@@ -39,7 +38,7 @@ export const EXPERIENCES: Experience[] = [
     number: "02",
     title: "Drift Theatre",
     description:
-      "Professional drift drivers deliver precision smoke shows, controlled burnouts and synchronized tandem drifting in a spectacle built for the senses.",
+      "Professional drift drivers deliver precision smoke shows, controlled burnouts and synchronized drifting in a spectacle built for the senses.",
     image: "/images/exp-drift.png",
     category: "DRIFT & BURNOUT",
     label: "Live Performance",
@@ -117,13 +116,6 @@ export const GALLERY = [
 /* ================================================================
    SPONSORS
    ================================================================ */
-
-/*
- * Only confirmed sponsors/partners should be added here.
- *
- * Keeping this empty allows the website to display the
- * partnership invitation instead of inventing sponsors.
- */
 
 export type Sponsor = {
   name: string
@@ -228,14 +220,6 @@ export const FAQS: FAQItem[] = [
 /* ================================================================
    PARTICIPANT TYPES
    ================================================================ */
-
-/*
- * These are participant categories, not ticket tiers.
- *
- * VIP remains here so the existing registration system
- * continues to work, but the UI should present it differently
- * from ordinary participation.
- */
 
 export const PARTICIPANT_TYPES = [
   "Driver",
