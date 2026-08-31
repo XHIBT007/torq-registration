@@ -140,79 +140,157 @@ export function Hero() {
   }
 
   /* ============================================================
-     LAYER 1 — TOR'Q OPENING
+     OPENING COPY
      ============================================================ */
 
-  const logoMovement =
-    easeInOut(
-      scrollProgress / 0.95,
-    )
-
-  const logoY =
-    -64 * logoMovement
-
-  /*
-   * The logo remains present through
-   * the early part of the opening.
-   *
-   * It begins fading at approximately
-   * 45% and is essentially gone by 95%.
-   */
-  const logoOpacity =
-    1 -
-    easeOut(
-      (scrollProgress - 0.45) /
-        0.50,
-    )
-
-  /*
-   * Welcome text disappears before
-   * the logo completely leaves.
-   */
   const welcomeOpacity =
     1 -
     easeOut(
-      scrollProgress / 0.28,
+      scrollProgress /
+        0.18,
     )
 
-  /*
-   * Scroll instruction disappears
-   * quickly once the experience begins.
-   */
   const scrollHintOpacity =
     1 -
     easeOut(
-      scrollProgress / 0.20,
+      scrollProgress /
+        0.16,
     )
 
   /* ============================================================
-     LAYER 2 — MAIN HERO
+     LOGO DISINTEGRATION
+     
+     0.00 → 0.20
+     Complete logo remains dominant.
+
+     0.20 → 0.50
+     Transition from intact to disassembled.
+
+     0.50 → 0.78
+     Transition from disassembled to exploded.
+
+     0.78 → 1.00
+     Exploded logo leaves the stage.
+     ============================================================ */
+
+  const intactOpacity =
+    1 -
+    easeInOut(
+      (scrollProgress -
+        0.16) /
+        0.24,
+    )
+
+  const disassembledOpacity =
+    easeInOut(
+      (scrollProgress -
+        0.20) /
+        0.22,
+    ) *
+    (1 -
+      easeInOut(
+        (scrollProgress -
+          0.48) /
+          0.22,
+      ))
+
+  const explodedOpacity =
+    easeInOut(
+      (scrollProgress -
+        0.48) /
+        0.25,
+    )
+
+  /* ============================================================
+     LOGO MOTION
      ============================================================ */
 
   /*
-   * Layer 2 begins appearing BEFORE
-   * Layer 1 has completely disappeared.
-   *
-   * This overlap is intentional.
+   * The intact logo starts completely still.
    */
-  const layerTwoOpacity =
-    easeInOut(
-      (scrollProgress - 0.52) /
-        0.43,
-    )
+
+  const intactScale =
+    1 +
+    easeOut(
+      (scrollProgress -
+        0.15) /
+        0.25,
+    ) *
+      0.025
 
   /*
-   * Background image follows Layer 2.
-   *
-   * This keeps the opening almost
-   * completely black before the
-   * atmosphere begins to emerge.
+   * The disassembled stage subtly expands.
    */
+
+  const disassembledScale =
+    1.02 +
+    easeOut(
+      (scrollProgress -
+        0.20) /
+        0.35,
+    ) *
+      0.08
+
+  /*
+   * The exploded stage gradually moves outward
+   * and slightly rotates as the visitor continues
+   * scrolling.
+   */
+
+  const explodedProgress =
+    easeOut(
+      (scrollProgress -
+        0.48) /
+        0.52,
+    )
+
+  const explodedScale =
+    1.04 +
+    explodedProgress *
+      0.22
+
+  const explodedY =
+    explodedProgress *
+    -7
+
+  const explodedRotate =
+    explodedProgress *
+    -1.5
+
+  /*
+   * Final disappearance.
+   */
+
+  const explodedFinalOpacity =
+    explodedOpacity *
+    (1 -
+      easeOut(
+        (scrollProgress -
+          0.78) /
+          0.22,
+      ))
+
+  /* ============================================================
+     MAIN HERO REVEAL
+     ============================================================ */
+
+  const layerTwoOpacity =
+    easeInOut(
+      (scrollProgress -
+        0.58) /
+        0.35,
+    )
+
   const backgroundOpacity =
     easeOut(
-      (scrollProgress - 0.45) /
-        0.50,
+      (scrollProgress -
+        0.44) /
+        0.48,
     )
+
+  /* ============================================================
+     RENDER
+     ============================================================ */
 
   return (
     <section
@@ -225,9 +303,9 @@ export function Hero() {
       "
     >
 
-      {/* ======================================================
-          CINEMATIC STAGE
-          ====================================================== */}
+      {/* ========================================================
+          STICKY CINEMATIC STAGE
+          ======================================================== */}
 
       <div
         className="
@@ -239,9 +317,9 @@ export function Hero() {
         "
       >
 
-        {/* ====================================================
+        {/* ======================================================
             BLACK BASE
-            ==================================================== */}
+            ====================================================== */}
 
         <div
           className="
@@ -251,9 +329,9 @@ export function Hero() {
           "
         />
 
-        {/* ====================================================
+        {/* ======================================================
             BACKGROUND IMAGE
-            ==================================================== */}
+            ====================================================== */}
 
         <div
           className="
@@ -309,9 +387,9 @@ export function Hero() {
 
         </div>
 
-        {/* ====================================================
-            LAYER 2 — MAIN HERO
-            ==================================================== */}
+        {/* ======================================================
+            MAIN HERO
+            ====================================================== */}
 
         <div
           className="
@@ -401,11 +479,12 @@ export function Hero() {
                   md:text-xl
                 "
               >
-                A cinematic celebration of machines,
-sound and adrenaline where drifting
-legends, stunt riders, performance cars
-and motorsport culture come together for
-one unforgettable experience.
+                A cinematic celebration of
+                performance, sound and precision
+                where drifting legends, stunt riders,
+                performance cars and motorsport
+                culture come together for one
+                unforgettable experience.
               </p>
 
               {/* ==================================================
@@ -554,13 +633,14 @@ one unforgettable experience.
               </div>
 
             </div>
+
           </div>
 
         </div>
 
-        {/* ====================================================
-            LAYER 1 — TOR'Q OPENING
-            ==================================================== */}
+        {/* ======================================================
+            TOR'Q OPENING
+            ====================================================== */}
 
         <div
           className="
@@ -574,25 +654,15 @@ one unforgettable experience.
             px-6
             sm:px-8
           "
-          style={{
-            opacity:
-              logoOpacity,
-
-            transform:
-              `translate3d(0, ${logoY}vh, 0)`,
-          }}
         >
-
-          {/* ==================================================
-              OPENING GROUP
-              ================================================== */}
 
           <div
             className="
+              relative
               flex
               w-full
-              max-w-[680px]
-              max-h-[72vh]
+              max-w-[760px]
+              -translate-y-[2vh]
               flex-col
               items-center
               justify-center
@@ -607,7 +677,6 @@ one unforgettable experience.
             <p
               className="
                 mb-5
-                shrink-0
                 text-[9px]
                 font-semibold
                 uppercase
@@ -626,35 +695,103 @@ one unforgettable experience.
             </p>
 
             {/* ==================================================
-                TOR'Q LOGO
+                LOGO STAGE
                 ================================================== */}
 
             <div
               className="
+                relative
                 flex
                 w-full
                 items-center
                 justify-center
-                overflow-visible
               "
             >
 
+              {/* ==================================================
+                  STAGE 1 — INTACT
+                  ================================================== */}
+
               <img
-                src="/images/torq-logo.png"
+                src="/images/torq-logo-intact.png"
                 alt="TOR'Q"
+                aria-hidden="true"
                 className="
-                  block
+                  absolute
                   h-auto
-                  w-[78vw]
-                  max-w-[620px]
+                  w-[82vw]
+                  max-w-[720px]
                   object-contain
-                  sm:w-[72vw]
-                  sm:max-w-[660px]
-                  lg:w-[56vw]
-                  lg:max-w-[680px]
-                  xl:w-[52vw]
-                  xl:max-w-[700px]
+                  sm:w-[76vw]
+                  lg:w-[62vw]
+                  xl:w-[58vw]
                 "
+                style={{
+                  opacity:
+                    intactOpacity,
+                  transform:
+                    `scale(${intactScale})`,
+                }}
+              />
+
+              {/* ==================================================
+                  STAGE 2 — DISASSEMBLED
+                  ================================================== */}
+
+              <img
+                src="/images/torq-logo-disassembled.png"
+                alt=""
+                aria-hidden="true"
+                className="
+                  absolute
+                  h-auto
+                  w-[82vw]
+                  max-w-[720px]
+                  object-contain
+                  sm:w-[76vw]
+                  lg:w-[62vw]
+                  xl:w-[58vw]
+                "
+                style={{
+                  opacity:
+                    disassembledOpacity,
+                  transform:
+                    `scale(${disassembledScale})`,
+                }}
+              />
+
+              {/* ==================================================
+                  STAGE 3 — EXPLODED
+                  ================================================== */}
+
+              <img
+                src="/images/torq-logo-exploded.png"
+                alt=""
+                aria-hidden="true"
+                className="
+                  relative
+                  h-auto
+                  w-[82vw]
+                  max-w-[720px]
+                  object-contain
+                  sm:w-[76vw]
+                  lg:w-[62vw]
+                  xl:w-[58vw]
+                "
+                style={{
+                  opacity:
+                    explodedFinalOpacity,
+                  transform:
+                    `
+                      translate3d(
+                        0,
+                        ${explodedY}px,
+                        0
+                      )
+                      scale(${explodedScale})
+                      rotate(${explodedRotate}deg)
+                    `,
+                }}
               />
 
             </div>
@@ -667,7 +804,6 @@ one unforgettable experience.
               className="
                 mt-8
                 flex
-                shrink-0
                 flex-col
                 items-center
                 gap-2
@@ -732,6 +868,7 @@ one unforgettable experience.
         </div>
 
       </div>
+
     </section>
   )
 }
