@@ -32,7 +32,6 @@ export function About() {
         sm:py-32
       "
     >
-
       {/* ============================================================
           ATMOSPHERE
           ============================================================ */}
@@ -63,7 +62,6 @@ export function About() {
           lg:px-8
         "
       >
-
         <div
           className="
             grid
@@ -116,6 +114,10 @@ export function About() {
               </h2>
             </Reveal>
 
+            {/* ======================================================
+                DESCRIPTION
+                ====================================================== */}
+
             <div
               className="
                 mt-7
@@ -130,21 +132,22 @@ export function About() {
                 <p>
                   TOR&apos;Q is Africa&apos;s biggest
                   motorsport experience, bringing together
-                  drifting, burnouts, stunt riding, performance
-                  automobiles, motorsport simulators, music,
-                  food, fashion and creator culture into one
-                  unforgettable destination.
+                  drifting, burnouts, stunt riding,
+                  performance automobiles, motorsport
+                  simulators, music, food, fashion and
+                  creator culture into one unforgettable
+                  destination.
                 </p>
               </Reveal>
 
               <Reveal delay={300}>
                 <p>
-                  Designed for enthusiasts, creators and the
-                  simply curious, TOR&apos;Q transforms
-                  motorsport into a shared cultural experience
-                  where machines become art, performance becomes
-                  expression and every arena tells a different
-                  story.
+                  Designed for enthusiasts, creators and
+                  the simply curious, TOR&apos;Q transforms
+                  motorsport into a shared cultural
+                  experience where machines become art,
+                  performance becomes expression and every
+                  arena tells a different story.
                 </p>
               </Reveal>
 
@@ -164,7 +167,6 @@ export function About() {
                 sm:grid-cols-4
               "
             >
-
               {STATS.map(
                 (stat, index) => (
                   <Reveal
@@ -208,7 +210,6 @@ export function About() {
                   </Reveal>
                 ),
               )}
-
             </dl>
 
           </div>
@@ -349,7 +350,9 @@ export function About() {
 
               </div>
 
-              {/* CORNER DETAIL */}
+              {/* ====================================================
+                  CORNER DETAIL
+                  ==================================================== */}
 
               <div
                 className="
