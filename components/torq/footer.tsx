@@ -79,7 +79,7 @@ export function Footer() {
       >
 
         {/* ====================================================
-            FINAL TOR'Q STATEMENT
+            FINAL STATEMENT
             ==================================================== */}
 
         <Reveal>
@@ -88,22 +88,9 @@ export function Footer() {
               border-b
               border-white/10
               pb-16
-              md:pb-24
+              md:pb-20
             "
           >
-
-            <p
-              className="
-                mb-5
-                text-xs
-                font-bold
-                uppercase
-                tracking-[0.4em]
-                text-red-500
-              "
-            >
-              TOR&apos;Q Motorsport
-            </p>
 
             <h2
               className="
@@ -195,123 +182,18 @@ export function Footer() {
         </Reveal>
 
         {/* ====================================================
-            HUGE TOR'Q CLOSING LOGO
-            ==================================================== */}
-
-        <Reveal delay={100}>
-          <div
-            className="
-              relative
-              flex
-              min-h-[45vh]
-              flex-col
-              items-center
-              justify-center
-              overflow-hidden
-              py-20
-              md:min-h-[55vh]
-              md:py-28
-            "
-          >
-
-            {/* subtle background mark */}
-
-            <div
-              className="
-                pointer-events-none
-                absolute
-                left-1/2
-                top-1/2
-                h-[420px]
-                w-[420px]
-                -translate-x-1/2
-                -translate-y-1/2
-                rounded-full
-                bg-red-600/[0.035]
-                blur-[120px]
-              "
-            />
-
-            {/* huge logo */}
-
-            <div
-              className="
-                relative
-                w-full
-                overflow-hidden
-              "
-            >
-              <img
-                src="/images/torq-logo.png"
-                alt="TOR'Q — Artistry in Motorsport"
-                className="
-                  mx-auto
-                  block
-                  h-auto
-                  w-[88vw]
-                  max-w-[1100px]
-                  object-contain
-                  opacity-95
-                "
-              />
-            </div>
-
-            {/* tagline */}
-
-            <p
-              className="
-                relative
-                mt-8
-                text-[10px]
-                font-semibold
-                uppercase
-                tracking-[0.5em]
-                text-white/35
-                sm:text-xs
-                md:mt-10
-                md:tracking-[0.65em]
-              "
-            >
-              Artistry in Motorsport
-            </p>
-
-            {/* date */}
-
-            <p
-              className="
-                relative
-                mt-5
-                text-[9px]
-                font-medium
-                uppercase
-                tracking-[0.3em]
-                text-white/25
-                sm:text-[10px]
-              "
-            >
-              {EVENT.dateLabel}
-              {' '}
-              ·
-              {' '}
-              {EVENT.location}
-            </p>
-
-          </div>
-        </Reveal>
-
-        {/* ====================================================
             BACK TO TOP
             ==================================================== */}
 
-        <Reveal delay={180}>
+        <Reveal delay={120}>
           <div
             className="
               flex
               justify-center
               border-b
               border-white/10
-              pb-16
-              md:pb-20
+              py-12
+              md:py-16
             "
           >
 
@@ -376,7 +258,7 @@ export function Footer() {
               ================================================== */}
 
           <Reveal
-            delay={220}
+            delay={180}
             className="md:col-span-5"
           >
             <TorqLogo className="text-4xl" />
@@ -390,8 +272,9 @@ export function Footer() {
                 text-white/40
               "
             >
-              A cinematic celebration of speed,
-              sound, precision and motorsport culture.
+              A cinematic celebration of
+              performance, sound, precision
+              and motorsport culture.
             </p>
 
             <p
@@ -413,7 +296,7 @@ export function Footer() {
               ================================================== */}
 
           <Reveal
-            delay={280}
+            delay={240}
             className="md:col-span-4"
           >
             <p
@@ -480,7 +363,7 @@ export function Footer() {
               ================================================== */}
 
           <Reveal
-            delay={340}
+            delay={300}
             className="md:col-span-3"
           >
             <p
@@ -550,10 +433,10 @@ export function Footer() {
         </div>
 
         {/* ====================================================
-            FINAL BOTTOM BAR
+            FINAL BAR
             ==================================================== */}
 
-        <Reveal delay={400}>
+        <Reveal delay={360}>
           <div
             className="
               flex
