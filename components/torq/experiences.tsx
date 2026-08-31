@@ -22,8 +22,7 @@ const ICONS = [
 ]
 
 export function Experiences() {
-  const railRef =
-    useRef<HTMLDivElement>(null)
+  const railRef = useRef<HTMLDivElement>(null)
 
   const cardRefs =
     useRef<(HTMLElement | null)[]>([])
@@ -34,8 +33,8 @@ export function Experiences() {
   /* ================================================================
      ACTIVE CARD DETECTION
 
-     This observes the horizontal rail only.
-     It does NOT interfere with normal vertical page scrolling.
+     The observer belongs to the horizontal rail.
+     It does not control or hijack the page scroll.
      ================================================================ */
 
   useEffect(() => {
@@ -69,16 +68,13 @@ export function Experiences() {
         },
       )
 
-    cardRefs.current.forEach(
-      (card) => {
-        if (card) {
-          observer.observe(card)
-        }
-      },
-    )
+    cardRefs.current.forEach((card) => {
+      if (card) {
+        observer.observe(card)
+      }
+    })
 
-    return () =>
-      observer.disconnect()
+    return () => observer.disconnect()
   }, [])
 
   return (
@@ -180,7 +176,8 @@ export function Experiences() {
                 md:text-lg
               "
             >
-              Six experiences. One destination.
+              {EXPERIENCES.length} experiences.
+              One destination.
               Step into the world of TOR&apos;Q.
             </p>
 
@@ -223,8 +220,7 @@ export function Experiences() {
 
               <span className="text-white/20">
                 {' '}
-                /
-                {' '}
+                /{' '}
                 {String(
                   EXPERIENCES.length,
                 ).padStart(2, '0')}
@@ -249,7 +245,7 @@ export function Experiences() {
         "
       >
 
-        {/* LEFT EDGE */}
+        {/* LEFT EDGE FADE */}
 
         <div
           className="
@@ -267,7 +263,7 @@ export function Experiences() {
           "
         />
 
-        {/* RIGHT EDGE */}
+        {/* RIGHT EDGE FADE */}
 
         <div
           className="
@@ -289,10 +285,11 @@ export function Experiences() {
             INDEPENDENT HORIZONTAL RAIL
 
             IMPORTANT:
-            Vertical scrolling remains completely normal.
+            No wheel event is captured here.
 
-            The page does not capture the wheel,
-            touch or trackpad to force horizontal movement.
+            Vertical scrolling remains vertical.
+            Horizontal interaction happens naturally through
+            touch, trackpad, mouse drag/browser horizontal input.
             ======================================================== */}
 
         <div
@@ -364,7 +361,7 @@ export function Experiences() {
 
                       ${
                         isActive
-                          ? 'border-white/20 opacity-100 md:scale-[1]'
+                          ? 'border-white/20 opacity-100 md:scale-100'
                           : 'border-white/10 opacity-75 md:scale-[0.975]'
                       }
                     `}
@@ -420,7 +417,7 @@ export function Experiences() {
                     />
 
                     {/* ==================================================
-                        CONTENT
+                        CARD CONTENT
                         ================================================== */}
 
                     <div
@@ -623,6 +620,7 @@ export function Experiences() {
           </div>
 
         </div>
+
       </div>
 
       {/* ==========================================================
