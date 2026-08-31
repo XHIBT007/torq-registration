@@ -70,6 +70,7 @@ export function Gallery() {
           md:px-10
         "
       >
+
         <Reveal>
           <div className="max-w-5xl">
 
@@ -121,12 +122,13 @@ export function Gallery() {
             >
               A visual archive of performance,
               engineering, adrenaline and the people
-              who make TOR&apos;Q more than just a
-              motorsport event.
+              who make TOR&apos;Q more than just an
+              event.
             </p>
 
           </div>
         </Reveal>
+
       </div>
 
       {/* ==========================================================
@@ -141,7 +143,7 @@ export function Gallery() {
         "
       >
 
-        {/* Edge fades */}
+        {/* LEFT EDGE */}
 
         <div
           className="
@@ -158,6 +160,8 @@ export function Gallery() {
             md:w-28
           "
         />
+
+        {/* RIGHT EDGE */}
 
         <div
           className="
@@ -176,11 +180,10 @@ export function Gallery() {
         />
 
         {/* ========================================================
-            SCROLLABLE RAIL
+            INDEPENDENT HORIZONTAL RAIL
 
-            IMPORTANT:
-            This is an independently scrollable horizontal area.
-            Vertical page scrolling is not hijacked.
+            Vertical page scrolling is never intercepted.
+            Users can swipe/drag horizontally inside this rail.
             ======================================================== */}
 
         <div
@@ -195,6 +198,7 @@ export function Gallery() {
             md:px-[8vw]
           "
         >
+
           <div
             className="
               flex
@@ -218,11 +222,13 @@ export function Gallery() {
             )}
 
           </div>
+
         </div>
+
       </div>
 
       {/* ==========================================================
-          SCROLL CUE
+          MOVEMENT CUE
           ========================================================== */}
 
       <div
@@ -254,6 +260,7 @@ export function Gallery() {
             gap-3
           "
         >
+
           <span
             className="
               text-[9px]
@@ -273,6 +280,7 @@ export function Gallery() {
               text-red-500
             "
           />
+
         </div>
 
         <div
@@ -303,6 +311,7 @@ export function Gallery() {
           md:px-10
         "
       >
+
         <div
           className="
             flex
@@ -366,6 +375,7 @@ export function Gallery() {
           </p>
 
         </div>
+
       </Reveal>
 
       {/* ==========================================================
@@ -400,6 +410,7 @@ function GalleryCard({
   index: number
   onOpen: () => void
 }) {
+
   const featured =
     index === 0 ||
     index === 3 ||
@@ -429,6 +440,7 @@ function GalleryCard({
 
         transition-all
         duration-700
+
         hover:border-white/20
       `}
     >
@@ -558,9 +570,7 @@ function GalleryCard({
 
         </div>
 
-        {/* ========================================================
-            OPEN BUTTON
-            ======================================================== */}
+        {/* OPEN */}
 
         <div
           className="
@@ -581,6 +591,7 @@ function GalleryCard({
             group-hover:bg-red-500
           "
         >
+
           <ArrowUpRight
             size={17}
             className="
@@ -589,6 +600,7 @@ function GalleryCard({
               group-hover:rotate-45
             "
           />
+
         </div>
 
       </div>
