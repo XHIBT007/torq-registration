@@ -401,12 +401,11 @@ export function Hero() {
                   md:text-xl
                 "
               >
-                A cinematic celebration of
-                performance, sound and precision
-                where drifting legends, stunt riders,
-                performance cars and motorsport
-                culture collide for one unforgettable
-                experience.
+                A cinematic celebration of machines,
+sound and adrenaline where drifting
+legends, stunt riders, performance cars
+and motorsport culture come together for
+one unforgettable experience.
               </p>
 
               {/* ==================================================
