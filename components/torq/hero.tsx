@@ -411,23 +411,7 @@ export function Hero() {
             bg-black/65
           />
 
-          <div className="
-            absolute
-            inset-0
-            bg-gradient-to-r
-            from-black
-            via-black/65
-            to-transparent
-          />
-
-          <div className="
-            absolute
-            inset-0
-            bg-gradient-to-t
-            from-black
-            via-black/10
-            to-black/50
-          " />
+          <div className="absolute inset-0 bg-gradient-to-r from-black via-black/65 to-transparent" />
         </div>
 
         {/* ======================================================
