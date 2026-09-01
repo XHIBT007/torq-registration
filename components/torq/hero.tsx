@@ -26,13 +26,13 @@ export function Hero() {
     useState(0)
 
   /* ============================================================
-     SCROLL PROGRESS
+     SCROLL
      ============================================================ */
 
   useEffect(() => {
     let raf = 0
 
-    const updateProgress = () => {
+    const update = () => {
       raf = 0
 
       const section =
@@ -43,24 +43,19 @@ export function Hero() {
       const rect =
         section.getBoundingClientRect()
 
-      const scrollDistance =
+      const distance =
         section.offsetHeight -
         window.innerHeight
 
-      if (scrollDistance <= 0) {
-        setScrollProgress(0)
-        return
-      }
+      if (distance <= 0) return
 
-      const progress =
-        Math.min(
-          1,
-          Math.max(
-            0,
-            -rect.top /
-              scrollDistance,
-          ),
-        )
+      const progress = Math.min(
+        1,
+        Math.max(
+          0,
+          -rect.top / distance,
+        ),
+      )
 
       setScrollProgress(progress)
     }
@@ -69,12 +64,12 @@ export function Hero() {
       if (!raf) {
         raf =
           window.requestAnimationFrame(
-            updateProgress,
+            update,
           )
       }
     }
 
-    updateProgress()
+    update()
 
     window.addEventListener(
       'scroll',
@@ -84,7 +79,7 @@ export function Hero() {
 
     window.addEventListener(
       'resize',
-      updateProgress,
+      update,
     )
 
     return () => {
@@ -95,17 +90,19 @@ export function Hero() {
 
       window.removeEventListener(
         'resize',
-        updateProgress,
+        update,
       )
 
       if (raf) {
-        window.cancelAnimationFrame(raf)
+        window.cancelAnimationFrame(
+          raf,
+        )
       }
     }
   }, [])
 
   /* ============================================================
-     ANIMATION HELPERS
+     EASING
      ============================================================ */
 
   const clamp = (value: number) =>
@@ -117,13 +114,17 @@ export function Hero() {
   const easeOut = (value: number) => {
     const t = clamp(value)
 
-    return (
-      1 -
+    return 1 -
       Math.pow(
         1 - t,
         3,
       )
-    )
+  }
+
+  const easeIn = (value: number) => {
+    const t = clamp(value)
+
+    return Math.pow(t, 3)
   }
 
   const easeInOut = (value: number) => {
@@ -140,68 +141,69 @@ export function Hero() {
   }
 
   /* ============================================================
-     OPENING COPY
+     WELCOME
      ============================================================ */
 
   const welcomeOpacity =
     1 -
     easeOut(
       scrollProgress /
-        0.18,
+        0.16,
     )
 
   const scrollHintOpacity =
     1 -
     easeOut(
       scrollProgress /
-        0.16,
+        0.14,
     )
 
   /* ============================================================
-     TOR'Q MECHANICAL DISINTEGRATION
-     ============================================================
-
-     0.00 → 0.14
-     Logo remains completely intact.
-
-     0.14 → 0.32
-     Mechanical pieces begin separating.
-
-     0.32 → 0.68
-     Pieces accelerate outward and toward camera.
-
-     0.68 → 0.86
-     Pieces continue flying through the camera.
-
-     0.86 → 1.00
-     Logo sequence disappears and Hero is revealed.
+     LOGO DISINTEGRATION
      ============================================================ */
 
-  const explosionProgress =
+  /*
+   * The logo stays intact longer.
+   */
+
+  const separation =
     easeInOut(
       (scrollProgress -
-        0.14) /
-        0.62,
-    )
-
-  const piecesAppear =
-    easeOut(
-      (scrollProgress -
         0.12) /
-        0.10,
+        0.28,
     )
 
-  const piecesDisappear =
-    1 -
-    easeOut(
+  /*
+   * This is the important part.
+   *
+   * The pieces don't stop after separating.
+   *
+   * They continue accelerating out of the
+   * viewport and toward the camera.
+   */
+
+  const exit =
+    easeIn(
       (scrollProgress -
-        0.82) /
-        0.18,
+        0.25) /
+        0.75,
     )
 
-  const piecesOpacity =
-    piecesAppear *
-    piecesDisappear
+  /*
+   * Combined motion.
+   *
+   * Separation creates the initial mechanical
+   * breakup.
+   *
+   * Exit takes over and launches everything
+   * through the camera.
+   */
+
+  const motion =
+    Math.max(
+      separation,
+      exit,
+    )
 
   /* ============================================================
      INTACT LOGO
@@ -211,7 +213,7 @@ export function Hero() {
     1 -
     easeInOut(
       (scrollProgress -
-        0.14) /
+        0.12) /
         0.18,
     )
 
@@ -220,27 +222,43 @@ export function Hero() {
     easeOut(
       (scrollProgress -
         0.08) /
-        0.20,
+        0.22,
     ) *
       0.035
 
   /* ============================================================
-     3D CAMERA
+     PIECE VISIBILITY
      ============================================================ */
 
   /*
-   * The perspective belongs to the logo stage.
+   * IMPORTANT:
    *
-   * Positive Z moves pieces toward the viewer.
-   * As Z increases, scale increases to exaggerate
-   * the physical camera effect.
+   * We do NOT fade the pieces simply because
+   * scrolling has reached a certain percentage.
+   *
+   * They remain visible while they're travelling.
+   *
+   * Fade begins only during the final part of
+   * their flight toward / through the camera.
    */
 
-  const cameraDepth =
-    explosionProgress
+  const exitFade =
+    1 -
+    easeInOut(
+      (exit -
+        0.70) /
+        0.30,
+    )
+
+  const piecesOpacity =
+    clamp(
+      separation +
+        exit * 0.25,
+    ) *
+    exitFade
 
   /* ============================================================
-     PIECE MOTION
+     PIECES
      ============================================================ */
 
   const pieces = {
@@ -250,33 +268,33 @@ export function Hero() {
 
     t: {
       x:
-        -10 *
-        cameraDepth,
+        -10 * separation -
+        58 * exit,
 
       y:
-        -5 *
-        cameraDepth,
+        -5 * separation -
+        48 * exit,
 
       z:
-        180 *
-        cameraDepth,
+        140 * separation +
+        1550 * exit,
 
       rotateX:
-        -8 *
-        cameraDepth,
+        -8 * separation -
+        26 * exit,
 
       rotateY:
-        -18 *
-        cameraDepth,
+        -18 * separation -
+        42 * exit,
 
       rotateZ:
-        -12 *
-        cameraDepth,
+        -12 * separation -
+        55 * exit,
 
       scale:
         1 +
-        0.24 *
-          cameraDepth,
+        0.18 * separation +
+        1.25 * exit,
     },
 
     /* ----------------------------------------------------------
@@ -285,33 +303,33 @@ export function Hero() {
 
     turbine: {
       x:
-        -4 *
-        cameraDepth,
+        -4 * separation -
+        32 * exit,
 
       y:
-        9 *
-        cameraDepth,
+        9 * separation +
+        62 * exit,
 
       z:
-        330 *
-        cameraDepth,
+        250 * separation +
+        1750 * exit,
 
       rotateX:
-        14 *
-        cameraDepth,
+        14 * separation +
+        42 * exit,
 
       rotateY:
-        -24 *
-        cameraDepth,
+        -24 * separation -
+        65 * exit,
 
       rotateZ:
-        -34 *
-        cameraDepth,
+        -34 * separation -
+        110 * exit,
 
       scale:
         1 +
-        0.38 *
-          cameraDepth,
+        0.28 * separation +
+        1.65 * exit,
     },
 
     /* ----------------------------------------------------------
@@ -320,33 +338,33 @@ export function Hero() {
 
     r: {
       x:
-        6 *
-        cameraDepth,
+        6 * separation +
+        52 * exit,
 
       y:
-        -8 *
-        cameraDepth,
+        -8 * separation -
+        55 * exit,
 
       z:
-        260 *
-        cameraDepth,
+        220 * separation +
+        1650 * exit,
 
       rotateX:
-        -14 *
-        cameraDepth,
+        -14 * separation -
+        38 * exit,
 
       rotateY:
-        20 *
-        cameraDepth,
+        20 * separation +
+        55 * exit,
 
       rotateZ:
-        16 *
-        cameraDepth,
+        16 * separation +
+        70 * exit,
 
       scale:
         1 +
-        0.30 *
-          cameraDepth,
+        0.24 * separation +
+        1.45 * exit,
     },
 
     /* ----------------------------------------------------------
@@ -355,33 +373,33 @@ export function Hero() {
 
     rLower: {
       x:
-        -7 *
-        cameraDepth,
+        -7 * separation -
+        55 * exit,
 
       y:
-        14 *
-        cameraDepth,
+        14 * separation +
+        72 * exit,
 
       z:
-        220 *
-        cameraDepth,
+        180 * separation +
+        1450 * exit,
 
       rotateX:
-        18 *
-        cameraDepth,
+        18 * separation +
+        55 * exit,
 
       rotateY:
-        -15 *
-        cameraDepth,
+        -15 * separation -
+        38 * exit,
 
       rotateZ:
-        24 *
-        cameraDepth,
+        24 * separation +
+        95 * exit,
 
       scale:
         1 +
-        0.30 *
-          cameraDepth,
+        0.25 * separation +
+        1.35 * exit,
     },
 
     /* ----------------------------------------------------------
@@ -390,33 +408,33 @@ export function Hero() {
 
     piston: {
       x:
-        14 *
-        cameraDepth,
+        14 * separation +
+        72 * exit,
 
       y:
-        -20 *
-        cameraDepth,
+        -20 * separation -
+        70 * exit,
 
       z:
-        520 *
-        cameraDepth,
+        400 * separation +
+        2200 * exit,
 
       rotateX:
-        24 *
-        cameraDepth,
+        24 * separation +
+        65 * exit,
 
       rotateY:
-        34 *
-        cameraDepth,
+        34 * separation +
+        90 * exit,
 
       rotateZ:
-        42 *
-        cameraDepth,
+        42 * separation +
+        130 * exit,
 
       scale:
         1 +
-        0.52 *
-          cameraDepth,
+        0.42 * separation +
+        2.10 * exit,
     },
 
     /* ----------------------------------------------------------
@@ -425,33 +443,33 @@ export function Hero() {
 
     q: {
       x:
-        12 *
-        cameraDepth,
+        12 * separation +
+        64 * exit,
 
       y:
-        5 *
-        cameraDepth,
+        5 * separation +
+        45 * exit,
 
       z:
-        320 *
-        cameraDepth,
+        280 * separation +
+        1800 * exit,
 
       rotateX:
-        -12 *
-        cameraDepth,
+        -12 * separation -
+        32 * exit,
 
       rotateY:
-        22 *
-        cameraDepth,
+        22 * separation +
+        58 * exit,
 
       rotateZ:
-        -20 *
-        cameraDepth,
+        -20 * separation -
+        75 * exit,
 
       scale:
         1 +
-        0.34 *
-          cameraDepth,
+        0.28 * separation +
+        1.55 * exit,
     },
 
     /* ----------------------------------------------------------
@@ -460,52 +478,52 @@ export function Hero() {
 
     qBase: {
       x:
-        20 *
-        cameraDepth,
+        20 * separation +
+        82 * exit,
 
       y:
-        18 *
-        cameraDepth,
+        18 * separation +
+        68 * exit,
 
       z:
-        430 *
-        cameraDepth,
+        360 * separation +
+        1950 * exit,
 
       rotateX:
-        28 *
-        cameraDepth,
+        28 * separation +
+        60 * exit,
 
       rotateY:
-        -20 *
-        cameraDepth,
+        -20 * separation -
+        50 * exit,
 
       rotateZ:
-        32 *
-        cameraDepth,
+        32 * separation +
+        105 * exit,
 
       scale:
         1 +
-        0.44 *
-          cameraDepth,
+        0.35 * separation +
+        1.80 * exit,
     },
   }
 
   /* ============================================================
-     MAIN HERO REVEAL
+     HERO REVEAL
      ============================================================ */
 
-  const layerTwoOpacity =
+  const heroOpacity =
     easeInOut(
       (scrollProgress -
-        0.58) /
-        0.35,
+        0.55) /
+        0.30,
     )
 
   const backgroundOpacity =
     easeOut(
       (scrollProgress -
-        0.44) /
-        0.48,
+        0.45) /
+        0.45,
     )
 
   /* ============================================================
@@ -523,10 +541,6 @@ export function Hero() {
       "
     >
 
-      {/* ========================================================
-          STICKY CINEMATIC STAGE
-          ======================================================== */}
-
       <div
         className="
           sticky
@@ -538,19 +552,7 @@ export function Hero() {
       >
 
         {/* ======================================================
-            BLACK BASE
-            ====================================================== */}
-
-        <div
-          className="
-            absolute
-            inset-0
-            bg-black
-          "
-        />
-
-        {/* ======================================================
-            BACKGROUND IMAGE
+            BACKGROUND
             ====================================================== */}
 
         <div
@@ -608,7 +610,7 @@ export function Hero() {
         </div>
 
         {/* ======================================================
-            MAIN HERO
+            EXISTING HERO CONTENT
             ====================================================== */}
 
         <div
@@ -619,7 +621,7 @@ export function Hero() {
           "
           style={{
             opacity:
-              layerTwoOpacity,
+              heroOpacity,
           }}
         >
 
@@ -648,10 +650,6 @@ export function Hero() {
                 max-w-5xl
               "
             >
-
-              {/* ==================================================
-                  HEADLINE
-                  ================================================== */}
 
               <h1
                 className="
@@ -682,10 +680,6 @@ export function Hero() {
 
               </h1>
 
-              {/* ==================================================
-                  DESCRIPTION
-                  ================================================== */}
-
               <p
                 className="
                   mt-5
@@ -706,10 +700,6 @@ export function Hero() {
                 culture come together for one
                 unforgettable experience.
               </p>
-
-              {/* ==================================================
-                  CTA
-                  ================================================== */}
 
               <div
                 className="
@@ -780,10 +770,6 @@ export function Hero() {
 
               </div>
 
-              {/* ==================================================
-                  STATS
-                  ================================================== */}
-
               <div
                 className="
                   mt-7
@@ -821,10 +807,6 @@ export function Hero() {
 
               </div>
 
-              {/* ==================================================
-                  COUNTDOWN
-                  ================================================== */}
-
               <div
                 className="
                   mt-6
@@ -859,8 +841,7 @@ export function Hero() {
         </div>
 
         {/* ======================================================
-            TOR'Q OPENING
-            ONLY THIS PART IS BEING CHANGED
+            TOR'Q CINEMATIC LOGO
             ====================================================== */}
 
         <div
@@ -877,7 +858,7 @@ export function Hero() {
           "
           style={{
             perspective:
-              '1400px',
+              '1600px',
           }}
         >
 
@@ -891,12 +872,11 @@ export function Hero() {
               flex-col
               items-center
               justify-center
-              text-center
             "
           >
 
             {/* ==================================================
-                WELCOME TO
+                WELCOME
                 ================================================== */}
 
             <p
@@ -920,24 +900,17 @@ export function Hero() {
             </p>
 
             {/* ==================================================
-                3D LOGO STAGE
-
-                IMPORTANT:
-                The component pieces occupy the SAME
-                overall footprint as the intact logo.
+                LOGO
                 ================================================== */}
 
             <div
               className="
                 relative
-                flex
                 w-full
-                items-center
-                justify-center
               "
               style={{
                 perspective:
-                  '1400px',
+                  '1600px',
                 transformStyle:
                   'preserve-3d',
               }}
@@ -945,8 +918,6 @@ export function Hero() {
 
               {/* ==================================================
                   INTACT LOGO
-
-                  This is the visual source of truth.
                   ================================================== */}
 
               <img
@@ -955,6 +926,7 @@ export function Hero() {
                 aria-hidden="true"
                 className="
                   relative
+                  mx-auto
                   h-auto
                   w-[82vw]
                   max-w-[720px]
@@ -972,10 +944,7 @@ export function Hero() {
               />
 
               {/* ==================================================
-                  COMPONENT LAYER
-
-                  The whole component system uses the exact
-                  same footprint as the intact logo.
+                  COMPONENTS
                   ================================================== */}
 
               <div
@@ -1010,10 +979,6 @@ export function Hero() {
                   }}
                 >
 
-                  {/* =================================================
-                      T SECTION
-                      ================================================= */}
-
                   <MechanicalPiece
                     src="/images/torq-components/t_section.png"
                     className="
@@ -1023,10 +988,6 @@ export function Hero() {
                     "
                     {...pieces.t}
                   />
-
-                  {/* =================================================
-                      TURBINE
-                      ================================================= */}
 
                   <MechanicalPiece
                     src="/images/torq-components/turbine.png"
@@ -1038,10 +999,6 @@ export function Hero() {
                     {...pieces.turbine}
                   />
 
-                  {/* =================================================
-                      R SECTION
-                      ================================================= */}
-
                   <MechanicalPiece
                     src="/images/torq-components/r_section.png"
                     className="
@@ -1051,10 +1008,6 @@ export function Hero() {
                     "
                     {...pieces.r}
                   />
-
-                  {/* =================================================
-                      LOWER R
-                      ================================================= */}
 
                   <MechanicalPiece
                     src="/images/torq-components/r_lower.png"
@@ -1066,10 +1019,6 @@ export function Hero() {
                     {...pieces.rLower}
                   />
 
-                  {/* =================================================
-                      PISTON
-                      ================================================= */}
-
                   <MechanicalPiece
                     src="/images/torq-components/piston.png"
                     className="
@@ -1080,10 +1029,6 @@ export function Hero() {
                     {...pieces.piston}
                   />
 
-                  {/* =================================================
-                      Q SECTION
-                      ================================================= */}
-
                   <MechanicalPiece
                     src="/images/torq-components/q_section.png"
                     className="
@@ -1093,10 +1038,6 @@ export function Hero() {
                     "
                     {...pieces.q}
                   />
-
-                  {/* =================================================
-                      Q BASE
-                      ================================================= */}
 
                   <MechanicalPiece
                     src="/images/torq-components/q_base.png"
@@ -1115,7 +1056,7 @@ export function Hero() {
             </div>
 
             {/* ==================================================
-                SCROLL INSTRUCTION
+                SCROLL CUE
                 ================================================== */}
 
             <div
