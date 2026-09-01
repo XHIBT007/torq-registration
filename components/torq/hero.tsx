@@ -7,7 +7,6 @@ import {
 } from 'lucide-react'
 import {
   useEffect,
-  useRef,
   useState,
 } from 'react'
 
@@ -19,48 +18,38 @@ import { useRegistration } from './registration'
 export function Hero() {
   const { open } = useRegistration()
 
-  const sectionRef =
-    useRef<HTMLElement>(null)
-
   const [scrollProgress, setScrollProgress] =
     useState(0)
 
   /* ============================================================
-     SCROLL PROGRESS
+     SCROLL
      ============================================================ */
 
   useEffect(() => {
     let raf = 0
 
-    const updateProgress = () => {
+    const update = () => {
       raf = 0
 
       const section =
-        sectionRef.current
+        document.getElementById('top')
 
       if (!section) return
 
-      const rect =
-        section.getBoundingClientRect()
-
-      const scrollDistance =
+      const distance =
         section.offsetHeight -
         window.innerHeight
 
-      if (scrollDistance <= 0) {
-        setScrollProgress(0)
-        return
-      }
+      if (distance <= 0) return
 
-      const progress =
-        Math.min(
-          1,
-          Math.max(
-            0,
-            -rect.top /
-              scrollDistance,
-          ),
-        )
+      const progress = Math.min(
+        1,
+        Math.max(
+          0,
+          -section.getBoundingClientRect().top /
+            distance,
+        ),
+      )
 
       setScrollProgress(progress)
     }
@@ -68,13 +57,11 @@ export function Hero() {
     const onScroll = () => {
       if (!raf) {
         raf =
-          window.requestAnimationFrame(
-            updateProgress,
-          )
+          window.requestAnimationFrame(update)
       }
     }
 
-    updateProgress()
+    update()
 
     window.addEventListener(
       'scroll',
@@ -84,7 +71,7 @@ export function Hero() {
 
     window.addEventListener(
       'resize',
-      updateProgress,
+      update,
     )
 
     return () => {
@@ -95,7 +82,7 @@ export function Hero() {
 
       window.removeEventListener(
         'resize',
-        updateProgress,
+        update,
       )
 
       if (raf) {
@@ -105,7 +92,7 @@ export function Hero() {
   }, [])
 
   /* ============================================================
-     ANIMATION HELPERS
+     HELPERS
      ============================================================ */
 
   const clamp = (value: number) =>
@@ -139,6 +126,20 @@ export function Hero() {
             2
   }
 
+  /*
+   * Main disintegration progress.
+   *
+   * The logo doesn't start breaking immediately.
+   * We allow the visitor to see the identity first.
+   */
+
+  const disintegration =
+    easeInOut(
+      (scrollProgress -
+        0.10) /
+        0.58,
+    )
+
   /* ============================================================
      OPENING COPY
      ============================================================ */
@@ -154,147 +155,262 @@ export function Hero() {
     1 -
     easeOut(
       scrollProgress /
-        0.16,
+        0.15,
     )
 
   /* ============================================================
-     LOGO DISINTEGRATION
-     
-     0.00 → 0.20
-     Complete logo remains dominant.
-
-     0.20 → 0.50
-     Transition from intact to disassembled.
-
-     0.50 → 0.78
-     Transition from disassembled to exploded.
-
-     0.78 → 1.00
-     Exploded logo leaves the stage.
+     INTACT LOGO
      ============================================================ */
+
+  /*
+   * The intact logo stays visible initially,
+   * then disappears as the physical pieces
+   * take over.
+   */
 
   const intactOpacity =
     1 -
     easeInOut(
       (scrollProgress -
         0.16) /
-        0.24,
-    )
-
-  const disassembledOpacity =
-    easeInOut(
-      (scrollProgress -
-        0.20) /
         0.22,
-    ) *
-    (1 -
-      easeInOut(
-        (scrollProgress -
-          0.48) /
-          0.22,
-      ))
-
-  const explodedOpacity =
-    easeInOut(
-      (scrollProgress -
-        0.48) /
-        0.25,
     )
-
-  /* ============================================================
-     LOGO MOTION
-     ============================================================ */
-
-  /*
-   * The intact logo starts completely still.
-   */
 
   const intactScale =
     1 +
     easeOut(
       (scrollProgress -
-        0.15) /
-        0.25,
+        0.12) /
+        0.30,
     ) *
       0.025
 
-  /*
-   * The disassembled stage subtly expands.
-   */
-
-  const disassembledScale =
-    1.02 +
-    easeOut(
-      (scrollProgress -
-        0.20) /
-        0.35,
-    ) *
-      0.08
+  /* ============================================================
+     COMPONENT OPACITY
+     ============================================================ */
 
   /*
-   * The exploded stage gradually moves outward
-   * and slightly rotates as the visitor continues
-   * scrolling.
+   * Components appear gradually rather than
+   * suddenly switching on.
    */
 
-  const explodedProgress =
+  const componentOpacity =
     easeOut(
       (scrollProgress -
-        0.48) /
-        0.52,
+        0.13) /
+        0.25,
     )
-
-  const explodedScale =
-    1.04 +
-    explodedProgress *
-      0.22
-
-  const explodedY =
-    explodedProgress *
-    -7
-
-  const explodedRotate =
-    explodedProgress *
-    -1.5
 
   /*
    * Final disappearance.
    */
 
-  const explodedFinalOpacity =
-    explodedOpacity *
-    (1 -
-      easeOut(
-        (scrollProgress -
-          0.78) /
-          0.22,
-      ))
+  const finalComponentFade =
+    1 -
+    easeOut(
+      (scrollProgress -
+        0.78) /
+        0.22,
+    )
+
+  const componentVisibility =
+    componentOpacity *
+    finalComponentFade
+
+  /* ============================================================
+     COMPONENT MOTION
+     ============================================================ */
+
+  /*
+   * Each component has its own direction.
+   *
+   * This is what makes the logo feel like a
+   * machine physically coming apart.
+   */
+
+  const pieces = {
+    /* ----------------------------------------------------------
+       T SECTION
+       ---------------------------------------------------------- */
+
+    t: {
+      x:
+        -disintegration *
+        12,
+
+      y:
+        -disintegration *
+        8,
+
+      rotate:
+        -disintegration *
+        9,
+
+      scale:
+        1 +
+        disintegration *
+          0.08,
+    },
+
+    /* ----------------------------------------------------------
+       TURBINE
+       ---------------------------------------------------------- */
+
+    turbine: {
+      x:
+        -disintegration *
+        4,
+
+      y:
+        disintegration *
+        10,
+
+      rotate:
+        disintegration *
+        -24,
+
+      scale:
+        1 +
+        disintegration *
+          0.05,
+    },
+
+    /* ----------------------------------------------------------
+       R SECTION
+       ---------------------------------------------------------- */
+
+    r: {
+      x:
+        disintegration *
+        5,
+
+      y:
+        -disintegration *
+        12,
+
+      rotate:
+        disintegration *
+        14,
+
+      scale:
+        1 +
+        disintegration *
+          0.07,
+    },
+
+    /* ----------------------------------------------------------
+       LOWER R
+       ---------------------------------------------------------- */
+
+    rLower: {
+      x:
+        -disintegration *
+        8,
+
+      y:
+        disintegration *
+        14,
+
+      rotate:
+        disintegration *
+        18,
+
+      scale:
+        1 +
+        disintegration *
+          0.10,
+    },
+
+    /* ----------------------------------------------------------
+       PISTON
+       ---------------------------------------------------------- */
+
+    piston: {
+      x:
+        disintegration *
+        15,
+
+      y:
+        -disintegration *
+        20,
+
+      rotate:
+        disintegration *
+        32,
+
+      scale:
+        1 +
+        disintegration *
+          0.15,
+    },
+
+    /* ----------------------------------------------------------
+       Q SECTION
+       ---------------------------------------------------------- */
+
+    q: {
+      x:
+        disintegration *
+        12,
+
+      y:
+        disintegration *
+        7,
+
+      rotate:
+        disintegration *
+        -13,
+
+      scale:
+        1 +
+        disintegration *
+          0.08,
+    },
+
+    /* ----------------------------------------------------------
+       Q BASE
+       ---------------------------------------------------------- */
+
+    qBase: {
+      x:
+        disintegration *
+        19,
+
+      y:
+        disintegration *
+        17,
+
+      rotate:
+        disintegration *
+        24,
+
+      scale:
+        1 +
+        disintegration *
+          0.12,
+    },
+  }
 
   /* ============================================================
      MAIN HERO REVEAL
      ============================================================ */
 
-  const layerTwoOpacity =
-    easeInOut(
-      (scrollProgress -
-        0.58) /
-        0.35,
-    )
-
   const backgroundOpacity =
     easeOut(
       (scrollProgress -
-        0.44) /
-        0.48,
+        0.48) /
+        0.42,
     )
 
-  /* ============================================================
-     RENDER
-     ============================================================ */
+  const heroOpacity =
+    easeInOut(
+      (scrollProgress -
+        0.55) /
+        0.32,
+    )
 
   return (
     <section
-      ref={sectionRef}
       id="top"
       className="
         relative
@@ -304,7 +420,7 @@ export function Hero() {
     >
 
       {/* ========================================================
-          STICKY CINEMATIC STAGE
+          STICKY STAGE
           ======================================================== */}
 
       <div
@@ -330,7 +446,7 @@ export function Hero() {
         />
 
         {/* ======================================================
-            BACKGROUND IMAGE
+            HERO BACKGROUND
             ====================================================== */}
 
         <div
@@ -399,7 +515,7 @@ export function Hero() {
           "
           style={{
             opacity:
-              layerTwoOpacity,
+              heroOpacity,
           }}
         >
 
@@ -428,10 +544,6 @@ export function Hero() {
                 max-w-5xl
               "
             >
-
-              {/* ==================================================
-                  HEADLINE
-                  ================================================== */}
 
               <h1
                 className="
@@ -462,10 +574,6 @@ export function Hero() {
 
               </h1>
 
-              {/* ==================================================
-                  DESCRIPTION
-                  ================================================== */}
-
               <p
                 className="
                   mt-5
@@ -486,10 +594,6 @@ export function Hero() {
                 culture come together for one
                 unforgettable experience.
               </p>
-
-              {/* ==================================================
-                  CTA
-                  ================================================== */}
 
               <div
                 className="
@@ -560,10 +664,6 @@ export function Hero() {
 
               </div>
 
-              {/* ==================================================
-                  STATS
-                  ================================================== */}
-
               <div
                 className="
                   mt-7
@@ -601,10 +701,6 @@ export function Hero() {
 
               </div>
 
-              {/* ==================================================
-                  COUNTDOWN
-                  ================================================== */}
-
               <div
                 className="
                   mt-6
@@ -639,7 +735,7 @@ export function Hero() {
         </div>
 
         {/* ======================================================
-            TOR'Q OPENING
+            TOR'Q MECHANICAL INTRO
             ====================================================== */}
 
         <div
@@ -651,7 +747,7 @@ export function Hero() {
             flex
             items-center
             justify-center
-            px-6
+            px-5
             sm:px-8
           "
         >
@@ -665,13 +761,11 @@ export function Hero() {
               -translate-y-[2vh]
               flex-col
               items-center
-              justify-center
-              text-center
             "
           >
 
             {/* ==================================================
-                WELCOME TO
+                WELCOME
                 ================================================== */}
 
             <p
@@ -695,36 +789,31 @@ export function Hero() {
             </p>
 
             {/* ==================================================
-                LOGO STAGE
+                MECHANICAL LOGO
                 ================================================== */}
 
             <div
               className="
                 relative
-                flex
+                aspect-[790/316]
                 w-full
-                items-center
-                justify-center
+                max-w-[720px]
               "
             >
 
               {/* ==================================================
-                  STAGE 1 — INTACT
+                  ORIGINAL ASSEMBLED LOGO
                   ================================================== */}
 
               <img
                 src="/images/torq-logo-intact.png"
                 alt="TOR'Q"
-                aria-hidden="true"
                 className="
                   absolute
-                  h-auto
-                  w-[82vw]
-                  max-w-[720px]
+                  inset-0
+                  h-full
+                  w-full
                   object-contain
-                  sm:w-[76vw]
-                  lg:w-[62vw]
-                  xl:w-[58vw]
                 "
                 style={{
                   opacity:
@@ -735,69 +824,205 @@ export function Hero() {
               />
 
               {/* ==================================================
-                  STAGE 2 — DISASSEMBLED
+                  T SECTION
                   ================================================== */}
 
-              <img
-                src="/images/torq-logo-disassembled.png"
-                alt=""
-                aria-hidden="true"
+              <MechanicalPiece
+                src="/images/torq-components/t_section.png"
                 className="
-                  absolute
-                  h-auto
-                  w-[82vw]
-                  max-w-[720px]
-                  object-contain
-                  sm:w-[76vw]
-                  lg:w-[62vw]
-                  xl:w-[58vw]
+                  left-[2%]
+                  top-[2%]
+                  w-[20%]
                 "
-                style={{
-                  opacity:
-                    disassembledOpacity,
-                  transform:
-                    `scale(${disassembledScale})`,
-                }}
+                opacity={
+                  componentVisibility
+                }
+                x={
+                  pieces.t.x
+                }
+                y={
+                  pieces.t.y
+                }
+                rotate={
+                  pieces.t.rotate
+                }
+                scale={
+                  pieces.t.scale
+                }
               />
 
               {/* ==================================================
-                  STAGE 3 — EXPLODED
+                  TURBINE
                   ================================================== */}
 
-              <img
-                src="/images/torq-logo-exploded.png"
-                alt=""
-                aria-hidden="true"
+              <MechanicalPiece
+                src="/images/torq-components/turbine.png"
                 className="
-                  relative
-                  h-auto
-                  w-[82vw]
-                  max-w-[720px]
-                  object-contain
-                  sm:w-[76vw]
-                  lg:w-[62vw]
-                  xl:w-[58vw]
+                  left-[19%]
+                  top-[10%]
+                  w-[20%]
                 "
-                style={{
-                  opacity:
-                    explodedFinalOpacity,
-                  transform:
-                    `
-                      translate3d(
-                        0,
-                        ${explodedY}px,
-                        0
-                      )
-                      scale(${explodedScale})
-                      rotate(${explodedRotate}deg)
-                    `,
-                }}
+                opacity={
+                  componentVisibility
+                }
+                x={
+                  pieces.turbine.x
+                }
+                y={
+                  pieces.turbine.y
+                }
+                rotate={
+                  pieces.turbine.rotate
+                }
+                scale={
+                  pieces.turbine.scale
+                }
+              />
+
+              {/* ==================================================
+                  R SECTION
+                  ================================================== */}
+
+              <MechanicalPiece
+                src="/images/torq-components/r_section.png"
+                className="
+                  left-[43%]
+                  top-[10%]
+                  w-[15%]
+                "
+                opacity={
+                  componentVisibility
+                }
+                x={
+                  pieces.r.x
+                }
+                y={
+                  pieces.r.y
+                }
+                rotate={
+                  pieces.r.rotate
+                }
+                scale={
+                  pieces.r.scale
+                }
+              />
+
+              {/* ==================================================
+                  LOWER R
+                  ================================================== */}
+
+              <MechanicalPiece
+                src="/images/torq-components/r_lower.png"
+                className="
+                  left-[40%]
+                  top-[39%]
+                  w-[19%]
+                "
+                opacity={
+                  componentVisibility
+                }
+                x={
+                  pieces.rLower.x
+                }
+                y={
+                  pieces.rLower.y
+                }
+                rotate={
+                  pieces.rLower.rotate
+                }
+                scale={
+                  pieces.rLower.scale
+                }
+              />
+
+              {/* ==================================================
+                  PISTON
+                  ================================================== */}
+
+              <MechanicalPiece
+                src="/images/torq-components/piston.png"
+                className="
+                  left-[57%]
+                  top-[-4%]
+                  w-[14%]
+                "
+                opacity={
+                  componentVisibility
+                }
+                x={
+                  pieces.piston.x
+                }
+                y={
+                  pieces.piston.y
+                }
+                rotate={
+                  pieces.piston.rotate
+                }
+                scale={
+                  pieces.piston.scale
+                }
+              />
+
+              {/* ==================================================
+                  Q SECTION
+                  ================================================== */}
+
+              <MechanicalPiece
+                src="/images/torq-components/q_section.png"
+                className="
+                  left-[66%]
+                  top-[7%]
+                  w-[23%]
+                "
+                opacity={
+                  componentVisibility
+                }
+                x={
+                  pieces.q.x
+                }
+                y={
+                  pieces.q.y
+                }
+                rotate={
+                  pieces.q.rotate
+                }
+                scale={
+                  pieces.q.scale
+                }
+              />
+
+              {/* ==================================================
+                  Q BASE
+                  ================================================== */}
+
+              <MechanicalPiece
+                src="/images/torq-components/q_base.png"
+                className="
+                  left-[69%]
+                  top-[55%]
+                  w-[15%]
+                "
+                opacity={
+                  componentVisibility
+                }
+                x={
+                  pieces.qBase.x
+                }
+                y={
+                  pieces.qBase.y
+                }
+                rotate={
+                  pieces.qBase.rotate
+                }
+                scale={
+                  pieces.qBase.scale
+                }
               />
 
             </div>
 
             {/* ==================================================
-                SCROLL INSTRUCTION
+                SCROLL CUE
                 ================================================== */}
 
             <div
@@ -870,6 +1095,57 @@ export function Hero() {
       </div>
 
     </section>
+  )
+}
+
+/* ================================================================
+   MECHANICAL PIECE
+   ================================================================ */
+
+function MechanicalPiece({
+  src,
+  className,
+  opacity,
+  x,
+  y,
+  rotate,
+  scale,
+}: {
+  src: string
+  className: string
+  opacity: number
+  x: number
+  y: number
+  rotate: number
+  scale: number
+}) {
+  return (
+    <img
+      src={src}
+      alt=""
+      aria-hidden="true"
+      className={`
+        absolute
+        h-auto
+        object-contain
+        will-change-transform
+        ${className}
+      `}
+      style={{
+        opacity,
+        transform: `
+          translate3d(
+            ${x}vw,
+            ${y}vh,
+            0
+          )
+          rotate(${rotate}deg)
+          scale(${scale})
+        `,
+        transition:
+          'opacity 80ms linear',
+      }}
+    />
   )
 }
 
