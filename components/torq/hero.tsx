@@ -331,89 +331,104 @@ export function Hero() {
   }, [])
 
   /* ============================================================
-     CINEMATIC TIMELINE
+   CINEMATIC TOR'Q TIMELINE
 
-     THIS IS THE ONLY MAJOR BEHAVIOUR CHANGE.
+   0.00
+     PERFECTLY ALIGNED.
 
-     0.00
-       Perfect alignment.
+   0.00 → 0.30
+     The instant the user scrolls:
 
-     Immediately when scrolling starts:
-       The pieces begin to lift.
+       • logo begins fading
+       • components begin lifting
+       • components begin separating
+       • components begin rotating
 
-     0.00 → 0.30
-       Very slow mechanical release.
+     Everything starts together.
 
-       The logo simultaneously fades.
+     The movement is intentionally very subtle at first.
 
-     0.30
-       Logo is completely gone.
+   0.30+
+     Logo is gone.
 
-     0.30 → 1.00
-       Pieces accelerate into the full
-       disintegration/flying sequence.
-  ============================================================ */
+     The components are now fully released and
+     accelerate into the larger 3D disintegration.
+============================================================ */
 
-  const logoFadeProgress =
-    easeInOut(
-      progress / 0.30,
-    )
 
-  const logoOpacity =
-    1 - logoFadeProgress
+/* ============================================================
+   LOGO
 
-  /*
-   * RELEASE STARTS IMMEDIATELY.
-   *
-   * At progress 0 this is exactly 0.
-   *
-   * Therefore the original alignment is untouched.
-   */
+   Starts fading immediately with the first scroll.
+============================================================ */
 
-  const release =
-    easeInOut(
-      progress / 0.30,
-    )
+const logoFadeProgress =
+  easeInOut(
+    progress / 0.30,
+  )
 
-  /*
-   * FULL EXPLOSION.
-   *
-   * The pieces do NOT immediately fly away.
-   *
-   * They spend the first part of the scroll
-   * physically releasing the logo.
-   */
+const logoOpacity =
+  1 - logoFadeProgress
 
-  const explosion =
-    easeIn(
-      (progress - 0.27) / 0.73,
-    )
 
-  /* ============================================================
-     OTHER HERO TRANSITIONS
-  ============================================================ */
+/* ============================================================
+   MECHANICAL RELEASE
 
-  const welcomeOpacity =
-    1 -
-    easeOut(
-      progress / 0.12,
-    )
+   Starts immediately.
 
-  const scrollOpacity =
-    1 -
-    easeOut(
-      progress / 0.14,
-    )
+   This is the subtle "the parts are holding the logo"
+   movement.
+============================================================ */
 
-  const backgroundOpacity =
-    easeOut(
-      (progress - 0.42) / 0.30,
-    )
+const release =
+  easeInOut(
+    progress / 0.30,
+  )
 
-  const contentOpacity =
-    easeInOut(
-      (progress - 0.60) / 0.25,
-    )
+
+/* ============================================================
+   DISINTEGRATION
+
+   IMPORTANT:
+
+   There is NO DELAY anymore.
+
+   The disintegration value starts at 0 immediately.
+
+   The curve is slow at first, then accelerates.
+============================================================ */
+
+const explosion =
+  easeInOut(
+    progress / 0.78,
+  )
+
+
+/* ============================================================
+   OTHER HERO TRANSITIONS
+============================================================ */
+
+const welcomeOpacity =
+  1 -
+  easeOut(
+    progress / 0.12,
+  )
+
+const scrollOpacity =
+  1 -
+  easeOut(
+    progress / 0.14,
+  )
+
+const backgroundOpacity =
+  easeOut(
+    (progress - 0.42) / 0.30,
+  )
+
+const contentOpacity =
+  easeInOut(
+    (progress - 0.60) / 0.25,
+  )
 
   return (
     <section
@@ -1006,20 +1021,13 @@ export function Hero() {
 /* ================================================================
    MECHANICAL PIECE
 
-   IMPORTANT:
+   ALIGNMENT IS LOCKED.
 
-   The registered x/y/width/rotation values are NOT modified.
+   The registered x/y/width/rotation values are untouched.
 
-   At release = 0 and explosion = 0:
+   The animation now begins immediately when scrolling starts.
 
-       left  = registered x
-       top   = registered y
-       scale = 1
-       rotateZ = registered rotation
-
-   Therefore the initial alignment remains EXACTLY the same.
-
-   The release motion happens through transform only.
+   There is NO WAITING PERIOD before disintegration.
 ================================================================ */
 
 function MechanicalPiece({
@@ -1039,45 +1047,48 @@ function MechanicalPiece({
   const e =
     clamp(explosion)
 
+
   /* ============================================================
-     PHASE 1 — MECHANICAL RELEASE
+     PHASE 1
+     MECHANICAL RELEASE
 
-     This begins IMMEDIATELY when scrolling starts.
+     Starts immediately.
 
-     It is intentionally tiny.
-
-     The pieces should feel like they are resisting the
-     disappearance of the logo before finally releasing it.
+     Very small movement at first.
   ============================================================ */
 
   const releaseAmount =
     easeInOut(r)
 
   /*
-   * Tiny vertical lift.
-   *
-   * At 0:
+   * Small upward lift.
+
+   * At scroll 0:
    *   0px
-   *
-   * At full release:
-   *   -6px
+
+   * During logo fade:
+   *   gradually reaches -6px
    */
 
   const lift =
-    -6 * releaseAmount
+    -6 *
+    releaseAmount
+
 
   /*
-   * Tiny movement toward camera.
+   * Small movement toward camera.
    */
 
   const releaseZ =
-    45 * releaseAmount
+    45 *
+    releaseAmount
+
 
   /*
-   * Extremely subtle 3D awakening.
-   *
-   * This is deliberately small so the perfect registration
-   * isn't visibly disturbed during the opening moments.
+   * Tiny rotational awakening.
+
+   * This makes the parts feel mechanical rather than
+   * simply sliding away.
    */
 
   const releaseRotateX =
@@ -1090,22 +1101,60 @@ function MechanicalPiece({
     0.018 *
     releaseAmount
 
+
   /* ============================================================
-     PHASE 2 — FULL DISINTEGRATION
+     PHASE 2
+     DISINTEGRATION
 
-     The important part:
+     THIS NOW STARTS AT THE SAME TIME AS THE RELEASE.
 
-     x/y stay EXACTLY equal to the registered values until
-     actual explosion movement begins.
+     There is deliberately no:
 
-     This protects the alignment.
+       progress - 0.27
+
+     or any other delay.
   ============================================================ */
 
   const flight =
     easeInOut(e)
 
+
+  /*
+   * VERY IMPORTANT.
+
+   * We don't use only e^1.35 anymore.
+
+   * A small percentage of the flight begins immediately,
+   * while the majority remains heavily eased.
+
+   * This creates:
+
+       tiny separation
+            ↓
+       gradual release
+            ↓
+       accelerating disintegration
+            ↓
+       explosive flight
+  */
+
   const flightCurve =
-    Math.pow(e, 1.35)
+    (
+      0.10 * e
+    ) +
+    (
+      0.90 *
+      Math.pow(e, 1.75)
+    )
+
+
+  /* ============================================================
+     POSITION
+
+     THE ORIGINAL REGISTRATION VALUES ARE STILL THE BASE.
+
+     Nothing changes when progress = 0.
+  ============================================================ */
 
   const x =
     data.x +
@@ -1117,85 +1166,89 @@ function MechanicalPiece({
     data.flightY *
       flightCurve
 
+
   /* ============================================================
      DEPTH
 
-     Once the logo has mostly disappeared, the pieces begin
-     moving aggressively toward the camera.
+     Starts very subtly.
 
-     This creates the 3D Transformers-style release.
+     Then becomes much stronger as the pieces fly away.
   ============================================================ */
 
   const depth =
     releaseZ +
     Math.pow(
       flight,
-      1.45,
+      1.55,
     ) *
       2800
+
 
   /* ============================================================
      SCALE
 
-     Very subtle initially.
+     Almost unchanged during the release.
 
-     Much stronger once the parts enter the camera space.
+     Grows as the pieces move through 3D space.
   ============================================================ */
 
   const scale =
     1 +
     Math.pow(
       flight,
-      1.8,
+      1.85,
     ) *
       2.8
 
+
   /* ============================================================
      3D ROTATION
+
+     Rotation starts immediately but subtly.
+
+     Then increases dramatically during flight.
   ============================================================ */
+
+  const rotationStrength =
+    Math.pow(
+      flight,
+      0.85,
+    )
 
   const rotateX =
     releaseRotateX +
     data.rotateX *
-      Math.pow(
-        flight,
-        0.9,
-      )
+      rotationStrength
 
   const rotateY =
     releaseRotateY +
     data.rotateY *
-      Math.pow(
-        flight,
-        0.9,
-      )
+      rotationStrength
 
   const rotateZ =
     data.rotation +
     data.rotateZ *
-      Math.pow(
-        flight,
-        0.9,
-      )
+      rotationStrength
+
 
   /* ============================================================
      MOTION BLUR
 
-     Kept extremely low.
-
-     We want the parts to remain crisp and metallic.
+     Kept very low so the metallic pieces remain crisp.
   ============================================================ */
 
   const blur =
     Math.pow(
       flight,
-      2.4,
-    ) * 2
+      2.5,
+    ) *
+      2
+
 
   /* ============================================================
      FADE
 
-     Pieces remain visible almost throughout the flight.
+     Only happens very late.
   ============================================================ */
 
   const opacity =
@@ -1204,6 +1257,7 @@ function MechanicalPiece({
       (flight - 0.84) /
         0.16,
     )
+
 
   return (
     <img
@@ -1218,9 +1272,7 @@ function MechanicalPiece({
       "
       style={{
         /* ======================================================
-           CRITICAL ALIGNMENT
-
-           DO NOT CHANGE.
+           🔒 ALIGNMENT — DO NOT CHANGE
         ====================================================== */
 
         left:
@@ -1235,16 +1287,16 @@ function MechanicalPiece({
         height:
           'auto',
 
+
         /* ======================================================
            VISIBILITY
         ====================================================== */
 
         opacity,
 
-        /* ======================================================
-           CRITICAL ALIGNMENT
 
-           This MUST remain top left.
+        /* ======================================================
+           🔒 CRITICAL ALIGNMENT SETTING
         ====================================================== */
 
         transformOrigin:
@@ -1256,18 +1308,9 @@ function MechanicalPiece({
         backfaceVisibility:
           'visible',
 
+
         /* ======================================================
-           TRANSFORM
-
-           The initial state remains:
-
-             translate3d(0, 0, 0)
-             rotateX(0)
-             rotateY(0)
-             rotateZ(original)
-             scale(1)
-
-           Therefore alignment is preserved.
+           3D TRANSFORM
         ====================================================== */
 
         transform: `
@@ -1294,6 +1337,7 @@ function MechanicalPiece({
           )
         `,
 
+
         /* ======================================================
            MOTION BLUR
         ====================================================== */
@@ -1302,6 +1346,7 @@ function MechanicalPiece({
           blur > 0
             ? `blur(${blur}px)`
             : 'none',
+
 
         /* ======================================================
            DEPTH ORDER
@@ -1313,6 +1358,7 @@ function MechanicalPiece({
             depth / 100,
           ),
 
+
         /* ======================================================
            PERFORMANCE
         ====================================================== */
@@ -1323,7 +1369,6 @@ function MechanicalPiece({
     />
   )
 }
-
 /* ================================================================
    HERO STAT
 ================================================================ */
