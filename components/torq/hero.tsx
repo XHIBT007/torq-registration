@@ -21,11 +21,10 @@ export function Hero() {
 
   const sectionRef = useRef<HTMLElement>(null)
 
-  const [scrollProgress, setScrollProgress] =
-    useState(0)
+  const [scrollProgress, setScrollProgress] = useState(0)
 
   /* ============================================================
-     SCROLL
+     SCROLL ENGINE
      ============================================================ */
 
   useEffect(() => {
@@ -114,11 +113,13 @@ export function Hero() {
   const easeOut = (value: number) => {
     const t = clamp(value)
 
-    return 1 -
+    return (
+      1 -
       Math.pow(
         1 - t,
         3,
       )
+    )
   }
 
   const easeInOut = (value: number) => {
@@ -135,32 +136,38 @@ export function Hero() {
   }
 
   /* ============================================================
-     OPENING COPY
+     INTRO
      ============================================================ */
 
   const welcomeOpacity =
     1 -
     easeOut(
-      scrollProgress /
-        0.15,
+      scrollProgress / 0.15,
     )
 
   const scrollHintOpacity =
     1 -
     easeOut(
-      scrollProgress /
-        0.14,
+      scrollProgress / 0.14,
     )
 
   /* ============================================================
-     PHASE 1 — MECHANICAL RELEASE
+     LOGO PHASE 1
      ============================================================ */
 
   /*
-   * Nothing moves before this point.
+   * Very small mechanical release.
+
+   * At the beginning:
    *
-   * This gives the visitor a clean moment to
-   * see the complete TOR'Q logo.
+   * x = 0
+   * y = 0
+   * z = 0
+   * rotation = 0
+   * scale = 1
+   *
+   * Therefore the component artwork sits directly
+   * over the intact logo.
    */
 
   const separation =
@@ -171,46 +178,36 @@ export function Hero() {
     )
 
   /* ============================================================
-     PHASE 2 — LAUNCH
+     LOGO PHASE 2
      ============================================================ */
 
   const launch =
     easeIn(
       (scrollProgress -
-        0.24) /
-        0.36,
+        0.23) /
+        0.38,
     )
 
   /* ============================================================
-     PHASE 3 — FLIGHT
+     LOGO PHASE 3
      ============================================================ */
 
   /*
-   * Flight deliberately continues much farther
-   * than the viewport.
+   * Long continuous flight.
+   *
+   * The components travel far beyond the viewport.
    */
 
   const flight =
     easeIn(
       (scrollProgress -
-        0.32) /
-        0.68,
+        0.31) /
+        0.69,
     )
 
   /* ============================================================
      INTACT LOGO
      ============================================================ */
-
-  /*
-   * IMPORTANT:
-   *
-   * The intact logo remains at exactly scale 1
-   * while the components are still registering
-   * against it.
-   *
-   * We don't want the original image moving away
-   * from its own components.
-   */
 
   const intactOpacity =
     1 -
@@ -221,21 +218,22 @@ export function Hero() {
     )
 
   /* ============================================================
-     COMPONENT VISIBILITY
+     COMPONENT FADE
      ============================================================ */
 
   const componentEnter =
     easeOut(
       (scrollProgress -
-        0.13) /
+        0.12) /
         0.12,
     )
 
   /*
-   * Fade begins very late.
+   * IMPORTANT:
    *
-   * By this point the components are already
-   * well beyond the edges of the screen.
+   * The pieces don't fade during separation.
+   *
+   * Fade only happens near the END of flight.
    */
 
   const componentExit =
@@ -257,36 +255,21 @@ export function Hero() {
   const cameraImpact =
     easeOut(
       (scrollProgress -
-        0.43) /
+        0.42) /
         0.10,
     ) *
     (
       1 -
       easeOut(
         (scrollProgress -
-          0.54) /
+          0.55) /
           0.15,
       )
     )
 
   /* ============================================================
-     PIECES
+     COMPONENT MOTION
      ============================================================ */
-
-  /*
-   * CRITICAL DESIGN RULE:
-   *
-   * At separation = 0:
-   *
-   * x = 0
-   * y = 0
-   * z = 0
-   * rotation = 0
-   * scale = 1
-   *
-   * Therefore every component starts exactly
-   * where it has been placed over the intact logo.
-   */
 
   const pieces = {
 
@@ -296,39 +279,39 @@ export function Hero() {
 
     t: {
       x:
-        -16 * separation -
-        75 * launch -
-        115 * flight,
+        -15 * separation -
+        78 * launch -
+        125 * flight,
 
       y:
         -7 * separation -
         45 * launch -
-        105 * flight,
+        110 * flight,
 
       z:
         0 +
         650 * launch +
-        2450 * flight,
+        2500 * flight,
 
       rotateX:
-        -12 * separation -
-        28 * launch -
-        48 * flight,
+        -10 * separation -
+        30 * launch -
+        50 * flight,
 
       rotateY:
-        -10 * separation -
-        46 * launch -
-        72 * flight,
+        -9 * separation -
+        45 * launch -
+        75 * flight,
 
       rotateZ:
-        -8 * separation -
+        -7 * separation -
         55 * launch -
-        115 * flight,
+        120 * flight,
 
       scale:
         1 +
         0.10 * launch +
-        2.10 * flight,
+        2.15 * flight,
 
       blur:
         0 +
@@ -343,38 +326,38 @@ export function Hero() {
     turbine: {
       x:
         -5 * separation -
-        42 * launch -
-        105 * flight,
+        45 * launch -
+        110 * flight,
 
       y:
         10 * separation +
-        62 * launch +
-        155 * flight,
+        65 * launch +
+        160 * flight,
 
       z:
         0 +
         700 * launch +
-        2800 * flight,
+        2850 * flight,
 
       rotateX:
-        10 * separation +
-        42 * launch +
-        72 * flight,
+        9 * separation +
+        45 * launch +
+        75 * flight,
 
       rotateY:
-        -18 * separation -
-        65 * launch -
-        118 * flight,
+        -17 * separation -
+        68 * launch -
+        120 * flight,
 
       rotateZ:
-        -25 * separation -
-        115 * launch -
-        220 * flight,
+        -22 * separation -
+        120 * launch -
+        225 * flight,
 
       scale:
         1 +
         0.10 * launch +
-        2.55 * flight,
+        2.60 * flight,
 
       blur:
         0 +
@@ -389,33 +372,33 @@ export function Hero() {
     r: {
       x:
         7 * separation +
-        78 * launch +
-        120 * flight,
+        80 * launch +
+        125 * flight,
 
       y:
-        -11 * separation -
-        58 * launch -
-        120 * flight,
+        -10 * separation -
+        60 * launch -
+        125 * flight,
 
       z:
         0 +
         650 * launch +
-        2600 * flight,
+        2650 * flight,
 
       rotateX:
-        -10 * separation -
-        35 * launch -
-        60 * flight,
+        -9 * separation -
+        36 * launch -
+        62 * flight,
 
       rotateY:
-        16 * separation +
-        58 * launch +
-        105 * flight,
+        15 * separation +
+        60 * launch +
+        108 * flight,
 
       rotateZ:
-        10 * separation +
-        75 * launch +
-        130 * flight,
+        9 * separation +
+        78 * launch +
+        135 * flight,
 
       scale:
         1 +
@@ -435,33 +418,33 @@ export function Hero() {
     rLower: {
       x:
         -9 * separation -
-        85 * launch -
-        125 * flight,
+        88 * launch -
+        130 * flight,
 
       y:
         12 * separation +
-        90 * launch +
-        150 * flight,
+        92 * launch +
+        155 * flight,
 
       z:
         0 +
         600 * launch +
-        2350 * flight,
+        2400 * flight,
 
       rotateX:
         12 * separation +
-        46 * launch +
-        78 * flight,
+        48 * launch +
+        80 * flight,
 
       rotateY:
-        -12 * separation -
-        48 * launch -
-        82 * flight,
+        -11 * separation -
+        50 * launch -
+        85 * flight,
 
       rotateZ:
         16 * separation +
-        105 * launch +
-        165 * flight,
+        108 * launch +
+        170 * flight,
 
       scale:
         1 +
@@ -481,38 +464,38 @@ export function Hero() {
     piston: {
       x:
         14 * separation +
-        110 * launch +
-        160 * flight,
+        115 * launch +
+        165 * flight,
 
       y:
         -18 * separation -
-        105 * launch -
-        165 * flight,
+        108 * launch -
+        170 * flight,
 
       z:
         0 +
         900 * launch +
-        3500 * flight,
+        3600 * flight,
 
       rotateX:
         20 * separation +
         70 * launch +
-        115 * flight,
+        120 * flight,
 
       rotateY:
         28 * separation +
-        92 * launch +
-        165 * flight,
+        95 * launch +
+        170 * flight,
 
       rotateZ:
         35 * separation +
-        145 * launch +
-        235 * flight,
+        150 * launch +
+        240 * flight,
 
       scale:
         1 +
         0.12 * launch +
-        3.40 * flight,
+        3.45 * flight,
 
       blur:
         0 +
@@ -527,38 +510,38 @@ export function Hero() {
     q: {
       x:
         12 * separation +
-        90 * launch +
-        135 * flight,
+        95 * launch +
+        140 * flight,
 
       y:
         7 * separation +
-        65 * launch +
-        115 * flight,
+        68 * launch +
+        120 * flight,
 
       z:
         0 +
         750 * launch +
-        3050 * flight,
+        3100 * flight,
 
       rotateX:
         -10 * separation -
-        35 * launch -
-        65 * flight,
+        36 * launch -
+        66 * flight,
 
       rotateY:
         18 * separation +
-        68 * launch +
-        112 * flight,
+        70 * launch +
+        115 * flight,
 
       rotateZ:
         -16 * separation -
-        90 * launch -
-        155 * flight,
+        92 * launch -
+        160 * flight,
 
       scale:
         1 +
         0.10 * launch +
-        2.80 * flight,
+        2.85 * flight,
 
       blur:
         0 +
@@ -573,38 +556,38 @@ export function Hero() {
     qBase: {
       x:
         20 * separation +
-        125 * launch +
-        175 * flight,
+        130 * launch +
+        180 * flight,
 
       y:
         18 * separation +
-        95 * launch +
-        145 * flight,
+        98 * launch +
+        150 * flight,
 
       z:
         0 +
         850 * launch +
-        3300 * flight,
+        3400 * flight,
 
       rotateX:
         22 * separation +
-        65 * launch +
-        108 * flight,
+        68 * launch +
+        112 * flight,
 
       rotateY:
         -18 * separation -
-        58 * launch -
-        95 * flight,
+        60 * launch -
+        100 * flight,
 
       rotateZ:
         28 * separation +
-        125 * launch +
-        200 * flight,
+        130 * launch +
+        205 * flight,
 
       scale:
         1 +
         0.12 * launch +
-        3.05 * flight,
+        3.10 * flight,
 
       blur:
         0 +
@@ -645,6 +628,10 @@ export function Hero() {
         bg-black
       "
     >
+
+      {/* ========================================================
+          STICKY CINEMATIC STAGE
+          ======================================================== */}
 
       <div
         className="
@@ -950,7 +937,7 @@ export function Hero() {
         </div>
 
         {/* ======================================================
-            TOR'Q LOGO INTRO
+            TOR'Q LOGO
             ====================================================== */}
 
         <div
@@ -1010,8 +997,10 @@ export function Hero() {
             {/* ==================================================
                 MASTER LOGO STAGE
 
-                EVERYTHING inside this stage uses the exact
-                same coordinate system.
+                THIS IS THE REFERENCE FRAME.
+
+                The intact logo and every component are
+                positioned within the same exact stage.
                 ================================================== */}
 
             <div
@@ -1032,8 +1021,6 @@ export function Hero() {
 
               {/* =================================================
                   INTACT LOGO
-
-                  Same exact stage.
                   ================================================= */}
 
               <img
@@ -1063,130 +1050,147 @@ export function Hero() {
               />
 
               {/* =================================================
-                  T
+                  COMPONENT LAYER
 
-                  INITIAL:
-                  x = 0
-                  y = 0
-                  z = 0
-                  rotation = 0
-                  scale = 1
+                  The 1.12 scale compensates for transparent
+                  padding inside the individual component PNGs.
                   ================================================= */}
 
-              <MechanicalPiece
-                src="/images/torq-components/t_section.png"
+              <div
                 className="
-                  left-[2%]
-                  top-[2%]
-                  w-[20%]
+                  absolute
+                  inset-0
                 "
-                opacity={
-                  componentOpacity
-                }
-                {...pieces.t}
-              />
+                style={{
+                  opacity:
+                    componentOpacity,
 
-              {/* =================================================
-                  TURBINE
-                  ================================================= */}
+                  transform:
+                    `
+                      translate3d(
+                        0,
+                        0,
+                        ${cameraImpact * -45}px
+                      )
+                      scale(
+                        ${
+                          1 +
+                          cameraImpact *
+                            0.025
+                        }
+                      )
+                    `,
 
-              <MechanicalPiece
-                src="/images/torq-components/turbine.png"
-                className="
-                  left-[19%]
-                  top-[10%]
-                  w-[20%]
-                "
-                opacity={
-                  componentOpacity
-                }
-                {...pieces.turbine}
-              />
+                  transformOrigin:
+                    'center center',
 
-              {/* =================================================
-                  R
-                  ================================================= */}
+                  transformStyle:
+                    'preserve-3d',
 
-              <MechanicalPiece
-                src="/images/torq-components/r_section.png"
-                className="
-                  left-[43%]
-                  top-[10%]
-                  w-[15%]
-                "
-                opacity={
-                  componentOpacity
-                }
-                {...pieces.r}
-              />
+                  willChange:
+                    'transform, opacity',
+                }}
+              >
 
-              {/* =================================================
-                  LOWER R
-                  ================================================= */}
+                {/* =================================================
+                    T
+                    ================================================= */}
 
-              <MechanicalPiece
-                src="/images/torq-components/r_lower.png"
-                className="
-                  left-[40%]
-                  top-[39%]
-                  w-[19%]
-                "
-                opacity={
-                  componentOpacity
-                }
-                {...pieces.rLower}
-              />
+                <MechanicalPiece
+                  src="/images/torq-components/t_section.png"
+                  className="
+                    left-[0%]
+                    top-[0%]
+                    w-[30%]
+                  "
+                  {...pieces.t}
+                />
 
-              {/* =================================================
-                  PISTON
-                  ================================================= */}
+                {/* =================================================
+                    TURBINE
+                    ================================================= */}
 
-              <MechanicalPiece
-                src="/images/torq-components/piston.png"
-                className="
-                  left-[57%]
-                  top-[-4%]
-                  w-[14%]
-                "
-                opacity={
-                  componentOpacity
-                }
-                {...pieces.piston}
-              />
+                <MechanicalPiece
+                  src="/images/torq-components/turbine.png"
+                  className="
+                    left-[16%]
+                    top-[3%]
+                    w-[31%]
+                  "
+                  {...pieces.turbine}
+                />
 
-              {/* =================================================
-                  Q
-                  ================================================= */}
+                {/* =================================================
+                    R
+                    ================================================= */}
 
-              <MechanicalPiece
-                src="/images/torq-components/q_section.png"
-                className="
-                  left-[66%]
-                  top-[7%]
-                  w-[23%]
-                "
-                opacity={
-                  componentOpacity
-                }
-                {...pieces.q}
-              />
+                <MechanicalPiece
+                  src="/images/torq-components/r_section.png"
+                  className="
+                    left-[38%]
+                    top-[1%]
+                    w-[25%]
+                  "
+                  {...pieces.r}
+                />
 
-              {/* =================================================
-                  Q BASE
-                  ================================================= */}
+                {/* =================================================
+                    LOWER R
+                    ================================================= */}
 
-              <MechanicalPiece
-                src="/images/torq-components/q_base.png"
-                className="
-                  left-[69%]
-                  top-[55%]
-                  w-[15%]
-                "
-                opacity={
-                  componentOpacity
-                }
-                {...pieces.qBase}
-              />
+                <MechanicalPiece
+                  src="/images/torq-components/r_lower.png"
+                  className="
+                    left-[37%]
+                    top-[35%]
+                    w-[29%]
+                  "
+                  {...pieces.rLower}
+                />
+
+                {/* =================================================
+                    PISTON
+                    ================================================= */}
+
+                <MechanicalPiece
+                  src="/images/torq-components/piston.png"
+                  className="
+                    left-[53%]
+                    top-[-10%]
+                    w-[21%]
+                  "
+                  {...pieces.piston}
+                />
+
+                {/* =================================================
+                    Q
+                    ================================================= */}
+
+                <MechanicalPiece
+                  src="/images/torq-components/q_section.png"
+                  className="
+                    left-[61%]
+                    top-[0%]
+                    w-[33%]
+                  "
+                  {...pieces.q}
+                />
+
+                {/* =================================================
+                    Q BASE
+                    ================================================= */}
+
+                <MechanicalPiece
+                  src="/images/torq-components/q_base.png"
+                  className="
+                    left-[67%]
+                    top-[52%]
+                    w-[24%]
+                  "
+                  {...pieces.qBase}
+                />
+
+              </div>
 
             </div>
 
@@ -1269,27 +1273,11 @@ export function Hero() {
 
 /* ================================================================
    MECHANICAL PIECE
-
-   IMPORTANT:
-
-   x / y are percentages of the MASTER LOGO STAGE.
-
-   At the beginning:
-
-   x = 0
-   y = 0
-   z = 0
-   rotation = 0
-   scale = 1
-
-   So the component is sitting exactly where it was
-   placed over the intact logo.
    ================================================================ */
 
 function MechanicalPiece({
   src,
   className,
-  opacity,
   x,
   y,
   z,
@@ -1301,7 +1289,6 @@ function MechanicalPiece({
 }: {
   src: string
   className: string
-  opacity: number
   x: number
   y: number
   z: number
@@ -1324,8 +1311,6 @@ function MechanicalPiece({
         ${className}
       `}
       style={{
-        opacity,
-
         transformStyle:
           'preserve-3d',
 
