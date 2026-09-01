@@ -368,9 +368,9 @@ export function Hero() {
    * the logo in place before releasing it.
    */
   const release =
-    easeOut(
-      (progress - 0.10) / 0.24,
-    )
+  easeInOut(
+    (progress - 0.10) / 0.24,
+  )
 
   /*
    * Actual explosion begins only after the release.
@@ -1099,159 +1099,208 @@ function MechanicalPiece({
   const e = clamp(explosion)
 
   /* ============================================================
-     RELEASE MOVEMENT
+     PHASE 1 — THE "HOLDING" / RELEASE
 
-     This is intentionally tiny.
+     The parts should appear to have weight.
 
-     The idea is:
+     They remain almost completely locked to the logo while
+     the logo begins fading.
 
-     logo = held
-     parts = grip
-     logo fades
-     parts lift
-     explosion begins
+     Then they gently lift away from it.
+
+     IMPORTANT:
+     This movement is intentionally small.
   ============================================================ */
 
-  const releaseLift =
-    easeOut(r) * 5
+  const releaseCurve =
+    easeInOut(r)
 
+  /*
+   * Individual lift amount.
+   *
+   * Components at different depths lift slightly differently,
+   * making the release feel organic rather than synchronized.
+   */
+  const liftAmount =
+    3.5 +
+    data.depth * 3.5
+
+  const releaseY =
+    -liftAmount *
+    releaseCurve
+
+  /*
+   * Tiny horizontal separation during release.
+   *
+   * Almost imperceptible.
+   */
+  const releaseX =
+    data.flightX *
+    0.012 *
+    releaseCurve
+
+  /*
+   * Tiny rotation while the pieces "let go".
+   */
+  const releaseRotateX =
+    data.rotateX *
+    0.025 *
+    releaseCurve
+
+  const releaseRotateY =
+    data.rotateY *
+    0.025 *
+    releaseCurve
+
+  /*
+   * Very small Z movement.
+
+   This is what gives the release a little depth instead
+   of making it look like a simple 2D translation.
+  */
+  const releaseZ =
+    28 *
+    data.depth *
+    releaseCurve
+
+  /*
+   * Barely noticeable scale change.
+   */
   const releaseScale =
     1 +
-    easeOut(r) * 0.018
-
-  const releaseZ =
-    easeOut(r) * 24
+    0.012 *
+    releaseCurve
 
   /* ============================================================
-     EXPLOSION CURVE
+     PHASE 2 — DISINTEGRATION
 
-     Slow at first, then increasingly powerful.
+     This begins AFTER the release.
+
+     The movement is intentionally delayed so the viewer sees
+     the "logo being released" moment first.
   ============================================================ */
 
   const flight =
     easeInOut(e)
 
+  /*
+   * Stronger acceleration later in the sequence.
+   */
   const aggressiveFlight =
     Math.pow(e, 1.55)
 
   /* ============================================================
      X / Y FLIGHT
-
-     The pieces leave the centre gradually rather than
-     immediately shooting away.
   ============================================================ */
 
   const x =
     data.x +
+    releaseX +
     data.flightX *
       aggressiveFlight
 
   const y =
     data.y +
+    releaseY +
     data.flightY *
       aggressiveFlight
 
   /* ============================================================
-     CAMERA DEPTH
-
-     This is the important part.
-
-     Previously the pieces mostly behaved like flat
-     2D images.
-
-     Now they move substantially through Z-space.
+     TRUE DEPTH
   ============================================================ */
 
   const z =
     releaseZ +
-    Math.pow(flight, 1.35) *
+    Math.pow(
+      flight,
+      1.35,
+    ) *
       (2600 * data.depth)
 
   /* ============================================================
      PERSPECTIVE SCALE
 
-     As the component comes toward the camera it grows.
-
-     This makes the motion feel like actual 3D space
-     instead of a flat CSS rotation.
+     Pieces get larger as they move toward the camera.
   ============================================================ */
 
   const perspectiveScale =
     releaseScale +
-    Math.pow(flight, 1.7) *
+    Math.pow(
+      flight,
+      1.7,
+    ) *
       2.8
 
   /* ============================================================
-     X ROTATION
-
-     Slower initially.
-
-     Accelerates as the component gains depth.
+     3D ROTATION
   ============================================================ */
 
   const rotateX =
+    releaseRotateX +
     data.rotateX *
-    Math.pow(flight, 0.9)
-
-  /* ============================================================
-     Y ROTATION
-
-     This creates visible side surfaces while spinning.
-  ============================================================ */
+      Math.pow(
+        flight,
+        0.9,
+      )
 
   const rotateY =
+    releaseRotateY +
     data.rotateY *
-    Math.pow(flight, 0.85)
-
-  /* ============================================================
-     Z ROTATION
-  ============================================================ */
+      Math.pow(
+        flight,
+        0.85,
+      )
 
   const rotateZ =
     data.rotation +
     data.rotateZ *
-      Math.pow(flight, 0.9)
+      Math.pow(
+        flight,
+        0.9,
+      )
 
   /* ============================================================
-     SMALL NATURAL OFFSET
+     SECONDARY MOTION
 
-     Adds a tiny secondary movement so the pieces
-     don't all feel like they are following one
-     mathematical path.
+     Small organic movement once the pieces actually fly.
+
+     This prevents everything from looking like it is following
+     eight identical CSS animations.
   ============================================================ */
 
   const secondaryX =
     Math.sin(
-      flight * Math.PI * 1.3,
+      flight *
+        Math.PI *
+        1.3,
     ) *
     12 *
     data.depth
 
   const secondaryY =
     Math.cos(
-      flight * Math.PI * 1.1,
+      flight *
+        Math.PI *
+        1.1,
     ) *
     10 *
     data.depth
 
   /* ============================================================
      MOTION BLUR
-
-     Very subtle.
-
-     We don't want the beautiful mechanical artwork
-     becoming blurry.
   ============================================================ */
 
   const blur =
-    Math.pow(flight, 2.4) * 1.8
+    Math.pow(
+      flight,
+      2.4,
+    ) *
+    1.8
 
   /* ============================================================
-     FADE
+     FADE OUT
 
-     The pieces stay visible while flying.
-
-     They only disappear toward the very end.
+     Pieces remain visible for most of their flight.
   ============================================================ */
 
   const opacity =
@@ -1276,14 +1325,14 @@ function MechanicalPiece({
         /* ======================================================
            REGISTERED POSITION
 
-           THESE VALUES ARE UNCHANGED.
+           The original alignment values remain untouched.
         ====================================================== */
 
         left:
           `${x + secondaryX}px`,
 
         top:
-          `${y + secondaryY - releaseLift}px`,
+          `${y + secondaryY}px`,
 
         width:
           `${data.width}px`,
@@ -1292,7 +1341,7 @@ function MechanicalPiece({
           'auto',
 
         /* ======================================================
-           VISIBILITY
+           OPACITY
         ====================================================== */
 
         opacity,
@@ -1317,17 +1366,25 @@ function MechanicalPiece({
             ${z}px
           )
 
-          rotateX(${rotateX}deg)
+          rotateX(
+            ${rotateX}deg
+          )
 
-          rotateY(${rotateY}deg)
+          rotateY(
+            ${rotateY}deg
+          )
 
-          rotateZ(${rotateZ}deg)
+          rotateZ(
+            ${rotateZ}deg
+          )
 
-          scale(${perspectiveScale})
+          scale(
+            ${perspectiveScale}
+          )
         `,
 
         /* ======================================================
-           FILTER
+           MOTION BLUR
         ====================================================== */
 
         filter:
@@ -1341,7 +1398,9 @@ function MechanicalPiece({
 
         zIndex:
           10 +
-          Math.round(z / 100),
+          Math.round(
+            z / 100,
+          ),
 
         /* ======================================================
            PERFORMANCE
@@ -1350,10 +1409,6 @@ function MechanicalPiece({
         willChange:
           'transform, opacity, filter',
 
-        /*
-         * This tells the browser to preserve the 3D
-         * rendering context.
-         */
         isolation:
           'isolate',
       }}
