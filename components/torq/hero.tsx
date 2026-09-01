@@ -1098,216 +1098,125 @@ function MechanicalPiece({
   const r = clamp(release)
   const e = clamp(explosion)
 
-  /* ============================================================
-     PHASE 1 — THE "HOLDING" / RELEASE
-
-     The parts should appear to have weight.
-
-     They remain almost completely locked to the logo while
-     the logo begins fading.
-
-     Then they gently lift away from it.
-
-     IMPORTANT:
-     This movement is intentionally small.
-  ============================================================ */
-
-  const releaseCurve =
-    easeInOut(r)
-
   /*
-   * Individual lift amount.
+   * ============================================================
+   * RELEASE
    *
-   * Components at different depths lift slightly differently,
-   * making the release feel organic rather than synchronized.
-   */
-  const liftAmount =
-    3.5 +
-    data.depth * 3.5
-
-  const releaseY =
-    -liftAmount *
-    releaseCurve
-
-  /*
-   * Tiny horizontal separation during release.
+   * VERY IMPORTANT:
    *
-   * Almost imperceptible.
+   * x and y NEVER change during the release phase.
+   *
+   * This preserves the exact registration alignment.
+   *
+   * The small lift happens inside transform instead.
+   * ============================================================
    */
-  const releaseX =
-    data.flightX *
-    0.012 *
-    releaseCurve
 
-  /*
-   * Tiny rotation while the pieces "let go".
-   */
+  const releaseAmount = easeInOut(r)
+
+  const lift =
+    -5 * releaseAmount
+
+  const releaseZ =
+    35 * releaseAmount
+
   const releaseRotateX =
-    data.rotateX *
-    0.025 *
-    releaseCurve
+    data.rotateX * 0.018 * releaseAmount
 
   const releaseRotateY =
-    data.rotateY *
-    0.025 *
-    releaseCurve
+    data.rotateY * 0.018 * releaseAmount
 
   /*
-   * Very small Z movement.
-
-   This is what gives the release a little depth instead
-   of making it look like a simple 2D translation.
-  */
-  const releaseZ =
-    28 *
-    data.depth *
-    releaseCurve
-
-  /*
-   * Barely noticeable scale change.
+   * ============================================================
+   * DISINTEGRATION
+   *
+   * Explosion starts only after the release.
+   * ============================================================
    */
-  const releaseScale =
-    1 +
-    0.012 *
-    releaseCurve
-
-  /* ============================================================
-     PHASE 2 — DISINTEGRATION
-
-     This begins AFTER the release.
-
-     The movement is intentionally delayed so the viewer sees
-     the "logo being released" moment first.
-  ============================================================ */
 
   const flight =
     easeInOut(e)
 
-  /*
-   * Stronger acceleration later in the sequence.
-   */
-  const aggressiveFlight =
-    Math.pow(e, 1.55)
+  const flightCurve =
+    Math.pow(e, 1.35)
 
-  /* ============================================================
-     X / Y FLIGHT
-  ============================================================ */
+  /*
+   * Keep the registered x/y coordinates untouched.
+   */
 
   const x =
     data.x +
-    releaseX +
-    data.flightX *
-      aggressiveFlight
+    data.flightX * flightCurve
 
   const y =
     data.y +
-    releaseY +
-    data.flightY *
-      aggressiveFlight
+    data.flightY * flightCurve
 
-  /* ============================================================
-     TRUE DEPTH
-  ============================================================ */
+  /*
+   * ============================================================
+   * DEPTH
+   * ============================================================
+   */
 
   const z =
     releaseZ +
-    Math.pow(
-      flight,
-      1.35,
-    ) *
-      (2600 * data.depth)
+    Math.pow(flight, 1.45) *
+      2800
 
-  /* ============================================================
-     PERSPECTIVE SCALE
+  /*
+   * ============================================================
+   * SCALE
+   *
+   * Subtle at first, stronger later.
+   * ============================================================
+   */
 
-     Pieces get larger as they move toward the camera.
-  ============================================================ */
+  const scale =
+    1 +
+    Math.pow(flight, 1.8) * 2.8
 
-  const perspectiveScale =
-    releaseScale +
-    Math.pow(
-      flight,
-      1.7,
-    ) *
-      2.8
-
-  /* ============================================================
-     3D ROTATION
-  ============================================================ */
+  /*
+   * ============================================================
+   * ROTATION
+   * ============================================================
+   */
 
   const rotateX =
     releaseRotateX +
     data.rotateX *
-      Math.pow(
-        flight,
-        0.9,
-      )
+      Math.pow(flight, 0.9)
 
   const rotateY =
     releaseRotateY +
     data.rotateY *
-      Math.pow(
-        flight,
-        0.85,
-      )
+      Math.pow(flight, 0.9)
 
   const rotateZ =
     data.rotation +
     data.rotateZ *
-      Math.pow(
-        flight,
-        0.9,
-      )
+      Math.pow(flight, 0.9)
 
-  /* ============================================================
-     SECONDARY MOTION
-
-     Small organic movement once the pieces actually fly.
-
-     This prevents everything from looking like it is following
-     eight identical CSS animations.
-  ============================================================ */
-
-  const secondaryX =
-    Math.sin(
-      flight *
-        Math.PI *
-        1.3,
-    ) *
-    12 *
-    data.depth
-
-  const secondaryY =
-    Math.cos(
-      flight *
-        Math.PI *
-        1.1,
-    ) *
-    10 *
-    data.depth
-
-  /* ============================================================
-     MOTION BLUR
-  ============================================================ */
+  /*
+   * ============================================================
+   * MOTION BLUR
+   * ============================================================
+   */
 
   const blur =
-    Math.pow(
-      flight,
-      2.4,
-    ) *
-    1.8
+    Math.pow(flight, 2.4) * 2
 
-  /* ============================================================
-     FADE OUT
-
-     Pieces remain visible for most of their flight.
-  ============================================================ */
+  /*
+   * ============================================================
+   * FADE
+   *
+   * Pieces stay visible almost all the way through the flight.
+   * ============================================================
+   */
 
   const opacity =
     1 -
     easeIn(
-      (flight - 0.82) /
-        0.18,
+      (flight - 0.84) / 0.16,
     )
 
   return (
@@ -1322,95 +1231,78 @@ function MechanicalPiece({
         object-contain
       "
       style={{
-        /* ======================================================
-           REGISTERED POSITION
+        /*
+         * ======================================================
+         * THIS IS CRITICAL
+         *
+         * These are the original registration coordinates.
+         * Do NOT add release offsets here.
+         * ======================================================
+         */
 
-           The original alignment values remain untouched.
-        ====================================================== */
+        left: `${x}px`,
+        top: `${y}px`,
 
-        left:
-          `${x + secondaryX}px`,
-
-        top:
-          `${y + secondaryY}px`,
-
-        width:
-          `${data.width}px`,
-
-        height:
-          'auto',
-
-        /* ======================================================
-           OPACITY
-        ====================================================== */
+        width: `${data.width}px`,
+        height: 'auto',
 
         opacity,
 
-        /* ======================================================
-           3D TRANSFORMATION
-        ====================================================== */
+        /*
+         * ======================================================
+         * CRITICAL ALIGNMENT SETTING
+         *
+         * The original working version used top-left.
+         * ======================================================
+         */
 
-        transformOrigin:
-          'center center',
+        transformOrigin: 'top left',
 
-        transformStyle:
-          'preserve-3d',
+        transformStyle: 'preserve-3d',
 
-        backfaceVisibility:
-          'visible',
+        backfaceVisibility: 'visible',
+
+        /*
+         * ======================================================
+         * TRANSFORM
+         *
+         * The release lift happens HERE.
+         *
+         * Therefore the registration x/y values remain intact.
+         * ======================================================
+         */
 
         transform: `
           translate3d(
             0,
-            0,
+            ${lift}px,
             ${z}px
           )
 
-          rotateX(
-            ${rotateX}deg
-          )
+          rotateX(${rotateX}deg)
 
-          rotateY(
-            ${rotateY}deg
-          )
+          rotateY(${rotateY}deg)
 
-          rotateZ(
-            ${rotateZ}deg
-          )
+          rotateZ(${rotateZ}deg)
 
-          scale(
-            ${perspectiveScale}
-          )
+          scale(${scale})
         `,
-
-        /* ======================================================
-           MOTION BLUR
-        ====================================================== */
 
         filter:
           blur > 0
             ? `blur(${blur}px)`
             : 'none',
 
-        /* ======================================================
-           DEPTH ORDER
-        ====================================================== */
+        /*
+         * Keep pieces above the logo.
+         */
 
         zIndex:
           10 +
-          Math.round(
-            z / 100,
-          ),
-
-        /* ======================================================
-           PERFORMANCE
-        ====================================================== */
+          Math.round(z / 100),
 
         willChange:
           'transform, opacity, filter',
-
-        isolation:
-          'isolate',
       }}
     />
   )
