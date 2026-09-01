@@ -12,23 +12,24 @@ import {
 } from 'react'
 
 import { Button } from '@/components/ui/button'
-import { EVENT } from '@/lib/torq-data'
 import { Countdown } from './countdown'
 import { useRegistration } from './registration'
+import { EVENT } from '@/lib/torq-data'
 
 /* ============================================================
-   TOR'Q LOGO COORDINATE SYSTEM
+   MASTER TOR'Q COORDINATE SYSTEM
 
-   IMPORTANT:
-   These coordinates MUST remain in the same 790 × 316
-   coordinate system used by the registration tool.
+   These dimensions match the registration canvas.
 
-   We scale the ENTIRE stage instead of converting individual
-   coordinates into percentages.
+   DO NOT change these dimensions.
 ============================================================ */
 
 const STAGE_WIDTH = 790
 const STAGE_HEIGHT = 316
+
+/* ============================================================
+   REGISTERED COMPONENT POSITIONS
+============================================================ */
 
 type ComponentData = {
   x: number
@@ -43,10 +44,6 @@ type ComponentData = {
   rotateY: number
   rotateZ: number
 }
-
-/* ============================================================
-   REGISTERED POSITIONS
-============================================================ */
 
 const COMPONENTS: Record<string, ComponentData> = {
   t: {
@@ -163,30 +160,29 @@ const COMPONENTS: Record<string, ComponentData> = {
 }
 
 /* ============================================================
-   EASING
+   HELPERS
 ============================================================ */
 
-function clamp(v: number) {
-  return Math.max(0, Math.min(1, v))
+function clamp(value: number) {
+  return Math.max(0, Math.min(1, value))
 }
 
-function easeIn(v: number) {
-  const t = clamp(v)
+function easeIn(value: number) {
+  const t = clamp(value)
   return t * t * t
 }
 
-function easeOut(v: number) {
-  const t = clamp(v)
+function easeOut(value: number) {
+  const t = clamp(value)
   return 1 - Math.pow(1 - t, 3)
 }
 
-function easeInOut(v: number) {
-  const t = clamp(v)
+function easeInOut(value: number) {
+  const t = clamp(value)
 
   return t < 0.5
     ? 4 * t * t * t
-    : 1 -
-        Math.pow(-2 * t + 2, 3) / 2
+    : 1 - Math.pow(-2 * t + 2, 3) / 2
 }
 
 /* ============================================================
@@ -199,11 +195,66 @@ export function Hero() {
   const sectionRef =
     useRef<HTMLElement>(null)
 
+  const stageWrapperRef =
+    useRef<HTMLDivElement>(null)
+
   const [progress, setProgress] =
     useState(0)
 
+  const [stageScale, setStageScale] =
+    useState(1)
+
   /* ============================================================
-     SCROLL
+     RESPONSIVE MASTER-STAGE SCALE
+
+     The actual artwork ALWAYS remains 790 × 316.
+
+     Only the entire stage is scaled.
+  ============================================================ */
+
+  useEffect(() => {
+    const wrapper =
+      stageWrapperRef.current
+
+    if (!wrapper) return
+
+    const updateScale = () => {
+      const availableWidth =
+        wrapper.getBoundingClientRect().width
+
+      const scale =
+        Math.min(
+          1,
+          availableWidth / STAGE_WIDTH,
+        )
+
+      setStageScale(scale)
+    }
+
+    updateScale()
+
+    const observer =
+      new ResizeObserver(updateScale)
+
+    observer.observe(wrapper)
+
+    window.addEventListener(
+      'resize',
+      updateScale,
+    )
+
+    return () => {
+      observer.disconnect()
+
+      window.removeEventListener(
+        'resize',
+        updateScale,
+      )
+    }
+  }, [])
+
+  /* ============================================================
+     SCROLL PROGRESS
   ============================================================ */
 
   useEffect(() => {
@@ -273,32 +324,30 @@ export function Hero() {
   }, [])
 
   /* ============================================================
-     TIMELINE
+     CINEMATIC TIMELINE
 
-     0.00 - 0.12
-     Logo + components visible.
+     0.00 → 0.12
+       Everything visible.
 
-     0.12 - 0.30
-     Master logo fades.
+     0.12 → 0.30
+       Original TOR'Q logo fades.
 
-     0.30 - 0.36
-     Components hold.
+     0.30 → 0.36
+       Components remain assembled.
 
-     0.36 - 1.00
-     Components explode.
+     0.36 → 1.00
+       Components explode toward camera.
   ============================================================ */
 
   const logoOpacity =
     1 -
     easeInOut(
-      (progress - 0.12) /
-        0.18,
+      (progress - 0.12) / 0.18,
     )
 
   const explosion =
     easeIn(
-      (progress - 0.36) /
-        0.64,
+      (progress - 0.36) / 0.64,
     )
 
   const welcomeOpacity =
@@ -315,14 +364,12 @@ export function Hero() {
 
   const backgroundOpacity =
     easeOut(
-      (progress - 0.42) /
-        0.30,
+      (progress - 0.42) / 0.30,
     )
 
   const contentOpacity =
     easeInOut(
-      (progress - 0.60) /
-        0.25,
+      (progress - 0.60) / 0.25,
     )
 
   return (
@@ -424,7 +471,6 @@ export function Hero() {
             sm:px-8
             lg:px-10
           ">
-
             <div className="
               w-full
               max-w-5xl
@@ -593,7 +639,7 @@ export function Hero() {
         </div>
 
         {/* ======================================================
-            TOR'Q CINEMATIC STAGE
+            TOR'Q CINEMATIC INTRO
         ====================================================== */}
 
         <div
@@ -619,6 +665,8 @@ export function Hero() {
             items-center
           ">
 
+            {/* WELCOME TO */}
+
             <p
               className="
                 mb-5
@@ -638,36 +686,32 @@ export function Hero() {
               Welcome to
             </p>
 
-            {/* ====================================================
-                CRITICAL FIX
+            {/* ==================================================
+                RESPONSIVE STAGE WRAPPER
 
-                This wrapper is ALWAYS exactly 790 × 316.
+                This controls the visible size.
 
-                We scale the WHOLE coordinate system.
-
-                This is what makes the hero use the same coordinates
-                as the registration page.
-            ==================================================== */}
+                The artwork inside NEVER changes dimensions.
+            ================================================== */}
 
             <div
+              ref={stageWrapperRef}
               className="
                 relative
-                max-w-[94vw]
+                w-[94vw]
+                max-w-[790px]
               "
               style={{
-                width:
-                  `min(94vw, ${STAGE_WIDTH}px)`,
-
                 aspectRatio:
                   `${STAGE_WIDTH}/${STAGE_HEIGHT}`,
               }}
             >
 
               {/* ==================================================
-                  ACTUAL 790 × 316 ARTBOARD
+                  MASTER 790 × 316 ARTBOARD
 
-                  Everything inside this element uses pixel
-                  coordinates from the registration tool.
+                  This is the exact same coordinate system used
+                  by the registration page.
               ================================================== */}
 
               <div
@@ -683,8 +727,10 @@ export function Hero() {
                   height:
                     `${STAGE_HEIGHT}px`,
 
-                  transform:
-                    'translate(-50%, -50%)',
+                  transform: `
+                    translate(-50%, -50%)
+                    scale(${stageScale})
+                  `,
 
                   transformOrigin:
                     'center center',
@@ -695,9 +741,9 @@ export function Hero() {
               >
 
                 {/* =================================================
-                    MASTER LOGO
+                    MASTER TOR'Q LOGO
 
-                    Behind everything.
+                    It sits BEHIND the mechanical components.
                 ================================================= */}
 
                 <img
@@ -710,9 +756,11 @@ export function Hero() {
                     top-0
                     h-full
                     w-full
-                    object-fill
                   "
                   style={{
+                    objectFit:
+                      'fill',
+
                     opacity:
                       logoOpacity,
 
@@ -730,9 +778,7 @@ export function Hero() {
                 />
 
                 {/* =================================================
-                    MECHANICAL COMPONENTS
-
-                    EXACT REGISTRATION COORDINATES.
+                    T
                 ================================================= */}
 
                 <MechanicalPiece
@@ -741,11 +787,19 @@ export function Hero() {
                   explosion={explosion}
                 />
 
+                {/* =================================================
+                    TURBINE
+                ================================================= */}
+
                 <MechanicalPiece
                   src="/images/torq-components/turbine.png"
                   data={COMPONENTS.turbine}
                   explosion={explosion}
                 />
+
+                {/* =================================================
+                    26
+                ================================================= */}
 
                 <MechanicalPiece
                   src="/images/torq-components/torq-26-transparent.png"
@@ -753,11 +807,19 @@ export function Hero() {
                   explosion={explosion}
                 />
 
+                {/* =================================================
+                    R
+                ================================================= */}
+
                 <MechanicalPiece
                   src="/images/torq-components/r_section.png"
                   data={COMPONENTS.r}
                   explosion={explosion}
                 />
+
+                {/* =================================================
+                    R LOWER
+                ================================================= */}
 
                 <MechanicalPiece
                   src="/images/torq-components/r_lower.png"
@@ -765,17 +827,29 @@ export function Hero() {
                   explosion={explosion}
                 />
 
+                {/* =================================================
+                    PISTON
+                ================================================= */}
+
                 <MechanicalPiece
                   src="/images/torq-components/piston.png"
                   data={COMPONENTS.piston}
                   explosion={explosion}
                 />
 
+                {/* =================================================
+                    Q
+                ================================================= */}
+
                 <MechanicalPiece
                   src="/images/torq-components/q_section.png"
                   data={COMPONENTS.q}
                   explosion={explosion}
                 />
+
+                {/* =================================================
+                    Q BASE
+                ================================================= */}
 
                 <MechanicalPiece
                   src="/images/torq-components/q_base.png"
@@ -786,9 +860,9 @@ export function Hero() {
               </div>
             </div>
 
-            {/* ====================================================
+            {/* ==================================================
                 SCROLL PROMPT
-            ==================================================== */}
+            ================================================== */}
 
             <div
               className="
@@ -828,7 +902,7 @@ export function Hero() {
                   bg-gradient-to-b
                   from-white/50
                   to-transparent
-                " />
+                />
 
                 <ChevronDown className="
                   mt-1
@@ -836,7 +910,7 @@ export function Hero() {
                   w-4
                   animate-bounce
                   text-white/50
-                " />
+                />
               </div>
 
             </div>
@@ -852,11 +926,10 @@ export function Hero() {
 /* ================================================================
    MECHANICAL PIECE
 
-   IMPORTANT:
+   x/y/width are the EXACT registration values.
 
-   x, y and width are now REAL PIXELS in the 790 × 316 artboard.
-
-   We do NOT convert them to percentages.
+   The component itself is NOT independently scaled for mobile.
+   The entire 790 × 316 stage is scaled instead.
 ================================================================ */
 
 function MechanicalPiece({
@@ -871,50 +944,52 @@ function MechanicalPiece({
   const e =
     clamp(explosion)
 
-  /*
-   * Keep the parts completely registered until the explosion.
-   */
+  /* ------------------------------------------------------------
+     Explosion progression
+  ------------------------------------------------------------ */
+
   const travel =
     e * e * e
 
-  /*
-   * Very subtle initial mechanical movement.
-   */
-  const release =
-    easeOut(
-      e / 0.16,
-    )
+  /* ------------------------------------------------------------
+     Position
+
+     Components begin EXACTLY where they were registered.
+  ------------------------------------------------------------ */
 
   const x =
     data.x +
-    data.flightX * travel +
-    data.flightX *
-      0.025 *
-      release
+    data.flightX * travel
 
   const y =
     data.y +
-    data.flightY * travel +
-    data.flightY *
-      0.025 *
-      release
+    data.flightY * travel
 
-  /*
-   * Camera depth.
-   */
+  /* ------------------------------------------------------------
+     Depth
+
+     This creates the "Transformers" effect:
+     pieces don't simply slide away —
+     they move toward/through the camera.
+  ------------------------------------------------------------ */
+
   const z =
-    e * e * 5600
+    Math.pow(e, 1.8) * 5200
 
-  /*
-   * Parts grow as they approach camera.
-   */
+  /* ------------------------------------------------------------
+     Scale
+
+     The components become larger as they approach the camera.
+  ------------------------------------------------------------ */
+
   const scale =
     1 +
-    Math.pow(e, 2) * 5
+    Math.pow(e, 2) * 4.5
 
-  /*
-   * 3D rotation.
-   */
+  /* ------------------------------------------------------------
+     3D rotation
+  ------------------------------------------------------------ */
+
   const rotateX =
     data.rotateX * e
 
@@ -925,20 +1000,32 @@ function MechanicalPiece({
     data.rotation +
     data.rotateZ * e
 
-  /*
-   * Motion blur.
-   */
-  const blur =
-    Math.pow(e, 2.2) * 5
+  /* ------------------------------------------------------------
+     Motion blur
 
-  /*
-   * Fade only after the component has already travelled.
-   */
+     Slight blur while accelerating away.
+  ------------------------------------------------------------ */
+
+  const blur =
+    Math.pow(e, 2.2) * 4
+
+  /* ------------------------------------------------------------
+     Fade
+
+     IMPORTANT:
+
+     The component stays visible for most of its journey.
+
+     It fades only AFTER it has already moved significantly
+     toward the edge/camera.
+
+     So it doesn't simply "vanish".
+  ------------------------------------------------------------ */
+
   const opacity =
     1 -
     easeIn(
-      (e - 0.68) /
-        0.32,
+      (e - 0.70) / 0.30,
     )
 
   return (
@@ -953,9 +1040,10 @@ function MechanicalPiece({
         object-contain
       "
       style={{
-        /*
-         * EXACT registration coordinates.
-         */
+        /* ================================================
+           EXACT REGISTRATION POSITION
+        ================================================= */
+
         left:
           `${x}px`,
 
@@ -968,7 +1056,15 @@ function MechanicalPiece({
         height:
           'auto',
 
+        /* ================================================
+           VISIBILITY
+        ================================================= */
+
         opacity,
+
+        /* ================================================
+           3D TRANSFORMATION
+        ================================================= */
 
         transformOrigin:
           'top left',
@@ -979,26 +1075,42 @@ function MechanicalPiece({
         backfaceVisibility:
           'visible',
 
-        filter:
-          blur > 0
-            ? `blur(${blur}px)`
-            : 'none',
-
         transform: `
           translate3d(
             0,
             0,
             ${z}px
           )
+
           rotateX(${rotateX}deg)
+
           rotateY(${rotateY}deg)
+
           rotateZ(${rotateZ}deg)
+
           scale(${scale})
         `,
+
+        /* ================================================
+           MOTION BLUR
+        ================================================= */
+
+        filter:
+          blur > 0
+            ? `blur(${blur}px)`
+            : 'none',
+
+        /* ================================================
+           DEPTH ORDER
+        ================================================= */
 
         zIndex:
           10 +
           Math.round(z / 100),
+
+        /* ================================================
+           PERFORMANCE
+        ================================================= */
 
         willChange:
           'transform, opacity, filter',
