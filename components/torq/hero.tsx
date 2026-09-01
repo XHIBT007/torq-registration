@@ -17,13 +17,23 @@ import { useRegistration } from './registration'
 import { EVENT } from '@/lib/torq-data'
 
 /* ============================================================
-   TOR'Q MASTER ARTBOARD
-
-   THESE VALUES ARE LOCKED.
+   MASTER TOR'Q ARTBOARD
+   LOCKED — DO NOT CHANGE
 ============================================================ */
 
 const STAGE_WIDTH = 790
 const STAGE_HEIGHT = 316
+
+/*
+ * THIS IS THE IMPORTANT NEW VALUE.
+ *
+ * The page now starts from the same subtle "released /
+ * smoothened" state that previously appeared after the
+ * first little bit of scrolling.
+ *
+ * Explosion still starts at ZERO.
+ */
+const INITIAL_RELEASE = 0.32
 
 /* ============================================================
    COMPONENT DATA
@@ -48,7 +58,7 @@ type ComponentData = {
 /* ============================================================
    LOCKED REGISTRATION POSITIONS
 
-   DO NOT CHANGE THESE VALUES.
+   DO NOT CHANGE THESE.
 ============================================================ */
 
 const COMPONENTS: Record<string, ComponentData> = {
@@ -158,7 +168,7 @@ const COMPONENTS: Record<string, ComponentData> = {
 }
 
 /* ============================================================
-   MATH HELPERS
+   MATH
 ============================================================ */
 
 function clamp(value: number) {
@@ -191,10 +201,10 @@ function easeInOut(value: number) {
 }
 
 /*
- * Cinematic acceleration.
+ * Flight acceleration.
  *
- * Starts immediately, but very subtly.
- * Then progressively gains momentum.
+ * This is intentionally preserved from the version
+ * whose disintegration you liked.
  */
 function flightCurve(value: number) {
   const t = clamp(value)
@@ -226,9 +236,9 @@ export function Hero() {
     useState(1)
 
   /* ==========================================================
-     RESPONSIVE ARTBOARD SCALE
+     RESPONSIVE STAGE SCALE
 
-     The artwork ALWAYS remains 790 × 316.
+     790 × 316 remains the master coordinate system.
   ========================================================== */
 
   useEffect(() => {
@@ -278,8 +288,7 @@ export function Hero() {
   /* ==========================================================
      SCROLL PROGRESS
 
-     Progress starts at EXACTLY zero.
-     There is no intentional delay.
+     Progress begins at ZERO.
   ========================================================== */
 
   useEffect(() => {
@@ -302,12 +311,11 @@ export function Hero() {
       const rect =
         section.getBoundingClientRect()
 
-      const next =
+      setProgress(
         clamp(
           -rect.top / distance,
-        )
-
-      setProgress(next)
+        ),
+      )
     }
 
     const handleScroll = () => {
@@ -354,29 +362,18 @@ export function Hero() {
   }, [])
 
   /* ==========================================================
-     MASTER ANIMATION TIMELINE
+     MASTER TIMELINE
 
-     0.00
-     ----------------------------------------------------------
-     Completely assembled TOR'Q.
+     THE KEY CHANGE:
 
-     The moment scrolling begins:
-     - release starts
-     - logo starts fading
+     The logo starts fully visible.
 
-     0.00 → 0.30
-     ----------------------------------------------------------
-     Logo disappears progressively.
+     The COMPONENTS start from INITIAL_RELEASE.
 
-     Components subtly detach.
+     Therefore the visitor sees the smoothened version
+     immediately without having to scroll first.
 
-     0.30 → 0.78
-     ----------------------------------------------------------
-     Components accelerate into 3D space.
-
-     0.70 → 0.92
-     ----------------------------------------------------------
-     Hero typography takes over.
+     As soon as scrolling starts, explosion begins.
   ========================================================== */
 
   const logoFade =
@@ -389,16 +386,31 @@ export function Hero() {
 
   /*
    * IMPORTANT:
-   * This begins at progress 0.
+   *
+   * We don't use release as the initial state anymore.
+   *
+   * The components are ALREADY in the beautiful
+   * smoothened position when the page opens.
+   *
+   * Scrolling then continues that movement.
    */
-  const release =
+  const releaseProgress =
     easeInOut(
       progress / 0.30,
     )
 
+  const release =
+    INITIAL_RELEASE +
+    (
+      1 - INITIAL_RELEASE
+    ) *
+      releaseProgress
+
   /*
-   * Flight begins immediately too,
-   * but remains tiny at the start.
+   * Explosion still starts from ZERO.
+   *
+   * This means there is no disintegration before
+   * scrolling.
    */
   const explosion =
     easeInOut(
@@ -406,7 +418,7 @@ export function Hero() {
     )
 
   /* ==========================================================
-     INTRO TEXT
+     INTRO
   ========================================================== */
 
   const welcomeOpacity =
@@ -433,9 +445,6 @@ export function Hero() {
 
   /* ==========================================================
      HERO CONTENT
-
-     Comes in after the mechanical pieces have
-     substantially cleared the centre.
   ========================================================== */
 
   const contentProgress =
@@ -601,10 +610,6 @@ export function Hero() {
                 max-w-5xl
               "
             >
-              {/* =================================================
-                  HEADLINE
-              ================================================= */}
-
               <h1
                 className="
                   max-w-5xl
@@ -637,10 +642,6 @@ export function Hero() {
                 </span>
               </h1>
 
-              {/* =================================================
-                  DESCRIPTION
-              ================================================= */}
-
               <p
                 className="
                   mt-5
@@ -663,10 +664,6 @@ export function Hero() {
                 together for one
                 unforgettable experience.
               </p>
-
-              {/* =================================================
-                  CTA
-              ================================================= */}
 
               <div
                 className="
@@ -801,7 +798,7 @@ export function Hero() {
         </div>
 
         {/* ====================================================
-            TOR'Q INTRO / MECHANICAL LOGO
+            TOR'Q INTRO
         ==================================================== */}
 
         <div
@@ -854,9 +851,7 @@ export function Hero() {
             </p>
 
             {/* =================================================
-                STAGE WRAPPER
-
-                790 × 316 LOCKED.
+                STAGE
             ================================================= */}
 
             <div
@@ -872,7 +867,7 @@ export function Hero() {
               }}
             >
               {/* ===============================================
-                  MASTER ARTBOARD
+                  790 × 316 MASTER STAGE
               =============================================== */}
 
               <div
@@ -902,6 +897,9 @@ export function Hero() {
               >
                 {/* =============================================
                     INTACT LOGO
+
+                    IMPORTANT:
+                    It remains fully visible at page load.
                 ============================================= */}
 
                 <img
@@ -1103,19 +1101,13 @@ export function Hero() {
 /* ================================================================
    MECHANICAL PIECE
 
-   THIS IS WHERE THE NEW 3D MOTION LIVES.
+   The registered geometry remains untouched.
 
-   IMPORTANT:
-   x / y / width / starting rotation remain untouched.
+   The initial frame is now intentionally "smoothened"
+   through INITIAL_RELEASE.
 
-   At progress = 0:
-
-   x = registered x
-   y = registered y
-   scale = 1
-   rotation = registered rotation
-   Z = 0
-   ================================================================ */
+   Explosion remains independent and starts at ZERO.
+================================================================ */
 
 function MechanicalPiece({
   src,
@@ -1132,12 +1124,10 @@ function MechanicalPiece({
   const e = clamp(explosion)
 
   /* ============================================================
-     INITIAL RELEASE
+     RELEASE
 
-     Starts IMMEDIATELY when scrolling begins.
-
-     Extremely small so the original alignment remains
-     visually perfect.
+     Because INITIAL_RELEASE is already active at page load,
+     the user sees the smoothened version immediately.
   ============================================================ */
 
   const releaseAmount =
@@ -1162,7 +1152,7 @@ function MechanicalPiece({
     releaseAmount
 
   /* ============================================================
-     FLIGHT CURVE
+     EXPLOSION
   ============================================================ */
 
   const flight =
@@ -1171,7 +1161,7 @@ function MechanicalPiece({
   /* ============================================================
      POSITION
 
-     Base coordinates remain exactly registered.
+     Registered x/y remain the foundation.
   ============================================================ */
 
   const x =
@@ -1185,13 +1175,7 @@ function MechanicalPiece({
     flight
 
   /* ============================================================
-     Z DEPTH
-
-     This is deliberately MUCH smaller than the previous
-     implementation.
-
-     We want depth to be visible without turning the
-     component into a disappearing sliver.
+     DEPTH
   ============================================================ */
 
   const depth =
@@ -1206,12 +1190,7 @@ function MechanicalPiece({
       )
 
   /* ============================================================
-     PERSPECTIVE SCALE
-
-     The piece grows slightly as it moves through the
-     camera space.
-
-     This makes it feel physical instead of flat.
+     SCALE
   ============================================================ */
 
   const scale =
@@ -1228,10 +1207,8 @@ function MechanicalPiece({
   /* ============================================================
      ROTATION
 
-     The original rotation values are used as directional
-     data, but NOT at 100%.
-
-     This is what prevents the PNGs from becoming edge-on.
+     Preserved from the version whose disintegration
+     you liked.
   ============================================================ */
 
   const rotationProgress =
@@ -1260,8 +1237,6 @@ function MechanicalPiece({
 
   /* ============================================================
      SECONDARY TUMBLE
-
-     Every component gets a slightly different rhythm.
   ============================================================ */
 
   const phase =
@@ -1302,8 +1277,6 @@ function MechanicalPiece({
 
   /* ============================================================
      FADE
-
-     Stay visible for most of the journey.
   ============================================================ */
 
   const fadeProgress =
@@ -1317,7 +1290,7 @@ function MechanicalPiece({
     )
 
   /* ============================================================
-     VERY SUBTLE MOTION BLUR
+     MOTION BLUR
   ============================================================ */
 
   const blur =
@@ -1328,7 +1301,7 @@ function MechanicalPiece({
     1.1
 
   /* ============================================================
-     DEPTH SHADOW
+     SHADOW
   ============================================================ */
 
   const shadowOpacity =
@@ -1360,7 +1333,7 @@ function MechanicalPiece({
       "
       style={{
         /* ======================================================
-           LOCKED POSITION SYSTEM
+           LOCKED GEOMETRY
         ====================================================== */
 
         left:
@@ -1378,11 +1351,9 @@ function MechanicalPiece({
         opacity,
 
         /* ======================================================
-           CRITICAL:
+           CRITICAL ALIGNMENT VALUE
 
-           THIS MUST STAY TOP LEFT.
-
-           Changing this will break the alignment.
+           DO NOT CHANGE.
         ====================================================== */
 
         transformOrigin:
@@ -1395,7 +1366,7 @@ function MechanicalPiece({
           'visible',
 
         /* ======================================================
-           3D TRANSFORM
+           TRANSFORM
         ====================================================== */
 
         transform: `
@@ -1422,10 +1393,6 @@ function MechanicalPiece({
           )
         `,
 
-        /* ======================================================
-           SUBTLE DEPTH EFFECT
-        ====================================================== */
-
         filter: `
           blur(${blur}px)
           drop-shadow(
@@ -1440,12 +1407,6 @@ function MechanicalPiece({
             )
           )
         `,
-
-        /* ======================================================
-           DEPTH ORDER
-
-           Higher Z pieces visually sit closer to camera.
-        ====================================================== */
 
         zIndex:
           10 +
