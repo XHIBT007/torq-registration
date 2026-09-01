@@ -49,18 +49,32 @@ type ComponentData = {
 }
 
 const COMPONENTS: Record<string, ComponentData> = {
+  number26: {
+    x: 247.95,
+    y: 108.56,
+    width: 38,
+    rotation: 0,
+
+    flightX: 80,
+    flightY: -900,
+
+    rotateX: 280,
+    rotateY: 350,
+    rotateZ: 360,
+  },
+
   t: {
     x: -2.01,
     y: 34.27,
     width: 177,
     rotation: -21,
 
-    flightX: -760,
-    flightY: -420,
+    flightX: -900,
+    flightY: -350,
 
-    rotateX: 420,
-    rotateY: -300,
-    rotateZ: -520,
+    rotateX: 300,
+    rotateY: -220,
+    rotateZ: -480,
   },
 
   turbine: {
@@ -69,25 +83,11 @@ const COMPONENTS: Record<string, ComponentData> = {
     width: 188,
     rotation: -7,
 
-    flightX: -520,
-    flightY: 560,
+    flightX: -600,
+    flightY: 650,
 
-    rotateX: 380,
-    rotateY: -420,
-    rotateZ: 470,
-  },
-
-  number26: {
-    x: 247.95,
-    y: 108.56,
-    width: 38,
-    rotation: 0,
-
-    flightX: 50,
-    flightY: -720,
-
-    rotateX: 300,
-    rotateY: 360,
+    rotateX: 320,
+    rotateY: -260,
     rotateZ: 420,
   },
 
@@ -97,12 +97,12 @@ const COMPONENTS: Record<string, ComponentData> = {
     width: 153,
     rotation: -22,
 
-    flightX: 820,
-    flightY: -350,
+    flightX: 900,
+    flightY: -280,
 
-    rotateX: -420,
-    rotateY: 320,
-    rotateZ: 560,
+    rotateX: -320,
+    rotateY: 260,
+    rotateZ: 500,
   },
 
   rLower: {
@@ -111,12 +111,12 @@ const COMPONENTS: Record<string, ComponentData> = {
     width: 168,
     rotation: -21,
 
-    flightX: 700,
-    flightY: 600,
+    flightX: 750,
+    flightY: 700,
 
-    rotateX: 430,
-    rotateY: -360,
-    rotateZ: -560,
+    rotateX: 350,
+    rotateY: -300,
+    rotateZ: -520,
   },
 
   piston: {
@@ -125,12 +125,12 @@ const COMPONENTS: Record<string, ComponentData> = {
     width: 169,
     rotation: -14,
 
-    flightX: 560,
-    flightY: -760,
+    flightX: 600,
+    flightY: -900,
 
-    rotateX: -460,
-    rotateY: 360,
-    rotateZ: 540,
+    rotateX: -380,
+    rotateY: 300,
+    rotateZ: 520,
   },
 
   q: {
@@ -139,12 +139,12 @@ const COMPONENTS: Record<string, ComponentData> = {
     width: 224,
     rotation: -6,
 
-    flightX: 880,
+    flightX: 1000,
     flightY: 80,
 
-    rotateX: 360,
-    rotateY: 440,
-    rotateZ: -540,
+    rotateX: 300,
+    rotateY: 380,
+    rotateZ: -500,
   },
 
   qBase: {
@@ -153,12 +153,12 @@ const COMPONENTS: Record<string, ComponentData> = {
     width: 150,
     rotation: 0,
 
-    flightX: 760,
-    flightY: 650,
+    flightX: 900,
+    flightY: 750,
 
-    rotateX: -380,
-    rotateY: 330,
-    rotateZ: 480,
+    rotateX: -320,
+    rotateY: 280,
+    rotateZ: 460,
   },
 }
 
