@@ -19,19 +19,26 @@ import { EVENT } from '@/lib/torq-data'
 /* ============================================================
    MASTER TOR'Q COORDINATE SYSTEM
 
-   DO NOT CHANGE THESE.
-   These are the coordinates registered against the logo.
+   THESE VALUES ARE LOCKED.
+
+   The component registration page used a 790 × 316
+   coordinate system. The hero uses that exact same system.
+
+   DO NOT CHANGE THESE DIMENSIONS.
 ============================================================ */
 
 const STAGE_WIDTH = 790
 const STAGE_HEIGHT = 316
 
 /* ============================================================
-   REGISTERED COMPONENT DATA
+   REGISTERED COMPONENT POSITIONS
 
-   The x / y / width / rotation values are LOCKED.
+   These are the exact figures from the registration exercise.
 
-   flightX / flightY are only used AFTER the logo disappears.
+   x / y / width / rotation = ASSEMBLED POSITION
+
+   flightX / flightY / rotateX / rotateY / rotateZ
+   = POST-DISINTEGRATION FLIGHT
 ============================================================ */
 
 type ComponentData = {
@@ -210,10 +217,12 @@ export function Hero() {
     useState(1)
 
   /* ============================================================
-     RESPONSIVE STAGE SCALE
+     RESPONSIVE MASTER-STAGE SCALE
 
-     The artwork remains 790 × 316.
-     Mobile only scales the entire artboard.
+     The actual artwork always remains 790 × 316.
+
+     On smaller screens the entire artboard is scaled uniformly.
+     This prevents the registration coordinates from changing.
   ============================================================ */
 
   useEffect(() => {
@@ -259,7 +268,7 @@ export function Hero() {
 
   /* ============================================================
      SCROLL PROGRESS
-  ============================================================ */
+============================================================ */
 
   useEffect(() => {
     let raf = 0
@@ -331,51 +340,29 @@ export function Hero() {
      CINEMATIC TIMELINE
 
      0.00 → 0.12
-     Completely static.
+     Everything is completely assembled.
 
-     0.12 → 0.34
-     TOR'Q logo fades.
-     Components make tiny "release" movements.
+     0.12 → 0.30
+     TOR'Q logo fades away.
 
-     0.34 → 0.42
-     Logo is gone.
-     Components are now free.
+     0.30 → 0.36
+     Components remain assembled.
 
-     0.42 → 0.82
-     Strong 3D disintegration / flight.
+     0.36 → 1.00
+     Components disintegrate and fly away.
 
-     0.68 → 1.00
-     Main hero content comes in.
+     Main hero content comes in later.
   ============================================================ */
 
-  const logoFade =
-    easeInOut(
-      (progress - 0.12) / 0.22,
-    )
-
   const logoOpacity =
-    1 - logoFade
-
-  /*
-   * IMPORTANT:
-   *
-   * releaseProgress starts at exactly the same time
-   * as the logo begins fading.
-   *
-   * But the movement is extremely subtle.
-   */
-  const releaseProgress =
+    1 -
     easeInOut(
-      (progress - 0.12) / 0.24,
+      (progress - 0.12) / 0.18,
     )
 
-  /*
-   * Strong flight DOES NOT begin until the logo
-   * has essentially disappeared.
-   */
-  const flightProgress =
+  const explosion =
     easeIn(
-      (progress - 0.36) / 0.58,
+      (progress - 0.36) / 0.64,
     )
 
   const welcomeOpacity =
@@ -390,18 +377,14 @@ export function Hero() {
       progress / 0.14,
     )
 
-  /*
-   * Bring the main hero in after the mechanical
-   * sequence has opened the screen.
-   */
-  const contentOpacity =
-    easeInOut(
-      (progress - 0.68) / 0.22,
+  const backgroundOpacity =
+    easeOut(
+      (progress - 0.42) / 0.30,
     )
 
-  const backgroundOpacity =
+  const contentOpacity =
     easeInOut(
-      (progress - 0.52) / 0.30,
+      (progress - 0.60) / 0.25,
     )
 
   return (
@@ -410,7 +393,7 @@ export function Hero() {
       id="top"
       className="
         relative
-        h-[180vh]
+        h-[170vh]
         bg-black
       "
     >
@@ -486,9 +469,7 @@ export function Hero() {
         </div>
 
         {/* ======================================================
-            MAIN HERO CONTENT
-
-            This comes in AFTER the logo sequence.
+            NORMAL HERO CONTENT
         ====================================================== */}
 
         <div
@@ -715,8 +696,6 @@ export function Hero() {
           style={{
             perspective:
               '1800px',
-            perspectiveOrigin:
-              '50% 50%',
           }}
         >
           <div
@@ -752,11 +731,11 @@ export function Hero() {
             </p>
 
             {/* ==================================================
-                STAGE WRAPPER
+                RESPONSIVE STAGE WRAPPER
 
-                The wrapper is responsive.
+                The wrapper controls the responsive size.
 
-                The actual artboard remains exactly 790 × 316.
+                The artboard inside remains 790 × 316.
             ================================================== */}
 
             <div
@@ -773,11 +752,12 @@ export function Hero() {
             >
 
               {/* ==================================================
-                  MASTER ARTBOARD
+                  MASTER 790 × 316 ARTBOARD
 
-                  NOTHING IN HERE IS RESPONSIVE.
+                  DO NOT ALTER THIS STRUCTURE.
 
-                  This protects the registration coordinates.
+                  This is what keeps the registration coordinates
+                  aligned with the original logo.
               ================================================== */}
 
               <div
@@ -803,21 +783,13 @@ export function Hero() {
 
                   transformStyle:
                     'preserve-3d',
-
-                  perspective:
-                    '1800px',
-
-                  perspectiveOrigin:
-                    '50% 50%',
                 }}
               >
 
                 {/* =================================================
                     ORIGINAL TOR'Q LOGO
 
-                    ALWAYS BEHIND THE COMPONENTS.
-
-                    This is the visual anchor.
+                    BEHIND THE MECHANICAL COMPONENTS.
                 ================================================= */}
 
                 <img
@@ -841,7 +813,7 @@ export function Hero() {
                       logoOpacity,
 
                     transform:
-                      'translate3d(0, 0, 0)',
+                      'translateZ(0)',
 
                     transformOrigin:
                       'center center',
@@ -854,65 +826,83 @@ export function Hero() {
                 />
 
                 {/* =================================================
-                    COMPONENTS
-
-                    All registered coordinates remain untouched.
+                    T
                 ================================================= */}
 
                 <MechanicalPiece
                   src="/images/torq-components/t_section.png"
                   data={COMPONENTS.t}
-                  release={releaseProgress}
-                  flight={flightProgress}
+                  explosion={explosion}
                 />
+
+                {/* =================================================
+                    TURBINE
+                ================================================= */}
 
                 <MechanicalPiece
                   src="/images/torq-components/turbine.png"
                   data={COMPONENTS.turbine}
-                  release={releaseProgress}
-                  flight={flightProgress}
+                  explosion={explosion}
                 />
+
+                {/* =================================================
+                    26
+                ================================================= */}
 
                 <MechanicalPiece
                   src="/images/torq-components/torq-26-transparent.png"
                   data={COMPONENTS.number26}
-                  release={releaseProgress}
-                  flight={flightProgress}
+                  explosion={explosion}
                 />
+
+                {/* =================================================
+                    R
+                ================================================= */}
 
                 <MechanicalPiece
                   src="/images/torq-components/r_section.png"
                   data={COMPONENTS.r}
-                  release={releaseProgress}
-                  flight={flightProgress}
+                  explosion={explosion}
                 />
+
+                {/* =================================================
+                    R LOWER
+                ================================================= */}
 
                 <MechanicalPiece
                   src="/images/torq-components/r_lower.png"
                   data={COMPONENTS.rLower}
-                  release={releaseProgress}
-                  flight={flightProgress}
+                  explosion={explosion}
                 />
+
+                {/* =================================================
+                    PISTON
+                ================================================= */}
 
                 <MechanicalPiece
                   src="/images/torq-components/piston.png"
                   data={COMPONENTS.piston}
-                  release={releaseProgress}
-                  flight={flightProgress}
+                  explosion={explosion}
                 />
+
+                {/* =================================================
+                    Q
+                ================================================= */}
 
                 <MechanicalPiece
                   src="/images/torq-components/q_section.png"
                   data={COMPONENTS.q}
-                  release={releaseProgress}
-                  flight={flightProgress}
+                  explosion={explosion}
                 />
+
+                {/* =================================================
+                    Q BASE
+                ================================================= */}
 
                 <MechanicalPiece
                   src="/images/torq-components/q_base.png"
                   data={COMPONENTS.qBase}
-                  release={releaseProgress}
-                  flight={flightProgress}
+                  explosion={explosion}
                 />
 
               </div>
@@ -978,8 +968,10 @@ export function Hero() {
                 />
               </div>
             </div>
+
           </div>
         </div>
+
       </div>
     </section>
   )
@@ -990,164 +982,115 @@ export function Hero() {
 
    IMPORTANT:
 
-   release = subtle movement while logo disappears.
+   Until explosion begins, the component uses ONLY:
 
-   flight = dramatic 3D movement AFTER logo disappearance.
+     x
+     y
+     width
+     rotation
 
-   The registered x/y/width/rotation values NEVER change.
+   Therefore the assembled logo remains exactly where it was
+   registered.
+
+   Once explosion begins, the registered flight values take over.
 ================================================================ */
 
 function MechanicalPiece({
   src,
   data,
-  release,
-  flight,
+  explosion,
 }: {
   src: string
   data: ComponentData
-  release: number
-  flight: number
+  explosion: number
 }) {
-  const r =
-    clamp(release)
-
-  const f =
-    clamp(flight)
+  const e =
+    clamp(explosion)
 
   /* ============================================================
-     SUBTLE RELEASE
+     FLIGHT PROGRESSION
 
-     This is intentionally tiny.
-
-     It should feel as though the pieces were physically
-     holding the logo and are beginning to lift away from it.
+     Keep the first part of the explosion gentle.
   ============================================================ */
 
-  const releaseAmount =
-    Math.pow(r, 2.4)
-
-  const releaseX =
-    data.flightX *
-    0.025 *
-    releaseAmount
-
-  const releaseY =
-    data.flightY *
-    0.025 *
-    releaseAmount
-
-  const releaseZ =
-    70 *
-    releaseAmount
-
-  const releaseRotate =
-    data.rotateZ *
-    0.035 *
-    releaseAmount
+  const travel =
+    e * e * e
 
   /* ============================================================
-     3D FLIGHT
+     POSITION
 
-     The pieces don't simply slide.
+     At e = 0:
 
-     They move:
-     - sideways
-     - vertically
-     - toward the camera
-     - while rotating around X/Y/Z axes
+       x = registered x
+       y = registered y
+
+     Therefore the assembled logo is untouched.
   ============================================================ */
-
-  const flightAmount =
-    Math.pow(f, 1.35)
 
   const x =
     data.x +
-    releaseX +
-    data.flightX *
-    flightAmount
+    data.flightX * travel
 
   const y =
     data.y +
-    releaseY +
-    data.flightY *
-    flightAmount
+    data.flightY * travel
 
-  /*
-   * Positive Z brings the mechanical piece
-   * toward the camera.
-   */
+  /* ============================================================
+     DEPTH
+
+     The pieces move toward the camera as they disintegrate.
+  ============================================================ */
+
   const z =
-    1200 *
-    Math.pow(f, 1.65)
+    Math.pow(e, 1.8) * 5200
 
-  /*
-   * Controlled enlargement as the piece approaches.
-   *
-   * This is deliberately much smaller than the
-   * previous 4–5× scaling so the pieces don't
-   * immediately fill the screen.
-   */
+  /* ============================================================
+     SCALE
+
+     Only happens during flight.
+
+     At e = 0:
+
+       scale = 1
+
+     Therefore the assembled logo remains untouched.
+  ============================================================ */
+
   const scale =
     1 +
-    1.35 *
-    Math.pow(f, 1.7)
+    Math.pow(e, 2) * 4.5
 
   /* ============================================================
      3D ROTATION
   ============================================================ */
 
   const rotateX =
-    data.rotateX *
-    flightAmount
+    data.rotateX * e
 
   const rotateY =
-    data.rotateY *
-    flightAmount
+    data.rotateY * e
 
   const rotateZ =
     data.rotation +
-    releaseRotate +
-    data.rotateZ *
-    flightAmount
+    data.rotateZ * e
 
   /* ============================================================
      MOTION BLUR
-
-     Kept subtle so the metal remains sharp.
   ============================================================ */
 
   const blur =
-    Math.min(
-      3,
-      Math.pow(f, 2) * 3,
-    )
+    Math.pow(e, 2.2) * 4
 
   /* ============================================================
      FADE
 
-     Pieces remain visible for most of their flight.
-     They only begin disappearing near the end.
+     Pieces remain visible through most of the flight.
   ============================================================ */
-
-  const fade =
-    easeIn(
-      (f - 0.72) / 0.28,
-    )
 
   const opacity =
-    1 - fade
-
-  /* ============================================================
-     Z-INDEX
-
-     Flying pieces can come in front of one another,
-     creating a stronger 3D feeling.
-  ============================================================ */
-
-  const zIndex =
-    10 +
-    Math.round(
-      z / 30,
+    1 -
+    easeIn(
+      (e - 0.70) / 0.30,
     )
 
   return (
@@ -1164,7 +1107,7 @@ function MechanicalPiece({
       "
       style={{
         /* ======================================================
-           LOCKED REGISTRATION POSITION
+           REGISTERED POSITION
         ====================================================== */
 
         left:
@@ -1180,17 +1123,17 @@ function MechanicalPiece({
           'auto',
 
         /* ======================================================
-           OPACITY
+           VISIBILITY
         ====================================================== */
 
         opacity,
 
         /* ======================================================
-           TRUE 3D TRANSFORMATION
+           3D
         ====================================================== */
 
         transformOrigin:
-          'center center',
+          'top left',
 
         transformStyle:
           'preserve-3d',
@@ -1215,7 +1158,7 @@ function MechanicalPiece({
         `,
 
         /* ======================================================
-           MOTION BLUR
+           BLUR
         ====================================================== */
 
         filter:
@@ -1224,10 +1167,14 @@ function MechanicalPiece({
             : 'none',
 
         /* ======================================================
-           DEPTH
+           DEPTH ORDER
         ====================================================== */
 
-        zIndex,
+        zIndex:
+          10 +
+          Math.round(
+            z / 100,
+          ),
 
         /* ======================================================
            PERFORMANCE
