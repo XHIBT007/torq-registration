@@ -156,40 +156,35 @@ export function Hero() {
      ============================================================ */
 
   /*
-   * PHASE 1
-   *
-   * Logo remains assembled.
+   * The logo stays intact first.
    */
 
   const separation =
     easeInOut(
       (scrollProgress - 0.12) /
-        0.24,
+        0.23,
     )
 
   /*
-   * PHASE 2
-   *
-   * The components begin their actual launch.
+   * Launch starts before separation has completely
+   * finished so there is no dead zone.
    */
 
   const launch =
     easeIn(
-      (scrollProgress - 0.25) /
+      (scrollProgress - 0.22) /
         0.48,
     )
 
   /*
-   * PHASE 3
-   *
-   * Components are travelling through
-   * the camera and out of frame.
+   * Flight continues almost all the way through
+   * the opening sequence.
    */
 
   const flight =
-    easeOut(
-      (scrollProgress - 0.34) /
-        0.66,
+    easeIn(
+      (scrollProgress - 0.28) /
+        0.72,
     )
 
   /* ============================================================
@@ -199,8 +194,8 @@ export function Hero() {
   const intactOpacity =
     1 -
     easeInOut(
-      (scrollProgress - 0.13) /
-        0.16,
+      (scrollProgress - 0.12) /
+        0.17,
     )
 
   const intactScale =
@@ -215,343 +210,398 @@ export function Hero() {
      COMPONENT VISIBILITY
      ============================================================ */
 
-  /*
-   * The pieces appear as the logo breaks apart.
-   *
-   * They don't fade away simply because the
-   * animation is progressing.
-   */
-
   const piecesEnter =
     easeOut(
-      (scrollProgress - 0.11) /
-        0.14,
+      (scrollProgress - 0.10) /
+        0.13,
     )
 
   /*
-   * Fade happens only during the final
-   * portion of their flight.
+   * IMPORTANT:
+   *
+   * The components remain visible for almost the
+   * entire flight.
+   *
+   * They only begin fading when they're already
+   * travelling far beyond the screen.
    */
 
-  const piecesExit =
+  const piecesFade =
     1 -
     easeInOut(
-      (flight - 0.76) /
-        0.24,
+      (flight - 0.80) /
+        0.20,
     )
 
   const piecesOpacity =
     piecesEnter *
-    piecesExit
+    piecesFade
 
   /* ============================================================
      ACCELERATION
      ============================================================ */
 
   /*
-   * This creates the feeling that the parts
-   * are initially heavy, then suddenly released.
+   * Slow mechanical separation.
+   * Then aggressive launch.
    */
 
   const acceleration =
     easeIn(
-      (scrollProgress - 0.20) /
-        0.42,
+      (scrollProgress - 0.18) /
+        0.43,
     )
 
-  /*
-   * Camera impact.
-   *
-   * Very subtle.
-   */
+  /* ============================================================
+     CAMERA IMPACT
+     ============================================================ */
 
   const cameraImpact =
     easeOut(
-      (scrollProgress - 0.48) /
-        0.18,
+      (scrollProgress - 0.43) /
+        0.12,
     ) *
-    (1 -
+    (
+      1 -
       easeOut(
-        (scrollProgress - 0.66) /
-          0.20,
-      ))
+        (scrollProgress - 0.55) /
+          0.16,
+      )
+    )
 
   /* ============================================================
-     PIECE MOTION
+     COMPONENT MOTION
      ============================================================ */
 
   const pieces = {
-    /* ----------------------------------------------------------
-       T SECTION
-       ---------------------------------------------------------- */
+
+    /* ==========================================================
+       T
+       ========================================================== */
 
     t: {
       x:
         -8 * separation -
-        70 * acceleration,
+        92 * launch -
+        110 * flight,
 
       y:
         -4 * separation -
-        52 * acceleration,
+        50 * launch -
+        100 * flight,
 
       z:
         80 * separation +
-        1850 * acceleration,
+        600 * launch +
+        2300 * flight,
 
       rotateX:
         -5 * separation -
-        35 * acceleration,
+        30 * launch -
+        45 * flight,
 
       rotateY:
         -10 * separation -
-        55 * acceleration,
+        50 * launch -
+        65 * flight,
 
       rotateZ:
         -6 * separation -
-        72 * acceleration,
+        65 * launch -
+        110 * flight,
 
       scale:
         1 +
         0.10 * separation +
-        1.65 * acceleration,
+        0.70 * launch +
+        2.10 * flight,
 
       blur:
-        1 +
-        5 * acceleration,
+        0 +
+        2 * launch +
+        8 * flight,
     },
 
-    /* ----------------------------------------------------------
+    /* ==========================================================
        TURBINE
-       ---------------------------------------------------------- */
+       ========================================================== */
 
     turbine: {
       x:
         -3 * separation -
-        42 * acceleration,
+        55 * launch -
+        100 * flight,
 
       y:
         7 * separation +
-        76 * acceleration,
+        70 * launch +
+        150 * flight,
 
       z:
         150 * separation +
-        2050 * acceleration,
+        700 * launch +
+        2700 * flight,
 
       rotateX:
         8 * separation +
-        48 * acceleration,
+        45 * launch +
+        70 * flight,
 
       rotateY:
         -16 * separation -
-        75 * acceleration,
+        65 * launch -
+        110 * flight,
 
       rotateZ:
         -18 * separation -
-        150 * acceleration,
+        120 * launch -
+        210 * flight,
 
       scale:
         1 +
         0.12 * separation +
-        1.95 * acceleration,
+        0.75 * launch +
+        2.50 * flight,
 
       blur:
-        1 +
-        7 * acceleration,
+        0 +
+        2 * launch +
+        10 * flight,
     },
 
-    /* ----------------------------------------------------------
+    /* ==========================================================
        R SECTION
-       ---------------------------------------------------------- */
+       ========================================================== */
 
     r: {
       x:
         5 * separation +
-        66 * acceleration,
+        82 * launch +
+        115 * flight,
 
       y:
         -7 * separation -
-        61 * acceleration,
+        65 * launch -
+        115 * flight,
 
       z:
         120 * separation +
-        1900 * acceleration,
+        650 * launch +
+        2500 * flight,
 
       rotateX:
         -8 * separation -
-        42 * acceleration,
+        38 * launch -
+        58 * flight,
 
       rotateY:
         14 * separation +
-        65 * acceleration,
+        60 * launch +
+        95 * flight,
 
       rotateZ:
         9 * separation +
-        85 * acceleration,
+        80 * launch +
+        125 * flight,
 
       scale:
         1 +
         0.12 * separation +
-        1.75 * acceleration,
+        0.70 * launch +
+        2.25 * flight,
 
       blur:
-        1 +
-        6 * acceleration,
+        0 +
+        2 * launch +
+        9 * flight,
     },
 
-    /* ----------------------------------------------------------
+    /* ==========================================================
        LOWER R
-       ---------------------------------------------------------- */
+       ========================================================== */
 
     rLower: {
       x:
         -6 * separation -
-        67 * acceleration,
+        90 * launch -
+        120 * flight,
 
       y:
         11 * separation +
-        86 * acceleration,
+        95 * launch +
+        140 * flight,
 
       z:
         100 * separation +
-        1700 * acceleration,
+        580 * launch +
+        2250 * flight,
 
       rotateX:
         12 * separation +
-        52 * acceleration,
+        45 * launch +
+        75 * flight,
 
       rotateY:
         -10 * separation -
-        50 * acceleration,
+        48 * launch -
+        80 * flight,
 
       rotateZ:
         15 * separation +
-        115 * acceleration,
+        105 * launch +
+        160 * flight,
 
       scale:
         1 +
         0.12 * separation +
-        1.60 * acceleration,
+        0.65 * launch +
+        2.05 * flight,
 
       blur:
-        1 +
-        6 * acceleration,
+        0 +
+        2 * launch +
+        9 * flight,
     },
 
-    /* ----------------------------------------------------------
+    /* ==========================================================
        PISTON
-       ---------------------------------------------------------- */
+       ========================================================== */
 
     piston: {
       x:
         11 * separation +
-        88 * acceleration,
+        115 * launch +
+        150 * flight,
 
       y:
         -17 * separation -
-        86 * acceleration,
+        100 * launch -
+        150 * flight,
 
       z:
         250 * separation +
-        2450 * acceleration,
+        850 * launch +
+        3300 * flight,
 
       rotateX:
         18 * separation +
-        75 * acceleration,
+        65 * launch +
+        105 * flight,
 
       rotateY:
         25 * separation +
-        105 * acceleration,
+        90 * launch +
+        150 * flight,
 
       rotateZ:
         32 * separation +
-        160 * acceleration,
+        145 * launch +
+        220 * flight,
 
       scale:
         1 +
         0.18 * separation +
-        2.55 * acceleration,
+        0.90 * launch +
+        3.20 * flight,
 
       blur:
-        1 +
-        9 * acceleration,
+        0 +
+        3 * launch +
+        13 * flight,
     },
 
-    /* ----------------------------------------------------------
+    /* ==========================================================
        Q SECTION
-       ---------------------------------------------------------- */
+       ========================================================== */
 
     q: {
       x:
         10 * separation +
-        75 * acceleration,
+        95 * launch +
+        130 * flight,
 
       y:
         4 * separation +
-        56 * acceleration,
+        65 * launch +
+        105 * flight,
 
       z:
         160 * separation +
-        2150 * acceleration,
+        750 * launch +
+        2900 * flight,
 
       rotateX:
         -9 * separation -
-        40 * acceleration,
+        35 * launch -
+        60 * flight,
 
       rotateY:
         16 * separation +
-        70 * acceleration,
+        65 * launch +
+        105 * flight,
 
       rotateZ:
         -14 * separation -
-        92 * acceleration,
+        85 * launch -
+        145 * flight,
 
       scale:
         1 +
         0.14 * separation +
-        2.00 * acceleration,
+        0.80 * launch +
+        2.65 * flight,
 
       blur:
-        1 +
-        7 * acceleration,
+        0 +
+        2 * launch +
+        11 * flight,
     },
 
-    /* ----------------------------------------------------------
+    /* ==========================================================
        Q BASE
-       ---------------------------------------------------------- */
+       ========================================================== */
 
     qBase: {
       x:
         17 * separation +
-        100 * acceleration,
+        125 * launch +
+        165 * flight,
 
       y:
         15 * separation +
-        80 * acceleration,
+        90 * launch +
+        135 * flight,
 
       z:
         210 * separation +
-        2300 * acceleration,
+        800 * launch +
+        3100 * flight,
 
       rotateX:
         20 * separation +
-        70 * acceleration,
+        60 * launch +
+        100 * flight,
 
       rotateY:
         -16 * separation -
-        62 * acceleration,
+        55 * launch -
+        90 * flight,
 
       rotateZ:
         24 * separation +
-        125 * acceleration,
+        120 * launch +
+        190 * flight,
 
       scale:
         1 +
         0.16 * separation +
-        2.20 * acceleration,
+        0.85 * launch +
+        2.90 * flight,
 
       blur:
-        1 +
-        8 * acceleration,
+        0 +
+        3 * launch +
+        12 * flight,
     },
   }
 
@@ -567,7 +617,7 @@ export function Hero() {
 
   const backgroundOpacity =
     easeOut(
-      (scrollProgress - 0.45) /
+      (scrollProgress - 0.43) /
         0.45,
     )
 
@@ -586,10 +636,6 @@ export function Hero() {
       "
     >
 
-      {/* ========================================================
-          STICKY STAGE
-          ======================================================== */}
-
       <div
         className="
           sticky
@@ -600,12 +646,12 @@ export function Hero() {
         "
         style={{
           perspective:
-            '1600px',
+            '1800px',
         }}
       >
 
         {/* ======================================================
-            EXISTING BACKGROUND
+            BACKGROUND
             ====================================================== */}
 
         <div
@@ -663,7 +709,7 @@ export function Hero() {
         </div>
 
         {/* ======================================================
-            EXISTING HERO CONTENT
+            HERO CONTENT
             ====================================================== */}
 
         <div
@@ -894,7 +940,7 @@ export function Hero() {
         </div>
 
         {/* ======================================================
-            LOGO ANIMATION
+            CINEMATIC TOR'Q LOGO
             ====================================================== */}
 
         <div
@@ -911,7 +957,7 @@ export function Hero() {
           "
           style={{
             perspective:
-              '1600px',
+              '1800px',
           }}
         >
 
@@ -929,7 +975,7 @@ export function Hero() {
           >
 
             {/* ==================================================
-                WELCOME TO
+                WELCOME
                 ================================================== */}
 
             <p
@@ -963,7 +1009,7 @@ export function Hero() {
               "
               style={{
                 perspective:
-                  '1600px',
+                  '1800px',
                 transformStyle:
                   'preserve-3d',
               }}
@@ -998,7 +1044,7 @@ export function Hero() {
               />
 
               {/* =================================================
-                  COMPONENT SYSTEM
+                  EXPLODING COMPONENTS
                   ================================================= */}
 
               <div
@@ -1038,7 +1084,7 @@ export function Hero() {
                           ${
                             1 +
                             cameraImpact *
-                              0.018
+                              0.025
                           }
                         )
                         translate3d(
@@ -1046,16 +1092,14 @@ export function Hero() {
                           0,
                           ${
                             cameraImpact *
-                            -35
+                            -45
                           }px
                         )
                       `,
                   }}
                 >
 
-                  {/* =================================================
-                      T
-                      ================================================= */}
+                  {/* T */}
 
                   <MechanicalPiece
                     src="/images/torq-components/t_section.png"
@@ -1067,9 +1111,7 @@ export function Hero() {
                     {...pieces.t}
                   />
 
-                  {/* =================================================
-                      TURBINE
-                      ================================================= */}
+                  {/* TURBINE */}
 
                   <MechanicalPiece
                     src="/images/torq-components/turbine.png"
@@ -1081,9 +1123,7 @@ export function Hero() {
                     {...pieces.turbine}
                   />
 
-                  {/* =================================================
-                      R
-                      ================================================= */}
+                  {/* R */}
 
                   <MechanicalPiece
                     src="/images/torq-components/r_section.png"
@@ -1095,9 +1135,7 @@ export function Hero() {
                     {...pieces.r}
                   />
 
-                  {/* =================================================
-                      LOWER R
-                      ================================================= */}
+                  {/* LOWER R */}
 
                   <MechanicalPiece
                     src="/images/torq-components/r_lower.png"
@@ -1109,9 +1147,7 @@ export function Hero() {
                     {...pieces.rLower}
                   />
 
-                  {/* =================================================
-                      PISTON
-                      ================================================= */}
+                  {/* PISTON */}
 
                   <MechanicalPiece
                     src="/images/torq-components/piston.png"
@@ -1123,9 +1159,7 @@ export function Hero() {
                     {...pieces.piston}
                   />
 
-                  {/* =================================================
-                      Q
-                      ================================================= */}
+                  {/* Q */}
 
                   <MechanicalPiece
                     src="/images/torq-components/q_section.png"
@@ -1137,9 +1171,7 @@ export function Hero() {
                     {...pieces.q}
                   />
 
-                  {/* =================================================
-                      Q BASE
-                      ================================================= */}
+                  {/* Q BASE */}
 
                   <MechanicalPiece
                     src="/images/torq-components/q_base.png"
@@ -1274,13 +1306,13 @@ function MechanicalPiece({
         ${className}
       `}
       style={{
-        opacity: 1,
-
         transformStyle:
           'preserve-3d',
 
         filter:
-          `blur(${blur}px)`,
+          blur > 0
+            ? `blur(${blur}px)`
+            : 'none',
 
         transform:
           `
