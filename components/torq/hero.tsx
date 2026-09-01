@@ -19,58 +19,43 @@ import { EVENT } from '@/lib/torq-data'
 
 /* ============================================================
    MASTER TOR'Q ARTBOARD
-
-   LOCKED.
-============================================================ */
+   ============================================================ */
 
 const STAGE_WIDTH = 790
 const STAGE_HEIGHT = 316
 
 /*
- * The beautiful smoothened state that appears immediately
- * when the page loads.
+ * LOCKED OPENING STATE.
  *
- * DO NOT REMOVE.
+ * The page begins with the beautiful smoothened TOR'Q
+ * that we approved.
  */
 const INITIAL_RELEASE = 0.32
 
 /* ============================================================
    COMPONENT DATA
-============================================================ */
+   ============================================================ */
 
 type ComponentData = {
-  /*
-   * LOCKED REGISTRATION VALUES
-   */
+  /* LOCKED REGISTRATION GEOMETRY */
   x: number
   y: number
   width: number
   rotation: number
 
-  /*
-   * LOCKED FLIGHT DIRECTIONS
-   */
+  /* LOCKED FLIGHT DIRECTIONS */
   flightX: number
   flightY: number
 
-  /*
-   * LOCKED ROTATION DIRECTION DATA
-   */
+  /* LOCKED ROTATIONAL CHARACTER */
   rotateX: number
   rotateY: number
   rotateZ: number
 
-  /*
-   * DEPTH CHARACTER
-   */
+  /* DEPTH CHARACTER */
   depth: number
 
-  /*
-   * NEW MECHANICAL CHOREOGRAPHY
-   *
-   * These only affect flight behavior.
-   * They do NOT affect registration alignment.
-   */
+  /* MECHANICAL CHARACTER */
   spinX: number
   spinY: number
   spinZ: number
@@ -81,9 +66,9 @@ type ComponentData = {
   phase: number
 
   /*
-   * 0 = normal
-   * 1 = turbine-style rotational emphasis
-   * 2 = piston-style mechanical stroke
+   * 0 = standard mechanical piece
+   * 1 = turbine
+   * 2 = piston
    */
   motionType: number
 }
@@ -91,17 +76,13 @@ type ComponentData = {
 /* ============================================================
    LOCKED COMPONENT POSITIONS
 
-   DO NOT CHANGE x / y / width / rotation.
-============================================================ */
+   DO NOT CHANGE.
+   ============================================================ */
 
 const COMPONENTS: Record<
   string,
   ComponentData
 > = {
-  /* ==========================================================
-     T
-  ========================================================== */
-
   t: {
     x: -2.01,
     y: 34.27,
@@ -129,10 +110,6 @@ const COMPONENTS: Record<
     motionType: 0,
   },
 
-  /* ==========================================================
-     TURBINE
-  ========================================================== */
-
   turbine: {
     x: 128.14,
     y: 39.31,
@@ -148,9 +125,6 @@ const COMPONENTS: Record<
 
     depth: 1.15,
 
-    /*
-     * Strong Z-axis rotation.
-     */
     spinX: 0.60,
     spinY: 0.85,
     spinZ: 1.55,
@@ -162,10 +136,6 @@ const COMPONENTS: Record<
 
     motionType: 1,
   },
-
-  /* ==========================================================
-     26
-  ========================================================== */
 
   number26: {
     x: 247.95,
@@ -182,9 +152,6 @@ const COMPONENTS: Record<
 
     depth: 0.9,
 
-    /*
-     * Keep the 26 relatively readable early in flight.
-     */
     spinX: 0.55,
     spinY: 0.70,
     spinZ: 0.80,
@@ -196,10 +163,6 @@ const COMPONENTS: Record<
 
     motionType: 0,
   },
-
-  /* ==========================================================
-     R
-  ========================================================== */
 
   r: {
     x: 266.87,
@@ -228,10 +191,6 @@ const COMPONENTS: Record<
     motionType: 0,
   },
 
-  /* ==========================================================
-     R LOWER
-  ========================================================== */
-
   rLower: {
     x: 313.28,
     y: 153.54,
@@ -259,10 +218,6 @@ const COMPONENTS: Record<
     motionType: 0,
   },
 
-  /* ==========================================================
-     PISTON
-  ========================================================== */
-
   piston: {
     x: 423.85,
     y: 10.75,
@@ -287,15 +242,8 @@ const COMPONENTS: Record<
 
     phase: 6.8,
 
-    /*
-     * Special piston motion.
-     */
     motionType: 2,
   },
-
-  /* ==========================================================
-     Q
-  ========================================================== */
 
   q: {
     x: 498.7,
@@ -323,10 +271,6 @@ const COMPONENTS: Record<
 
     motionType: 0,
   },
-
-  /* ==========================================================
-     Q BASE
-  ========================================================== */
 
   qBase: {
     x: 592.88,
@@ -358,7 +302,7 @@ const COMPONENTS: Record<
 
 /* ============================================================
    MATH
-============================================================ */
+   ============================================================ */
 
 function clamp(value: number) {
   return Math.max(
@@ -399,9 +343,8 @@ function easeInOut(value: number) {
 }
 
 /*
- * Main flight acceleration.
- *
- * PRESERVED.
+ * The flight curve from the approved
+ * disintegration version.
  */
 function flightCurve(
   value: number,
@@ -420,7 +363,7 @@ function flightCurve(
 
 /* ============================================================
    HERO
-============================================================ */
+   ============================================================ */
 
 export function Hero() {
   const { open } =
@@ -441,8 +384,8 @@ export function Hero() {
   /* ==========================================================
      RESPONSIVE STAGE SCALE
 
-     LOCKED 790 × 316 ARTBOARD.
-  ========================================================== */
+     790 × 316 remains the master coordinate system.
+     ========================================================== */
 
   useEffect(() => {
     const wrapper =
@@ -490,7 +433,7 @@ export function Hero() {
 
   /* ==========================================================
      SCROLL PROGRESS
-  ========================================================== */
+     ========================================================== */
 
   useEffect(() => {
     let raf = 0
@@ -565,12 +508,13 @@ export function Hero() {
 
   /* ==========================================================
      MASTER TIMELINE
+     ========================================================== */
 
-     SMOOTH TOR'Q IS THE OPENING STATE.
-
-     DISINTEGRATION STARTS IMMEDIATELY.
-  ========================================================== */
-
+  /*
+   * LOGO
+   *
+   * Fades from the first pixel of scrolling.
+   */
   const logoFade =
     easeInOut(
       progress / 0.30,
@@ -580,7 +524,9 @@ export function Hero() {
     1 - logoFade
 
   /*
-   * Initial smoothened state.
+   * SMOOTH INITIAL STATE
+   *
+   * The page starts here.
    */
   const releaseProgress =
     easeInOut(
@@ -596,9 +542,9 @@ export function Hero() {
       releaseProgress
 
   /*
-   * Flight remains independent.
+   * DISINTEGRATION
    *
-   * Starts at ZERO.
+   * Starts immediately.
    */
   const explosion =
     easeInOut(
@@ -606,8 +552,8 @@ export function Hero() {
     )
 
   /* ==========================================================
-     INTRO
-  ========================================================== */
+     INTRO TEXT
+     ========================================================== */
 
   const welcomeOpacity =
     1 -
@@ -622,37 +568,97 @@ export function Hero() {
     )
 
   /* ==========================================================
-     BACKGROUND
-  ========================================================== */
+     BACKGROUND REVEAL
+     ========================================================== */
 
   const backgroundOpacity =
     easeOut(
-      (progress - 0.60) /
-        0.20,
+      (progress - 0.57) /
+        0.22,
+    )
+
+  /* ==========================================================
+     CINEMATIC HEADLINE REVEAL
+     ========================================================== */
+
+  /*
+   * The headline starts appearing while the final
+   * mechanical pieces are STILL flying.
+   *
+   * This is intentional.
+   */
+  const headlineProgress =
+    easeInOut(
+      (progress - 0.58) /
+        0.25,
+    )
+
+  const headlineOpacity =
+    headlineProgress
+
+  /*
+   * Starts lower and settles into position.
+   */
+  const headlineY =
+    70 -
+    headlineProgress *
+      70
+
+  /*
+   * Slight cinematic scale-in.
+   */
+  const headlineScale =
+    0.94 +
+    headlineProgress *
+      0.06
+
+  /*
+   * Horizontal reveal.
+   */
+  const headlineX =
+    -24 +
+    headlineProgress *
+      24
+
+  /*
+   * The small kicker arrives slightly after
+   * the headline starts.
+   */
+  const kickerProgress =
+    easeOut(
+      (progress - 0.64) /
+        0.18,
+    )
+
+  /*
+   * Description / CTA arrive later.
+   */
+  const detailProgress =
+    easeInOut(
+      (progress - 0.73) /
+        0.18,
+    )
+
+  const detailOpacity =
+    detailProgress
+
+  const detailY =
+    22 -
+    detailProgress *
+      22
+
+  /*
+   * Stats and countdown arrive last.
+   */
+  const lowerProgress =
+    easeOut(
+      (progress - 0.79) /
+        0.16,
     )
 
   /* ==========================================================
      HERO CONTENT
-  ========================================================== */
-
-  const contentProgress =
-    easeInOut(
-      (progress - 0.70) /
-        0.22,
-    )
-
-  const contentOpacity =
-    contentProgress
-
-  const contentY =
-    30 -
-    contentProgress *
-      30
-
-  const contentScale =
-    0.965 +
-    contentProgress *
-      0.035
+     ========================================================== */
 
   return (
     <section
@@ -666,7 +672,7 @@ export function Hero() {
     >
       {/* ======================================================
           STICKY HERO
-      ====================================================== */}
+          ====================================================== */}
 
       <div
         className="
@@ -686,13 +692,14 @@ export function Hero() {
       >
         {/* ====================================================
             BACKGROUND
-        ==================================================== */}
+            ==================================================== */}
 
         <div
           className="
             pointer-events-none
             absolute
             inset-0
+            z-0
           "
           style={{
             opacity:
@@ -744,7 +751,14 @@ export function Hero() {
 
         {/* ====================================================
             HERO CONTENT
-        ==================================================== */}
+
+            Sits UNDER the flying components.
+
+            This is intentional.
+
+            The final pieces can physically pass across
+            the typography before disappearing.
+            ==================================================== */}
 
         <div
           className="
@@ -754,31 +768,6 @@ export function Hero() {
             flex
             items-center
           "
-          style={{
-            opacity:
-              contentOpacity,
-
-            transform: `
-              translate3d(
-                0,
-                ${contentY}px,
-                0
-              )
-              scale(${contentScale})
-            `,
-
-            transformOrigin:
-              'center center',
-
-            willChange:
-              'transform, opacity',
-
-            paddingTop:
-              'clamp(0px, 2vh, 24px)',
-
-            paddingBottom:
-              'clamp(0px, 2vh, 24px)',
-          }}
         >
           <div
             className="
@@ -799,127 +788,235 @@ export function Hero() {
                 max-w-5xl
               "
             >
-              <h1
-                className="
-                  max-w-5xl
-                  font-black
-                  uppercase
-                  leading-[0.86]
-                  tracking-[-0.045em]
-                  text-white
-                  text-[3rem]
-                  sm:text-6xl
-                  md:text-7xl
-                  lg:text-[6.5rem]
-                "
-              >
-                <span className="block">
-                  AFRICA&apos;S BIGGEST
-                </span>
-
-                <span
-                  className="
-                    block
-                    text-red-500
-                  "
-                >
-                  MOTORSPORT
-                </span>
-
-                <span className="block">
-                  SPECTACLE
-                </span>
-              </h1>
-
-              <p
-                className="
-                  mt-5
-                  max-w-2xl
-                  text-[14px]
-                  leading-[1.55]
-                  text-white/70
-                  sm:mt-7
-                  sm:text-lg
-                  sm:leading-8
-                  md:text-xl
-                "
-              >
-                A cinematic celebration of
-                performance, sound and
-                precision where drifting
-                legends, stunt riders,
-                performance cars and
-                motorsport culture come
-                together for one
-                unforgettable experience.
-              </p>
+              {/* =============================================
+                  KICKER
+                  ============================================= */}
 
               <div
                 className="
-                  mt-6
+                  mb-5
                   flex
-                  flex-col
-                  gap-4
-                  sm:mt-8
-                  sm:flex-row
-                  sm:items-center
+                  items-center
+                  gap-3
+                  sm:mb-7
                 "
+                style={{
+                  opacity:
+                    kickerProgress,
+
+                  transform: `
+                    translate3d(
+                      ${headlineX}px,
+                      0,
+                      0
+                    )
+                  `,
+
+                  willChange:
+                    'transform, opacity',
+                }}
               >
-                <Button
-                  size="lg"
-                  onClick={open}
+                <div
                   className="
-                    h-12
-                    w-full
-                    rounded-full
-                    bg-red-600
-                    px-7
-                    text-sm
-                    font-bold
-                    text-white
-                    hover:bg-red-500
-                    sm:h-14
-                    sm:w-auto
-                    sm:px-8
-                    sm:text-base
+                    h-px
+                    w-8
+                    bg-red-500
+                    sm:w-12
+                  "
+                />
+
+                <span
+                  className="
+                    text-[9px]
+                    font-semibold
+                    uppercase
+                    tracking-[0.38em]
+                    text-white/55
+                    sm:text-xs
                   "
                 >
-                  <Ticket
-                    className="
-                      mr-2
-                      h-5
-                      w-5
-                    "
-                  />
+                  TOR&apos;Q 2026
+                </span>
+              </div>
 
-                  REGISTER NOW
-                </Button>
+              {/* =============================================
+                  HEADLINE
+                  ============================================= */}
+
+              <div
+                className="
+                  overflow-hidden
+                "
+              >
+                <h1
+                  className="
+                    max-w-5xl
+                    font-black
+                    uppercase
+                    leading-[0.84]
+                    tracking-[-0.055em]
+                    text-white
+                    text-[3rem]
+                    sm:text-6xl
+                    md:text-7xl
+                    lg:text-[6.5rem]
+                  "
+                  style={{
+                    opacity:
+                      headlineOpacity,
+
+                    transform: `
+                      translate3d(
+                        ${headlineX}px,
+                        ${headlineY}px,
+                        0
+                      )
+                      scale(
+                        ${headlineScale}
+                      )
+                    `,
+
+                    transformOrigin:
+                      'left center',
+
+                    willChange:
+                      'transform, opacity',
+                  }}
+                >
+                  <span className="block">
+                    AFRICA&apos;S BIGGEST
+                  </span>
+
+                  <span
+                    className="
+                      block
+                      text-red-500
+                    "
+                  >
+                    MOTORSPORT
+                  </span>
+
+                  <span className="block">
+                    SPECTACLE
+                  </span>
+                </h1>
+              </div>
+
+              {/* =============================================
+                  DESCRIPTION
+                  ============================================= */}
+
+              <div
+                style={{
+                  opacity:
+                    detailOpacity,
+
+                  transform: `
+                    translate3d(
+                      0,
+                      ${detailY}px,
+                      0
+                    )
+                  `,
+
+                  willChange:
+                    'transform, opacity',
+                }}
+              >
+                <p
+                  className="
+                    mt-5
+                    max-w-2xl
+                    text-[14px]
+                    leading-[1.55]
+                    text-white/70
+                    sm:mt-7
+                    sm:text-lg
+                    sm:leading-8
+                    md:text-xl
+                  "
+                >
+                  A cinematic celebration of
+                  performance, sound and
+                  precision where drifting
+                  legends, stunt riders,
+                  performance cars and
+                  motorsport culture come
+                  together for one
+                  unforgettable experience.
+                </p>
+
+                {/* ===========================================
+                    CTA
+                    =========================================== */}
 
                 <div
                   className="
+                    mt-6
                     flex
-                    items-center
-                    gap-2
-                    text-sm
-                    text-white/70
-                    sm:text-base
+                    flex-col
+                    gap-4
+                    sm:mt-8
+                    sm:flex-row
+                    sm:items-center
                   "
                 >
-                  <MapPin
+                  <Button
+                    size="lg"
+                    onClick={open}
                     className="
-                      h-5
-                      w-5
-                      text-red-500
+                      h-12
+                      w-full
+                      rounded-full
+                      bg-red-600
+                      px-7
+                      text-sm
+                      font-bold
+                      text-white
+                      hover:bg-red-500
+                      sm:h-14
+                      sm:w-auto
+                      sm:px-8
+                      sm:text-base
                     "
-                  />
+                  >
+                    <Ticket
+                      className="
+                        mr-2
+                        h-5
+                        w-5
+                      "
+                    />
 
-                  {EVENT.location}
+                    REGISTER NOW
+                  </Button>
+
+                  <div
+                    className="
+                      flex
+                      items-center
+                      gap-2
+                      text-sm
+                      text-white/70
+                      sm:text-base
+                    "
+                  >
+                    <MapPin
+                      className="
+                        h-5
+                        w-5
+                        text-red-500
+                      "
+                    />
+
+                    {EVENT.location}
+                  </div>
                 </div>
               </div>
 
-              {/* =================================================
+              {/* =============================================
                   STATS
-              ================================================= */}
+                  ============================================= */}
 
               <div
                 className="
@@ -934,6 +1031,21 @@ export function Hero() {
                   sm:gap-6
                   sm:pt-7
                 "
+                style={{
+                  opacity:
+                    lowerProgress,
+
+                  transform: `
+                    translate3d(
+                      0,
+                      ${(1 - lowerProgress) * 14}px,
+                      0
+                    )
+                  `,
+
+                  willChange:
+                    'transform, opacity',
+                }}
               >
                 <HeroStat
                   value="100+"
@@ -956,15 +1068,30 @@ export function Hero() {
                 />
               </div>
 
-              {/* =================================================
+              {/* =============================================
                   COUNTDOWN
-              ================================================= */}
+                  ============================================= */}
 
               <div
                 className="
                   mt-6
                   sm:mt-9
                 "
+                style={{
+                  opacity:
+                    lowerProgress,
+
+                  transform: `
+                    translate3d(
+                      0,
+                      ${(1 - lowerProgress) * 12}px,
+                      0
+                    )
+                  `,
+
+                  willChange:
+                    'transform, opacity',
+                }}
               >
                 <p
                   className="
@@ -987,8 +1114,16 @@ export function Hero() {
         </div>
 
         {/* ====================================================
-            TOR'Q INTRO
-        ==================================================== */}
+            MECHANICAL TOR'Q INTRO
+
+            Z-INDEX 40
+
+            The pieces deliberately remain ABOVE the headline
+            while the headline is being revealed.
+
+            This creates the transition:
+            LOGO → MECHANICAL CHAOS → STATEMENT.
+            ==================================================== */}
 
         <div
           className="
@@ -1016,9 +1151,9 @@ export function Hero() {
               items-center
             "
           >
-            {/* =================================================
-                WELCOME TO
-            ================================================= */}
+            {/* ===============================================
+                WELCOME
+                =============================================== */}
 
             <p
               className="
@@ -1039,9 +1174,9 @@ export function Hero() {
               Welcome to
             </p>
 
-            {/* =================================================
-                STAGE
-            ================================================= */}
+            {/* ===============================================
+                ARTBOARD
+                =============================================== */}
 
             <div
               ref={stageWrapperRef}
@@ -1055,9 +1190,9 @@ export function Hero() {
                   `${STAGE_WIDTH}/${STAGE_HEIGHT}`,
               }}
             >
-              {/* ===============================================
-                  MASTER 790 × 316 ARTBOARD
-              =============================================== */}
+              {/* =============================================
+                  MASTER 790 × 316 STAGE
+                  ============================================= */}
 
               <div
                 className="
@@ -1084,9 +1219,9 @@ export function Hero() {
                     'preserve-3d',
                 }}
               >
-                {/* =============================================
+                {/* ===========================================
                     INTACT LOGO
-                ============================================= */}
+                    =========================================== */}
 
                 <img
                   src="/images/torq-components/torq-logo-intact-reference.png"
@@ -1124,9 +1259,9 @@ export function Hero() {
                   }}
                 />
 
-                {/* =============================================
+                {/* ===========================================
                     T
-                ============================================= */}
+                    =========================================== */}
 
                 <MechanicalPiece
                   src="/images/torq-components/t_section.png"
@@ -1135,9 +1270,9 @@ export function Hero() {
                   explosion={explosion}
                 />
 
-                {/* =============================================
+                {/* ===========================================
                     TURBINE
-                ============================================= */}
+                    =========================================== */}
 
                 <MechanicalPiece
                   src="/images/torq-components/turbine.png"
@@ -1148,9 +1283,9 @@ export function Hero() {
                   explosion={explosion}
                 />
 
-                {/* =============================================
+                {/* ===========================================
                     26
-                ============================================= */}
+                    =========================================== */}
 
                 <MechanicalPiece
                   src="/images/torq-components/torq-26-transparent.png"
@@ -1161,9 +1296,9 @@ export function Hero() {
                   explosion={explosion}
                 />
 
-                {/* =============================================
+                {/* ===========================================
                     R
-                ============================================= */}
+                    =========================================== */}
 
                 <MechanicalPiece
                   src="/images/torq-components/r_section.png"
@@ -1172,9 +1307,9 @@ export function Hero() {
                   explosion={explosion}
                 />
 
-                {/* =============================================
+                {/* ===========================================
                     R LOWER
-                ============================================= */}
+                    =========================================== */}
 
                 <MechanicalPiece
                   src="/images/torq-components/r_lower.png"
@@ -1185,9 +1320,9 @@ export function Hero() {
                   explosion={explosion}
                 />
 
-                {/* =============================================
+                {/* ===========================================
                     PISTON
-                ============================================= */}
+                    =========================================== */}
 
                 <MechanicalPiece
                   src="/images/torq-components/piston.png"
@@ -1198,9 +1333,9 @@ export function Hero() {
                   explosion={explosion}
                 />
 
-                {/* =============================================
+                {/* ===========================================
                     Q
-                ============================================= */}
+                    =========================================== */}
 
                 <MechanicalPiece
                   src="/images/torq-components/q_section.png"
@@ -1209,9 +1344,9 @@ export function Hero() {
                   explosion={explosion}
                 />
 
-                {/* =============================================
+                {/* ===========================================
                     Q BASE
-                ============================================= */}
+                    =========================================== */}
 
                 <MechanicalPiece
                   src="/images/torq-components/q_base.png"
@@ -1224,9 +1359,9 @@ export function Hero() {
               </div>
             </div>
 
-            {/* =================================================
+            {/* ===============================================
                 SCROLL PROMPT
-            ================================================= */}
+                =============================================== */}
 
             <div
               className="
@@ -1294,11 +1429,7 @@ export function Hero() {
 
 /* ================================================================
    MECHANICAL PIECE
-
-   The registered geometry is NEVER modified.
-
-   The new choreography only affects the flight.
-================================================================ */
+   ================================================================ */
 
 function MechanicalPiece({
   src,
@@ -1315,8 +1446,8 @@ function MechanicalPiece({
   const e = clamp(explosion)
 
   /* ============================================================
-     RELEASE
-  ============================================================ */
+     INITIAL RELEASE
+     ============================================================ */
 
   const releaseAmount =
     easeInOut(r)
@@ -1341,14 +1472,16 @@ function MechanicalPiece({
 
   /* ============================================================
      MAIN FLIGHT
-  ============================================================ */
+     ============================================================ */
 
   const flight =
     flightCurve(e)
 
   /* ============================================================
      POSITION
-  ============================================================ */
+
+     REGISTERED x/y remain the foundation.
+     ============================================================ */
 
   const x =
     data.x +
@@ -1362,10 +1495,7 @@ function MechanicalPiece({
 
   /* ============================================================
      DEPTH
-
-     Kept restrained to avoid the previous "thin sliver"
-     problem.
-  ============================================================ */
+     ============================================================ */
 
   const depth =
     releaseZ +
@@ -1379,8 +1509,8 @@ function MechanicalPiece({
       )
 
   /* ============================================================
-     PERSPECTIVE SCALE
-  ============================================================ */
+     SCALE
+     ============================================================ */
 
   const scale =
     1 +
@@ -1394,20 +1524,14 @@ function MechanicalPiece({
       )
 
   /* ============================================================
-     ROTATION PROGRESS
-  ============================================================ */
+     ROTATION
+     ============================================================ */
 
   const rotationProgress =
     Math.pow(
       flight,
       0.72,
     )
-
-  /* ============================================================
-     PRIMARY ROTATION
-
-     Each component has its own mechanical character.
-  ============================================================ */
 
   const primaryX =
     data.rotateX *
@@ -1425,15 +1549,12 @@ function MechanicalPiece({
     data.spinZ
 
   /* ============================================================
-     SECONDARY MECHANICAL TUMBLE
-  ============================================================ */
+     MECHANICAL WAVES
+     ============================================================ */
 
   const phase =
     data.phase
 
-  /*
-   * Slow oscillation.
-   */
   const slowWave =
     Math.sin(
       flight *
@@ -1442,9 +1563,6 @@ function MechanicalPiece({
         phase,
     )
 
-  /*
-   * Faster mechanical vibration.
-   */
   const fastWave =
     Math.sin(
       flight *
@@ -1477,18 +1595,14 @@ function MechanicalPiece({
 
   /* ============================================================
      SPECIAL PISTON MOTION
-  ============================================================ */
+     ============================================================ */
 
-  let mechanicalY = 0
   let mechanicalX = 0
+  let mechanicalY = 0
 
-  if (data.motionType === 2) {
-    /*
-     * A piston-like compression/release motion.
-     *
-     * It is strongest in the middle of the flight,
-     * then settles as the component disappears.
-     */
+  if (
+    data.motionType === 2
+  ) {
     const pistonEnvelope =
       Math.sin(
         Math.min(
@@ -1520,15 +1634,14 @@ function MechanicalPiece({
   }
 
   /* ============================================================
-     TURBINE-SPECIFIC MOTION
-  ============================================================ */
+     TURBINE
+     ============================================================ */
 
   let turbineSpin = 0
 
-  if (data.motionType === 1) {
-    /*
-     * Continuous rotational energy.
-     */
+  if (
+    data.motionType === 1
+  ) {
     turbineSpin =
       flight *
       flight *
@@ -1536,8 +1649,8 @@ function MechanicalPiece({
   }
 
   /* ============================================================
-     FINAL ROTATIONS
-  ============================================================ */
+     FINAL ROTATION
+     ============================================================ */
 
   const rotateX =
     releaseRotateX +
@@ -1559,11 +1672,8 @@ function MechanicalPiece({
     turbineSpin
 
   /* ============================================================
-     EXTRA PHYSICAL SHIFT
-
-     Tiny relative motion gives the pieces a less
-     "computer-perfect" feel.
-  ============================================================ */
+     FINAL POSITION
+     ============================================================ */
 
   const finalX =
     x +
@@ -1575,14 +1685,17 @@ function MechanicalPiece({
 
   /* ============================================================
      FADE
-  ============================================================ */
+
+     We keep the pieces alive slightly longer now because
+     they need to cross the headline before disappearing.
+     ============================================================ */
 
   const fadeProgress =
     (
       flight -
-      0.88
+      0.92
     ) /
-    0.12
+    0.08
 
   const opacity =
     1 -
@@ -1592,7 +1705,7 @@ function MechanicalPiece({
 
   /* ============================================================
      MOTION BLUR
-  ============================================================ */
+     ============================================================ */
 
   const blur =
     Math.pow(
@@ -1602,14 +1715,8 @@ function MechanicalPiece({
     1.1
 
   /* ============================================================
-     METALLIC CONTRAST
-
-     Very subtle.
-
-     The source artwork remains intact, but during
-     flight the metallic highlights get slightly
-     more pronounced.
-  ============================================================ */
+     METALLIC EMPHASIS
+     ============================================================ */
 
   const brightness =
     1 +
@@ -1623,7 +1730,7 @@ function MechanicalPiece({
 
   /* ============================================================
      DEPTH SHADOW
-  ============================================================ */
+     ============================================================ */
 
   const shadowOpacity =
     Math.min(
@@ -1654,8 +1761,8 @@ function MechanicalPiece({
       "
       style={{
         /* ======================================================
-           LOCKED REGISTRATION SYSTEM
-        ====================================================== */
+           LOCKED REGISTRATION GEOMETRY
+           ====================================================== */
 
         left:
           `${finalX}px`,
@@ -1672,8 +1779,10 @@ function MechanicalPiece({
         opacity,
 
         /* ======================================================
-           CRITICAL ALIGNMENT
-        ====================================================== */
+           CRITICAL ALIGNMENT VALUE
+
+           DO NOT CHANGE.
+           ====================================================== */
 
         transformOrigin:
           'top left',
@@ -1685,8 +1794,8 @@ function MechanicalPiece({
           'visible',
 
         /* ======================================================
-           MECHANICAL 3D TRANSFORM
-        ====================================================== */
+           3D TRANSFORM
+           ====================================================== */
 
         transform: `
           translate3d(
@@ -1713,8 +1822,8 @@ function MechanicalPiece({
         `,
 
         /* ======================================================
-           METALLIC IMAGE TREATMENT + DEPTH SHADOW
-        ====================================================== */
+           METALLIC TREATMENT
+           ====================================================== */
 
         filter: `
           brightness(${brightness})
@@ -1734,12 +1843,14 @@ function MechanicalPiece({
           )
         `,
 
-        /* ======================================================
-           DEPTH ORDER
-        ====================================================== */
-
+        /*
+         * IMPORTANT:
+         *
+         * Pieces remain above the headline so they can
+         * visually cross it during the transition.
+         */
         zIndex:
-          10 +
+          40 +
           Math.round(
             depth / 40,
           ),
@@ -1753,7 +1864,7 @@ function MechanicalPiece({
 
 /* ================================================================
    HERO STAT
-================================================================ */
+   ================================================================ */
 
 function HeroStat({
   value,
