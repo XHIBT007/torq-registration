@@ -16,16 +16,8 @@ import { Countdown } from './countdown'
 import { useRegistration } from './registration'
 import { EVENT } from '@/lib/torq-data'
 
-/* ============================================================
-   MASTER TOR'Q COORDINATE SYSTEM
-============================================================ */
-
 const STAGE_WIDTH = 790
 const STAGE_HEIGHT = 316
-
-/* ============================================================
-   COMPONENT DATA
-============================================================ */
 
 type ComponentData = {
   x: number
@@ -40,10 +32,11 @@ type ComponentData = {
   rotateY: number
   rotateZ: number
 
-  /* Small movement while releasing the logo */
   releaseX: number
   releaseY: number
   releaseRotation: number
+
+  depth: number
 }
 
 const COMPONENTS: Record<string, ComponentData> = {
@@ -56,13 +49,15 @@ const COMPONENTS: Record<string, ComponentData> = {
     flightX: -900,
     flightY: -350,
 
-    rotateX: 300,
-    rotateY: -220,
-    rotateZ: -480,
+    rotateX: 420,
+    rotateY: -340,
+    rotateZ: -520,
 
     releaseX: -5,
     releaseY: -8,
     releaseRotation: -2,
+
+    depth: 1.05,
   },
 
   turbine: {
@@ -74,13 +69,15 @@ const COMPONENTS: Record<string, ComponentData> = {
     flightX: -600,
     flightY: 650,
 
-    rotateX: 320,
-    rotateY: -260,
-    rotateZ: 420,
+    rotateX: 380,
+    rotateY: -420,
+    rotateZ: 480,
 
     releaseX: -4,
     releaseY: -7,
     releaseRotation: 2,
+
+    depth: 0.92,
   },
 
   number26: {
@@ -92,13 +89,15 @@ const COMPONENTS: Record<string, ComponentData> = {
     flightX: 80,
     flightY: -900,
 
-    rotateX: 280,
-    rotateY: 350,
-    rotateZ: 360,
+    rotateX: 500,
+    rotateY: 620,
+    rotateZ: 540,
 
     releaseX: 0,
     releaseY: -6,
     releaseRotation: 1,
+
+    depth: 1.2,
   },
 
   r: {
@@ -110,13 +109,15 @@ const COMPONENTS: Record<string, ComponentData> = {
     flightX: 900,
     flightY: -280,
 
-    rotateX: -320,
-    rotateY: 260,
-    rotateZ: 500,
+    rotateX: -460,
+    rotateY: 380,
+    rotateZ: 560,
 
     releaseX: 5,
     releaseY: -8,
     releaseRotation: -2,
+
+    depth: 1.08,
   },
 
   rLower: {
@@ -128,13 +129,15 @@ const COMPONENTS: Record<string, ComponentData> = {
     flightX: 750,
     flightY: 700,
 
-    rotateX: 350,
-    rotateY: -300,
-    rotateZ: -520,
+    rotateX: 480,
+    rotateY: -430,
+    rotateZ: -600,
 
     releaseX: 5,
     releaseY: 7,
     releaseRotation: 2,
+
+    depth: 0.96,
   },
 
   piston: {
@@ -146,13 +149,15 @@ const COMPONENTS: Record<string, ComponentData> = {
     flightX: 600,
     flightY: -900,
 
-    rotateX: -380,
-    rotateY: 300,
-    rotateZ: 520,
+    rotateX: -520,
+    rotateY: 410,
+    rotateZ: 600,
 
     releaseX: 4,
     releaseY: -7,
     releaseRotation: -2,
+
+    depth: 1.15,
   },
 
   q: {
@@ -164,13 +169,15 @@ const COMPONENTS: Record<string, ComponentData> = {
     flightX: 1000,
     flightY: 80,
 
-    rotateX: 300,
-    rotateY: 380,
-    rotateZ: -500,
+    rotateX: 430,
+    rotateY: 520,
+    rotateZ: -580,
 
     releaseX: 5,
     releaseY: -5,
     releaseRotation: 2,
+
+    depth: 1.1,
   },
 
   qBase: {
@@ -182,19 +189,17 @@ const COMPONENTS: Record<string, ComponentData> = {
     flightX: 900,
     flightY: 750,
 
-    rotateX: -320,
-    rotateY: 280,
-    rotateZ: 460,
+    rotateX: -450,
+    rotateY: 390,
+    rotateZ: 520,
 
     releaseX: 6,
     releaseY: 6,
     releaseRotation: -2,
+
+    depth: 0.98,
   },
 }
-
-/* ============================================================
-   HELPERS
-============================================================ */
 
 function clamp(value: number) {
   return Math.max(0, Math.min(1, value))
@@ -219,27 +224,21 @@ function easeInOut(value: number) {
 }
 
 /*
-  Gentle movement.
-
-  Used during the "release" phase so the pieces
-  don't suddenly jump.
-*/
+ * Very gentle movement.
+ * Used only while the logo is being released.
+ */
 function gentleRelease(value: number) {
   const t = clamp(value)
-
   return t * t * (3 - 2 * t)
 }
 
 /*
-  Slow beginning → aggressive ending.
-
-  This is deliberately NOT used until the logo
-  has completely disappeared.
-*/
-function disintegrationEase(value: number) {
+ * Slow beginning → increasingly aggressive flight.
+ */
+function flightEase(value: number) {
   const t = clamp(value)
 
-  return Math.pow(t, 2.2)
+  return Math.pow(t, 2.15)
 }
 
 /* ============================================================
@@ -262,7 +261,7 @@ export function Hero() {
     useState(1)
 
   /* ============================================================
-     RESPONSIVE MASTER STAGE
+     RESPONSIVE STAGE SCALE
   ============================================================ */
 
   useEffect(() => {
@@ -272,16 +271,15 @@ export function Hero() {
     if (!wrapper) return
 
     const updateScale = () => {
-      const availableWidth =
+      const width =
         wrapper.getBoundingClientRect().width
 
-      const scale =
+      setStageScale(
         Math.min(
           1,
-          availableWidth / STAGE_WIDTH,
-        )
-
-      setStageScale(scale)
+          width / STAGE_WIDTH,
+        ),
+      )
     }
 
     updateScale()
@@ -307,7 +305,7 @@ export function Hero() {
   }, [])
 
   /* ============================================================
-     SCROLL PROGRESS
+     SCROLL
   ============================================================ */
 
   useEffect(() => {
@@ -377,24 +375,14 @@ export function Hero() {
   }, [])
 
   /* ============================================================
-     PHASE 1
+     LOGO RELEASE
      
-     Everything is completely static.
+     The logo remains completely solid until 12%.
      
-     0.00 → 0.12
-  ============================================================ */
-
-  /* ============================================================
-     PHASE 2
+     12% → 30%
      
-     Logo fades.
-     
-     Parts make a tiny "release" movement.
-     
-     IMPORTANT:
-     This is NOT the explosion.
-     
-     0.12 → 0.30
+     The components make only a tiny physical movement
+     while the logo fades away.
   ============================================================ */
 
   const logoFade =
@@ -405,34 +393,34 @@ export function Hero() {
   const logoOpacity =
     1 - logoFade
 
-  const releaseProgress =
+  const release =
     gentleRelease(
       (progress - 0.12) / 0.18,
     )
 
   /* ============================================================
-     PHASE 3
+     TRUE DISINTEGRATION
      
-     Logo is gone.
+     IMPORTANT:
      
-     Parts now begin their actual disintegration.
+     Does NOT begin until the logo has disappeared.
      
-     0.30 → 0.82
+     30% → 82%
   ============================================================ */
 
-  const disintegration =
-    disintegrationEase(
+  const explosion =
+    flightEase(
       (progress - 0.30) / 0.52,
     )
 
   /* ============================================================
-     WELCOME TEXT
+     WELCOME
   ============================================================ */
 
   const welcomeOpacity =
     1 -
     easeOut(
-      progress / 0.15,
+      progress / 0.14,
     )
 
   /* ============================================================
@@ -451,35 +439,34 @@ export function Hero() {
 
   const backgroundOpacity =
     easeOut(
-      (progress - 0.55) / 0.25,
+      (progress - 0.48) / 0.26,
     )
 
   /* ============================================================
-     MAIN HERO ENTRANCE
+     MAIN HEADLINE
      
-     Begins while the final pieces are leaving.
-     
-     This makes the transition feel like one continuous
-     cinematic shot rather than separate animations.
+     Starts while the final fragments are leaving.
+
+     It remains within the viewport on desktop.
   ============================================================ */
 
   const headlineProgress =
     easeOut(
-      (progress - 0.70) / 0.25,
+      (progress - 0.66) / 0.22,
     )
 
   const contentOpacity =
     headlineProgress
 
   const contentY =
-    (1 - headlineProgress) * 100
+    (1 - headlineProgress) * 55
 
   const contentScale =
-    0.92 +
-    headlineProgress * 0.08
+    0.96 +
+    headlineProgress * 0.04
 
   const contentBlur =
-    (1 - headlineProgress) * 14
+    (1 - headlineProgress) * 10
 
   return (
     <section
@@ -500,7 +487,7 @@ export function Hero() {
           bg-black
         "
         style={{
-          perspective: '1800px',
+          perspective: '1200px',
         }}
       >
 
@@ -529,35 +516,11 @@ export function Hero() {
             "
           />
 
-          <div
-            className="
-              absolute
-              inset-0
-              bg-black/65
-            "
-          />
+          <div className="absolute inset-0 bg-black/65" />
 
-          <div
-            className="
-              absolute
-              inset-0
-              bg-gradient-to-r
-              from-black
-              via-black/65
-              to-transparent
-            "
-          />
+          <div className="absolute inset-0 bg-gradient-to-r from-black via-black/65 to-transparent" />
 
-          <div
-            className="
-              absolute
-              inset-0
-              bg-gradient-to-t
-              from-black
-              via-black/10
-              to-black/50
-            "
-          />
+          <div className="absolute inset-0 bg-gradient-to-t from-black via-black/10 to-black/50" />
         </div>
 
         {/* ======================================================
@@ -587,9 +550,6 @@ export function Hero() {
               contentBlur > 0
                 ? `blur(${contentBlur}px)`
                 : 'none',
-
-            transformOrigin:
-              'center center',
 
             willChange:
               'transform, opacity, filter',
@@ -679,7 +639,6 @@ export function Hero() {
                   sm:items-center
                 "
               >
-
                 <Button
                   size="lg"
                   onClick={open}
@@ -730,7 +689,6 @@ export function Hero() {
 
                   {EVENT.location}
                 </div>
-
               </div>
 
               <div
@@ -811,7 +769,7 @@ export function Hero() {
           "
           style={{
             perspective:
-              '1800px',
+              '1200px',
           }}
         >
 
@@ -824,9 +782,7 @@ export function Hero() {
             "
           >
 
-            {/* ==================================================
-                WELCOME TO
-            ================================================== */}
+            {/* WELCOME */}
 
             <p
               className="
@@ -847,9 +803,7 @@ export function Hero() {
               Welcome to
             </p>
 
-            {/* ==================================================
-                MASTER STAGE
-            ================================================== */}
+            {/* MASTER STAGE */}
 
             <div
               ref={stageWrapperRef}
@@ -892,13 +846,6 @@ export function Hero() {
 
                 {/* =================================================
                     ORIGINAL TOR'Q LOGO
-                   
-                    It stays behind everything.
-
-                    It does NOT start fading until 12%.
-
-                    The components only make their small
-                    release movement at the same time.
                 ================================================= */}
 
                 <img
@@ -920,7 +867,7 @@ export function Hero() {
                       logoOpacity,
 
                     transform:
-                      'translateZ(0)',
+                      'translate3d(0,0,0)',
 
                     transformOrigin:
                       'center center',
@@ -934,99 +881,69 @@ export function Hero() {
                 />
 
                 {/* =================================================
-                    T
+                    COMPONENTS
                 ================================================= */}
 
                 <MechanicalPiece
                   src="/images/torq-components/t_section.png"
                   data={COMPONENTS.t}
-                  release={releaseProgress}
-                  explosion={disintegration}
+                  release={release}
+                  explosion={explosion}
                 />
-
-                {/* =================================================
-                    TURBINE
-                ================================================= */}
 
                 <MechanicalPiece
                   src="/images/torq-components/turbine.png"
                   data={COMPONENTS.turbine}
-                  release={releaseProgress}
-                  explosion={disintegration}
+                  release={release}
+                  explosion={explosion}
                 />
-
-                {/* =================================================
-                    26
-                ================================================= */}
 
                 <MechanicalPiece
                   src="/images/torq-components/torq-26-transparent.png"
                   data={COMPONENTS.number26}
-                  release={releaseProgress}
-                  explosion={disintegration}
+                  release={release}
+                  explosion={explosion}
                 />
-
-                {/* =================================================
-                    R
-                ================================================= */}
 
                 <MechanicalPiece
                   src="/images/torq-components/r_section.png"
                   data={COMPONENTS.r}
-                  release={releaseProgress}
-                  explosion={disintegration}
+                  release={release}
+                  explosion={explosion}
                 />
-
-                {/* =================================================
-                    R LOWER
-                ================================================= */}
 
                 <MechanicalPiece
                   src="/images/torq-components/r_lower.png"
                   data={COMPONENTS.rLower}
-                  release={releaseProgress}
-                  explosion={disintegration}
+                  release={release}
+                  explosion={explosion}
                 />
-
-                {/* =================================================
-                    PISTON
-                ================================================= */}
 
                 <MechanicalPiece
                   src="/images/torq-components/piston.png"
                   data={COMPONENTS.piston}
-                  release={releaseProgress}
-                  explosion={disintegration}
+                  release={release}
+                  explosion={explosion}
                 />
-
-                {/* =================================================
-                    Q
-                ================================================= */}
 
                 <MechanicalPiece
                   src="/images/torq-components/q_section.png"
                   data={COMPONENTS.q}
-                  release={releaseProgress}
-                  explosion={disintegration}
+                  release={release}
+                  explosion={explosion}
                 />
-
-                {/* =================================================
-                    Q BASE
-                ================================================= */}
 
                 <MechanicalPiece
                   src="/images/torq-components/q_base.png"
                   data={COMPONENTS.qBase}
-                  release={releaseProgress}
-                  explosion={disintegration}
+                  release={release}
+                  explosion={explosion}
                 />
 
               </div>
             </div>
 
-            {/* ==================================================
-                SCROLL PROMPT
-            ================================================== */}
+            {/* SCROLL PROMPT */}
 
             <div
               className="
@@ -1042,7 +959,6 @@ export function Hero() {
                   scrollOpacity,
               }}
             >
-
               <span
                 className="
                   whitespace-nowrap
@@ -1084,7 +1000,6 @@ export function Hero() {
                   "
                 />
               </div>
-
             </div>
 
           </div>
@@ -1097,18 +1012,6 @@ export function Hero() {
 
 /* ================================================================
    MECHANICAL PIECE
-
-   TWO DIFFERENT MOVEMENTS:
-
-   1. RELEASE
-      Tiny physical movement while the logo fades.
-
-      This is deliberately VERY small.
-
-   2. EXPLOSION
-      Begins ONLY after the logo is gone.
-
-      This is the actual disintegration.
 ================================================================ */
 
 function MechanicalPiece({
@@ -1129,12 +1032,9 @@ function MechanicalPiece({
     clamp(explosion)
 
   /* ============================================================
-     RELEASE MOVEMENT
+     PHASE 1 — RELEASE
      
-     The pieces move only a few pixels.
-     
-     This creates the impression that they were physically
-     supporting/holding the logo.
+     Tiny physical movement.
   ============================================================ */
 
   const releaseX =
@@ -1147,89 +1047,93 @@ function MechanicalPiece({
     data.releaseRotation * r
 
   /* ============================================================
-     ACTUAL DISINTEGRATION
-     
-     IMPORTANT:
-     
-     e = 0 while logo is fading.
-     
-     Therefore the large flight movement CANNOT happen
-     during the logo fade.
+     PHASE 2 — FLIGHT
   ============================================================ */
+
+  const flight =
+    e
 
   const x =
     data.x +
     releaseX +
-    data.flightX * e
+    data.flightX * flight
 
   const y =
     data.y +
     releaseY +
-    data.flightY * e
+    data.flightY * flight
 
   /* ============================================================
-     DEPTH
+     CAMERA DEPTH
+     
+     Each component has slightly different depth so the
+     explosion feels volumetric rather than flat.
   ============================================================ */
 
   const z =
-    Math.pow(e, 1.65) * 5200
+    Math.pow(e, 1.42) *
+    3300 *
+    data.depth
 
   /* ============================================================
-     SCALE
+     PERSPECTIVE SCALE
      
-     No scale change during release.
+     Starts at exactly 1.
 
-     Scale starts only during the actual disintegration.
+     Growth is gradual, then becomes stronger toward camera.
   ============================================================ */
 
   const scale =
     1 +
-    Math.pow(e, 1.9) * 4.8
+    Math.pow(e, 2.0) *
+    2.7
 
   /* ============================================================
-     ROTATION
+     3D ROTATION
+     
+     Rotation accelerates as the object travels.
   ============================================================ */
 
+  const rotationPower =
+    Math.pow(e, 1.15)
+
   const rotateX =
-    data.rotateX * e
+    data.rotateX *
+    rotationPower
 
   const rotateY =
-    data.rotateY * e
+    data.rotateY *
+    rotationPower
 
   const rotateZ =
     data.rotation +
     releaseRotation +
-    data.rotateZ * e
+    data.rotateZ *
+      rotationPower
 
   /* ============================================================
-     MOTION BLUR
-     
-     No blur during the release.
-
-     Blur appears only after the disintegration starts.
+     SUBTLE MOTION BLUR
   ============================================================ */
 
   const blur =
-    Math.pow(e, 2.3) * 5
+    Math.pow(e, 2.4) *
+    4.5
 
   /* ============================================================
-     OPACITY
+     EDGE FADE
      
-     Pieces remain completely visible through the release.
-
-     They only start fading near the end of the flight.
+     Fade begins only after the piece has already travelled
+     most of its distance.
   ============================================================ */
 
-  const fadeProgress =
+  const fade =
     clamp(
       (e - 0.72) / 0.28,
     )
 
   const opacity =
     1 -
-    easeIn(
-      fadeProgress,
-    )
+    easeIn(fade)
 
   return (
     <img
@@ -1258,7 +1162,7 @@ function MechanicalPiece({
         opacity,
 
         transformOrigin:
-          'top left',
+          'center center',
 
         transformStyle:
           'preserve-3d',
@@ -1273,13 +1177,21 @@ function MechanicalPiece({
             ${z}px
           )
 
-          rotateX(${rotateX}deg)
+          rotateX(
+            ${rotateX}deg
+          )
 
-          rotateY(${rotateY}deg)
+          rotateY(
+            ${rotateY}deg
+          )
 
-          rotateZ(${rotateZ}deg)
+          rotateZ(
+            ${rotateZ}deg
+          )
 
-          scale(${scale})
+          scale(
+            ${scale}
+          )
         `,
 
         filter:
@@ -1288,8 +1200,8 @@ function MechanicalPiece({
             : 'none',
 
         zIndex:
-          10 +
-          Math.round(z / 100),
+          20 +
+          Math.round(z / 50),
 
         willChange:
           'transform, opacity, filter',
