@@ -25,12 +25,23 @@ const STAGE_WIDTH = 790
 const STAGE_HEIGHT = 316
 
 /*
- * LOCKED OPENING STATE.
+ * IMPORTANT:
  *
- * The page begins with the beautiful smoothened TOR'Q
- * that we approved.
+ * This is the smoothened TOR'Q state we approved.
+ *
+ * It is present immediately on page load.
  */
 const INITIAL_RELEASE = 0.32
+
+/*
+ * MUSTANG HERO IMAGE
+ *
+ * Put the image here:
+ *
+ * public/images/hero-mustang-2026.webp
+ */
+const MUSTANG_SRC =
+  '/images/hero-mustang-2026.JPG'
 
 /* ============================================================
    COMPONENT DATA
@@ -43,16 +54,16 @@ type ComponentData = {
   width: number
   rotation: number
 
-  /* LOCKED FLIGHT DIRECTIONS */
+  /* LOCKED FLIGHT */
   flightX: number
   flightY: number
 
-  /* LOCKED ROTATIONAL CHARACTER */
+  /* LOCKED ROTATION */
   rotateX: number
   rotateY: number
   rotateZ: number
 
-  /* DEPTH CHARACTER */
+  /* DEPTH */
   depth: number
 
   /* MECHANICAL CHARACTER */
@@ -66,7 +77,7 @@ type ComponentData = {
   phase: number
 
   /*
-   * 0 = standard mechanical piece
+   * 0 = standard
    * 1 = turbine
    * 2 = piston
    */
@@ -76,7 +87,7 @@ type ComponentData = {
 /* ============================================================
    LOCKED COMPONENT POSITIONS
 
-   DO NOT CHANGE.
+   DO NOT CHANGE THESE VALUES.
    ============================================================ */
 
 const COMPONENTS: Record<
@@ -343,8 +354,7 @@ function easeInOut(value: number) {
 }
 
 /*
- * The flight curve from the approved
- * disintegration version.
+ * Approved flight curve.
  */
 function flightCurve(
   value: number,
@@ -382,9 +392,7 @@ export function Hero() {
     useState(1)
 
   /* ==========================================================
-     RESPONSIVE STAGE SCALE
-
-     790 × 316 remains the master coordinate system.
+     RESPONSIVE STAGE
      ========================================================== */
 
   useEffect(() => {
@@ -507,13 +515,11 @@ export function Hero() {
   }, [])
 
   /* ==========================================================
-     MASTER TIMELINE
+     TOR'Q TIMELINE
      ========================================================== */
 
   /*
-   * LOGO
-   *
-   * Fades from the first pixel of scrolling.
+   * Logo disappears immediately with scroll.
    */
   const logoFade =
     easeInOut(
@@ -524,9 +530,7 @@ export function Hero() {
     1 - logoFade
 
   /*
-   * SMOOTH INITIAL STATE
-   *
-   * The page starts here.
+   * Smooth opening state.
    */
   const releaseProgress =
     easeInOut(
@@ -542,14 +546,130 @@ export function Hero() {
       releaseProgress
 
   /*
-   * DISINTEGRATION
+   * Mechanical explosion.
    *
-   * Starts immediately.
+   * Begins from ZERO.
    */
   const explosion =
     easeInOut(
       progress / 0.78,
     )
+
+  /* ==========================================================
+     MUSTANG REVEAL
+     ========================================================== */
+
+  /*
+   * The Mustang begins appearing BEFORE the final
+   * mechanical pieces have completely disappeared.
+   *
+   * This creates the feeling that the car was sitting
+   * inside the darkness behind the TOR'Q.
+   */
+  const mustangProgress =
+    easeInOut(
+      (progress - 0.28) /
+        0.48,
+    )
+
+  /*
+   * Very dark beginning.
+   */
+  const mustangOpacity =
+    mustangProgress
+
+  /*
+   * The car physically appears to reverse toward
+   * the camera.
+   *
+   * It begins smaller and farther away.
+   */
+  const mustangScale =
+    0.72 +
+    mustangProgress *
+      0.34
+
+  /*
+   * Tiny vertical movement gives the impression
+   * of the car approaching rather than a flat
+   * background simply fading in.
+   */
+  const mustangY =
+    18 -
+    mustangProgress *
+      18
+
+  /*
+   * Slight blur while distant.
+   */
+  const mustangBlur =
+    (1 -
+      mustangProgress) *
+    4
+
+  /*
+   * Dark-to-visible atmospheric treatment.
+   */
+  const mustangBrightness =
+    0.45 +
+    mustangProgress *
+      0.55
+
+  const mustangContrast =
+    0.95 +
+    mustangProgress *
+      0.12
+
+  /* ==========================================================
+     BRAKE LIGHT GLOW
+     ========================================================== */
+
+  /*
+   * Brake lights begin weakly and bloom as the Mustang
+   * approaches.
+   */
+  const brakeGlow =
+    easeOut(
+      (progress - 0.36) /
+        0.28,
+    )
+
+  /*
+   * A secondary pulse gives the lights a sense of
+   * intensity rather than a simple opacity fade.
+   */
+  const brakePulse =
+    0.82 +
+    Math.sin(
+      brakeGlow *
+        Math.PI *
+        2,
+    ) *
+      0.08
+
+  const finalBrakeGlow =
+    brakeGlow *
+    brakePulse
+
+  /* ==========================================================
+     ATMOSPHERE
+     ========================================================== */
+
+  const atmosphereOpacity =
+    easeOut(
+      (progress - 0.32) /
+        0.32,
+    )
+
+  /*
+   * Final red illumination.
+   */
+  const redWashOpacity =
+    easeOut(
+      (progress - 0.40) /
+        0.30,
+    ) *
+    0.28
 
   /* ==========================================================
      INTRO TEXT
@@ -568,74 +688,54 @@ export function Hero() {
     )
 
   /* ==========================================================
-     BACKGROUND REVEAL
-     ========================================================== */
-
-  const backgroundOpacity =
-    easeOut(
-      (progress - 0.57) /
-        0.22,
-    )
-
-  /* ==========================================================
-     CINEMATIC HEADLINE REVEAL
+     HERO HEADLINE
      ========================================================== */
 
   /*
-   * The headline starts appearing while the final
-   * mechanical pieces are STILL flying.
-   *
-   * This is intentional.
+   * The headline starts while the Mustang is still
+   * approaching.
    */
   const headlineProgress =
     easeInOut(
-      (progress - 0.58) /
+      (progress - 0.61) /
         0.25,
     )
 
   const headlineOpacity =
     headlineProgress
 
-  /*
-   * Starts lower and settles into position.
-   */
   const headlineY =
-    70 -
+    60 -
     headlineProgress *
-      70
+      60
 
-  /*
-   * Slight cinematic scale-in.
-   */
   const headlineScale =
     0.94 +
     headlineProgress *
       0.06
 
-  /*
-   * Horizontal reveal.
-   */
   const headlineX =
     -24 +
     headlineProgress *
       24
 
-  /*
-   * The small kicker arrives slightly after
-   * the headline starts.
-   */
+  /* ==========================================================
+     HEADLINE KICKER
+     ========================================================== */
+
   const kickerProgress =
     easeOut(
-      (progress - 0.64) /
-        0.18,
+      (progress - 0.66) /
+        0.16,
     )
 
-  /*
-   * Description / CTA arrive later.
-   */
+  /* ==========================================================
+     DETAILS
+     ========================================================== */
+
   const detailProgress =
     easeInOut(
-      (progress - 0.73) /
+      (progress - 0.72) /
         0.18,
     )
 
@@ -647,18 +747,15 @@ export function Hero() {
     detailProgress *
       22
 
-  /*
-   * Stats and countdown arrive last.
-   */
+  /* ==========================================================
+     LOWER CONTENT
+     ========================================================== */
+
   const lowerProgress =
     easeOut(
       (progress - 0.79) /
         0.16,
     )
-
-  /* ==========================================================
-     HERO CONTENT
-     ========================================================== */
 
   return (
     <section
@@ -671,7 +768,7 @@ export function Hero() {
       "
     >
       {/* ======================================================
-          STICKY HERO
+          STICKY CINEMATIC STAGE
           ====================================================== */}
 
       <div
@@ -690,8 +787,9 @@ export function Hero() {
             '50% 50%',
         }}
       >
+
         {/* ====================================================
-            BACKGROUND
+            MUSTANG BACKGROUND
             ==================================================== */}
 
         <div
@@ -700,64 +798,230 @@ export function Hero() {
             absolute
             inset-0
             z-0
+            overflow-hidden
           "
           style={{
             opacity:
-              backgroundOpacity,
+              mustangOpacity,
           }}
         >
           <img
-            src="/images/hero-drift-red-mustang.webp"
+            src={MUSTANG_SRC}
             alt=""
             aria-hidden="true"
             draggable={false}
             className="
+              absolute
+              inset-0
               h-full
               w-full
               object-cover
             "
+            style={{
+              transform: `
+                translate3d(
+                  0,
+                  ${mustangY}px,
+                  0
+                )
+                scale(
+                  ${mustangScale}
+                )
+              `,
+
+              transformOrigin:
+                'center 72%',
+
+              filter: `
+                brightness(
+                  ${mustangBrightness}
+                )
+                contrast(
+                  ${mustangContrast}
+                )
+                blur(
+                  ${mustangBlur}px
+                )
+              `,
+
+              willChange:
+                'transform, filter, opacity',
+            }}
           />
+
+          {/* ==================================================
+              DARK ATMOSPHERE
+              ================================================== */}
 
           <div
             className="
               absolute
               inset-0
-              bg-black/65
             "
+            style={{
+              opacity:
+                atmosphereOpacity,
+
+              background: `
+                linear-gradient(
+                  to bottom,
+                  rgba(0,0,0,0.72),
+                  rgba(0,0,0,0.20) 48%,
+                  rgba(0,0,0,0.80)
+                )
+              `,
+            }}
           />
+
+          {/* ==================================================
+              RED BRAKE-LIGHT ILLUMINATION
+
+              Two concentrated red pools imitate light
+              spilling from the Mustang's rear lamps.
+              ================================================== */}
 
           <div
             className="
               absolute
               inset-0
-              bg-gradient-to-r
-              from-black
-              via-black/70
-              to-transparent
             "
+            style={{
+              opacity:
+                finalBrakeGlow,
+
+              mixBlendMode:
+                'screen',
+
+              background: `
+                radial-gradient(
+                  ellipse 15% 10%
+                  at 36% 63%,
+                  rgba(
+                    255,
+                    30,
+                    20,
+                    0.82
+                  ),
+                  rgba(
+                    255,
+                    20,
+                    10,
+                    0.28
+                  ) 38%,
+                  transparent 72%
+                ),
+
+                radial-gradient(
+                  ellipse 15% 10%
+                  at 64% 63%,
+                  rgba(
+                    255,
+                    30,
+                    20,
+                    0.82
+                  ),
+                  rgba(
+                    255,
+                    20,
+                    10,
+                    0.28
+                  ) 38%,
+                  transparent 72%
+                ),
+
+                radial-gradient(
+                  ellipse 70% 55%
+                  at 50% 67%,
+                  rgba(
+                    255,
+                    20,
+                    10,
+                    0.18
+                  ),
+                  transparent 70%
+                )
+              `,
+
+              transform:
+                `scale(
+                  ${0.88 +
+                    brakeGlow *
+                      0.16}
+                )`,
+
+              transformOrigin:
+                'center center',
+
+              willChange:
+                'opacity, transform',
+            }}
           />
+
+          {/* ==================================================
+              LOW RED REFLECTION
+              ================================================== */}
+
+          <div
+            className="
+              absolute
+              inset-x-0
+              bottom-0
+              h-[55%]
+            "
+            style={{
+              opacity:
+                redWashOpacity,
+
+              background: `
+                radial-gradient(
+                  ellipse at 50% 100%,
+                  rgba(
+                    255,
+                    20,
+                    10,
+                    0.42
+                  ),
+                  transparent 68%
+                )
+              `,
+
+              mixBlendMode:
+                'screen',
+            }}
+          />
+
+          {/* ==================================================
+              CINEMATIC VIGNETTE
+              ================================================== */}
 
           <div
             className="
               absolute
               inset-0
-              bg-gradient-to-t
-              from-black
-              via-black/10
-              to-black/40
             "
+            style={{
+              background: `
+                radial-gradient(
+                  ellipse at center,
+                  transparent 25%,
+                  rgba(
+                    0,
+                    0,
+                    0,
+                    0.72
+                  ) 100%
+                )
+              `,
+            }}
           />
         </div>
 
         {/* ====================================================
             HERO CONTENT
 
-            Sits UNDER the flying components.
+            The Mustang is now the background.
 
-            This is intentional.
-
-            The final pieces can physically pass across
-            the typography before disappearing.
+            Everything below sits above it.
             ==================================================== */}
 
         <div
@@ -788,9 +1052,10 @@ export function Hero() {
                 max-w-5xl
               "
             >
-              {/* =============================================
+
+              {/* =================================================
                   KICKER
-                  ============================================= */}
+                  ================================================= */}
 
               <div
                 className="
@@ -831,7 +1096,7 @@ export function Hero() {
                     font-semibold
                     uppercase
                     tracking-[0.38em]
-                    text-white/55
+                    text-white/65
                     sm:text-xs
                   "
                 >
@@ -839,9 +1104,9 @@ export function Hero() {
                 </span>
               </div>
 
-              {/* =============================================
+              {/* =================================================
                   HEADLINE
-                  ============================================= */}
+                  ================================================= */}
 
               <div
                 className="
@@ -879,6 +1144,16 @@ export function Hero() {
                     transformOrigin:
                       'left center',
 
+                    textShadow: `
+                      0 4px 30px
+                      rgba(
+                        0,
+                        0,
+                        0,
+                        0.55
+                      )
+                    `,
+
                     willChange:
                       'transform, opacity',
                   }}
@@ -902,9 +1177,9 @@ export function Hero() {
                 </h1>
               </div>
 
-              {/* =============================================
-                  DESCRIPTION
-                  ============================================= */}
+              {/* =================================================
+                  DETAILS
+                  ================================================= */}
 
               <div
                 style={{
@@ -929,7 +1204,7 @@ export function Hero() {
                     max-w-2xl
                     text-[14px]
                     leading-[1.55]
-                    text-white/70
+                    text-white/75
                     sm:mt-7
                     sm:text-lg
                     sm:leading-8
@@ -946,9 +1221,9 @@ export function Hero() {
                   unforgettable experience.
                 </p>
 
-                {/* ===========================================
+                {/* =============================================
                     CTA
-                    =========================================== */}
+                    ============================================= */}
 
                 <div
                   className="
@@ -973,6 +1248,7 @@ export function Hero() {
                       text-sm
                       font-bold
                       text-white
+                      shadow-[0_0_35px_rgba(220,38,38,0.25)]
                       hover:bg-red-500
                       sm:h-14
                       sm:w-auto
@@ -997,7 +1273,7 @@ export function Hero() {
                       items-center
                       gap-2
                       text-sm
-                      text-white/70
+                      text-white/75
                       sm:text-base
                     "
                   >
@@ -1014,9 +1290,9 @@ export function Hero() {
                 </div>
               </div>
 
-              {/* =============================================
+              {/* =================================================
                   STATS
-                  ============================================= */}
+                  ================================================= */}
 
               <div
                 className="
@@ -1025,7 +1301,7 @@ export function Hero() {
                   grid-cols-4
                   gap-3
                   border-t
-                  border-white/10
+                  border-white/15
                   pt-6
                   sm:mt-9
                   sm:gap-6
@@ -1038,7 +1314,9 @@ export function Hero() {
                   transform: `
                     translate3d(
                       0,
-                      ${(1 - lowerProgress) * 14}px,
+                      ${(1 -
+                        lowerProgress) *
+                        14}px,
                       0
                     )
                   `,
@@ -1068,9 +1346,9 @@ export function Hero() {
                 />
               </div>
 
-              {/* =============================================
+              {/* =================================================
                   COUNTDOWN
-                  ============================================= */}
+                  ================================================= */}
 
               <div
                 className="
@@ -1084,7 +1362,9 @@ export function Hero() {
                   transform: `
                     translate3d(
                       0,
-                      ${(1 - lowerProgress) * 12}px,
+                      ${(1 -
+                        lowerProgress) *
+                        12}px,
                       0
                     )
                   `,
@@ -1099,7 +1379,7 @@ export function Hero() {
                     text-[9px]
                     uppercase
                     tracking-[0.35em]
-                    text-white/40
+                    text-white/50
                   "
                 >
                   The Experience Begins In
@@ -1114,15 +1394,11 @@ export function Hero() {
         </div>
 
         {/* ====================================================
-            MECHANICAL TOR'Q INTRO
+            TOR'Q INTRO / MECHANICAL STAGE
 
             Z-INDEX 40
 
-            The pieces deliberately remain ABOVE the headline
-            while the headline is being revealed.
-
-            This creates the transition:
-            LOGO → MECHANICAL CHAOS → STATEMENT.
+            Pieces remain above the Mustang AND headline.
             ==================================================== */}
 
         <div
@@ -1151,9 +1427,10 @@ export function Hero() {
               items-center
             "
           >
-            {/* ===============================================
+
+            {/* =================================================
                 WELCOME
-                =============================================== */}
+                ================================================= */}
 
             <p
               className="
@@ -1174,9 +1451,9 @@ export function Hero() {
               Welcome to
             </p>
 
-            {/* ===============================================
-                ARTBOARD
-                =============================================== */}
+            {/* =================================================
+                MASTER STAGE
+                ================================================= */}
 
             <div
               ref={stageWrapperRef}
@@ -1190,10 +1467,6 @@ export function Hero() {
                   `${STAGE_WIDTH}/${STAGE_HEIGHT}`,
               }}
             >
-              {/* =============================================
-                  MASTER 790 × 316 STAGE
-                  ============================================= */}
-
               <div
                 className="
                   absolute
@@ -1219,9 +1492,10 @@ export function Hero() {
                     'preserve-3d',
                 }}
               >
-                {/* ===========================================
+
+                {/* =================================================
                     INTACT LOGO
-                    =========================================== */}
+                    ================================================= */}
 
                 <img
                   src="/images/torq-components/torq-logo-intact-reference.png"
@@ -1259,9 +1533,9 @@ export function Hero() {
                   }}
                 />
 
-                {/* ===========================================
+                {/* =================================================
                     T
-                    =========================================== */}
+                    ================================================= */}
 
                 <MechanicalPiece
                   src="/images/torq-components/t_section.png"
@@ -1270,9 +1544,9 @@ export function Hero() {
                   explosion={explosion}
                 />
 
-                {/* ===========================================
+                {/* =================================================
                     TURBINE
-                    =========================================== */}
+                    ================================================= */}
 
                 <MechanicalPiece
                   src="/images/torq-components/turbine.png"
@@ -1283,9 +1557,9 @@ export function Hero() {
                   explosion={explosion}
                 />
 
-                {/* ===========================================
+                {/* =================================================
                     26
-                    =========================================== */}
+                    ================================================= */}
 
                 <MechanicalPiece
                   src="/images/torq-components/torq-26-transparent.png"
@@ -1296,9 +1570,9 @@ export function Hero() {
                   explosion={explosion}
                 />
 
-                {/* ===========================================
+                {/* =================================================
                     R
-                    =========================================== */}
+                    ================================================= */}
 
                 <MechanicalPiece
                   src="/images/torq-components/r_section.png"
@@ -1307,9 +1581,9 @@ export function Hero() {
                   explosion={explosion}
                 />
 
-                {/* ===========================================
+                {/* =================================================
                     R LOWER
-                    =========================================== */}
+                    ================================================= */}
 
                 <MechanicalPiece
                   src="/images/torq-components/r_lower.png"
@@ -1320,9 +1594,9 @@ export function Hero() {
                   explosion={explosion}
                 />
 
-                {/* ===========================================
+                {/* =================================================
                     PISTON
-                    =========================================== */}
+                    ================================================= */}
 
                 <MechanicalPiece
                   src="/images/torq-components/piston.png"
@@ -1333,9 +1607,9 @@ export function Hero() {
                   explosion={explosion}
                 />
 
-                {/* ===========================================
+                {/* =================================================
                     Q
-                    =========================================== */}
+                    ================================================= */}
 
                 <MechanicalPiece
                   src="/images/torq-components/q_section.png"
@@ -1344,9 +1618,9 @@ export function Hero() {
                   explosion={explosion}
                 />
 
-                {/* ===========================================
+                {/* =================================================
                     Q BASE
-                    =========================================== */}
+                    ================================================= */}
 
                 <MechanicalPiece
                   src="/images/torq-components/q_base.png"
@@ -1359,9 +1633,9 @@ export function Hero() {
               </div>
             </div>
 
-            {/* ===============================================
+            {/* =================================================
                 SCROLL PROMPT
-                =============================================== */}
+                ================================================= */}
 
             <div
               className="
@@ -1429,7 +1703,7 @@ export function Hero() {
 
 /* ================================================================
    MECHANICAL PIECE
-   ================================================================ */
+================================================================ */
 
 function MechanicalPiece({
   src,
@@ -1446,7 +1720,7 @@ function MechanicalPiece({
   const e = clamp(explosion)
 
   /* ============================================================
-     INITIAL RELEASE
+     RELEASE
      ============================================================ */
 
   const releaseAmount =
@@ -1471,7 +1745,7 @@ function MechanicalPiece({
     releaseAmount
 
   /* ============================================================
-     MAIN FLIGHT
+     FLIGHT
      ============================================================ */
 
   const flight =
@@ -1479,8 +1753,6 @@ function MechanicalPiece({
 
   /* ============================================================
      POSITION
-
-     REGISTERED x/y remain the foundation.
      ============================================================ */
 
   const x =
@@ -1594,7 +1866,7 @@ function MechanicalPiece({
     flight
 
   /* ============================================================
-     SPECIAL PISTON MOTION
+     PISTON
      ============================================================ */
 
   let mechanicalX = 0
@@ -1686,8 +1958,8 @@ function MechanicalPiece({
   /* ============================================================
      FADE
 
-     We keep the pieces alive slightly longer now because
-     they need to cross the headline before disappearing.
+     Keep pieces visible long enough to pass through
+     the Mustang/headline transition.
      ============================================================ */
 
   const fadeProgress =
@@ -1729,7 +2001,7 @@ function MechanicalPiece({
     0.08
 
   /* ============================================================
-     DEPTH SHADOW
+     SHADOW
      ============================================================ */
 
   const shadowOpacity =
@@ -1761,7 +2033,7 @@ function MechanicalPiece({
       "
       style={{
         /* ======================================================
-           LOCKED REGISTRATION GEOMETRY
+           LOCKED GEOMETRY
            ====================================================== */
 
         left:
@@ -1779,9 +2051,7 @@ function MechanicalPiece({
         opacity,
 
         /* ======================================================
-           CRITICAL ALIGNMENT VALUE
-
-           DO NOT CHANGE.
+           CRITICAL ALIGNMENT
            ====================================================== */
 
         transformOrigin:
@@ -1821,10 +2091,6 @@ function MechanicalPiece({
           )
         `,
 
-        /* ======================================================
-           METALLIC TREATMENT
-           ====================================================== */
-
         filter: `
           brightness(${brightness})
           contrast(${contrast})
@@ -1844,10 +2110,7 @@ function MechanicalPiece({
         `,
 
         /*
-         * IMPORTANT:
-         *
-         * Pieces remain above the headline so they can
-         * visually cross it during the transition.
+         * Pieces remain above everything.
          */
         zIndex:
           40 +
@@ -1864,7 +2127,7 @@ function MechanicalPiece({
 
 /* ================================================================
    HERO STAT
-   ================================================================ */
+================================================================ */
 
 function HeroStat({
   value,
