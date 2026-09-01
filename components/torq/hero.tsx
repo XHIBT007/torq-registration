@@ -229,13 +229,13 @@ export function Hero() {
    * flight.
    */
 
-  const fade =
-    1 -
-    easeInOut(
-      (flight -
-        0.82) /
-        0.18,
-    )
+  const componentOpacity =
+  1 -
+  easeInOut(
+    (flight -
+      0.82) /
+      0.18,
+  )
 
   /* ============================================================
      CAMERA RESPONSE
