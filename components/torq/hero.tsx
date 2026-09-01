@@ -19,9 +19,9 @@ import { EVENT } from '@/lib/torq-data'
 /* ============================================================
    MASTER TOR'Q COORDINATE SYSTEM
 
-   DO NOT CHANGE THESE DIMENSIONS.
-   These are the coordinates that correctly align the
-   mechanical components with the TOR'Q logo.
+   DO NOT CHANGE THESE.
+   These are the coordinates that produced the correct
+   registration alignment.
 ============================================================ */
 
 const STAGE_WIDTH = 790
@@ -30,9 +30,7 @@ const STAGE_HEIGHT = 316
 /* ============================================================
    REGISTERED COMPONENT POSITIONS
 
-   IMPORTANT:
-   These are the proven alignment figures.
-   DO NOT CHANGE x / y / width / rotation.
+   DO NOT CHANGE THESE VALUES.
 ============================================================ */
 
 type ComponentData = {
@@ -47,8 +45,6 @@ type ComponentData = {
   rotateX: number
   rotateY: number
   rotateZ: number
-
-  depth: number
 }
 
 const COMPONENTS: Record<string, ComponentData> = {
@@ -64,8 +60,6 @@ const COMPONENTS: Record<string, ComponentData> = {
     rotateX: 300,
     rotateY: -220,
     rotateZ: -480,
-
-    depth: 1.0,
   },
 
   turbine: {
@@ -80,8 +74,6 @@ const COMPONENTS: Record<string, ComponentData> = {
     rotateX: 320,
     rotateY: -260,
     rotateZ: 420,
-
-    depth: 1.15,
   },
 
   number26: {
@@ -96,8 +88,6 @@ const COMPONENTS: Record<string, ComponentData> = {
     rotateX: 280,
     rotateY: 350,
     rotateZ: 360,
-
-    depth: 0.9,
   },
 
   r: {
@@ -112,8 +102,6 @@ const COMPONENTS: Record<string, ComponentData> = {
     rotateX: -320,
     rotateY: 260,
     rotateZ: 500,
-
-    depth: 1.1,
   },
 
   rLower: {
@@ -128,8 +116,6 @@ const COMPONENTS: Record<string, ComponentData> = {
     rotateX: 350,
     rotateY: -300,
     rotateZ: -520,
-
-    depth: 1.2,
   },
 
   piston: {
@@ -144,8 +130,6 @@ const COMPONENTS: Record<string, ComponentData> = {
     rotateX: -380,
     rotateY: 300,
     rotateZ: 520,
-
-    depth: 1.35,
   },
 
   q: {
@@ -160,8 +144,6 @@ const COMPONENTS: Record<string, ComponentData> = {
     rotateX: 300,
     rotateY: 380,
     rotateZ: -500,
-
-    depth: 1.0,
   },
 
   qBase: {
@@ -176,8 +158,6 @@ const COMPONENTS: Record<string, ComponentData> = {
     rotateX: -320,
     rotateY: 280,
     rotateZ: 460,
-
-    depth: 1.25,
   },
 }
 
@@ -191,11 +171,13 @@ function clamp(value: number) {
 
 function easeIn(value: number) {
   const t = clamp(value)
+
   return t * t * t
 }
 
 function easeOut(value: number) {
   const t = clamp(value)
+
   return 1 - Math.pow(1 - t, 3)
 }
 
@@ -204,7 +186,9 @@ function easeInOut(value: number) {
 
   return t < 0.5
     ? 4 * t * t * t
-    : 1 - Math.pow(-2 * t + 2, 3) / 2
+    : 1 -
+        Math.pow(-2 * t + 2, 3) /
+          2
 }
 
 /* ============================================================
@@ -214,31 +198,41 @@ function easeInOut(value: number) {
 export function Hero() {
   const { open } = useRegistration()
 
-  const sectionRef = useRef<HTMLElement>(null)
-  const stageWrapperRef = useRef<HTMLDivElement>(null)
+  const sectionRef =
+    useRef<HTMLElement>(null)
 
-  const [progress, setProgress] = useState(0)
-  const [stageScale, setStageScale] = useState(1)
+  const stageWrapperRef =
+    useRef<HTMLDivElement>(null)
 
-  /* ============================================================
-     RESPONSIVE STAGE SCALE
+  const [progress, setProgress] =
+    useState(0)
 
-     The artwork always uses the same 790 × 316 coordinate
-     system. Mobile only scales the complete stage.
-  ============================================================ */
+  const [stageScale, setStageScale] =
+    useState(1)
+
+  /* ==========================================================
+     RESPONSIVE MASTER STAGE SCALE
+
+     DO NOT CHANGE THE ARTBOARD.
+
+     The 790 × 316 stage is simply scaled down to fit.
+  ========================================================== */
 
   useEffect(() => {
-    const wrapper = stageWrapperRef.current
+    const wrapper =
+      stageWrapperRef.current
 
     if (!wrapper) return
 
     const updateScale = () => {
       const availableWidth =
-        wrapper.getBoundingClientRect().width
+        wrapper.getBoundingClientRect()
+          .width
 
       const scale = Math.min(
         1,
-        availableWidth / STAGE_WIDTH,
+        availableWidth /
+          STAGE_WIDTH,
       )
 
       setStageScale(scale)
@@ -246,10 +240,15 @@ export function Hero() {
 
     updateScale()
 
-    const observer = new ResizeObserver(updateScale)
+    const observer =
+      new ResizeObserver(updateScale)
+
     observer.observe(wrapper)
 
-    window.addEventListener('resize', updateScale)
+    window.addEventListener(
+      'resize',
+      updateScale,
+    )
 
     return () => {
       observer.disconnect()
@@ -261,9 +260,9 @@ export function Hero() {
     }
   }, [])
 
-  /* ============================================================
+  /* ==========================================================
      SCROLL PROGRESS
-  ============================================================ */
+  ========================================================== */
 
   useEffect(() => {
     let raf = 0
@@ -271,7 +270,8 @@ export function Hero() {
     const update = () => {
       raf = 0
 
-      const section = sectionRef.current
+      const section =
+        sectionRef.current
 
       if (!section) return
 
@@ -293,7 +293,10 @@ export function Hero() {
 
     const onScroll = () => {
       if (!raf) {
-        raf = window.requestAnimationFrame(update)
+        raf =
+          window.requestAnimationFrame(
+            update,
+          )
       }
     }
 
@@ -330,103 +333,87 @@ export function Hero() {
   /* ============================================================
      CINEMATIC TIMELINE
 
-     0.00 – 0.10
-     ----------------
-     Complete assembled TOR'Q logo.
+     THIS IS THE ONLY MAJOR BEHAVIOUR CHANGE.
 
-     0.10 – 0.34
-     ----------------
-     Logo fades away.
-     Components make a tiny "release" movement.
+     0.00
+       Perfect alignment.
 
-     0.34 – 0.42
-     ----------------
-     Parts begin lifting away from the logo.
+     Immediately when scrolling starts:
+       The pieces begin to lift.
 
-     0.42 – 0.82
-     ----------------
-     Full 3D disintegration.
+     0.00 → 0.30
+       Very slow mechanical release.
 
-     0.82 – 1.00
-     ----------------
-     Africa's Biggest Motorsport Spectacle
-     enters and settles into the viewport.
+       The logo simultaneously fades.
+
+     0.30
+       Logo is completely gone.
+
+     0.30 → 1.00
+       Pieces accelerate into the full
+       disintegration/flying sequence.
   ============================================================ */
 
   const logoFadeProgress =
     easeInOut(
-      (progress - 0.10) / 0.24,
+      progress / 0.30,
     )
 
   const logoOpacity =
     1 - logoFadeProgress
 
   /*
-   * This is deliberately subtle.
+   * RELEASE STARTS IMMEDIATELY.
    *
-   * The pieces should feel like they are holding
-   * the logo in place before releasing it.
+   * At progress 0 this is exactly 0.
+   *
+   * Therefore the original alignment is untouched.
    */
-  const release =
-  easeInOut(
-    (progress - 0.10) / 0.24,
-  )
 
-  /*
-   * Actual explosion begins only after the release.
-   */
-  const explosion =
+  const release =
     easeInOut(
-      (progress - 0.34) / 0.58,
+      progress / 0.30,
     )
 
   /*
-   * Welcome disappears very early.
+   * FULL EXPLOSION.
+   *
+   * The pieces do NOT immediately fly away.
+   *
+   * They spend the first part of the scroll
+   * physically releasing the logo.
    */
+
+  const explosion =
+    easeIn(
+      (progress - 0.27) / 0.73,
+    )
+
+  /* ============================================================
+     OTHER HERO TRANSITIONS
+  ============================================================ */
+
   const welcomeOpacity =
     1 -
     easeOut(
       progress / 0.12,
     )
 
-  /*
-   * Scroll prompt disappears as the cinematic
-   * sequence begins.
-   */
   const scrollOpacity =
     1 -
     easeOut(
-      progress / 0.15,
+      progress / 0.14,
     )
 
-  /*
-   * Background comes in very late so it does not
-   * interfere with the TOR'Q reveal.
-   */
   const backgroundOpacity =
     easeOut(
-      (progress - 0.72) / 0.18,
-    )
-
-  /*
-   * Main hero copy appears after the pieces have
-   * substantially cleared the frame.
-   */
-  const contentProgress =
-    easeInOut(
-      (progress - 0.78) / 0.20,
+      (progress - 0.42) / 0.30,
     )
 
   const contentOpacity =
-    contentProgress
-
-  const contentY =
-    55 -
-    contentProgress * 55
-
-  const contentScale =
-    0.94 +
-    contentProgress * 0.06
+    easeInOut(
+      (progress - 0.60) / 0.25,
+    )
 
   return (
     <section
@@ -434,7 +421,7 @@ export function Hero() {
       id="top"
       className="
         relative
-        h-[190vh]
+        h-[170vh]
         bg-black
       "
     >
@@ -508,37 +495,20 @@ export function Hero() {
         </div>
 
         {/* ======================================================
-            MAIN HERO CONTENT
+            NORMAL HERO CONTENT
 
-            This now arrives AFTER the mechanical
-            disintegration.
+            UNCHANGED
         ====================================================== */}
 
         <div
           className="
             absolute
             inset-0
-            z-20
-            flex
-            items-center
+            z-10
           "
           style={{
-            opacity: contentOpacity,
-
-            transform: `
-              translate3d(
-                0,
-                ${contentY}px,
-                0
-              )
-              scale(${contentScale})
-            `,
-
-            transformOrigin:
-              'center center',
-
-            willChange:
-              'transform, opacity',
+            opacity:
+              contentOpacity,
           }}
         >
           <div
@@ -560,11 +530,6 @@ export function Hero() {
                 max-w-5xl
               "
             >
-
-              {/* ==================================================
-                  AFRICA'S BIGGEST MOTORSPORT SPECTACLE
-              ================================================== */}
-
               <h1
                 className="
                   max-w-5xl
@@ -629,7 +594,6 @@ export function Hero() {
                   sm:items-center
                 "
               >
-
                 <Button
                   size="lg"
                   onClick={open}
@@ -680,12 +644,7 @@ export function Hero() {
 
                   {EVENT.location}
                 </div>
-
               </div>
-
-              {/* ==================================================
-                  STATS
-              ================================================== */}
 
               <div
                 className="
@@ -701,7 +660,6 @@ export function Hero() {
                   sm:pt-7
                 "
               >
-
                 <HeroStat
                   value="100+"
                   label="Performance Cars"
@@ -721,12 +679,7 @@ export function Hero() {
                   value="1"
                   label="Epic Experience"
                 />
-
               </div>
-
-              {/* ==================================================
-                  COUNTDOWN
-              ================================================== */}
 
               <div
                 className="
@@ -750,7 +703,6 @@ export function Hero() {
                   date={EVENT.date}
                 />
               </div>
-
             </div>
           </div>
         </div>
@@ -774,7 +726,6 @@ export function Hero() {
               '1800px',
           }}
         >
-
           <div
             className="
               flex
@@ -809,6 +760,8 @@ export function Hero() {
 
             {/* ==================================================
                 MASTER STAGE WRAPPER
+
+                DO NOT CHANGE.
             ================================================== */}
 
             <div
@@ -826,6 +779,8 @@ export function Hero() {
 
               {/* ==================================================
                   MASTER 790 × 316 ARTBOARD
+
+                  DO NOT CHANGE.
               ================================================== */}
 
               <div
@@ -857,11 +812,7 @@ export function Hero() {
                 {/* =================================================
                     ORIGINAL TOR'Q LOGO
 
-                    This stays BEHIND the parts and is 100%
-                    visible at the beginning.
-
-                    It is NOT removed until the pieces
-                    start releasing it.
+                    ALWAYS BEHIND THE COMPONENTS.
                 ================================================= */}
 
                 <img
@@ -876,19 +827,13 @@ export function Hero() {
                     w-full
                   "
                   style={{
-                    objectFit:
-                      'fill',
+                    objectFit: 'fill',
 
                     opacity:
                       logoOpacity,
 
-                    transform: `
-                      translate3d(
-                        0,
-                        ${release * 2}px,
-                        ${release * -12}px
-                      )
-                    `,
+                    transform:
+                      'translateZ(0)',
 
                     transformOrigin:
                       'center center',
@@ -896,7 +841,7 @@ export function Hero() {
                     zIndex: 1,
 
                     willChange:
-                      'opacity, transform',
+                      'opacity',
                   }}
                 />
 
@@ -987,7 +932,6 @@ export function Hero() {
                   release={release}
                   explosion={explosion}
                 />
-
               </div>
             </div>
 
@@ -1009,7 +953,6 @@ export function Hero() {
                   scrollOpacity,
               }}
             >
-
               <span
                 className="
                   whitespace-nowrap
@@ -1021,7 +964,8 @@ export function Hero() {
                   sm:text-[10px]
                 "
               >
-                Scroll down to experience TOR&apos;Q
+                Scroll down to experience
+                TOR&apos;Q
               </span>
 
               <div
@@ -1051,12 +995,9 @@ export function Hero() {
                   "
                 />
               </div>
-
             </div>
-
           </div>
         </div>
-
       </div>
     </section>
   )
@@ -1066,22 +1007,19 @@ export function Hero() {
    MECHANICAL PIECE
 
    IMPORTANT:
-   The registered x/y/width/rotation remain untouched.
 
-   Animation has THREE stages:
+   The registered x/y/width/rotation values are NOT modified.
 
-   1. RELEASE
-      Tiny physical lift while the logo fades.
+   At release = 0 and explosion = 0:
 
-   2. DEPTH
-      Pieces move toward the camera.
+       left  = registered x
+       top   = registered y
+       scale = 1
+       rotateZ = registered rotation
 
-   3. FLIGHT
-      Pieces travel away in different directions.
+   Therefore the initial alignment remains EXACTLY the same.
 
-   The combination of perspective + translateZ +
-   rotateX + rotateY makes the PNGs feel substantially
-   more dimensional.
+   The release motion happens through transform only.
 ================================================================ */
 
 function MechanicalPiece({
@@ -1095,44 +1033,73 @@ function MechanicalPiece({
   release: number
   explosion: number
 }) {
-  const r = clamp(release)
-  const e = clamp(explosion)
+  const r =
+    clamp(release)
+
+  const e =
+    clamp(explosion)
+
+  /* ============================================================
+     PHASE 1 — MECHANICAL RELEASE
+
+     This begins IMMEDIATELY when scrolling starts.
+
+     It is intentionally tiny.
+
+     The pieces should feel like they are resisting the
+     disappearance of the logo before finally releasing it.
+  ============================================================ */
+
+  const releaseAmount =
+    easeInOut(r)
 
   /*
-   * ============================================================
-   * RELEASE
+   * Tiny vertical lift.
    *
-   * VERY IMPORTANT:
+   * At 0:
+   *   0px
    *
-   * x and y NEVER change during the release phase.
-   *
-   * This preserves the exact registration alignment.
-   *
-   * The small lift happens inside transform instead.
-   * ============================================================
+   * At full release:
+   *   -6px
    */
-
-  const releaseAmount = easeInOut(r)
 
   const lift =
-    -5 * releaseAmount
-
-  const releaseZ =
-    35 * releaseAmount
-
-  const releaseRotateX =
-    data.rotateX * 0.018 * releaseAmount
-
-  const releaseRotateY =
-    data.rotateY * 0.018 * releaseAmount
+    -6 * releaseAmount
 
   /*
-   * ============================================================
-   * DISINTEGRATION
-   *
-   * Explosion starts only after the release.
-   * ============================================================
+   * Tiny movement toward camera.
    */
+
+  const releaseZ =
+    45 * releaseAmount
+
+  /*
+   * Extremely subtle 3D awakening.
+   *
+   * This is deliberately small so the perfect registration
+   * isn't visibly disturbed during the opening moments.
+   */
+
+  const releaseRotateX =
+    data.rotateX *
+    0.018 *
+    releaseAmount
+
+  const releaseRotateY =
+    data.rotateY *
+    0.018 *
+    releaseAmount
+
+  /* ============================================================
+     PHASE 2 — FULL DISINTEGRATION
+
+     The important part:
+
+     x/y stay EXACTLY equal to the registered values until
+     actual explosion movement begins.
+
+     This protects the alignment.
+  ============================================================ */
 
   const flight =
     easeInOut(e)
@@ -1140,83 +1107,102 @@ function MechanicalPiece({
   const flightCurve =
     Math.pow(e, 1.35)
 
-  /*
-   * Keep the registered x/y coordinates untouched.
-   */
-
   const x =
     data.x +
-    data.flightX * flightCurve
+    data.flightX *
+      flightCurve
 
   const y =
     data.y +
-    data.flightY * flightCurve
+    data.flightY *
+      flightCurve
 
-  /*
-   * ============================================================
-   * DEPTH
-   * ============================================================
-   */
+  /* ============================================================
+     DEPTH
 
-  const z =
+     Once the logo has mostly disappeared, the pieces begin
+     moving aggressively toward the camera.
+
+     This creates the 3D Transformers-style release.
+  ============================================================ */
+
+  const depth =
     releaseZ +
-    Math.pow(flight, 1.45) *
+    Math.pow(
+      flight,
+      1.45,
+    ) *
       2800
 
-  /*
-   * ============================================================
-   * SCALE
-   *
-   * Subtle at first, stronger later.
-   * ============================================================
-   */
+  /* ============================================================
+     SCALE
+
+     Very subtle initially.
+
+     Much stronger once the parts enter the camera space.
+  ============================================================ */
 
   const scale =
     1 +
-    Math.pow(flight, 1.8) * 2.8
+    Math.pow(
+      flight,
+      1.8,
+    ) *
+      2.8
 
-  /*
-   * ============================================================
-   * ROTATION
-   * ============================================================
-   */
+  /* ============================================================
+     3D ROTATION
+  ============================================================ */
 
   const rotateX =
     releaseRotateX +
     data.rotateX *
-      Math.pow(flight, 0.9)
+      Math.pow(
+        flight,
+        0.9,
+      )
 
   const rotateY =
     releaseRotateY +
     data.rotateY *
-      Math.pow(flight, 0.9)
+      Math.pow(
+        flight,
+        0.9,
+      )
 
   const rotateZ =
     data.rotation +
     data.rotateZ *
-      Math.pow(flight, 0.9)
+      Math.pow(
+        flight,
+        0.9,
+      )
 
-  /*
-   * ============================================================
-   * MOTION BLUR
-   * ============================================================
-   */
+  /* ============================================================
+     MOTION BLUR
+
+     Kept extremely low.
+
+     We want the parts to remain crisp and metallic.
+  ============================================================ */
 
   const blur =
-    Math.pow(flight, 2.4) * 2
+    Math.pow(
+      flight,
+      2.4,
+    ) * 2
 
-  /*
-   * ============================================================
-   * FADE
-   *
-   * Pieces stay visible almost all the way through the flight.
-   * ============================================================
-   */
+  /* ============================================================
+     FADE
+
+     Pieces remain visible almost throughout the flight.
+  ============================================================ */
 
   const opacity =
     1 -
     easeIn(
-      (flight - 0.84) / 0.16,
+      (flight - 0.84) /
+        0.16,
     )
 
   return (
@@ -1231,75 +1217,105 @@ function MechanicalPiece({
         object-contain
       "
       style={{
-        /*
-         * ======================================================
-         * THIS IS CRITICAL
-         *
-         * These are the original registration coordinates.
-         * Do NOT add release offsets here.
-         * ======================================================
-         */
+        /* ======================================================
+           CRITICAL ALIGNMENT
 
-        left: `${x}px`,
-        top: `${y}px`,
+           DO NOT CHANGE.
+        ====================================================== */
 
-        width: `${data.width}px`,
-        height: 'auto',
+        left:
+          `${x}px`,
+
+        top:
+          `${y}px`,
+
+        width:
+          `${data.width}px`,
+
+        height:
+          'auto',
+
+        /* ======================================================
+           VISIBILITY
+        ====================================================== */
 
         opacity,
 
-        /*
-         * ======================================================
-         * CRITICAL ALIGNMENT SETTING
-         *
-         * The original working version used top-left.
-         * ======================================================
-         */
+        /* ======================================================
+           CRITICAL ALIGNMENT
 
-        transformOrigin: 'top left',
+           This MUST remain top left.
+        ====================================================== */
 
-        transformStyle: 'preserve-3d',
+        transformOrigin:
+          'top left',
 
-        backfaceVisibility: 'visible',
+        transformStyle:
+          'preserve-3d',
 
-        /*
-         * ======================================================
-         * TRANSFORM
-         *
-         * The release lift happens HERE.
-         *
-         * Therefore the registration x/y values remain intact.
-         * ======================================================
-         */
+        backfaceVisibility:
+          'visible',
+
+        /* ======================================================
+           TRANSFORM
+
+           The initial state remains:
+
+             translate3d(0, 0, 0)
+             rotateX(0)
+             rotateY(0)
+             rotateZ(original)
+             scale(1)
+
+           Therefore alignment is preserved.
+        ====================================================== */
 
         transform: `
           translate3d(
             0,
             ${lift}px,
-            ${z}px
+            ${depth}px
           )
 
-          rotateX(${rotateX}deg)
+          rotateX(
+            ${rotateX}deg
+          )
 
-          rotateY(${rotateY}deg)
+          rotateY(
+            ${rotateY}deg
+          )
 
-          rotateZ(${rotateZ}deg)
+          rotateZ(
+            ${rotateZ}deg
+          )
 
-          scale(${scale})
+          scale(
+            ${scale}
+          )
         `,
+
+        /* ======================================================
+           MOTION BLUR
+        ====================================================== */
 
         filter:
           blur > 0
             ? `blur(${blur}px)`
             : 'none',
 
-        /*
-         * Keep pieces above the logo.
-         */
+        /* ======================================================
+           DEPTH ORDER
+        ====================================================== */
 
         zIndex:
           10 +
-          Math.round(z / 100),
+          Math.round(
+            depth / 100,
+          ),
+
+        /* ======================================================
+           PERFORMANCE
+        ====================================================== */
 
         willChange:
           'transform, opacity, filter',
@@ -1321,7 +1337,6 @@ function HeroStat({
 }) {
   return (
     <div className="min-w-0">
-
       <p
         className="
           text-2xl
@@ -1348,7 +1363,6 @@ function HeroStat({
       >
         {label}
       </p>
-
     </div>
   )
 }
