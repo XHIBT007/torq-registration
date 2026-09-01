@@ -5,6 +5,7 @@ import {
   MapPin,
   Ticket,
 } from 'lucide-react'
+
 import {
   useEffect,
   useRef,
@@ -18,20 +19,18 @@ import { EVENT } from '@/lib/torq-data'
 
 /* ============================================================
    MASTER TOR'Q ARTBOARD
-   LOCKED — DO NOT CHANGE
+
+   LOCKED.
 ============================================================ */
 
 const STAGE_WIDTH = 790
 const STAGE_HEIGHT = 316
 
 /*
- * THIS IS THE IMPORTANT NEW VALUE.
+ * The beautiful smoothened state that appears immediately
+ * when the page loads.
  *
- * The page now starts from the same subtle "released /
- * smoothened" state that previously appeared after the
- * first little bit of scrolling.
- *
- * Explosion still starts at ZERO.
+ * DO NOT REMOVE.
  */
 const INITIAL_RELEASE = 0.32
 
@@ -40,130 +39,320 @@ const INITIAL_RELEASE = 0.32
 ============================================================ */
 
 type ComponentData = {
+  /*
+   * LOCKED REGISTRATION VALUES
+   */
   x: number
   y: number
   width: number
   rotation: number
 
+  /*
+   * LOCKED FLIGHT DIRECTIONS
+   */
   flightX: number
   flightY: number
 
+  /*
+   * LOCKED ROTATION DIRECTION DATA
+   */
   rotateX: number
   rotateY: number
   rotateZ: number
 
+  /*
+   * DEPTH CHARACTER
+   */
   depth: number
+
+  /*
+   * NEW MECHANICAL CHOREOGRAPHY
+   *
+   * These only affect flight behavior.
+   * They do NOT affect registration alignment.
+   */
+  spinX: number
+  spinY: number
+  spinZ: number
+
+  microX: number
+  microY: number
+
+  phase: number
+
+  /*
+   * 0 = normal
+   * 1 = turbine-style rotational emphasis
+   * 2 = piston-style mechanical stroke
+   */
+  motionType: number
 }
 
 /* ============================================================
-   LOCKED REGISTRATION POSITIONS
+   LOCKED COMPONENT POSITIONS
 
-   DO NOT CHANGE THESE.
+   DO NOT CHANGE x / y / width / rotation.
 ============================================================ */
 
-const COMPONENTS: Record<string, ComponentData> = {
+const COMPONENTS: Record<
+  string,
+  ComponentData
+> = {
+  /* ==========================================================
+     T
+  ========================================================== */
+
   t: {
     x: -2.01,
     y: 34.27,
     width: 177,
     rotation: -21,
+
     flightX: -900,
     flightY: -350,
+
     rotateX: 300,
     rotateY: -220,
     rotateZ: -480,
+
     depth: 1.0,
+
+    spinX: 1.00,
+    spinY: 0.75,
+    spinZ: 1.15,
+
+    microX: 10,
+    microY: 5,
+
+    phase: 0.4,
+
+    motionType: 0,
   },
+
+  /* ==========================================================
+     TURBINE
+  ========================================================== */
 
   turbine: {
     x: 128.14,
     y: 39.31,
     width: 188,
     rotation: -7,
+
     flightX: -600,
     flightY: 650,
+
     rotateX: 320,
     rotateY: -260,
     rotateZ: 420,
+
     depth: 1.15,
+
+    /*
+     * Strong Z-axis rotation.
+     */
+    spinX: 0.60,
+    spinY: 0.85,
+    spinZ: 1.55,
+
+    microX: 7,
+    microY: 7,
+
+    phase: 1.8,
+
+    motionType: 1,
   },
+
+  /* ==========================================================
+     26
+  ========================================================== */
 
   number26: {
     x: 247.95,
     y: 108.56,
     width: 38,
     rotation: 0,
+
     flightX: 80,
     flightY: -900,
+
     rotateX: 280,
     rotateY: 350,
     rotateZ: 360,
+
     depth: 0.9,
+
+    /*
+     * Keep the 26 relatively readable early in flight.
+     */
+    spinX: 0.55,
+    spinY: 0.70,
+    spinZ: 0.80,
+
+    microX: 4,
+    microY: 3,
+
+    phase: 2.9,
+
+    motionType: 0,
   },
+
+  /* ==========================================================
+     R
+  ========================================================== */
 
   r: {
     x: 266.87,
     y: 32.9,
     width: 153,
     rotation: -22,
+
     flightX: 900,
     flightY: -280,
+
     rotateX: -320,
     rotateY: 260,
     rotateZ: 500,
+
     depth: 1.1,
+
+    spinX: 1.00,
+    spinY: 1.05,
+    spinZ: 1.15,
+
+    microX: 8,
+    microY: 5,
+
+    phase: 4.1,
+
+    motionType: 0,
   },
+
+  /* ==========================================================
+     R LOWER
+  ========================================================== */
 
   rLower: {
     x: 313.28,
     y: 153.54,
     width: 168,
     rotation: -21,
+
     flightX: 750,
     flightY: 700,
+
     rotateX: 350,
     rotateY: -300,
     rotateZ: -520,
+
     depth: 1.2,
+
+    spinX: 1.15,
+    spinY: 0.85,
+    spinZ: 1.25,
+
+    microX: 9,
+    microY: 8,
+
+    phase: 5.4,
+
+    motionType: 0,
   },
+
+  /* ==========================================================
+     PISTON
+  ========================================================== */
 
   piston: {
     x: 423.85,
     y: 10.75,
     width: 169,
     rotation: -14,
+
     flightX: 600,
     flightY: -900,
+
     rotateX: -380,
     rotateY: 300,
     rotateZ: 520,
+
     depth: 1.35,
+
+    spinX: 0.95,
+    spinY: 0.75,
+    spinZ: 1.00,
+
+    microX: 6,
+    microY: 16,
+
+    phase: 6.8,
+
+    /*
+     * Special piston motion.
+     */
+    motionType: 2,
   },
+
+  /* ==========================================================
+     Q
+  ========================================================== */
 
   q: {
     x: 498.7,
     y: 13.01,
     width: 224,
     rotation: -6,
+
     flightX: 1000,
     flightY: 80,
+
     rotateX: 300,
     rotateY: 380,
     rotateZ: -500,
+
     depth: 1.0,
+
+    spinX: 0.90,
+    spinY: 1.20,
+    spinZ: 1.30,
+
+    microX: 12,
+    microY: 5,
+
+    phase: 8.1,
+
+    motionType: 0,
   },
+
+  /* ==========================================================
+     Q BASE
+  ========================================================== */
 
   qBase: {
     x: 592.88,
     y: 187.1,
     width: 150,
     rotation: 0,
+
     flightX: 900,
     flightY: 750,
+
     rotateX: -320,
     rotateY: 280,
     rotateZ: 460,
+
     depth: 1.25,
+
+    spinX: 1.10,
+    spinY: 0.90,
+    spinZ: 1.20,
+
+    microX: 9,
+    microY: 9,
+
+    phase: 9.6,
+
+    motionType: 0,
   },
 }
 
@@ -172,7 +361,10 @@ const COMPONENTS: Record<string, ComponentData> = {
 ============================================================ */
 
 function clamp(value: number) {
-  return Math.max(0, Math.min(1, value))
+  return Math.max(
+    0,
+    Math.min(1, value),
+  )
 }
 
 function easeIn(value: number) {
@@ -184,7 +376,13 @@ function easeIn(value: number) {
 function easeOut(value: number) {
   const t = clamp(value)
 
-  return 1 - Math.pow(1 - t, 3)
+  return (
+    1 -
+    Math.pow(
+      1 - t,
+      3,
+    )
+  )
 }
 
 function easeInOut(value: number) {
@@ -201,17 +399,22 @@ function easeInOut(value: number) {
 }
 
 /*
- * Flight acceleration.
+ * Main flight acceleration.
  *
- * This is intentionally preserved from the version
- * whose disintegration you liked.
+ * PRESERVED.
  */
-function flightCurve(value: number) {
+function flightCurve(
+  value: number,
+) {
   const t = clamp(value)
 
   return (
     0.08 * t +
-    0.92 * Math.pow(t, 1.72)
+    0.92 *
+      Math.pow(
+        t,
+        1.72,
+      )
   )
 }
 
@@ -238,7 +441,7 @@ export function Hero() {
   /* ==========================================================
      RESPONSIVE STAGE SCALE
 
-     790 × 316 remains the master coordinate system.
+     LOCKED 790 × 316 ARTBOARD.
   ========================================================== */
 
   useEffect(() => {
@@ -287,8 +490,6 @@ export function Hero() {
 
   /* ==========================================================
      SCROLL PROGRESS
-
-     Progress begins at ZERO.
   ========================================================== */
 
   useEffect(() => {
@@ -313,7 +514,8 @@ export function Hero() {
 
       setProgress(
         clamp(
-          -rect.top / distance,
+          -rect.top /
+            distance,
         ),
       )
     }
@@ -364,16 +566,9 @@ export function Hero() {
   /* ==========================================================
      MASTER TIMELINE
 
-     THE KEY CHANGE:
+     SMOOTH TOR'Q IS THE OPENING STATE.
 
-     The logo starts fully visible.
-
-     The COMPONENTS start from INITIAL_RELEASE.
-
-     Therefore the visitor sees the smoothened version
-     immediately without having to scroll first.
-
-     As soon as scrolling starts, explosion begins.
+     DISINTEGRATION STARTS IMMEDIATELY.
   ========================================================== */
 
   const logoFade =
@@ -385,14 +580,7 @@ export function Hero() {
     1 - logoFade
 
   /*
-   * IMPORTANT:
-   *
-   * We don't use release as the initial state anymore.
-   *
-   * The components are ALREADY in the beautiful
-   * smoothened position when the page opens.
-   *
-   * Scrolling then continues that movement.
+   * Initial smoothened state.
    */
   const releaseProgress =
     easeInOut(
@@ -402,15 +590,15 @@ export function Hero() {
   const release =
     INITIAL_RELEASE +
     (
-      1 - INITIAL_RELEASE
+      1 -
+      INITIAL_RELEASE
     ) *
       releaseProgress
 
   /*
-   * Explosion still starts from ZERO.
+   * Flight remains independent.
    *
-   * This means there is no disintegration before
-   * scrolling.
+   * Starts at ZERO.
    */
   const explosion =
     easeInOut(
@@ -458,7 +646,8 @@ export function Hero() {
 
   const contentY =
     30 -
-    contentProgress * 30
+    contentProgress *
+      30
 
   const contentScale =
     0.965 +
@@ -867,7 +1056,7 @@ export function Hero() {
               }}
             >
               {/* ===============================================
-                  790 × 316 MASTER STAGE
+                  MASTER 790 × 316 ARTBOARD
               =============================================== */}
 
               <div
@@ -897,9 +1086,6 @@ export function Hero() {
               >
                 {/* =============================================
                     INTACT LOGO
-
-                    IMPORTANT:
-                    It remains fully visible at page load.
                 ============================================= */}
 
                 <img
@@ -955,7 +1141,9 @@ export function Hero() {
 
                 <MechanicalPiece
                   src="/images/torq-components/turbine.png"
-                  data={COMPONENTS.turbine}
+                  data={
+                    COMPONENTS.turbine
+                  }
                   release={release}
                   explosion={explosion}
                 />
@@ -990,7 +1178,9 @@ export function Hero() {
 
                 <MechanicalPiece
                   src="/images/torq-components/r_lower.png"
-                  data={COMPONENTS.rLower}
+                  data={
+                    COMPONENTS.rLower
+                  }
                   release={release}
                   explosion={explosion}
                 />
@@ -1001,7 +1191,9 @@ export function Hero() {
 
                 <MechanicalPiece
                   src="/images/torq-components/piston.png"
-                  data={COMPONENTS.piston}
+                  data={
+                    COMPONENTS.piston
+                  }
                   release={release}
                   explosion={explosion}
                 />
@@ -1023,7 +1215,9 @@ export function Hero() {
 
                 <MechanicalPiece
                   src="/images/torq-components/q_base.png"
-                  data={COMPONENTS.qBase}
+                  data={
+                    COMPONENTS.qBase
+                  }
                   release={release}
                   explosion={explosion}
                 />
@@ -1101,12 +1295,9 @@ export function Hero() {
 /* ================================================================
    MECHANICAL PIECE
 
-   The registered geometry remains untouched.
+   The registered geometry is NEVER modified.
 
-   The initial frame is now intentionally "smoothened"
-   through INITIAL_RELEASE.
-
-   Explosion remains independent and starts at ZERO.
+   The new choreography only affects the flight.
 ================================================================ */
 
 function MechanicalPiece({
@@ -1125,9 +1316,6 @@ function MechanicalPiece({
 
   /* ============================================================
      RELEASE
-
-     Because INITIAL_RELEASE is already active at page load,
-     the user sees the smoothened version immediately.
   ============================================================ */
 
   const releaseAmount =
@@ -1152,7 +1340,7 @@ function MechanicalPiece({
     releaseAmount
 
   /* ============================================================
-     EXPLOSION
+     MAIN FLIGHT
   ============================================================ */
 
   const flight =
@@ -1160,22 +1348,23 @@ function MechanicalPiece({
 
   /* ============================================================
      POSITION
-
-     Registered x/y remain the foundation.
   ============================================================ */
 
   const x =
     data.x +
     data.flightX *
-    flight
+      flight
 
   const y =
     data.y +
     data.flightY *
-    flight
+      flight
 
   /* ============================================================
      DEPTH
+
+     Kept restrained to avoid the previous "thin sliver"
+     problem.
   ============================================================ */
 
   const depth =
@@ -1190,7 +1379,7 @@ function MechanicalPiece({
       )
 
   /* ============================================================
-     SCALE
+     PERSPECTIVE SCALE
   ============================================================ */
 
   const scale =
@@ -1205,10 +1394,7 @@ function MechanicalPiece({
       )
 
   /* ============================================================
-     ROTATION
-
-     Preserved from the version whose disintegration
-     you liked.
+     ROTATION PROGRESS
   ============================================================ */
 
   const rotationProgress =
@@ -1217,70 +1403,185 @@ function MechanicalPiece({
       0.72,
     )
 
-  const rotateX =
-    releaseRotateX +
+  /* ============================================================
+     PRIMARY ROTATION
+
+     Each component has its own mechanical character.
+  ============================================================ */
+
+  const primaryX =
     data.rotateX *
-      0.34 *
-      rotationProgress
+    0.34 *
+    data.spinX
 
-  const rotateY =
-    releaseRotateY +
+  const primaryY =
     data.rotateY *
-      0.34 *
-      rotationProgress
+    0.34 *
+    data.spinY
 
-  const rotateZ =
-    data.rotation +
+  const primaryZ =
     data.rotateZ *
-      0.48 *
-      rotationProgress
+    0.48 *
+    data.spinZ
 
   /* ============================================================
-     SECONDARY TUMBLE
+     SECONDARY MECHANICAL TUMBLE
   ============================================================ */
 
   const phase =
-    (
-      data.x * 0.013 +
-      data.y * 0.021
-    )
+    data.phase
 
-  const tumbleX =
+  /*
+   * Slow oscillation.
+   */
+  const slowWave =
     Math.sin(
       flight *
         Math.PI *
-        1.55 +
+        1.35 +
         phase,
-    ) *
-    9 *
+    )
+
+  /*
+   * Faster mechanical vibration.
+   */
+  const fastWave =
+    Math.sin(
+      flight *
+        Math.PI *
+        3.1 +
+        phase,
+    )
+
+  const tumbleX =
+    slowWave *
+    data.microX *
     flight
 
   const tumbleY =
     Math.cos(
       flight *
         Math.PI *
-        1.25 +
+        1.55 +
         phase,
     ) *
-    8 *
+    data.microX *
+    0.75 *
     flight
 
   const tumbleZ =
-    Math.sin(
-      flight *
-        Math.PI *
-        1.10 +
-        phase,
-    ) *
-    7 *
+    fastWave *
+    data.microX *
+    0.60 *
     flight
+
+  /* ============================================================
+     SPECIAL PISTON MOTION
+  ============================================================ */
+
+  let mechanicalY = 0
+  let mechanicalX = 0
+
+  if (data.motionType === 2) {
+    /*
+     * A piston-like compression/release motion.
+     *
+     * It is strongest in the middle of the flight,
+     * then settles as the component disappears.
+     */
+    const pistonEnvelope =
+      Math.sin(
+        Math.min(
+          1,
+          flight * 1.35,
+        ) *
+          Math.PI,
+      )
+
+    mechanicalY =
+      Math.sin(
+        flight *
+          Math.PI *
+          6 +
+          phase,
+      ) *
+      data.microY *
+      pistonEnvelope
+
+    mechanicalX =
+      Math.cos(
+        flight *
+          Math.PI *
+          3 +
+          phase,
+      ) *
+      3 *
+      pistonEnvelope
+  }
+
+  /* ============================================================
+     TURBINE-SPECIFIC MOTION
+  ============================================================ */
+
+  let turbineSpin = 0
+
+  if (data.motionType === 1) {
+    /*
+     * Continuous rotational energy.
+     */
+    turbineSpin =
+      flight *
+      flight *
+      70
+  }
+
+  /* ============================================================
+     FINAL ROTATIONS
+  ============================================================ */
+
+  const rotateX =
+    releaseRotateX +
+    primaryX *
+      rotationProgress +
+    tumbleX
+
+  const rotateY =
+    releaseRotateY +
+    primaryY *
+      rotationProgress +
+    tumbleY
+
+  const rotateZ =
+    data.rotation +
+    primaryZ *
+      rotationProgress +
+    tumbleZ +
+    turbineSpin
+
+  /* ============================================================
+     EXTRA PHYSICAL SHIFT
+
+     Tiny relative motion gives the pieces a less
+     "computer-perfect" feel.
+  ============================================================ */
+
+  const finalX =
+    x +
+    mechanicalX
+
+  const finalY =
+    y +
+    mechanicalY
 
   /* ============================================================
      FADE
   ============================================================ */
 
   const fadeProgress =
-    (flight - 0.88) /
+    (
+      flight -
+      0.88
+    ) /
     0.12
 
   const opacity =
@@ -1301,7 +1602,27 @@ function MechanicalPiece({
     1.1
 
   /* ============================================================
-     SHADOW
+     METALLIC CONTRAST
+
+     Very subtle.
+
+     The source artwork remains intact, but during
+     flight the metallic highlights get slightly
+     more pronounced.
+  ============================================================ */
+
+  const brightness =
+    1 +
+    flight *
+    0.055
+
+  const contrast =
+    1 +
+    flight *
+    0.08
+
+  /* ============================================================
+     DEPTH SHADOW
   ============================================================ */
 
   const shadowOpacity =
@@ -1333,14 +1654,14 @@ function MechanicalPiece({
       "
       style={{
         /* ======================================================
-           LOCKED GEOMETRY
+           LOCKED REGISTRATION SYSTEM
         ====================================================== */
 
         left:
-          `${x}px`,
+          `${finalX}px`,
 
         top:
-          `${y}px`,
+          `${finalY}px`,
 
         width:
           `${data.width}px`,
@@ -1351,9 +1672,7 @@ function MechanicalPiece({
         opacity,
 
         /* ======================================================
-           CRITICAL ALIGNMENT VALUE
-
-           DO NOT CHANGE.
+           CRITICAL ALIGNMENT
         ====================================================== */
 
         transformOrigin:
@@ -1366,7 +1685,7 @@ function MechanicalPiece({
           'visible',
 
         /* ======================================================
-           TRANSFORM
+           MECHANICAL 3D TRANSFORM
         ====================================================== */
 
         transform: `
@@ -1377,15 +1696,15 @@ function MechanicalPiece({
           )
 
           rotateX(
-            ${rotateX + tumbleX}deg
+            ${rotateX}deg
           )
 
           rotateY(
-            ${rotateY + tumbleY}deg
+            ${rotateY}deg
           )
 
           rotateZ(
-            ${rotateZ + tumbleZ}deg
+            ${rotateZ}deg
           )
 
           scale(
@@ -1393,8 +1712,15 @@ function MechanicalPiece({
           )
         `,
 
+        /* ======================================================
+           METALLIC IMAGE TREATMENT + DEPTH SHADOW
+        ====================================================== */
+
         filter: `
+          brightness(${brightness})
+          contrast(${contrast})
           blur(${blur}px)
+
           drop-shadow(
             ${shadowX}px
             ${shadowY}px
@@ -1407,6 +1733,10 @@ function MechanicalPiece({
             )
           )
         `,
+
+        /* ======================================================
+           DEPTH ORDER
+        ====================================================== */
 
         zIndex:
           10 +
