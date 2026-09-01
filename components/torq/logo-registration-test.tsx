@@ -20,13 +20,36 @@ export function LogoRegistrationTest() {
   return (
     <main className="min-h-screen bg-black text-white">
 
-      <div className="mx-auto max-w-7xl px-6 py-16">
+      <div className="mx-auto max-w-7xl px-5 py-12 sm:px-8 sm:py-16">
 
-        <h1 className="text-4xl font-black uppercase">
+        {/* =====================================================
+            HEADER
+        ===================================================== */}
+
+        <h1
+          className="
+            max-w-4xl
+            text-3xl
+            font-black
+            uppercase
+            leading-[0.95]
+            sm:text-5xl
+          "
+        >
           TOR&apos;Q Component Registration
         </h1>
 
-        <p className="mt-4 max-w-3xl text-lg text-white/50">
+        <p
+          className="
+            mt-4
+            max-w-3xl
+            text-sm
+            leading-6
+            text-white/50
+            sm:text-lg
+            sm:leading-8
+          "
+        >
           We are registering the individual mechanical
           components against the original TOR&apos;Q logo.
           The reference is temporary and will NOT appear
@@ -34,21 +57,22 @@ export function LogoRegistrationTest() {
         </p>
 
         {/* =====================================================
-            REFERENCE CONTROL
+            REFERENCE OPACITY
         ===================================================== */}
 
         <div
           className="
-            mt-10
+            mt-8
             flex
+            flex-wrap
             items-center
-            gap-5
+            gap-4
+            sm:mt-10
           "
         >
 
           <label
             className="
-              w-36
               text-xs
               font-bold
               uppercase
@@ -70,10 +94,18 @@ export function LogoRegistrationTest() {
                 Number(e.target.value),
               )
             }
-            className="w-80"
+            className="
+              w-48
+              sm:w-80
+            "
           />
 
-          <span className="text-sm text-white/60">
+          <span
+            className="
+              text-sm
+              text-white/60
+            "
+          >
             {Math.round(
               referenceOpacity * 100,
             )}
@@ -83,169 +115,210 @@ export function LogoRegistrationTest() {
         </div>
 
         {/* =====================================================
-            FIXED REGISTRATION STAGE
+            REGISTRATION WORKSPACE
         ===================================================== */}
 
         <div
           className="
-            mt-12
-            overflow-x-auto
+            mt-8
             rounded-xl
             border
             border-red-500/30
             bg-black
-            p-4
+            p-2
+            sm:mt-12
+            sm:p-4
           "
         >
+
+          {/* ===================================================
+              RESPONSIVE WRAPPER
+
+              The artwork maintains a 1920 × 793 coordinate
+              system but scales down as one complete unit.
+          =================================================== */}
 
           <div
             className="
               relative
               mx-auto
-              h-[793px]
-              w-[1920px]
+              w-full
+              overflow-hidden
             "
+            style={{
+              aspectRatio:
+                '1920 / 793',
+            }}
           >
 
             {/* =================================================
-                ORIGINAL LOGO REFERENCE
+                INTERNAL COORDINATE SYSTEM
+
+                This remains 1920 × 793.
             ================================================= */}
 
-            <img
-              src="/images/torq-components/torq-logo-intact-reference.png"
-              alt=""
+            <div
               className="
                 absolute
                 inset-0
-                h-full
-                w-full
-                object-contain
               "
               style={{
-                opacity:
-                  referenceOpacity,
+                width: '100%',
+                height: '100%',
               }}
-            />
+            >
 
-            {/* =================================================
-                T
-            ================================================= */}
+              {/* =================================================
+                  MASTER REFERENCE
+              ================================================= */}
 
-            <img
-              src="/images/torq-components/t_section.png"
-              alt=""
-              className="absolute"
-              style={{
-                left: '3%',
-                top: '7%',
-                width: '28%',
-              }}
-            />
+              <img
+                src="/images/torq-components/torq-logo-intact-reference.png"
+                alt=""
+                draggable={false}
+                className="
+                  pointer-events-none
+                  absolute
+                  inset-0
+                  h-full
+                  w-full
+                  object-contain
+                "
+                style={{
+                  opacity:
+                    referenceOpacity,
+                }}
+              />
 
-            {/* =================================================
-                TURBINE
-            ================================================= */}
+              {/* =================================================
+                  T
+              ================================================= */}
 
-            <img
-              src="/images/torq-components/turbine.png"
-              alt=""
-              className="absolute"
-              style={{
-                left: '20%',
-                top: '10%',
-                width: '23%',
-              }}
-            />
+              <img
+                src="/images/torq-components/t_section.png"
+                alt=""
+                draggable={false}
+                className="absolute"
+                style={{
+                  left: '3%',
+                  top: '7%',
+                  width: '28%',
+                }}
+              />
 
-            {/* =================================================
-                26
-            ================================================= */}
+              {/* =================================================
+                  TURBINE
+              ================================================= */}
 
-            <img
-              src="/images/torq-components/torq-26-transparent.png"
-              alt=""
-              className="absolute"
-              style={{
-                left: '28.7%',
-                top: '27%',
-                width: '8%',
-              }}
-            />
+              <img
+                src="/images/torq-components/turbine.png"
+                alt=""
+                draggable={false}
+                className="absolute"
+                style={{
+                  left: '20%',
+                  top: '10%',
+                  width: '23%',
+                }}
+              />
 
-            {/* =================================================
-                R
-            ================================================= */}
+              {/* =================================================
+                  26
+              ================================================= */}
 
-            <img
-              src="/images/torq-components/r_section.png"
-              alt=""
-              className="absolute"
-              style={{
-                left: '40%',
-                top: '13%',
-                width: '17%',
-              }}
-            />
+              <img
+                src="/images/torq-components/torq-26-transparent.png"
+                alt=""
+                draggable={false}
+                className="absolute"
+                style={{
+                  left: '28.7%',
+                  top: '27%',
+                  width: '8%',
+                }}
+              />
 
-            {/* =================================================
-                R LOWER
-            ================================================= */}
+              {/* =================================================
+                  R
+              ================================================= */}
 
-            <img
-              src="/images/torq-components/r_lower.png"
-              alt=""
-              className="absolute"
-              style={{
-                left: '44%',
-                top: '43%',
-                width: '14%',
-              }}
-            />
+              <img
+                src="/images/torq-components/r_section.png"
+                alt=""
+                draggable={false}
+                className="absolute"
+                style={{
+                  left: '40%',
+                  top: '13%',
+                  width: '17%',
+                }}
+              />
 
-            {/* =================================================
-                PISTON
-            ================================================= */}
+              {/* =================================================
+                  R LOWER
+              ================================================= */}
 
-            <img
-              src="/images/torq-components/piston.png"
-              alt=""
-              className="absolute"
-              style={{
-                left: '57%',
-                top: '4%',
-                width: '10%',
-              }}
-            />
+              <img
+                src="/images/torq-components/r_lower.png"
+                alt=""
+                draggable={false}
+                className="absolute"
+                style={{
+                  left: '44%',
+                  top: '43%',
+                  width: '14%',
+                }}
+              />
 
-            {/* =================================================
-                Q
-            ================================================= */}
+              {/* =================================================
+                  PISTON
+              ================================================= */}
 
-            <img
-              src="/images/torq-components/q_section.png"
-              alt=""
-              className="absolute"
-              style={{
-                left: '63%',
-                top: '10%',
-                width: '27%',
-              }}
-            />
+              <img
+                src="/images/torq-components/piston.png"
+                alt=""
+                draggable={false}
+                className="absolute"
+                style={{
+                  left: '57%',
+                  top: '4%',
+                  width: '10%',
+                }}
+              />
 
-            {/* =================================================
-                Q BASE
-            ================================================= */}
+              {/* =================================================
+                  Q
+              ================================================= */}
 
-            <img
-              src="/images/torq-components/q_base.png"
-              alt=""
-              className="absolute"
-              style={{
-                left: '72%',
-                top: '59%',
-                width: '17%',
-              }}
-            />
+              <img
+                src="/images/torq-components/q_section.png"
+                alt=""
+                draggable={false}
+                className="absolute"
+                style={{
+                  left: '63%',
+                  top: '10%',
+                  width: '27%',
+                }}
+              />
+
+              {/* =================================================
+                  Q BASE
+              ================================================= */}
+
+              <img
+                src="/images/torq-components/q_base.png"
+                alt=""
+                draggable={false}
+                className="absolute"
+                style={{
+                  left: '72%',
+                  top: '59%',
+                  width: '17%',
+                }}
+              />
+
+            </div>
 
           </div>
 
@@ -257,30 +330,52 @@ export function LogoRegistrationTest() {
 
         <div
           className="
-            mt-10
+            mt-8
             rounded-xl
             border
             border-white/10
             bg-white/[0.03]
-            p-6
+            p-5
+            sm:p-6
           "
         >
 
-          <h2 className="font-bold uppercase">
+          <h2
+            className="
+              text-sm
+              font-bold
+              uppercase
+              tracking-widest
+            "
+          >
             Registration target
           </h2>
 
-          <p className="mt-3 text-sm leading-7 text-white/50">
-            Lower the reference opacity to approximately
-            20–30%. The individual components should sit
-            directly on top of the corresponding areas of
-            the original logo.
+          <p
+            className="
+              mt-3
+              text-sm
+              leading-6
+              text-white/50
+            "
+          >
+            Set the reference opacity between 20% and
+            40%. The individual components should align
+            directly with the corresponding areas of the
+            original TOR&apos;Q logo.
           </p>
 
-          <p className="mt-3 text-sm leading-7 text-white/50">
-            We are NOT trying to make the exploded artwork
-            look good here. We are only establishing the
-            exact assembled position.
+          <p
+            className="
+              mt-3
+              text-sm
+              leading-6
+              text-white/50
+            "
+          >
+            The reference image is only a temporary
+            alignment guide. It will not be used in the
+            final cinematic animation.
           </p>
 
         </div>
@@ -289,7 +384,15 @@ export function LogoRegistrationTest() {
             ASSET CHECK
         ===================================================== */}
 
-        <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <div
+          className="
+            mt-8
+            grid
+            gap-3
+            sm:grid-cols-2
+            lg:grid-cols-4
+          "
+        >
 
           {pieces.map(
             ([name, src]) => (
@@ -299,12 +402,14 @@ export function LogoRegistrationTest() {
                   rounded-lg
                   border
                   border-white/10
-                  p-5
+                  bg-white/[0.02]
+                  p-4
                 "
               >
 
                 <p
                   className="
+                    text-sm
                     font-bold
                     uppercase
                     tracking-widest
@@ -317,7 +422,7 @@ export function LogoRegistrationTest() {
                   className="
                     mt-2
                     break-all
-                    text-xs
+                    text-[10px]
                     text-white/30
                   "
                 >
