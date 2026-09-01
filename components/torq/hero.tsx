@@ -24,7 +24,7 @@ const STAGE_WIDTH = 790
 const STAGE_HEIGHT = 316
 
 /* ============================================================
-   REGISTERED COMPONENT POSITIONS
+   COMPONENT DATA
 ============================================================ */
 
 type ComponentData = {
@@ -39,6 +39,11 @@ type ComponentData = {
   rotateX: number
   rotateY: number
   rotateZ: number
+
+  /* Small movement while releasing the logo */
+  releaseX: number
+  releaseY: number
+  releaseRotation: number
 }
 
 const COMPONENTS: Record<string, ComponentData> = {
@@ -47,11 +52,17 @@ const COMPONENTS: Record<string, ComponentData> = {
     y: 34.27,
     width: 177,
     rotation: -21,
+
     flightX: -900,
     flightY: -350,
+
     rotateX: 300,
     rotateY: -220,
     rotateZ: -480,
+
+    releaseX: -5,
+    releaseY: -8,
+    releaseRotation: -2,
   },
 
   turbine: {
@@ -59,11 +70,17 @@ const COMPONENTS: Record<string, ComponentData> = {
     y: 39.31,
     width: 188,
     rotation: -7,
+
     flightX: -600,
     flightY: 650,
+
     rotateX: 320,
     rotateY: -260,
     rotateZ: 420,
+
+    releaseX: -4,
+    releaseY: -7,
+    releaseRotation: 2,
   },
 
   number26: {
@@ -71,11 +88,17 @@ const COMPONENTS: Record<string, ComponentData> = {
     y: 108.56,
     width: 38,
     rotation: 0,
+
     flightX: 80,
     flightY: -900,
+
     rotateX: 280,
     rotateY: 350,
     rotateZ: 360,
+
+    releaseX: 0,
+    releaseY: -6,
+    releaseRotation: 1,
   },
 
   r: {
@@ -83,11 +106,17 @@ const COMPONENTS: Record<string, ComponentData> = {
     y: 32.9,
     width: 153,
     rotation: -22,
+
     flightX: 900,
     flightY: -280,
+
     rotateX: -320,
     rotateY: 260,
     rotateZ: 500,
+
+    releaseX: 5,
+    releaseY: -8,
+    releaseRotation: -2,
   },
 
   rLower: {
@@ -95,11 +124,17 @@ const COMPONENTS: Record<string, ComponentData> = {
     y: 153.54,
     width: 168,
     rotation: -21,
+
     flightX: 750,
     flightY: 700,
+
     rotateX: 350,
     rotateY: -300,
     rotateZ: -520,
+
+    releaseX: 5,
+    releaseY: 7,
+    releaseRotation: 2,
   },
 
   piston: {
@@ -107,11 +142,17 @@ const COMPONENTS: Record<string, ComponentData> = {
     y: 10.75,
     width: 169,
     rotation: -14,
+
     flightX: 600,
     flightY: -900,
+
     rotateX: -380,
     rotateY: 300,
     rotateZ: 520,
+
+    releaseX: 4,
+    releaseY: -7,
+    releaseRotation: -2,
   },
 
   q: {
@@ -119,11 +160,17 @@ const COMPONENTS: Record<string, ComponentData> = {
     y: 13.01,
     width: 224,
     rotation: -6,
+
     flightX: 1000,
     flightY: 80,
+
     rotateX: 300,
     rotateY: 380,
     rotateZ: -500,
+
+    releaseX: 5,
+    releaseY: -5,
+    releaseRotation: 2,
   },
 
   qBase: {
@@ -131,16 +178,22 @@ const COMPONENTS: Record<string, ComponentData> = {
     y: 187.1,
     width: 150,
     rotation: 0,
+
     flightX: 900,
     flightY: 750,
+
     rotateX: -320,
     rotateY: 280,
     rotateZ: 460,
+
+    releaseX: 6,
+    releaseY: 6,
+    releaseRotation: -2,
   },
 }
 
 /* ============================================================
-   EASING
+   HELPERS
 ============================================================ */
 
 function clamp(value: number) {
@@ -166,14 +219,27 @@ function easeInOut(value: number) {
 }
 
 /*
-  Softer cinematic motion.
+  Gentle movement.
 
-  Starts immediately but accelerates smoothly.
+  Used during the "release" phase so the pieces
+  don't suddenly jump.
 */
-function cinematicMotion(value: number) {
+function gentleRelease(value: number) {
   const t = clamp(value)
 
-  return 1 - Math.pow(1 - t, 2.4)
+  return t * t * (3 - 2 * t)
+}
+
+/*
+  Slow beginning → aggressive ending.
+
+  This is deliberately NOT used until the logo
+  has completely disappeared.
+*/
+function disintegrationEase(value: number) {
+  const t = clamp(value)
+
+  return Math.pow(t, 2.2)
 }
 
 /* ============================================================
@@ -183,18 +249,25 @@ function cinematicMotion(value: number) {
 export function Hero() {
   const { open } = useRegistration()
 
-  const sectionRef = useRef<HTMLElement>(null)
-  const stageWrapperRef = useRef<HTMLDivElement>(null)
+  const sectionRef =
+    useRef<HTMLElement>(null)
 
-  const [progress, setProgress] = useState(0)
-  const [stageScale, setStageScale] = useState(1)
+  const stageWrapperRef =
+    useRef<HTMLDivElement>(null)
+
+  const [progress, setProgress] =
+    useState(0)
+
+  const [stageScale, setStageScale] =
+    useState(1)
 
   /* ============================================================
-     RESPONSIVE STAGE
+     RESPONSIVE MASTER STAGE
   ============================================================ */
 
   useEffect(() => {
-    const wrapper = stageWrapperRef.current
+    const wrapper =
+      stageWrapperRef.current
 
     if (!wrapper) return
 
@@ -202,10 +275,11 @@ export function Hero() {
       const availableWidth =
         wrapper.getBoundingClientRect().width
 
-      const scale = Math.min(
-        1,
-        availableWidth / STAGE_WIDTH,
-      )
+      const scale =
+        Math.min(
+          1,
+          availableWidth / STAGE_WIDTH,
+        )
 
       setStageScale(scale)
     }
@@ -303,120 +377,128 @@ export function Hero() {
   }, [])
 
   /* ============================================================
-     CINEMATIC TIMELINE
-
+     PHASE 1
+     
+     Everything is completely static.
+     
      0.00 → 0.12
-       Logo and components are completely assembled.
-
-     0.12
-       LOGO FADING BEGINS.
-
-       DISINTEGRATION ALSO BEGINS HERE.
-
-     0.12 → 0.32
-       Logo disappears while pieces begin separating.
-
-     0.12 → 0.88
-       Components continuously accelerate toward camera.
-
-     0.72 → 1.00
-       Main hero headline enters.
   ============================================================ */
 
-  /* ------------------------------------------------------------
-     LOGO
-  ------------------------------------------------------------ */
+  /* ============================================================
+     PHASE 2
+     
+     Logo fades.
+     
+     Parts make a tiny "release" movement.
+     
+     IMPORTANT:
+     This is NOT the explosion.
+     
+     0.12 → 0.30
+  ============================================================ */
+
+  const logoFade =
+    easeInOut(
+      (progress - 0.12) / 0.18,
+    )
 
   const logoOpacity =
-    1 -
-    easeInOut(
-      (progress - 0.12) / 0.20,
+    1 - logoFade
+
+  const releaseProgress =
+    gentleRelease(
+      (progress - 0.12) / 0.18,
     )
 
-  /* ------------------------------------------------------------
-     DISINTEGRATION
+  /* ============================================================
+     PHASE 3
+     
+     Logo is gone.
+     
+     Parts now begin their actual disintegration.
+     
+     0.30 → 0.82
+  ============================================================ */
 
-     IMPORTANT:
-
-     This starts at EXACTLY 0.12.
-
-     There is no pause after the logo starts fading.
-  ------------------------------------------------------------ */
-
-  const explosion =
-    cinematicMotion(
-      (progress - 0.12) / 0.76,
+  const disintegration =
+    disintegrationEase(
+      (progress - 0.30) / 0.52,
     )
 
-  /* ------------------------------------------------------------
+  /* ============================================================
      WELCOME TEXT
-  ------------------------------------------------------------ */
+  ============================================================ */
 
   const welcomeOpacity =
     1 -
     easeOut(
-      progress / 0.13,
+      progress / 0.15,
     )
 
-  /* ------------------------------------------------------------
+  /* ============================================================
      SCROLL PROMPT
-  ------------------------------------------------------------ */
+  ============================================================ */
 
   const scrollOpacity =
     1 -
     easeOut(
-      progress / 0.16,
+      progress / 0.17,
     )
 
-  /* ------------------------------------------------------------
+  /* ============================================================
      BACKGROUND
-
-     Starts arriving as the TOR'Q intro is leaving.
-  ------------------------------------------------------------ */
+  ============================================================ */
 
   const backgroundOpacity =
     easeOut(
-      (progress - 0.42) / 0.30,
+      (progress - 0.55) / 0.25,
     )
 
-  /* ------------------------------------------------------------
+  /* ============================================================
      MAIN HERO ENTRANCE
+     
+     Begins while the final pieces are leaving.
+     
+     This makes the transition feel like one continuous
+     cinematic shot rather than separate animations.
+  ============================================================ */
 
-     Starts AFTER the mechanical explosion.
-
-     The headline:
-     - fades in
-     - rises
-     - scales slightly
-     - sharpens from blur
-  ------------------------------------------------------------ */
-
-  const contentProgress =
+  const headlineProgress =
     easeOut(
       (progress - 0.70) / 0.25,
     )
 
   const contentOpacity =
-    contentProgress
+    headlineProgress
 
   const contentY =
-    (1 - contentProgress) * 90
+    (1 - headlineProgress) * 100
 
   const contentScale =
-    0.94 +
-    contentProgress * 0.06
+    0.92 +
+    headlineProgress * 0.08
 
   const contentBlur =
-    (1 - contentProgress) * 12
+    (1 - headlineProgress) * 14
 
   return (
     <section
       ref={sectionRef}
       id="top"
-      className="relative h-[170vh] bg-black"
+      className="
+        relative
+        h-[170vh]
+        bg-black
+      "
     >
       <div
-        className="sticky top-0 h-screen overflow-hidden bg-black"
+        className="
+          sticky
+          top-0
+          h-screen
+          overflow-hidden
+          bg-black
+        "
         style={{
           perspective: '1800px',
         }}
@@ -427,7 +509,10 @@ export function Hero() {
         ====================================================== */}
 
         <div
-          className="absolute inset-0"
+          className="
+            absolute
+            inset-0
+          "
           style={{
             opacity:
               backgroundOpacity,
@@ -437,24 +522,54 @@ export function Hero() {
             src="/images/hero-drift-red-mustang.webp"
             alt=""
             aria-hidden="true"
-            className="h-full w-full object-cover"
+            className="
+              h-full
+              w-full
+              object-cover
+            "
           />
 
-          <div className="absolute inset-0 bg-black/65" />
+          <div
+            className="
+              absolute
+              inset-0
+              bg-black/65
+            "
+          />
 
-          <div className="absolute inset-0 bg-gradient-to-r from-black via-black/65 to-transparent" />
+          <div
+            className="
+              absolute
+              inset-0
+              bg-gradient-to-r
+              from-black
+              via-black/65
+              to-transparent
+            "
+          />
 
-          <div className="absolute inset-0 bg-gradient-to-t from-black via-black/10 to-black/50" />
+          <div
+            className="
+              absolute
+              inset-0
+              bg-gradient-to-t
+              from-black
+              via-black/10
+              to-black/50
+            "
+          />
         </div>
 
         {/* ======================================================
             MAIN HERO CONTENT
-
-            This enters AFTER the TOR'Q mechanical explosion.
         ====================================================== */}
 
         <div
-          className="absolute inset-0 z-10"
+          className="
+            absolute
+            inset-0
+            z-10
+          "
           style={{
             opacity:
               contentOpacity,
@@ -480,26 +595,71 @@ export function Hero() {
               'transform, opacity, filter',
           }}
         >
-          <div className="mx-auto flex h-full w-full max-w-7xl items-center px-6 sm:px-8 lg:px-10">
-            <div className="w-full max-w-5xl">
+          <div
+            className="
+              mx-auto
+              flex
+              h-full
+              w-full
+              max-w-7xl
+              items-center
+              px-6
+              sm:px-8
+              lg:px-10
+            "
+          >
+            <div
+              className="
+                w-full
+                max-w-5xl
+              "
+            >
 
-              <h1 className="max-w-5xl font-black uppercase leading-[0.86] tracking-[-0.045em] text-white text-[3rem] sm:text-6xl md:text-7xl lg:text-[6.5rem]">
-
+              <h1
+                className="
+                  max-w-5xl
+                  font-black
+                  uppercase
+                  leading-[0.86]
+                  tracking-[-0.045em]
+                  text-white
+                  text-[3rem]
+                  sm:text-6xl
+                  md:text-7xl
+                  lg:text-[6.5rem]
+                "
+              >
                 <span className="block">
                   AFRICA&apos;S BIGGEST
                 </span>
 
-                <span className="block text-red-500">
+                <span
+                  className="
+                    block
+                    text-red-500
+                  "
+                >
                   MOTORSPORT
                 </span>
 
                 <span className="block">
                   SPECTACLE
                 </span>
-
               </h1>
 
-              <p className="mt-5 max-w-2xl text-[14px] leading-[1.55] text-white/70 sm:mt-7 sm:text-lg sm:leading-8 md:text-xl">
+              <p
+                className="
+                  mt-5
+                  max-w-2xl
+                  text-[14px]
+                  leading-[1.55]
+                  text-white/70
+                  sm:mt-7
+                  sm:text-lg
+                  sm:leading-8
+                  md:text-xl
+                "
+              >
                 A cinematic celebration of
                 performance, sound and precision
                 where drifting legends, stunt riders,
@@ -508,26 +668,85 @@ export function Hero() {
                 unforgettable experience.
               </p>
 
-              <div className="mt-6 flex flex-col gap-4 sm:mt-8 sm:flex-row sm:items-center">
+              <div
+                className="
+                  mt-6
+                  flex
+                  flex-col
+                  gap-4
+                  sm:mt-8
+                  sm:flex-row
+                  sm:items-center
+                "
+              >
 
                 <Button
                   size="lg"
                   onClick={open}
-                  className="h-12 w-full rounded-full bg-red-600 px-7 text-sm font-bold text-white hover:bg-red-500 sm:h-14 sm:w-auto sm:px-8 sm:text-base"
+                  className="
+                    h-12
+                    w-full
+                    rounded-full
+                    bg-red-600
+                    px-7
+                    text-sm
+                    font-bold
+                    text-white
+                    hover:bg-red-500
+                    sm:h-14
+                    sm:w-auto
+                    sm:px-8
+                    sm:text-base
+                  "
                 >
-                  <Ticket className="mr-2 h-5 w-5" />
+                  <Ticket
+                    className="
+                      mr-2
+                      h-5
+                      w-5
+                    "
+                  />
+
                   REGISTER NOW
                 </Button>
 
-                <div className="flex items-center gap-2 text-sm text-white/70 sm:text-base">
-                  <MapPin className="h-5 w-5 text-red-500" />
+                <div
+                  className="
+                    flex
+                    items-center
+                    gap-2
+                    text-sm
+                    text-white/70
+                    sm:text-base
+                  "
+                >
+                  <MapPin
+                    className="
+                      h-5
+                      w-5
+                      text-red-500
+                    "
+                  />
+
                   {EVENT.location}
                 </div>
 
               </div>
 
-              <div className="mt-7 grid grid-cols-4 gap-3 border-t border-white/10 pt-6 sm:mt-9 sm:gap-6 sm:pt-7">
-
+              <div
+                className="
+                  mt-7
+                  grid
+                  grid-cols-4
+                  gap-3
+                  border-t
+                  border-white/10
+                  pt-6
+                  sm:mt-9
+                  sm:gap-6
+                  sm:pt-7
+                "
+              >
                 <HeroStat
                   value="100+"
                   label="Performance Cars"
@@ -547,19 +766,29 @@ export function Hero() {
                   value="1"
                   label="Epic Experience"
                 />
-
               </div>
 
-              <div className="mt-6 sm:mt-9">
-
-                <p className="mb-3 text-[9px] uppercase tracking-[0.35em] text-white/40">
+              <div
+                className="
+                  mt-6
+                  sm:mt-9
+                "
+              >
+                <p
+                  className="
+                    mb-3
+                    text-[9px]
+                    uppercase
+                    tracking-[0.35em]
+                    text-white/40
+                  "
+                >
                   The Experience Begins In
                 </p>
 
                 <Countdown
                   date={EVENT.date}
                 />
-
               </div>
 
             </div>
@@ -567,25 +796,49 @@ export function Hero() {
         </div>
 
         {/* ======================================================
-            TOR'Q CINEMATIC INTRO
+            TOR'Q INTRO
         ====================================================== */}
 
         <div
-          className="pointer-events-none absolute inset-0 z-40 flex items-center justify-center"
+          className="
+            pointer-events-none
+            absolute
+            inset-0
+            z-40
+            flex
+            items-center
+            justify-center
+          "
           style={{
             perspective:
               '1800px',
           }}
         >
 
-          <div className="flex w-full flex-col items-center">
+          <div
+            className="
+              flex
+              w-full
+              flex-col
+              items-center
+            "
+          >
 
             {/* ==================================================
-                WELCOME
+                WELCOME TO
             ================================================== */}
 
             <p
-              className="mb-5 text-[9px] font-semibold uppercase tracking-[0.48em] text-white/50 sm:mb-6 sm:text-xs"
+              className="
+                mb-5
+                text-[9px]
+                font-semibold
+                uppercase
+                tracking-[0.48em]
+                text-white/50
+                sm:mb-6
+                sm:text-xs
+              "
               style={{
                 opacity:
                   welcomeOpacity,
@@ -600,7 +853,11 @@ export function Hero() {
 
             <div
               ref={stageWrapperRef}
-              className="relative w-[94vw] max-w-[790px]"
+              className="
+                relative
+                w-[94vw]
+                max-w-[790px]
+              "
               style={{
                 aspectRatio:
                   `${STAGE_WIDTH}/${STAGE_HEIGHT}`,
@@ -608,7 +865,11 @@ export function Hero() {
             >
 
               <div
-                className="absolute left-1/2 top-1/2"
+                className="
+                  absolute
+                  left-1/2
+                  top-1/2
+                "
                 style={{
                   width:
                     `${STAGE_WIDTH}px`,
@@ -631,18 +892,26 @@ export function Hero() {
 
                 {/* =================================================
                     ORIGINAL TOR'Q LOGO
+                   
+                    It stays behind everything.
 
-                    This is behind the components.
+                    It does NOT start fading until 12%.
 
-                    It begins fading at EXACTLY the same moment
-                    the mechanical disintegration begins.
+                    The components only make their small
+                    release movement at the same time.
                 ================================================= */}
 
                 <img
                   src="/images/torq-components/torq-logo-intact-reference.png"
                   alt="TOR'Q"
                   draggable={false}
-                  className="absolute left-0 top-0 h-full w-full"
+                  className="
+                    absolute
+                    left-0
+                    top-0
+                    h-full
+                    w-full
+                  "
                   style={{
                     objectFit:
                       'fill',
@@ -671,7 +940,8 @@ export function Hero() {
                 <MechanicalPiece
                   src="/images/torq-components/t_section.png"
                   data={COMPONENTS.t}
-                  explosion={explosion}
+                  release={releaseProgress}
+                  explosion={disintegration}
                 />
 
                 {/* =================================================
@@ -681,7 +951,8 @@ export function Hero() {
                 <MechanicalPiece
                   src="/images/torq-components/turbine.png"
                   data={COMPONENTS.turbine}
-                  explosion={explosion}
+                  release={releaseProgress}
+                  explosion={disintegration}
                 />
 
                 {/* =================================================
@@ -691,7 +962,8 @@ export function Hero() {
                 <MechanicalPiece
                   src="/images/torq-components/torq-26-transparent.png"
                   data={COMPONENTS.number26}
-                  explosion={explosion}
+                  release={releaseProgress}
+                  explosion={disintegration}
                 />
 
                 {/* =================================================
@@ -701,7 +973,8 @@ export function Hero() {
                 <MechanicalPiece
                   src="/images/torq-components/r_section.png"
                   data={COMPONENTS.r}
-                  explosion={explosion}
+                  release={releaseProgress}
+                  explosion={disintegration}
                 />
 
                 {/* =================================================
@@ -711,7 +984,8 @@ export function Hero() {
                 <MechanicalPiece
                   src="/images/torq-components/r_lower.png"
                   data={COMPONENTS.rLower}
-                  explosion={explosion}
+                  release={releaseProgress}
+                  explosion={disintegration}
                 />
 
                 {/* =================================================
@@ -721,7 +995,8 @@ export function Hero() {
                 <MechanicalPiece
                   src="/images/torq-components/piston.png"
                   data={COMPONENTS.piston}
-                  explosion={explosion}
+                  release={releaseProgress}
+                  explosion={disintegration}
                 />
 
                 {/* =================================================
@@ -731,7 +1006,8 @@ export function Hero() {
                 <MechanicalPiece
                   src="/images/torq-components/q_section.png"
                   data={COMPONENTS.q}
-                  explosion={explosion}
+                  release={releaseProgress}
+                  explosion={disintegration}
                 />
 
                 {/* =================================================
@@ -741,7 +1017,8 @@ export function Hero() {
                 <MechanicalPiece
                   src="/images/torq-components/q_base.png"
                   data={COMPONENTS.qBase}
-                  explosion={explosion}
+                  release={releaseProgress}
+                  explosion={disintegration}
                 />
 
               </div>
@@ -752,23 +1029,60 @@ export function Hero() {
             ================================================== */}
 
             <div
-              className="mt-8 flex flex-col items-center gap-2 sm:mt-10"
+              className="
+                mt-8
+                flex
+                flex-col
+                items-center
+                gap-2
+                sm:mt-10
+              "
               style={{
                 opacity:
                   scrollOpacity,
               }}
             >
 
-              <span className="whitespace-nowrap text-[8px] font-semibold uppercase tracking-[0.3em] text-white/45 sm:text-[10px]">
+              <span
+                className="
+                  whitespace-nowrap
+                  text-[8px]
+                  font-semibold
+                  uppercase
+                  tracking-[0.3em]
+                  text-white/45
+                  sm:text-[10px]
+                "
+              >
                 Scroll down to experience TOR&apos;Q
               </span>
 
-              <div className="flex flex-col items-center">
+              <div
+                className="
+                  flex
+                  flex-col
+                  items-center
+                "
+              >
+                <div
+                  className="
+                    h-7
+                    w-px
+                    bg-gradient-to-b
+                    from-white/50
+                    to-transparent
+                  "
+                />
 
-                <div className="h-7 w-px bg-gradient-to-b from-white/50 to-transparent" />
-
-                <ChevronDown className="mt-1 h-4 w-4 animate-bounce text-white/50" />
-
+                <ChevronDown
+                  className="
+                    mt-1
+                    h-4
+                    w-4
+                    animate-bounce
+                    text-white/50
+                  "
+                />
               </div>
 
             </div>
@@ -784,78 +1098,97 @@ export function Hero() {
 /* ================================================================
    MECHANICAL PIECE
 
-   The component starts exactly on the registered logo position.
+   TWO DIFFERENT MOVEMENTS:
 
-   The moment the logo starts fading, the piece starts moving.
+   1. RELEASE
+      Tiny physical movement while the logo fades.
 
-   Motion:
-   - immediate
-   - smooth acceleration
-   - continuous 3D travel
-   - increasing depth
-   - increasing scale
-   - rotation
-   - gradual motion blur
-   - fade occurs during the final part of the flight
+      This is deliberately VERY small.
+
+   2. EXPLOSION
+      Begins ONLY after the logo is gone.
+
+      This is the actual disintegration.
 ================================================================ */
 
 function MechanicalPiece({
   src,
   data,
+  release,
   explosion,
 }: {
   src: string
   data: ComponentData
+  release: number
   explosion: number
 }) {
+  const r =
+    clamp(release)
+
   const e =
     clamp(explosion)
 
-  /* ------------------------------------------------------------
-     Continuous flight
+  /* ============================================================
+     RELEASE MOVEMENT
+     
+     The pieces move only a few pixels.
+     
+     This creates the impression that they were physically
+     supporting/holding the logo.
+  ============================================================ */
 
-     The movement starts immediately at e = 0.
-  ------------------------------------------------------------ */
+  const releaseX =
+    data.releaseX * r
 
-  const travel =
-    cinematicMotion(e)
+  const releaseY =
+    data.releaseY * r
 
-  /* ------------------------------------------------------------
-     POSITION
-  ------------------------------------------------------------ */
+  const releaseRotation =
+    data.releaseRotation * r
+
+  /* ============================================================
+     ACTUAL DISINTEGRATION
+     
+     IMPORTANT:
+     
+     e = 0 while logo is fading.
+     
+     Therefore the large flight movement CANNOT happen
+     during the logo fade.
+  ============================================================ */
 
   const x =
     data.x +
-    data.flightX * travel
+    releaseX +
+    data.flightX * e
 
   const y =
     data.y +
-    data.flightY * travel
+    releaseY +
+    data.flightY * e
 
-  /* ------------------------------------------------------------
+  /* ============================================================
      DEPTH
-
-     The pieces progressively come toward the camera.
-  ------------------------------------------------------------ */
+  ============================================================ */
 
   const z =
     Math.pow(e, 1.65) * 5200
 
-  /* ------------------------------------------------------------
+  /* ============================================================
      SCALE
+     
+     No scale change during release.
 
-     Starts at exactly 1.
-
-     Then grows as the object approaches the camera.
-  ------------------------------------------------------------ */
+     Scale starts only during the actual disintegration.
+  ============================================================ */
 
   const scale =
     1 +
     Math.pow(e, 1.9) * 4.8
 
-  /* ------------------------------------------------------------
+  /* ============================================================
      ROTATION
-  ------------------------------------------------------------ */
+  ============================================================ */
 
   const rotateX =
     data.rotateX * e
@@ -865,28 +1198,31 @@ function MechanicalPiece({
 
   const rotateZ =
     data.rotation +
+    releaseRotation +
     data.rotateZ * e
 
-  /* ------------------------------------------------------------
+  /* ============================================================
      MOTION BLUR
+     
+     No blur during the release.
 
-     Kept subtle at first.
-  ------------------------------------------------------------ */
+     Blur appears only after the disintegration starts.
+  ============================================================ */
 
   const blur =
-    Math.pow(e, 2.4) * 5
+    Math.pow(e, 2.3) * 5
 
-  /* ------------------------------------------------------------
-     FADE
+  /* ============================================================
+     OPACITY
+     
+     Pieces remain completely visible through the release.
 
-     The object remains solid during the main flight.
-
-     It only begins disappearing toward the end.
-  ------------------------------------------------------------ */
+     They only start fading near the end of the flight.
+  ============================================================ */
 
   const fadeProgress =
     clamp(
-      (e - 0.68) / 0.32,
+      (e - 0.72) / 0.28,
     )
 
   const opacity =
@@ -901,7 +1237,11 @@ function MechanicalPiece({
       alt=""
       aria-hidden="true"
       draggable={false}
-      className="absolute select-none object-contain"
+      className="
+        absolute
+        select-none
+        object-contain
+      "
       style={{
         left:
           `${x}px`,
@@ -972,11 +1312,30 @@ function HeroStat({
   return (
     <div className="min-w-0">
 
-      <p className="text-2xl font-black leading-none text-white sm:text-4xl">
+      <p
+        className="
+          text-2xl
+          font-black
+          leading-none
+          text-white
+          sm:text-4xl
+        "
+      >
         {value}
       </p>
 
-      <p className="mt-2 max-w-[120px] text-[7px] uppercase tracking-[0.18em] text-white/45 sm:text-[10px] sm:tracking-[0.2em]">
+      <p
+        className="
+          mt-2
+          max-w-[120px]
+          text-[7px]
+          uppercase
+          tracking-[0.18em]
+          text-white/45
+          sm:text-[10px]
+          sm:tracking-[0.2em]
+        "
+      >
         {label}
       </p>
 
