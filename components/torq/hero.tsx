@@ -16,31 +16,21 @@ import { EVENT } from '@/lib/torq-data'
 import { Countdown } from './countdown'
 import { useRegistration } from './registration'
 
-/* =========================================================================
-   TOR'Q CINEMATIC LOGO SYSTEM
+/* ============================================================
+   TOR'Q LOGO COORDINATE SYSTEM
 
-   The logo stage uses the same coordinate system as the registration tool:
+   IMPORTANT:
+   These coordinates MUST remain in the same 790 × 316
+   coordinate system used by the registration tool.
 
-   790 × 316
+   We scale the ENTIRE stage instead of converting individual
+   coordinates into percentages.
+============================================================ */
 
-   Layer 1:
-   ORIGINAL TOR'Q LOGO
-   100% visible at the beginning.
+const STAGE_WIDTH = 790
+const STAGE_HEIGHT = 316
 
-   Layer 2:
-   MECHANICAL COMPONENTS
-   Positioned over the original logo.
-
-   The original logo fades away first.
-
-   The mechanical components then become the visible TOR'Q structure
-   before exploding toward the camera.
-========================================================================= */
-
-const ART_WIDTH = 790
-const ART_HEIGHT = 316
-
-type Motion = {
+type ComponentData = {
   x: number
   y: number
   width: number
@@ -54,28 +44,23 @@ type Motion = {
   rotateZ: number
 }
 
-/* =========================================================================
-   REGISTERED COMPONENT POSITIONS
+/* ============================================================
+   REGISTERED POSITIONS
+============================================================ */
 
-   These are the exact values supplied from the registration page.
-========================================================================= */
-
-const COMPONENTS: Record<
-  string,
-  Motion
-> = {
+const COMPONENTS: Record<string, ComponentData> = {
   t: {
     x: -2.01,
     y: 34.27,
     width: 177,
     rotation: -21,
 
-    flightX: -760,
-    flightY: -260,
+    flightX: -900,
+    flightY: -350,
 
-    rotateX: 260,
-    rotateY: -180,
-    rotateZ: -420,
+    rotateX: 300,
+    rotateY: -220,
+    rotateZ: -480,
   },
 
   turbine: {
@@ -84,11 +69,11 @@ const COMPONENTS: Record<
     width: 188,
     rotation: -7,
 
-    flightX: -520,
-    flightY: 520,
+    flightX: -600,
+    flightY: 650,
 
     rotateX: 320,
-    rotateY: -240,
+    rotateY: -260,
     rotateZ: 420,
   },
 
@@ -98,12 +83,12 @@ const COMPONENTS: Record<
     width: 38,
     rotation: 0,
 
-    flightX: 70,
-    flightY: -760,
+    flightX: 80,
+    flightY: -900,
 
-    rotateX: 260,
-    rotateY: 360,
-    rotateZ: 300,
+    rotateX: 280,
+    rotateY: 350,
+    rotateZ: 360,
   },
 
   r: {
@@ -112,12 +97,12 @@ const COMPONENTS: Record<
     width: 153,
     rotation: -22,
 
-    flightX: 760,
-    flightY: -240,
+    flightX: 900,
+    flightY: -280,
 
-    rotateX: -300,
-    rotateY: 240,
-    rotateZ: 480,
+    rotateX: -320,
+    rotateY: 260,
+    rotateZ: 500,
   },
 
   rLower: {
@@ -126,11 +111,11 @@ const COMPONENTS: Record<
     width: 168,
     rotation: -21,
 
-    flightX: 650,
-    flightY: 620,
+    flightX: 750,
+    flightY: 700,
 
-    rotateX: 360,
-    rotateY: -280,
+    rotateX: 350,
+    rotateY: -300,
     rotateZ: -520,
   },
 
@@ -140,11 +125,11 @@ const COMPONENTS: Record<
     width: 169,
     rotation: -14,
 
-    flightX: 520,
-    flightY: -760,
+    flightX: 600,
+    flightY: -900,
 
-    rotateX: -360,
-    rotateY: 280,
+    rotateX: -380,
+    rotateY: 300,
     rotateZ: 520,
   },
 
@@ -154,12 +139,12 @@ const COMPONENTS: Record<
     width: 224,
     rotation: -6,
 
-    flightX: 860,
-    flightY: 100,
+    flightX: 1000,
+    flightY: 80,
 
     rotateX: 300,
-    rotateY: 360,
-    rotateZ: -480,
+    rotateY: 380,
+    rotateZ: -500,
   },
 
   qBase: {
@@ -168,67 +153,48 @@ const COMPONENTS: Record<
     width: 150,
     rotation: 0,
 
-    flightX: 820,
-    flightY: 680,
+    flightX: 900,
+    flightY: 750,
 
-    rotateX: -300,
-    rotateY: 260,
-    rotateZ: 440,
+    rotateX: -320,
+    rotateY: 280,
+    rotateZ: 460,
   },
 }
 
-/* =========================================================================
+/* ============================================================
    EASING
-========================================================================= */
+============================================================ */
 
-function clamp(value: number) {
-  return Math.min(
-    1,
-    Math.max(
-      0,
-      value,
-    ),
-  )
+function clamp(v: number) {
+  return Math.max(0, Math.min(1, v))
 }
 
-function easeIn(value: number) {
-  const t = clamp(value)
-
+function easeIn(v: number) {
+  const t = clamp(v)
   return t * t * t
 }
 
-function easeOut(value: number) {
-  const t = clamp(value)
-
-  return (
-    1 -
-    Math.pow(
-      1 - t,
-      3,
-    )
-  )
+function easeOut(v: number) {
+  const t = clamp(v)
+  return 1 - Math.pow(1 - t, 3)
 }
 
-function easeInOut(value: number) {
-  const t = clamp(value)
+function easeInOut(v: number) {
+  const t = clamp(v)
 
   return t < 0.5
     ? 4 * t * t * t
     : 1 -
-        Math.pow(
-          -2 * t + 2,
-          3,
-        ) /
-          2
+        Math.pow(-2 * t + 2, 3) / 2
 }
 
-/* =========================================================================
+/* ============================================================
    HERO
-========================================================================= */
+============================================================ */
 
 export function Hero() {
-  const { open } =
-    useRegistration()
+  const { open } = useRegistration()
 
   const sectionRef =
     useRef<HTMLElement>(null)
@@ -236,9 +202,9 @@ export function Hero() {
   const [progress, setProgress] =
     useState(0)
 
-  /* =======================================================================
-     SCROLL PROGRESS
-  ======================================================================= */
+  /* ============================================================
+     SCROLL
+  ============================================================ */
 
   useEffect(() => {
     let raf = 0
@@ -260,13 +226,11 @@ export function Hero() {
       const rect =
         section.getBoundingClientRect()
 
-      const value =
+      setProgress(
         clamp(
-          -rect.top /
-            distance,
-        )
-
-      setProgress(value)
+          -rect.top / distance,
+        ),
+      )
     }
 
     const onScroll = () => {
@@ -283,9 +247,7 @@ export function Hero() {
     window.addEventListener(
       'scroll',
       onScroll,
-      {
-        passive: true,
-      },
+      { passive: true },
     )
 
     window.addEventListener(
@@ -305,32 +267,28 @@ export function Hero() {
       )
 
       if (raf) {
-        window.cancelAnimationFrame(
-          raf,
-        )
+        cancelAnimationFrame(raf)
       }
     }
   }, [])
 
-  /* =======================================================================
+  /* ============================================================
      TIMELINE
 
-     0.00 → 0.12
-     Everything completely intact.
+     0.00 - 0.12
+     Logo + components visible.
 
-     0.12 → 0.30
-     ORIGINAL LOGO fades away.
+     0.12 - 0.30
+     Master logo fades.
 
-     Components stay completely still.
+     0.30 - 0.36
+     Components hold.
 
-     0.30 → 0.36
-     Mechanical structure is exposed.
+     0.36 - 1.00
+     Components explode.
+  ============================================================ */
 
-     0.36 → 1.00
-     Components explode continuously toward the camera.
-  ======================================================================= */
-
-  const logoFade =
+  const logoOpacity =
     1 -
     easeInOut(
       (progress - 0.12) /
@@ -343,10 +301,6 @@ export function Hero() {
         0.64,
     )
 
-  /* =======================================================================
-     TEXT
-  ======================================================================= */
-
   const welcomeOpacity =
     1 -
     easeOut(
@@ -358,10 +312,6 @@ export function Hero() {
     easeOut(
       progress / 0.14,
     )
-
-  /* =======================================================================
-     BACKGROUND / HERO CONTENT
-  ======================================================================= */
 
   const backgroundOpacity =
     easeOut(
@@ -385,11 +335,6 @@ export function Hero() {
         bg-black
       "
     >
-
-      {/* =================================================================
-          STICKY HERO
-      ================================================================= */}
-
       <div
         className="
           sticky
@@ -399,14 +344,13 @@ export function Hero() {
           bg-black
         "
         style={{
-          perspective:
-            '1800px',
+          perspective: '1800px',
         }}
       >
 
-        {/* ===============================================================
+        {/* ======================================================
             BACKGROUND
-        =============================================================== */}
+        ====================================================== */}
 
         <div
           className="
@@ -418,7 +362,6 @@ export function Hero() {
               backgroundOpacity,
           }}
         >
-
           <img
             src="/images/hero-drift-red-mustang.webp"
             alt=""
@@ -430,41 +373,34 @@ export function Hero() {
             "
           />
 
-          <div
-            className="
-              absolute
-              inset-0
-              bg-black/65
-            "
-          />
+          <div className="
+            absolute
+            inset-0
+            bg-black/65
+          " />
 
-          <div
-            className="
-              absolute
-              inset-0
-              bg-gradient-to-r
-              from-black
-              via-black/65
-              to-transparent
-            "
-          />
+          <div className="
+            absolute
+            inset-0
+            bg-gradient-to-r
+            from-black
+            via-black/65
+            to-transparent
+          " />
 
-          <div
-            className="
-              absolute
-              inset-0
-              bg-gradient-to-t
-              from-black
-              via-black/10
-              to-black/50
-            "
-          />
-
+          <div className="
+            absolute
+            inset-0
+            bg-gradient-to-t
+            from-black
+            via-black/10
+            to-black/50
+          " />
         </div>
 
-        {/* ===============================================================
-            HERO CONTENT
-        =============================================================== */}
+        {/* ======================================================
+            NORMAL HERO CONTENT
+        ====================================================== */}
 
         <div
           className="
@@ -477,70 +413,62 @@ export function Hero() {
               contentOpacity,
           }}
         >
+          <div className="
+            mx-auto
+            flex
+            h-full
+            w-full
+            max-w-7xl
+            items-center
+            px-6
+            sm:px-8
+            lg:px-10
+          ">
 
-          <div
-            className="
-              mx-auto
-              flex
-              h-full
+            <div className="
               w-full
-              max-w-7xl
-              items-center
-              px-6
-              sm:px-8
-              lg:px-10
-            "
-          >
+              max-w-5xl
+            ">
 
-            <div
-              className="
-                w-full
+              <h1 className="
                 max-w-5xl
-              "
-            >
-
-              <h1
-                className="
-                  max-w-5xl
-                  font-black
-                  uppercase
-                  leading-[0.86]
-                  tracking-[-0.045em]
-                  text-white
-                  text-[3rem]
-                  sm:text-6xl
-                  md:text-7xl
-                  lg:text-[6.5rem]
-                "
-              >
-
+                font-black
+                uppercase
+                leading-[0.86]
+                tracking-[-0.045em]
+                text-white
+                text-[3rem]
+                sm:text-6xl
+                md:text-7xl
+                lg:text-[6.5rem]
+              ">
                 <span className="block">
                   AFRICA&apos;S BIGGEST
                 </span>
 
-                <span className="block text-red-500">
+                <span className="
+                  block
+                  text-red-500
+                ">
                   MOTORSPORT
                 </span>
 
                 <span className="block">
                   SPECTACLE
                 </span>
-
               </h1>
 
-              <p
-                className="
-                  mt-5
-                  max-w-2xl
-                  text-[14px]
-                  leading-[1.55]
-                  text-white/70
-                  sm:mt-7
-                  sm:text-lg
-                  sm:leading-8
-                  md:text-xl
-                "
-              >
+              <p className="
+                mt-5
+                max-w-2xl
+                text-[14px]
+                leading-[1.55]
+                text-white/70
+                sm:mt-7
+                sm:text-lg
+                sm:leading-8
+                md:text-xl
+              ">
                 A cinematic celebration of
                 performance, sound and precision
                 where drifting legends, stunt riders,
@@ -549,17 +477,15 @@ export function Hero() {
                 unforgettable experience.
               </p>
 
-              <div
-                className="
-                  mt-6
-                  flex
-                  flex-col
-                  gap-4
-                  sm:mt-8
-                  sm:flex-row
-                  sm:items-center
-                "
-              >
+              <div className="
+                mt-6
+                flex
+                flex-col
+                gap-4
+                sm:mt-8
+                sm:flex-row
+                sm:items-center
+              ">
 
                 <Button
                   size="lg"
@@ -580,58 +506,46 @@ export function Hero() {
                     sm:text-base
                   "
                 >
-
-                  <Ticket
-                    className="
-                      mr-2
-                      h-5
-                      w-5
-                    "
-                  />
+                  <Ticket className="
+                    mr-2
+                    h-5
+                    w-5
+                  " />
 
                   REGISTER NOW
-
                 </Button>
 
-                <div
-                  className="
-                    flex
-                    items-center
-                    gap-2
-                    text-sm
-                    text-white/70
-                    sm:text-base
-                  "
-                >
-
-                  <MapPin
-                    className="
-                      h-5
-                      w-5
-                      text-red-500
-                    "
-                  />
+                <div className="
+                  flex
+                  items-center
+                  gap-2
+                  text-sm
+                  text-white/70
+                  sm:text-base
+                ">
+                  <MapPin className="
+                    h-5
+                    w-5
+                    text-red-500
+                  " />
 
                   {EVENT.location}
-
                 </div>
 
               </div>
 
-              <div
-                className="
-                  mt-7
-                  grid
-                  grid-cols-4
-                  gap-3
-                  border-t
-                  border-white/10
-                  pt-6
-                  sm:mt-9
-                  sm:gap-6
-                  sm:pt-7
-                "
-              >
+              <div className="
+                mt-7
+                grid
+                grid-cols-4
+                gap-3
+                border-t
+                border-white/10
+                pt-6
+                sm:mt-9
+                sm:gap-6
+                sm:pt-7
+              ">
 
                 <HeroStat
                   value="100+"
@@ -655,49 +569,39 @@ export function Hero() {
 
               </div>
 
-              <div
-                className="
-                  mt-6
-                  sm:mt-9
-                "
-              >
-
-                <p
-                  className="
-                    mb-3
-                    text-[9px]
-                    uppercase
-                    tracking-[0.35em]
-                    text-white/40
-                    sm:mb-4
-                    sm:text-[10px]
-                  "
-                >
+              <div className="
+                mt-6
+                sm:mt-9
+              ">
+                <p className="
+                  mb-3
+                  text-[9px]
+                  uppercase
+                  tracking-[0.35em]
+                  text-white/40
+                ">
                   The Experience Begins In
                 </p>
 
                 <Countdown
                   date={EVENT.date}
                 />
-
               </div>
 
             </div>
-
           </div>
-
         </div>
 
-        {/* ===============================================================
-            CINEMATIC TOR'Q STAGE
-        =============================================================== */}
+        {/* ======================================================
+            TOR'Q CINEMATIC STAGE
+        ====================================================== */}
 
         <div
           className="
             pointer-events-none
             absolute
             inset-0
-            z-30
+            z-40
             flex
             items-center
             justify-center
@@ -708,20 +612,12 @@ export function Hero() {
           }}
         >
 
-          <div
-            className="
-              flex
-              w-full
-              flex-col
-              items-center
-              px-4
-              sm:px-8
-            "
-          >
-
-            {/* =========================================================
-                WELCOME
-            ========================================================= */}
+          <div className="
+            flex
+            w-full
+            flex-col
+            items-center
+          ">
 
             <p
               className="
@@ -742,132 +638,157 @@ export function Hero() {
               Welcome to
             </p>
 
-            {/* =========================================================
-                LOGO STAGE
+            {/* ====================================================
+                CRITICAL FIX
 
-                IMPORTANT:
+                This wrapper is ALWAYS exactly 790 × 316.
 
-                The master logo and mechanical pieces occupy EXACTLY
-                the same stage.
+                We scale the WHOLE coordinate system.
 
-                Master logo = behind
-                Components = in front
-            ========================================================= */}
+                This is what makes the hero use the same coordinates
+                as the registration page.
+            ==================================================== */}
 
             <div
               className="
                 relative
-                w-[94vw]
-                max-w-[790px]
+                max-w-[94vw]
               "
               style={{
-                aspectRatio:
-                  `${ART_WIDTH}/${ART_HEIGHT}`,
+                width:
+                  `min(94vw, ${STAGE_WIDTH}px)`,
 
-                transformStyle:
-                  'preserve-3d',
+                aspectRatio:
+                  `${STAGE_WIDTH}/${STAGE_HEIGHT}`,
               }}
             >
 
-              {/* =======================================================
-                  ORIGINAL TOR'Q LOGO
+              {/* ==================================================
+                  ACTUAL 790 × 316 ARTBOARD
 
-                  This is the PERFECT visual logo.
+                  Everything inside this element uses pixel
+                  coordinates from the registration tool.
+              ================================================== */}
 
-                  It remains at 100% initially.
-
-                  It fades away BEFORE the mechanical pieces move.
-              ======================================================= */}
-
-              <img
-                src="/images/torq-components/torq-logo-intact-reference.png"
-                alt="TOR'Q"
-                draggable={false}
+              <div
                 className="
                   absolute
-                  inset-0
-                  h-full
-                  w-full
-                  object-contain
+                  left-1/2
+                  top-1/2
                 "
                 style={{
-                  opacity:
-                    logoFade,
+                  width:
+                    `${STAGE_WIDTH}px`,
+
+                  height:
+                    `${STAGE_HEIGHT}px`,
 
                   transform:
-                    'translateZ(0)',
+                    'translate(-50%, -50%)',
 
                   transformOrigin:
                     'center center',
 
-                  willChange:
-                    'opacity',
+                  transformStyle:
+                    'preserve-3d',
                 }}
-              />
+              >
 
-              {/* =======================================================
-                  MECHANICAL COMPONENTS
+                {/* =================================================
+                    MASTER LOGO
 
-                  These are visible from the very beginning.
+                    Behind everything.
+                ================================================= */}
 
-                  They do NOT fade with the master logo.
+                <img
+                  src="/images/torq-components/torq-logo-intact-reference.png"
+                  alt="TOR'Q"
+                  draggable={false}
+                  className="
+                    absolute
+                    left-0
+                    top-0
+                    h-full
+                    w-full
+                    object-fill
+                  "
+                  style={{
+                    opacity:
+                      logoOpacity,
 
-                  They remain still until the logo has disappeared.
-              ======================================================= */}
+                    transform:
+                      'translateZ(0)',
 
-              <MechanicalPiece
-                src="/images/torq-components/t_section.png"
-                data={COMPONENTS.t}
-                explosion={explosion}
-              />
+                    transformOrigin:
+                      'center center',
 
-              <MechanicalPiece
-                src="/images/torq-components/turbine.png"
-                data={COMPONENTS.turbine}
-                explosion={explosion}
-              />
+                    zIndex: 1,
 
-              <MechanicalPiece
-                src="/images/torq-components/torq-26-transparent.png"
-                data={COMPONENTS.number26}
-                explosion={explosion}
-              />
+                    willChange:
+                      'opacity',
+                  }}
+                />
 
-              <MechanicalPiece
-                src="/images/torq-components/r_section.png"
-                data={COMPONENTS.r}
-                explosion={explosion}
-              />
+                {/* =================================================
+                    MECHANICAL COMPONENTS
 
-              <MechanicalPiece
-                src="/images/torq-components/r_lower.png"
-                data={COMPONENTS.rLower}
-                explosion={explosion}
-              />
+                    EXACT REGISTRATION COORDINATES.
+                ================================================= */}
 
-              <MechanicalPiece
-                src="/images/torq-components/piston.png"
-                data={COMPONENTS.piston}
-                explosion={explosion}
-              />
+                <MechanicalPiece
+                  src="/images/torq-components/t_section.png"
+                  data={COMPONENTS.t}
+                  explosion={explosion}
+                />
 
-              <MechanicalPiece
-                src="/images/torq-components/q_section.png"
-                data={COMPONENTS.q}
-                explosion={explosion}
-              />
+                <MechanicalPiece
+                  src="/images/torq-components/turbine.png"
+                  data={COMPONENTS.turbine}
+                  explosion={explosion}
+                />
 
-              <MechanicalPiece
-                src="/images/torq-components/q_base.png"
-                data={COMPONENTS.qBase}
-                explosion={explosion}
-              />
+                <MechanicalPiece
+                  src="/images/torq-components/torq-26-transparent.png"
+                  data={COMPONENTS.number26}
+                  explosion={explosion}
+                />
 
+                <MechanicalPiece
+                  src="/images/torq-components/r_section.png"
+                  data={COMPONENTS.r}
+                  explosion={explosion}
+                />
+
+                <MechanicalPiece
+                  src="/images/torq-components/r_lower.png"
+                  data={COMPONENTS.rLower}
+                  explosion={explosion}
+                />
+
+                <MechanicalPiece
+                  src="/images/torq-components/piston.png"
+                  data={COMPONENTS.piston}
+                  explosion={explosion}
+                />
+
+                <MechanicalPiece
+                  src="/images/torq-components/q_section.png"
+                  data={COMPONENTS.q}
+                  explosion={explosion}
+                />
+
+                <MechanicalPiece
+                  src="/images/torq-components/q_base.png"
+                  data={COMPONENTS.qBase}
+                  explosion={explosion}
+                />
+
+              </div>
             </div>
 
-            {/* =========================================================
-                SCROLL CUE
-            ========================================================= */}
+            {/* ====================================================
+                SCROLL PROMPT
+            ==================================================== */}
 
             <div
               className="
@@ -884,65 +805,59 @@ export function Hero() {
               }}
             >
 
-              <span
-                className="
-                  whitespace-nowrap
-                  text-[8px]
-                  font-semibold
-                  uppercase
-                  tracking-[0.3em]
-                  text-white/45
-                  sm:text-[10px]
-                "
-              >
+              <span className="
+                whitespace-nowrap
+                text-[8px]
+                font-semibold
+                uppercase
+                tracking-[0.3em]
+                text-white/45
+                sm:text-[10px]
+              ">
                 Scroll down to experience TOR&apos;Q
               </span>
 
-              <div
-                className="
-                  flex
-                  flex-col
-                  items-center
-                "
-              >
+              <div className="
+                flex
+                flex-col
+                items-center
+              ">
+                <div className="
+                  h-7
+                  w-px
+                  bg-gradient-to-b
+                  from-white/50
+                  to-transparent
+                " />
 
-                <div
-                  className="
-                    h-7
-                    w-px
-                    bg-gradient-to-b
-                    from-white/50
-                    to-transparent
-                  "
-                />
-
-                <ChevronDown
-                  className="
-                    mt-1
-                    h-4
-                    w-4
-                    animate-bounce
-                    text-white/50
-                  "
-                />
-
+                <ChevronDown className="
+                  mt-1
+                  h-4
+                  w-4
+                  animate-bounce
+                  text-white/50
+                " />
               </div>
 
             </div>
 
           </div>
-
         </div>
 
       </div>
-
     </section>
   )
 }
 
-/* =========================================================================
+/* ================================================================
    MECHANICAL PIECE
-========================================================================= */
+
+   IMPORTANT:
+
+   x, y and width are now REAL PIXELS in the 790 × 316 artboard.
+
+   We do NOT convert them to percentages.
+================================================================ */
 
 function MechanicalPiece({
   src,
@@ -950,189 +865,81 @@ function MechanicalPiece({
   explosion,
 }: {
   src: string
-  data: Motion
+  data: ComponentData
   explosion: number
 }) {
-  /*
-   * ---------------------------------------------------------------
-   * EXPLOSION
-   *
-   * 0 = completely registered
-   * 1 = completely out of the scene
-   * ---------------------------------------------------------------
-   */
-
   const e =
     clamp(explosion)
 
   /*
-   * ---------------------------------------------------------------
-   * CONTINUOUS ACCELERATION
-   *
-   * The movement gets faster as the user scrolls.
-   *
-   * There is no "destination point".
-   *
-   * The components simply continue travelling.
-   * ---------------------------------------------------------------
+   * Keep the parts completely registered until the explosion.
    */
-
   const travel =
-    e *
-    e *
-    e
+    e * e * e
 
   /*
-   * ---------------------------------------------------------------
-   * INITIAL RELEASE
-   *
-   * A very small amount of separation gives the feeling that the
-   * machinery is unlocking itself.
-   * ---------------------------------------------------------------
+   * Very subtle initial mechanical movement.
    */
-
   const release =
     easeOut(
       e / 0.16,
     )
 
-  /*
-   * ---------------------------------------------------------------
-   * POSITION
-   * ---------------------------------------------------------------
-   */
-
   const x =
     data.x +
+    data.flightX * travel +
     data.flightX *
-      travel
+      0.025 *
+      release
 
   const y =
     data.y +
+    data.flightY * travel +
     data.flightY *
-      travel
+      0.025 *
+      release
 
   /*
-   * Tiny mechanical release before the major explosion.
+   * Camera depth.
    */
-
-  const microX =
-    data.flightX *
-    0.025 *
-    release
-
-  const microY =
-    data.flightY *
-    0.025 *
-    release
-
-  const finalX =
-    x +
-    microX
-
-  const finalY =
-    y +
-    microY
-
-  /*
-   * ---------------------------------------------------------------
-   * CAMERA DEPTH
-   *
-   * The parts come toward the viewer.
-   * ---------------------------------------------------------------
-   */
-
   const z =
-    e *
-    e *
-    5600
+    e * e * 5600
 
   /*
-   * ---------------------------------------------------------------
-   * SCALE
-   *
-   * The parts grow dramatically as they approach the camera.
-   * ---------------------------------------------------------------
+   * Parts grow as they approach camera.
    */
-
   const scale =
     1 +
-    Math.pow(
-      e,
-      2,
-    ) *
-    5
+    Math.pow(e, 2) * 5
 
   /*
-   * ---------------------------------------------------------------
-   * ROTATION
-   * ---------------------------------------------------------------
+   * 3D rotation.
    */
-
   const rotateX =
-    data.rotateX *
-    e
+    data.rotateX * e
 
   const rotateY =
-    data.rotateY *
-    e
+    data.rotateY * e
 
   const rotateZ =
     data.rotation +
-    data.rotateZ *
-    e
+    data.rotateZ * e
 
   /*
-   * ---------------------------------------------------------------
-   * MOTION BLUR
-   * ---------------------------------------------------------------
+   * Motion blur.
    */
-
   const blur =
-    Math.pow(
-      e,
-      2.2,
-    ) *
-    5
+    Math.pow(e, 2.2) * 5
 
   /*
-   * ---------------------------------------------------------------
-   * EXIT FADE
-   *
-   * The parts stay fully visible through the beginning and middle
-   * of the explosion.
-   *
-   * Fade starts only once they're already travelling aggressively.
-   * ---------------------------------------------------------------
+   * Fade only after the component has already travelled.
    */
-
-  const fade =
+  const opacity =
     1 -
     easeIn(
       (e - 0.68) /
         0.32,
     )
-
-  /*
-   * ---------------------------------------------------------------
-   * RESPONSIVE COORDINATES
-   * ---------------------------------------------------------------
-   */
-
-  const left =
-    (finalX /
-      ART_WIDTH) *
-    100
-
-  const top =
-    (finalY /
-      ART_HEIGHT) *
-    100
-
-  const width =
-    (data.width /
-      ART_WIDTH) *
-    100
 
   return (
     <img
@@ -1147,37 +954,21 @@ function MechanicalPiece({
       "
       style={{
         /*
-         * Registered starting position.
+         * EXACT registration coordinates.
          */
         left:
-          `${left}%`,
+          `${x}px`,
 
         top:
-          `${top}%`,
+          `${y}px`,
 
-        /*
-         * Registered size.
-         */
         width:
-          `${width}%`,
+          `${data.width}px`,
 
         height:
           'auto',
 
-        /*
-         * IMPORTANT:
-         *
-         * At explosion = 0:
-         *
-         * opacity = 1
-         * z = 0
-         * scale = 1
-         *
-         * So the components are already sitting on the master logo
-         * before anything happens.
-         */
-        opacity:
-          fade,
+        opacity,
 
         transformOrigin:
           'top left',
@@ -1194,7 +985,6 @@ function MechanicalPiece({
             : 'none',
 
         transform: `
-          rotate(${data.rotation}deg)
           translate3d(
             0,
             0,
@@ -1206,25 +996,20 @@ function MechanicalPiece({
           scale(${scale})
         `,
 
+        zIndex:
+          10 +
+          Math.round(z / 100),
+
         willChange:
           'transform, opacity, filter',
-
-        /*
-         * As the parts move toward camera they sit above everything.
-         */
-        zIndex:
-          50 +
-          Math.round(
-            z / 100,
-          ),
       }}
     />
   )
 }
 
-/* =========================================================================
+/* ================================================================
    HERO STAT
-========================================================================= */
+================================================================ */
 
 function HeroStat({
   value,
@@ -1236,30 +1021,26 @@ function HeroStat({
   return (
     <div className="min-w-0">
 
-      <p
-        className="
-          text-2xl
-          font-black
-          leading-none
-          text-white
-          sm:text-4xl
-        "
-      >
+      <p className="
+        text-2xl
+        font-black
+        leading-none
+        text-white
+        sm:text-4xl
+      ">
         {value}
       </p>
 
-      <p
-        className="
-          mt-2
-          max-w-[120px]
-          text-[7px]
-          uppercase
-          tracking-[0.18em]
-          text-white/45
-          sm:text-[10px]
-          sm:tracking-[0.2em]
-        "
-      >
+      <p className="
+        mt-2
+        max-w-[120px]
+        text-[7px]
+        uppercase
+        tracking-[0.18em]
+        text-white/45
+        sm:text-[10px]
+        sm:tracking-[0.2em]
+      ">
         {label}
       </p>
 
