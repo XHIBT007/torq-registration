@@ -17,62 +17,53 @@ import { Countdown } from './countdown'
 import { useRegistration } from './registration'
 
 /* ================================================================
-   TOR'Q LOGO COMPONENT SYSTEM
+   TOR'Q LOGO COMPONENTS
 
-   ALL OF THESE FILES MUST HAVE THE SAME CANVAS SIZE.
+   IMPORTANT:
+   Every component is rendered on the SAME master canvas.
 
-   They are intentionally rendered at EXACTLY the same position.
+   At scrollProgress = 0:
 
-   This means:
+   T
+   TURBINE
+   26
+   R
+   R LOWER
+   PISTON
+   Q
+   Q BASE
 
-        T
-        TURBINE
-        26
-        R
-        PISTON
-        Q
-        DETAILS
+   collectively form the TOR'Q logo.
 
-   collectively form ONE logo.
-
-   There is NO intact-logo image underneath them.
+   There is NO intact-logo transition.
    ================================================================ */
 
-const LOGO_COMPONENTS = [
-  {
-    src: '/images/torq-components/logo-t.png',
-    name: 'T',
-  },
-  {
-    src: '/images/torq-components/logo-turbine.png',
-    name: 'Turbine',
-  },
-  {
-    src: '/images/torq-components/logo-r.png',
-    name: 'R',
-  },
-  {
-    src: '/images/torq-components/logo-piston.png',
-    name: 'Piston',
-  },
-  {
-    src: '/images/torq-components/logo-q.png',
-    name: 'Q',
-  },
-  {
-    src: '/images/torq-components/logo-26.png',
-    name: '26',
-  },
-  {
-    src: '/images/torq-components/logo-mechanical-details.png',
-    name: 'Mechanical details',
-  },
-]
+const LOGO_ASPECT = 1981 / 793
+
+/* ================================================================
+   TYPES
+   ================================================================ */
+
+type PieceMotion = {
+  x: number
+  y: number
+  z: number
+  rotateX: number
+  rotateY: number
+  rotateZ: number
+  scale: number
+  blur: number
+}
+
+/* ================================================================
+   HERO
+   ================================================================ */
 
 export function Hero() {
   const { open } = useRegistration()
 
-  const sectionRef = useRef<HTMLElement>(null)
+  const sectionRef =
+    useRef<HTMLElement>(null)
 
   const [scrollProgress, setScrollProgress] =
     useState(0)
@@ -87,7 +78,8 @@ export function Hero() {
     const update = () => {
       raf = 0
 
-      const section = sectionRef.current
+      const section =
+        sectionRef.current
 
       if (!section) return
 
@@ -111,10 +103,12 @@ export function Hero() {
       setScrollProgress(progress)
     }
 
-    const onScroll = () => {
+    const handleScroll = () => {
       if (!raf) {
         raf =
-          window.requestAnimationFrame(update)
+          window.requestAnimationFrame(
+            update,
+          )
       }
     }
 
@@ -122,7 +116,7 @@ export function Hero() {
 
     window.addEventListener(
       'scroll',
-      onScroll,
+      handleScroll,
       { passive: true },
     )
 
@@ -134,7 +128,7 @@ export function Hero() {
     return () => {
       window.removeEventListener(
         'scroll',
-        onScroll,
+        handleScroll,
       )
 
       window.removeEventListener(
@@ -155,7 +149,10 @@ export function Hero() {
   const clamp = (value: number) =>
     Math.min(
       1,
-      Math.max(0, value),
+      Math.max(
+        0,
+        value,
+      ),
     )
 
   const easeIn = (value: number) => {
@@ -167,14 +164,18 @@ export function Hero() {
   const easeOut = (value: number) => {
     const t = clamp(value)
 
-    return 1 -
+    return (
+      1 -
       Math.pow(
         1 - t,
         3,
       )
+    )
   }
 
-  const easeInOut = (value: number) => {
+  const easeInOut = (
+    value: number,
+  ) => {
     const t = clamp(value)
 
     return t < 0.5
@@ -188,169 +189,158 @@ export function Hero() {
   }
 
   /* ============================================================
-     OPENING COPY
+     INTRO COPY
      ============================================================ */
 
   const welcomeOpacity =
     1 -
     easeOut(
-      scrollProgress / 0.15,
+      scrollProgress / 0.13,
     )
 
   const scrollHintOpacity =
     1 -
     easeOut(
-      scrollProgress / 0.14,
+      scrollProgress / 0.13,
     )
 
   /* ============================================================
      LOGO TIMELINE
-     ============================================================ */
 
-  /*
-   * 0.00 → 0.12
-   *
-   * PERFECTLY ASSEMBLED LOGO.
-   *
-   * Nothing moves.
-   */
+     0 → 12%
+       Completely assembled.
+
+     12 → 30%
+       Mechanical release.
+
+     30 → 100%
+       Continuous flight.
+
+     82 → 100%
+       Fade while already travelling away.
+     ============================================================ */
 
   const release =
     easeInOut(
-      (scrollProgress -
-        0.12) /
+      (scrollProgress - 0.12) /
         0.18,
     )
-
-  /*
-   * 0.20 → 0.60
-   *
-   * Components begin accelerating away.
-   */
 
   const launch =
     easeIn(
-      (scrollProgress -
-        0.20) /
-        0.40,
+      (scrollProgress - 0.20) /
+        0.38,
     )
-
-  /*
-   * 0.30 → 1.00
-   *
-   * Long continuous 3D flight.
-   */
 
   const flight =
     easeIn(
-      (scrollProgress -
-        0.30) /
-        0.70,
+      (scrollProgress - 0.28) /
+        0.72,
     )
 
-  /*
-   * Fade happens ONLY near the end.
-   *
-   * The pieces have already travelled
-   * significantly beyond the logo.
-   */
-
-  const componentOpacity =
+  const fade =
     1 -
     easeInOut(
-      (flight -
-        0.82) /
-        0.18,
+      (flight - 0.80) /
+        0.20,
     )
 
   /* ============================================================
-     BACKGROUND / HERO REVEAL
+     BACKGROUND REVEAL
      ============================================================ */
 
   const backgroundOpacity =
     easeOut(
-      (scrollProgress -
-        0.42) /
+      (scrollProgress - 0.38) /
         0.48,
     )
 
   const heroOpacity =
     easeInOut(
-      (scrollProgress -
-        0.54) /
-        0.30,
+      (scrollProgress - 0.53) /
+        0.28,
     )
 
   /* ============================================================
-     CINEMATIC CAMERA RESPONSE
+     CAMERA
+
+     Small camera push gives the impression that the pieces
+     are moving toward the viewer rather than simply sliding
+     around a flat plane.
      ============================================================ */
 
   const cameraPush =
     easeOut(
-      (scrollProgress -
-        0.34) /
-        0.18,
+      (scrollProgress - 0.34) /
+        0.20,
     )
 
   /* ============================================================
      PIECE MOTION
 
-     Because every source image uses the SAME 1981 × 793
-     coordinate system, every piece begins at EXACTLY
-     the position it occupies in the original logo.
+     IMPORTANT:
 
-     There is no registration transition.
+     These values are OFFSETS from the original logo position.
 
-     The values below are purely the movement AFTER
-     the logo starts coming apart.
+     At release = 0 and flight = 0:
+
+       x = 0
+       y = 0
+       z = 0
+       rotation = 0
+       scale = 1
+
+     Therefore the actual assets are the logo.
      ============================================================ */
 
-  const pieces = {
-
+  const pieces: Record<
+    string,
+    PieceMotion
+  > = {
     /* ==========================================================
        T
        ========================================================== */
 
     t: {
       x:
-        -10 * release -
-        45 * launch -
-        150 * flight,
+        -8 * release -
+        38 * launch -
+        190 * flight,
 
       y:
-        -4 * release -
-        30 * launch -
-        130 * flight,
+        -3 * release -
+        24 * launch -
+        155 * flight,
 
       z:
         0 +
-        450 * launch +
-        3200 * flight,
+        400 * launch +
+        3800 * flight,
 
       rotateX:
-        -5 * release -
-        22 * launch -
-        70 * flight,
+        -4 * release -
+        20 * launch -
+        80 * flight,
 
       rotateY:
-        -4 * release -
+        -5 * release -
         35 * launch -
-        100 * flight,
+        110 * flight,
 
       rotateZ:
         -3 * release -
-        40 * launch -
-        120 * flight,
+        38 * launch -
+        135 * flight,
 
       scale:
         1 +
-        0.08 * launch +
-        2.25 * flight,
+        0.06 * launch +
+        2.4 * flight,
 
       blur:
         0 +
         1 * launch +
-        9 * flight,
+        10 * flight,
     },
 
     /* ==========================================================
@@ -359,39 +349,135 @@ export function Hero() {
 
     turbine: {
       x:
-        -4 * release -
-        25 * launch -
-        120 * flight,
+        -3 * release -
+        24 * launch -
+        140 * flight,
 
       y:
-        5 * release +
-        40 * launch +
-        170 * flight,
+        4 * release +
+        34 * launch +
+        190 * flight,
 
       z:
         0 +
         500 * launch +
-        3600 * flight,
+        4200 * flight,
 
       rotateX:
-        6 * release +
-        35 * launch +
-        90 * flight,
+        5 * release +
+        32 * launch +
+        95 * flight,
 
       rotateY:
-        -8 * release -
-        55 * launch -
-        130 * flight,
+        -7 * release -
+        50 * launch -
+        140 * flight,
 
       rotateZ:
-        -12 * release -
-        85 * launch -
-        240 * flight,
+        -10 * release -
+        80 * launch -
+        260 * flight,
+
+      scale:
+        1 +
+        0.06 * launch +
+        2.8 * flight,
+
+      blur:
+        0 +
+        1 * launch +
+        12 * flight,
+    },
+
+    /* ==========================================================
+       26
+
+       The 26 starts EXACTLY inside the turbine.
+
+       It then separates independently.
+       ========================================================== */
+
+    number26: {
+      x:
+        -1 * release -
+        8 * launch +
+        90 * flight,
+
+      y:
+        -1 * release -
+        10 * launch -
+        135 * flight,
+
+      z:
+        0 +
+        650 * launch +
+        4700 * flight,
+
+      rotateX:
+        -7 * release -
+        30 * launch -
+        105 * flight,
+
+      rotateY:
+        6 * release +
+        40 * launch +
+        135 * flight,
+
+      rotateZ:
+        -3 * release -
+        55 * launch -
+        155 * flight,
 
       scale:
         1 +
         0.08 * launch +
-        2.70 * flight,
+        3.2 * flight,
+
+      blur:
+        0 +
+        1 * launch +
+        14 * flight,
+    },
+
+    /* ==========================================================
+       R MAIN
+       ========================================================== */
+
+    r: {
+      x:
+        5 * release +
+        58 * launch +
+        185 * flight,
+
+      y:
+        -5 * release -
+        42 * launch -
+        155 * flight,
+
+      z:
+        0 +
+        500 * launch +
+        4100 * flight,
+
+      rotateX:
+        -5 * release -
+        24 * launch -
+        80 * flight,
+
+      rotateY:
+        7 * release +
+        48 * launch +
+        125 * flight,
+
+      rotateZ:
+        5 * release +
+        55 * launch +
+        145 * flight,
+
+      scale:
+        1 +
+        0.06 * launch +
+        2.5 * flight,
 
       blur:
         0 +
@@ -400,97 +486,49 @@ export function Hero() {
     },
 
     /* ==========================================================
-       26
-
-       The 26 now physically leaves the turbine.
+       R LOWER
        ========================================================== */
 
-    number26: {
+    rLower: {
       x:
-        -2 * release -
-        15 * launch +
-        75 * flight,
+        -8 * release -
+        60 * launch -
+        170 * flight,
 
       y:
-        -2 * release -
-        15 * launch -
-        115 * flight,
+        7 * release +
+        60 * launch +
+        175 * flight,
 
       z:
         0 +
-        600 * launch +
-        4100 * flight,
+        550 * launch +
+        3900 * flight,
 
       rotateX:
-        -8 * release -
-        35 * launch -
-        100 * flight,
+        8 * release +
+        38 * launch +
+        95 * flight,
 
       rotateY:
-        8 * release +
-        45 * launch +
+        -8 * release -
+        48 * launch -
         120 * flight,
 
       rotateZ:
-        -4 * release -
-        65 * launch -
-        145 * flight,
+        10 * release +
+        75 * launch +
+        170 * flight,
 
       scale:
         1 +
-        0.12 * launch +
-        3.00 * flight,
+        0.07 * launch +
+        2.6 * flight,
 
       blur:
         0 +
         1 * launch +
-        13 * flight,
-    },
-
-    /* ==========================================================
-       R
-       ========================================================== */
-
-    r: {
-      x:
-        5 * release +
-        60 * launch +
-        155 * flight,
-
-      y:
-        -6 * release -
-        45 * launch -
-        140 * flight,
-
-      z:
-        0 +
-        500 * launch +
-        3500 * flight,
-
-      rotateX:
-        -5 * release -
-        25 * launch -
-        75 * flight,
-
-      rotateY:
-        8 * release +
-        50 * launch +
-        115 * flight,
-
-      rotateZ:
-        5 * release +
-        55 * launch +
-        135 * flight,
-
-      scale:
-        1 +
-        0.08 * launch +
-        2.45 * flight,
-
-      blur:
-        0 +
-        1 * launch +
-        10 * flight,
+        11 * flight,
     },
 
     /* ==========================================================
@@ -501,129 +539,129 @@ export function Hero() {
       x:
         8 * release +
         90 * launch +
-        175 * flight,
+        220 * flight,
 
       y:
-        -10 * release -
-        70 * launch -
-        190 * flight,
+        -9 * release -
+        72 * launch -
+        210 * flight,
 
       z:
         0 +
-        700 * launch +
-        4300 * flight,
+        750 * launch +
+        5000 * flight,
 
       rotateX:
         15 * release +
         65 * launch +
-        130 * flight,
+        135 * flight,
 
       rotateY:
         18 * release +
         90 * launch +
-        175 * flight,
+        185 * flight,
 
       rotateZ:
         25 * release +
         125 * launch +
-        260 * flight,
-
-      scale:
-        1 +
-        0.12 * launch +
-        3.40 * flight,
-
-      blur:
-        0 +
-        2 * launch +
-        15 * flight,
-    },
-
-    /* ==========================================================
-       Q
-       ========================================================== */
-
-    q: {
-      x:
-        8 * release +
-        70 * launch +
-        160 * flight,
-
-      y:
-        5 * release +
-        45 * launch +
-        150 * flight,
-
-      z:
-        0 +
-        600 * launch +
-        3900 * flight,
-
-      rotateX:
-        -5 * release -
-        30 * launch -
-        80 * flight,
-
-      rotateY:
-        10 * release +
-        60 * launch +
-        125 * flight,
-
-      rotateZ:
-        -8 * release -
-        75 * launch -
-        175 * flight,
+        275 * flight,
 
       scale:
         1 +
         0.10 * launch +
-        2.90 * flight,
+        3.5 * flight,
+
+      blur:
+        0 +
+        2 * launch +
+        16 * flight,
+    },
+
+    /* ==========================================================
+       Q MAIN
+       ========================================================== */
+
+    q: {
+      x:
+        7 * release +
+        72 * launch +
+        185 * flight,
+
+      y:
+        5 * release +
+        48 * launch +
+        175 * flight,
+
+      z:
+        0 +
+        650 * launch +
+        4500 * flight,
+
+      rotateX:
+        -5 * release -
+        28 * launch -
+        85 * flight,
+
+      rotateY:
+        10 * release +
+        60 * launch +
+        135 * flight,
+
+      rotateZ:
+        -8 * release -
+        78 * launch -
+        190 * flight,
+
+      scale:
+        1 +
+        0.08 * launch +
+        3.0 * flight,
 
       blur:
         0 +
         1 * launch +
-        12 * flight,
+        13 * flight,
     },
 
     /* ==========================================================
-       MECHANICAL DETAILS
+       Q BASE
        ========================================================== */
 
-    details: {
+    qBase: {
       x:
-        15 * release +
-        100 * launch +
-        210 * flight,
+        12 * release +
+        105 * launch +
+        240 * flight,
 
       y:
-        10 * release -
-        40 * launch -
-        130 * flight,
+        12 * release +
+        85 * launch +
+        190 * flight,
 
       z:
         0 +
-        900 * launch +
-        5000 * flight,
+        850 * launch +
+        5200 * flight,
 
       rotateX:
-        25 * release +
-        90 * launch +
-        180 * flight,
+        20 * release +
+        70 * launch +
+        135 * flight,
 
       rotateY:
-        -20 * release -
-        70 * launch -
-        160 * flight,
+        -15 * release -
+        65 * launch -
+        120 * flight,
 
       rotateZ:
-        35 * release +
-        160 * launch +
-        300 * flight,
+        30 * release +
+        135 * launch +
+        240 * flight,
 
       scale:
         1 +
-        0.15 * launch +
-        4.00 * flight,
+        0.10 * launch +
+        3.6 * flight,
 
       blur:
         0 +
@@ -631,6 +669,10 @@ export function Hero() {
         17 * flight,
     },
   }
+
+  /* ============================================================
+     RENDER
+     ============================================================ */
 
   return (
     <section
@@ -642,9 +684,8 @@ export function Hero() {
         bg-black
       "
     >
-
       {/* ========================================================
-          STICKY CINEMATIC STAGE
+          STICKY STAGE
           ======================================================== */}
 
       <div
@@ -660,7 +701,6 @@ export function Hero() {
             '1800px',
         }}
       >
-
         {/* ======================================================
             BACKGROUND
             ====================================================== */}
@@ -675,7 +715,6 @@ export function Hero() {
               backgroundOpacity,
           }}
         >
-
           <img
             src="/images/hero-drift-red-mustang.webp"
             alt=""
@@ -716,7 +755,6 @@ export function Hero() {
               to-black/40
             "
           />
-
         </div>
 
         {/* ======================================================
@@ -734,7 +772,6 @@ export function Hero() {
               heroOpacity,
           }}
         >
-
           <div
             className="
               mx-auto
@@ -753,14 +790,12 @@ export function Hero() {
               lg:pt-0
             "
           >
-
             <div
               className="
                 w-full
                 max-w-5xl
               "
             >
-
               <h1
                 className="
                   max-w-5xl
@@ -775,7 +810,6 @@ export function Hero() {
                   lg:text-[6.5rem]
                 "
               >
-
                 <span className="block">
                   AFRICA&apos;S BIGGEST
                 </span>
@@ -787,7 +821,6 @@ export function Hero() {
                 <span className="block">
                   SPECTACLE
                 </span>
-
               </h1>
 
               <p
@@ -822,7 +855,6 @@ export function Hero() {
                   sm:items-center
                 "
               >
-
                 <Button
                   size="lg"
                   onClick={open}
@@ -842,7 +874,6 @@ export function Hero() {
                     sm:text-base
                   "
                 >
-
                   <Ticket
                     className="
                       mr-2
@@ -852,7 +883,6 @@ export function Hero() {
                   />
 
                   REGISTER NOW
-
                 </Button>
 
                 <div
@@ -865,7 +895,6 @@ export function Hero() {
                     sm:text-base
                   "
                 >
-
                   <MapPin
                     className="
                       h-5
@@ -875,9 +904,7 @@ export function Hero() {
                   />
 
                   {EVENT.location}
-
                 </div>
-
               </div>
 
               <div
@@ -894,7 +921,6 @@ export function Hero() {
                   sm:pt-7
                 "
               >
-
                 <HeroStat
                   value="100+"
                   label="Performance Cars"
@@ -914,7 +940,6 @@ export function Hero() {
                   value="1"
                   label="Epic Experience"
                 />
-
               </div>
 
               <div
@@ -923,7 +948,6 @@ export function Hero() {
                   sm:mt-9
                 "
               >
-
                 <p
                   className="
                     mb-3
@@ -941,23 +965,20 @@ export function Hero() {
                 <Countdown
                   date={EVENT.date}
                 />
-
               </div>
-
             </div>
-
           </div>
-
         </div>
 
         {/* ======================================================
-            TOR'Q LOGO ASSEMBLY
+            TOR'Q LOGO
 
-            THIS IS THE IMPORTANT PART.
+            THIS IS THE REAL LOGO.
 
-            There is no second logo.
+            No intact image.
+            No fade from one image to another.
 
-            These layers ARE the logo.
+            The component layers are the logo.
             ====================================================== */}
 
         <div
@@ -977,7 +998,6 @@ export function Hero() {
               '1800px',
           }}
         >
-
           <div
             className="
               flex
@@ -988,7 +1008,6 @@ export function Hero() {
               items-center
             "
           >
-
             {/* ==================================================
                 WELCOME
                 ================================================== */}
@@ -1014,130 +1033,92 @@ export function Hero() {
             </p>
 
             {/* ==================================================
-                MASTER COMPONENT CANVAS
+                MASTER LOGO CANVAS
 
-                Every image is 1981 × 793.
-
-                Therefore every layer occupies the EXACT same
-                rectangle.
-
-                No manual positioning.
-                No manual sizing.
-                No crossfade.
+                All assets occupy exactly this same canvas.
                 ================================================== */}
 
             <div
               className="
                 relative
-                aspect-[1981/793]
                 w-full
                 max-w-[790px]
               "
               style={{
-                transformStyle:
-                  'preserve-3d',
+                aspectRatio:
+                  LOGO_ASPECT,
 
                 perspective:
                   '1800px',
+
+                transformStyle:
+                  'preserve-3d',
 
                 transform:
                   `
                     translate3d(
                       0,
                       0,
-                      ${cameraPush * -40}px
+                      ${cameraPush * -35}px
                     )
                   `,
               }}
             >
-
-              {/* =================================================
-                  T
-                  ================================================= */}
-
+              {/* T */}
               <LogoPiece
-                src="/images/torq-components/logo-t.png"
-                opacity={
-                  componentOpacity
-                }
-                {...pieces.t}
+                src="/images/torq-components/t_section.png"
+                opacity={fade}
+                motion={pieces.t}
               />
 
-              {/* =================================================
-                  TURBINE
-                  ================================================= */}
-
+              {/* TURBINE */}
               <LogoPiece
-                src="/images/torq-components/logo-turbine.png"
-                opacity={
-                  componentOpacity
-                }
-                {...pieces.turbine}
+                src="/images/torq-components/turbine.png"
+                opacity={fade}
+                motion={pieces.turbine}
               />
 
-              {/* =================================================
-                  R
-                  ================================================= */}
-
+              {/* 26 */}
               <LogoPiece
-                src="/images/torq-components/logo-r.png"
-                opacity={
-                  componentOpacity
-                }
-                {...pieces.r}
+                src="/images/torq-components/torq-26-transparent.png"
+                opacity={fade}
+                motion={pieces.number26}
               />
 
-              {/* =================================================
-                  PISTON
-                  ================================================= */}
-
+              {/* R MAIN */}
               <LogoPiece
-                src="/images/torq-components/logo-piston.png"
-                opacity={
-                  componentOpacity
-                }
-                {...pieces.piston}
+                src="/images/torq-components/r_section.png"
+                opacity={fade}
+                motion={pieces.r}
               />
 
-              {/* =================================================
-                  Q
-                  ================================================= */}
-
+              {/* R LOWER */}
               <LogoPiece
-                src="/images/torq-components/logo-q.png"
-                opacity={
-                  componentOpacity
-                }
-                {...pieces.q}
+                src="/images/torq-components/r_lower.png"
+                opacity={fade}
+                motion={pieces.rLower}
               />
 
-              {/* =================================================
-                  26
-
-                  This sits directly over the original 26
-                  at scroll position 0.
-                  ================================================= */}
-
+              {/* PISTON */}
               <LogoPiece
-                src="/images/torq-components/logo-26.png"
-                opacity={
-                  componentOpacity
-                }
-                {...pieces.number26}
+                src="/images/torq-components/piston.png"
+                opacity={fade}
+                motion={pieces.piston}
               />
 
-              {/* =================================================
-                  MICRO MECHANICAL DETAILS
-                  ================================================= */}
-
+              {/* Q MAIN */}
               <LogoPiece
-                src="/images/torq-components/logo-mechanical-details.png"
-                opacity={
-                  componentOpacity
-                }
-                {...pieces.details}
+                src="/images/torq-components/q_section.png"
+                opacity={fade}
+                motion={pieces.q}
               />
 
+              {/* Q BASE */}
+              <LogoPiece
+                src="/images/torq-components/q_base.png"
+                opacity={fade}
+                motion={pieces.qBase}
+              />
             </div>
 
             {/* ==================================================
@@ -1159,7 +1140,6 @@ export function Hero() {
                   scrollHintOpacity,
               }}
             >
-
               <span
                 className="
                   whitespace-nowrap
@@ -1182,7 +1162,6 @@ export function Hero() {
                   items-center
                 "
               >
-
                 <div
                   className="
                     h-7
@@ -1202,17 +1181,11 @@ export function Hero() {
                     text-white/50
                   "
                 />
-
               </div>
-
             </div>
-
           </div>
-
         </div>
-
       </div>
-
     </section>
   )
 }
@@ -1220,48 +1193,45 @@ export function Hero() {
 /* ================================================================
    LOGO PIECE
 
-   Every source image is the same 1981 × 793 canvas.
+   All component PNGs share the same master canvas.
 
-   Therefore every piece is simply:
+   Therefore:
 
        inset: 0
        width: 100%
        height: 100%
 
-   At zero progress:
+   At the first frame:
 
-       translate3d(0,0,0)
-       rotateX(0)
-       rotateY(0)
-       rotateZ(0)
-       scale(1)
+       x = 0
+       y = 0
+       z = 0
+       rotation = 0
+       scale = 1
 
-   They literally form the original logo.
+   The layers therefore reconstruct the original logo.
    ================================================================ */
 
 function LogoPiece({
   src,
   opacity,
-  x,
-  y,
-  z,
-  rotateX,
-  rotateY,
-  rotateZ,
-  scale,
-  blur,
+  motion,
 }: {
   src: string
   opacity: number
-  x: number
-  y: number
-  z: number
-  rotateX: number
-  rotateY: number
-  rotateZ: number
-  scale: number
-  blur: number
+  motion: PieceMotion
 }) {
+  const {
+    x,
+    y,
+    z,
+    rotateX,
+    rotateY,
+    rotateZ,
+    scale,
+    blur,
+  } = motion
+
   return (
     <img
       src={src}
@@ -1327,7 +1297,6 @@ function HeroStat({
 }) {
   return (
     <div className="min-w-0">
-
       <p
         className="
           text-2xl
@@ -1354,7 +1323,6 @@ function HeroStat({
       >
         {label}
       </p>
-
     </div>
   )
 }
