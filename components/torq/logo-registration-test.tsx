@@ -1,6 +1,6 @@
 'use client'
 
-import { useMemo, useState } from 'react'
+import { useState, useRef } from 'react'
 
 type Piece = {
   id: string
@@ -8,7 +8,7 @@ type Piece = {
   src: string
   x: number
   y: number
-  scale: number
+  width: number
   rotation: number
 }
 
@@ -17,63 +17,63 @@ const INITIAL_PIECES: Piece[] = [
     id: 't',
     name: 'T',
     src: '/images/torq-components/t_section.png',
-    x: 30,
-    y: 15,
-    scale: 1,
+    x: 35,
+    y: 30,
+    width: 250,
     rotation: 0,
   },
   {
     id: 'turbine',
     name: 'Turbine',
     src: '/images/torq-components/turbine.png',
-    x: 155,
-    y: 20,
-    scale: 1,
+    x: 205,
+    y: 45,
+    width: 220,
     rotation: 0,
   },
   {
     id: '26',
     name: '26',
     src: '/images/torq-components/torq-26-transparent.png',
-    x: 245,
-    y: 70,
-    scale: 0.62,
+    x: 275,
+    y: 105,
+    width: 80,
     rotation: 0,
   },
   {
     id: 'r',
     name: 'R',
     src: '/images/torq-components/r_section.png',
-    x: 340,
-    y: 25,
-    scale: 1.45,
+    x: 390,
+    y: 45,
+    width: 190,
     rotation: 0,
   },
   {
     id: 'r-lower',
     name: 'R Lower',
     src: '/images/torq-components/r_lower.png',
-    x: 425,
-    y: 125,
-    scale: 0.72,
+    x: 430,
+    y: 145,
+    width: 150,
     rotation: 0,
   },
   {
     id: 'piston',
     name: 'Piston',
     src: '/images/torq-components/piston.png',
-    x: 445,
-    y: 10,
-    scale: 0.85,
+    x: 500,
+    y: 20,
+    width: 100,
     rotation: 0,
   },
   {
     id: 'q',
     name: 'Q',
     src: '/images/torq-components/q_section.png',
-    x: 510,
-    y: 35,
-    scale: 1.12,
+    x: 535,
+    y: 55,
+    width: 225,
     rotation: 0,
   },
   {
@@ -81,8 +81,8 @@ const INITIAL_PIECES: Piece[] = [
     name: 'Q Base',
     src: '/images/torq-components/q_base.png',
     x: 600,
-    y: 190,
-    scale: 1,
+    y: 175,
+    width: 150,
     rotation: 0,
   },
 ]
@@ -100,13 +100,20 @@ export function LogoRegistrationTest() {
   const [referenceOpacity, setReferenceOpacity] =
     useState(0.35)
 
-  const selectedPiece = useMemo(
-    () =>
-      pieces.find(
-        (piece) => piece.id === selected,
-      ),
-    [pieces, selected],
-  )
+  const [dragging, setDragging] =
+    useState(false)
+
+  const dragStart = useRef({
+    pointerX: 0,
+    pointerY: 0,
+    pieceX: 0,
+    pieceY: 0,
+  })
+
+  const selectedPiece =
+    pieces.find(
+      (piece) => piece.id === selected,
+    )
 
   function updatePiece(
     id: string,
@@ -124,6 +131,76 @@ export function LogoRegistrationTest() {
     )
   }
 
+  function startDrag(
+    event: React.PointerEvent<HTMLImageElement>,
+    piece: Piece,
+  ) {
+    event.preventDefault()
+
+    setSelected(piece.id)
+
+    setDragging(true)
+
+    dragStart.current = {
+      pointerX: event.clientX,
+      pointerY: event.clientY,
+      pieceX: piece.x,
+      pieceY: piece.y,
+    }
+
+    event.currentTarget.setPointerCapture(
+      event.pointerId,
+    )
+  }
+
+  function moveDrag(
+    event: React.PointerEvent<HTMLImageElement>,
+  ) {
+    if (!dragging) return
+
+    const dx =
+      event.clientX -
+      dragStart.current.pointerX
+
+    const dy =
+      event.clientY -
+      dragStart.current.pointerY
+
+    /*
+     * The visible canvas may be scaled down on mobile.
+     * Convert screen movement back into our 790px
+     * coordinate system.
+     */
+
+    const stage =
+      event.currentTarget.parentElement
+
+    if (!stage) return
+
+    const rect =
+      stage.getBoundingClientRect()
+
+    const scaleX =
+      CANVAS_WIDTH / rect.width
+
+    const scaleY =
+      CANVAS_HEIGHT / rect.height
+
+    updatePiece(selected, {
+      x:
+        dragStart.current.pieceX +
+        dx * scaleX,
+
+      y:
+        dragStart.current.pieceY +
+        dy * scaleY,
+    })
+  }
+
+  function stopDrag() {
+    setDragging(false)
+  }
+
   function reset() {
     setPieces(INITIAL_PIECES)
   }
@@ -132,32 +209,43 @@ export function LogoRegistrationTest() {
     const output = pieces.reduce(
       (acc, piece) => {
         acc[piece.id] = {
-          x: piece.x,
-          y: piece.y,
-          scale: piece.scale,
-          rotation: piece.rotation,
+          x: Number(piece.x.toFixed(2)),
+          y: Number(piece.y.toFixed(2)),
+          width: Number(
+            piece.width.toFixed(2),
+          ),
+          rotation: Number(
+            piece.rotation.toFixed(2),
+          ),
         }
 
         return acc
       },
-      {} as Record<
-        string,
-        {
-          x: number
-          y: number
-          scale: number
-          rotation: number
-        }
-      >,
+      {} as Record<string, object>,
     )
 
-    navigator.clipboard?.writeText(
-      JSON.stringify(output, null, 2),
-    )
-
-    alert(
-      'Transform values copied to clipboard.',
-    )
+    navigator.clipboard
+      ?.writeText(
+        JSON.stringify(
+          output,
+          null,
+          2,
+        ),
+      )
+      .then(() => {
+        alert(
+          'Transform values copied.',
+        )
+      })
+      .catch(() => {
+        alert(
+          JSON.stringify(
+            output,
+            null,
+            2,
+          ),
+        )
+      })
   }
 
   return (
@@ -169,51 +257,46 @@ export function LogoRegistrationTest() {
             HEADER
         ===================================================== */}
 
-        <div className="max-w-4xl">
+        <p
+          className="
+            text-xs
+            font-bold
+            uppercase
+            tracking-[0.3em]
+            text-red-500
+          "
+        >
+          TOR&apos;Q / Engineering
+        </p>
 
-          <p
-            className="
-              text-xs
-              font-bold
-              uppercase
-              tracking-[0.3em]
-              text-red-500
-            "
-          >
-            TOR&apos;Q / Engineering
-          </p>
+        <h1
+          className="
+            mt-3
+            text-4xl
+            font-black
+            uppercase
+            leading-none
+            sm:text-6xl
+          "
+        >
+          Component
+          <br />
+          Registration
+        </h1>
 
-          <h1
-            className="
-              mt-3
-              text-4xl
-              font-black
-              uppercase
-              leading-none
-              sm:text-6xl
-            "
-          >
-            Component
-            <br />
-            Registration
-          </h1>
-
-          <p
-            className="
-              mt-5
-              max-w-3xl
-              text-sm
-              leading-6
-              text-white/50
-              sm:text-base
-            "
-          >
-            Select a component, then drag, scale and
-            rotate it until it sits perfectly on the
-            original TOR&apos;Q logo.
-          </p>
-
-        </div>
+        <p
+          className="
+            mt-5
+            max-w-3xl
+            text-sm
+            leading-6
+            text-white/50
+          "
+        >
+          Select a component and drag it directly over
+          the original TOR&apos;Q logo. Use the controls
+          below for precision adjustments.
+        </p>
 
         {/* =====================================================
             CONTROLS
@@ -222,189 +305,196 @@ export function LogoRegistrationTest() {
         <div
           className="
             mt-8
-            grid
-            gap-5
             rounded-xl
             border
             border-white/10
             bg-white/[0.03]
             p-5
-            sm:grid-cols-2
-            lg:grid-cols-4
           "
         >
 
           {/* REFERENCE */}
 
-          <div>
+          <label
+            className="
+              text-xs
+              font-bold
+              uppercase
+              tracking-[0.2em]
+              text-white/40
+            "
+          >
+            Reference opacity
+          </label>
 
-            <label
-              className="
-                text-[10px]
-                font-bold
-                uppercase
-                tracking-[0.2em]
-                text-white/40
-              "
-            >
-              Reference opacity
-            </label>
+          <input
+            type="range"
+            min="0"
+            max="1"
+            step="0.05"
+            value={referenceOpacity}
+            onChange={(event) =>
+              setReferenceOpacity(
+                Number(
+                  event.target.value,
+                ),
+              )
+            }
+            className="mt-3 w-full"
+          />
 
-            <input
-              type="range"
-              min="0"
-              max="1"
-              step="0.05"
-              value={referenceOpacity}
-              onChange={(event) =>
-                setReferenceOpacity(
-                  Number(event.target.value),
-                )
-              }
-              className="mt-3 w-full"
-            />
-
-            <p className="mt-2 text-xs text-white/50">
-              {Math.round(
-                referenceOpacity * 100,
-              )}
-              %
-            </p>
-
+          <div
+            className="
+              mt-2
+              text-xs
+              text-white/40
+            "
+          >
+            {Math.round(
+              referenceOpacity * 100,
+            )}
+            %
           </div>
 
-          {/* SELECTED COMPONENT */}
+          {/* COMPONENT */}
 
-          <div>
+          <label
+            className="
+              mt-6
+              block
+              text-xs
+              font-bold
+              uppercase
+              tracking-[0.2em]
+              text-white/40
+            "
+          >
+            Component
+          </label>
 
-            <label
-              className="
-                text-[10px]
-                font-bold
-                uppercase
-                tracking-[0.2em]
-                text-white/40
-              "
-            >
-              Selected
-            </label>
+          <select
+            value={selected}
+            onChange={(event) =>
+              setSelected(
+                event.target.value,
+              )
+            }
+            className="
+              mt-3
+              w-full
+              rounded-md
+              border
+              border-white/10
+              bg-black
+              px-4
+              py-3
+              text-sm
+            "
+          >
 
-            <select
-              value={selected}
-              onChange={(event) =>
-                setSelected(event.target.value)
-              }
-              className="
-                mt-3
-                w-full
-                rounded-md
-                border
-                border-white/10
-                bg-black
-                px-3
-                py-2
-                text-sm
-              "
-            >
-              {pieces.map((piece) => (
-                <option
-                  key={piece.id}
-                  value={piece.id}
-                >
-                  {piece.name}
-                </option>
-              ))}
-            </select>
+            {pieces.map((piece) => (
+              <option
+                key={piece.id}
+                value={piece.id}
+              >
+                {piece.name}
+              </option>
+            ))}
 
-          </div>
+          </select>
 
-          {/* SCALE */}
+          {selectedPiece && (
+            <>
+              {/* WIDTH */}
 
-          <div>
+              <label
+                className="
+                  mt-6
+                  block
+                  text-xs
+                  font-bold
+                  uppercase
+                  tracking-[0.2em]
+                  text-white/40
+                "
+              >
+                Size
+              </label>
 
-            <label
-              className="
-                text-[10px]
-                font-bold
-                uppercase
-                tracking-[0.2em]
-                text-white/40
-              "
-            >
-              Scale
-            </label>
+              <input
+                type="range"
+                min="30"
+                max="400"
+                step="1"
+                value={
+                  selectedPiece.width
+                }
+                onChange={(event) =>
+                  updatePiece(
+                    selected,
+                    {
+                      width:
+                        Number(
+                          event.target
+                            .value,
+                        ),
+                    },
+                  )
+                }
+                className="mt-3 w-full"
+              />
 
-            <input
-              type="range"
-              min="0.2"
-              max="3"
-              step="0.01"
-              value={
-                selectedPiece?.scale ?? 1
-              }
-              onChange={(event) =>
-                updatePiece(
-                  selected,
-                  {
-                    scale:
-                      Number(
-                        event.target.value,
-                      ),
-                  },
-                )
-              }
-              className="mt-3 w-full"
-            />
+              <p className="mt-2 font-mono text-xs text-white/40">
+                {Math.round(
+                  selectedPiece.width,
+                )}
+                px
+              </p>
 
-            <p className="mt-2 text-xs text-white/50">
-              {selectedPiece?.scale.toFixed(2)}
-            </p>
+              {/* ROTATION */}
 
-          </div>
+              <label
+                className="
+                  mt-6
+                  block
+                  text-xs
+                  font-bold
+                  uppercase
+                  tracking-[0.2em]
+                  text-white/40
+                "
+              >
+                Rotation
+              </label>
 
-          {/* ROTATION */}
+              <input
+                type="range"
+                min="-180"
+                max="180"
+                step="1"
+                value={
+                  selectedPiece.rotation
+                }
+                onChange={(event) =>
+                  updatePiece(
+                    selected,
+                    {
+                      rotation:
+                        Number(
+                          event.target
+                            .value,
+                        ),
+                    },
+                  )
+                }
+                className="mt-3 w-full"
+              />
 
-          <div>
-
-            <label
-              className="
-                text-[10px]
-                font-bold
-                uppercase
-                tracking-[0.2em]
-                text-white/40
-              "
-            >
-              Rotation
-            </label>
-
-            <input
-              type="range"
-              min="-180"
-              max="180"
-              step="1"
-              value={
-                selectedPiece?.rotation ?? 0
-              }
-              onChange={(event) =>
-                updatePiece(
-                  selected,
-                  {
-                    rotation:
-                      Number(
-                        event.target.value,
-                      ),
-                  },
-                )
-              }
-              className="mt-3 w-full"
-            />
-
-            <p className="mt-2 text-xs text-white/50">
-              {selectedPiece?.rotation}°
-            </p>
-
-          </div>
+              <p className="mt-2 font-mono text-xs text-white/40">
+                {selectedPiece.rotation}°
+              </p>
+            </>
+          )}
 
         </div>
 
@@ -418,8 +508,9 @@ export function LogoRegistrationTest() {
             overflow-hidden
             rounded-xl
             border
-            border-red-500/30
+            border-red-500/40
             bg-black
+            p-1
           "
         >
 
@@ -428,6 +519,8 @@ export function LogoRegistrationTest() {
               relative
               mx-auto
               w-full
+              touch-none
+              select-none
             "
             style={{
               aspectRatio:
@@ -435,15 +528,14 @@ export function LogoRegistrationTest() {
             }}
           >
 
-            {/* =================================================
-                MASTER LOGO
-            ================================================= */}
+            {/* MASTER */}
 
             <img
               src="/images/torq-components/torq-logo-intact-reference.png"
               alt=""
               draggable={false}
               className="
+                pointer-events-none
                 absolute
                 inset-0
                 h-full
@@ -456,13 +548,11 @@ export function LogoRegistrationTest() {
               }}
             />
 
-            {/* =================================================
-                COMPONENTS
-            ================================================= */}
+            {/* COMPONENTS */}
 
             {pieces.map((piece) => {
 
-              const isSelected =
+              const active =
                 piece.id === selected
 
               return (
@@ -471,37 +561,59 @@ export function LogoRegistrationTest() {
                   src={piece.src}
                   alt=""
                   draggable={false}
-                  onClick={() =>
-                    setSelected(piece.id)
+                  onPointerDown={(event) =>
+                    startDrag(
+                      event,
+                      piece,
+                    )
+                  }
+                  onPointerMove={
+                    moveDrag
+                  }
+                  onPointerUp={
+                    stopDrag
+                  }
+                  onPointerCancel={
+                    stopDrag
                   }
                   className="
                     absolute
-                    cursor-pointer
-                    select-none
                     touch-none
+                    select-none
                   "
                   style={{
-                    left: `${piece.x}px`,
-                    top: `${piece.y}px`,
+                    left:
+                      `${(piece.x / CANVAS_WIDTH) * 100}%`,
 
-                    width: 'auto',
+                    top:
+                      `${(piece.y / CANVAS_HEIGHT) * 100}%`,
+
+                    width:
+                      `${(piece.width / CANVAS_WIDTH) * 100}%`,
+
+                    height: 'auto',
 
                     transform:
-                      `scale(${piece.scale}) ` +
                       `rotate(${piece.rotation}deg)`,
 
                     transformOrigin:
                       'top left',
 
-                    outline:
-                      isSelected
-                        ? '1px solid rgba(255,0,0,.8)'
-                        : 'none',
+                    cursor:
+                      dragging &&
+                      active
+                        ? 'grabbing'
+                        : 'grab',
 
                     zIndex:
-                      isSelected
+                      active
                         ? 100
                         : 10,
+
+                    outline:
+                      active
+                        ? '1px solid rgba(255,0,0,.8)'
+                        : 'none',
                   }}
                 />
               )
@@ -512,7 +624,7 @@ export function LogoRegistrationTest() {
         </div>
 
         {/* =====================================================
-            SELECTED COMPONENT INFO
+            ACTIVE COMPONENT
         ===================================================== */}
 
         {selectedPiece && (
@@ -530,10 +642,8 @@ export function LogoRegistrationTest() {
             <div
               className="
                 flex
-                flex-wrap
                 items-center
                 justify-between
-                gap-4
               "
             >
 
@@ -541,7 +651,7 @@ export function LogoRegistrationTest() {
 
                 <p
                   className="
-                    text-xs
+                    text-[10px]
                     uppercase
                     tracking-[0.2em]
                     text-white/40
@@ -565,13 +675,13 @@ export function LogoRegistrationTest() {
 
               <div className="text-right">
 
-                <p className="text-xs text-white/40">
+                <p className="text-[10px] uppercase tracking-widest text-white/30">
                   Position
                 </p>
 
                 <p className="font-mono text-sm">
                   X {selectedPiece.x.toFixed(1)}
-                  {'  '}
+                  {' '}
                   Y {selectedPiece.y.toFixed(1)}
                 </p>
 
@@ -579,7 +689,7 @@ export function LogoRegistrationTest() {
 
             </div>
 
-            {/* POSITION CONTROLS */}
+            {/* X / Y */}
 
             <div
               className="
@@ -590,20 +700,28 @@ export function LogoRegistrationTest() {
               "
             >
 
-              <label className="text-xs text-white/50">
-
+              <label
+                className="
+                  text-xs
+                  text-white/40
+                "
+              >
                 X
 
                 <input
                   type="number"
-                  value={selectedPiece.x}
+                  value={
+                    selectedPiece.x
+                  }
                   onChange={(event) =>
                     updatePiece(
                       selected,
                       {
-                        x: Number(
-                          event.target.value,
-                        ),
+                        x:
+                          Number(
+                            event.target
+                              .value,
+                          ),
                       },
                     )
                   }
@@ -615,7 +733,7 @@ export function LogoRegistrationTest() {
                     border-white/10
                     bg-black
                     px-3
-                    py-2
+                    py-3
                     font-mono
                     text-sm
                     text-white
@@ -624,20 +742,28 @@ export function LogoRegistrationTest() {
 
               </label>
 
-              <label className="text-xs text-white/50">
-
+              <label
+                className="
+                  text-xs
+                  text-white/40
+                "
+              >
                 Y
 
                 <input
                   type="number"
-                  value={selectedPiece.y}
+                  value={
+                    selectedPiece.y
+                  }
                   onChange={(event) =>
                     updatePiece(
                       selected,
                       {
-                        y: Number(
-                          event.target.value,
-                        ),
+                        y:
+                          Number(
+                            event.target
+                              .value,
+                          ),
                       },
                     )
                   }
@@ -649,7 +775,7 @@ export function LogoRegistrationTest() {
                     border-white/10
                     bg-black
                     px-3
-                    py-2
+                    py-3
                     font-mono
                     text-sm
                     text-white
@@ -671,7 +797,6 @@ export function LogoRegistrationTest() {
           className="
             mt-6
             flex
-            flex-wrap
             gap-3
           "
         >
@@ -679,6 +804,7 @@ export function LogoRegistrationTest() {
           <button
             onClick={copyTransforms}
             className="
+              flex-1
               rounded-md
               bg-white
               px-5
@@ -710,67 +836,6 @@ export function LogoRegistrationTest() {
           >
             Reset
           </button>
-
-        </div>
-
-        {/* =====================================================
-            ASSET LIST
-        ===================================================== */}
-
-        <div
-          className="
-            mt-10
-            grid
-            gap-3
-            sm:grid-cols-2
-            lg:grid-cols-4
-          "
-        >
-
-          {pieces.map((piece) => (
-            <button
-              key={piece.id}
-              onClick={() =>
-                setSelected(piece.id)
-              }
-              className={`
-                rounded-lg
-                border
-                p-4
-                text-left
-                transition
-                ${
-                  selected === piece.id
-                    ? 'border-red-500 bg-red-500/10'
-                    : 'border-white/10 bg-white/[0.02]'
-                }
-              `}
-            >
-
-              <p
-                className="
-                  text-sm
-                  font-bold
-                  uppercase
-                  tracking-widest
-                "
-              >
-                {piece.name}
-              </p>
-
-              <p
-                className="
-                  mt-2
-                  break-all
-                  text-[10px]
-                  text-white/30
-                "
-              >
-                {piece.src}
-              </p>
-
-            </button>
-          ))}
 
         </div>
 
