@@ -16,203 +16,172 @@ import { EVENT } from '@/lib/torq-data'
 import { Countdown } from './countdown'
 import { useRegistration } from './registration'
 
-/*
-|--------------------------------------------------------------------------
-| TOR'Q CINEMATIC LOGO DISINTEGRATION
-|--------------------------------------------------------------------------
-|
-| The component artwork was created around a 597 × 418 coordinate system.
-|
-| We therefore:
-|
-| 1. Keep a 597 × 418 virtual stage.
-| 2. Place every PNG at its intended coordinate.
-| 3. Scale the entire stage responsively.
-| 4. Animate the individual components in 3D.
-|
-| This means the logo starts as ONE assembled object.
-|
-| There is NO transition from an intact logo to an exploded image.
-|
-|--------------------------------------------------------------------------
-*/
+/* =========================================================================
+   TOR'Q CINEMATIC LOGO
 
-const ART_WIDTH = 597
-const ART_HEIGHT = 418
+   IMPORTANT:
+   These coordinates come directly from the component-registration tool.
+
+   The registration canvas is:
+
+   790 × 316
+
+   x/y = TOP-LEFT position
+   width = rendered width
+   rotation = registered rotation
+
+   The animation therefore starts from the exact registered geometry.
+========================================================================= */
+
+const ART_WIDTH = 790
+const ART_HEIGHT = 316
 
 type Motion = {
-  finalX: number
-  finalY: number
-
-  startX: number
-  startY: number
-
-  exitX: number
-  exitY: number
-
-  rotate: number
-
+  x: number
+  y: number
   width: number
-  height: number
+  rotation: number
+
+  /*
+   * Cinematic flight direction.
+   * These are intentionally much larger than the visible stage
+   * so the components continue travelling beyond the viewport.
+   */
+  flightX: number
+  flightY: number
+
+  /*
+   * 3D rotation accumulated during the flight.
+   */
+  rotateX: number
+  rotateY: number
+  rotateZ: number
 }
 
-/*
-|--------------------------------------------------------------------------
-| COMPONENT DIMENSIONS
-|--------------------------------------------------------------------------
-|
-| These are the actual PNG dimensions from the assets.
-|
-*/
+/* =========================================================================
+   REGISTERED COMPONENT POSITIONS
+========================================================================= */
 
 const COMPONENTS: Record<
   string,
   Motion
 > = {
   t: {
-    finalX: 131,
-    finalY: 145,
+    x: -2.01,
+    y: 34.27,
+    width: 177,
+    rotation: -21,
 
-    startX: 112,
-    startY: 150,
+    flightX: -760,
+    flightY: -260,
 
-    exitX: 75,
-    exitY: 125,
-
-    rotate: -6,
-
-    width: 148,
-    height: 229,
+    rotateX: 260,
+    rotateY: -180,
+    rotateZ: -420,
   },
 
   turbine: {
-    finalX: 214,
-    finalY: 205,
+    x: 128.14,
+    y: 39.31,
+    width: 188,
+    rotation: -7,
 
-    startX: 230,
-    startY: 180,
+    flightX: -520,
+    flightY: 520,
 
-    exitX: 205,
-    exitY: 245,
+    rotateX: 320,
+    rotateY: -240,
+    rotateZ: 420,
+  },
 
-    rotate: 8,
+  number26: {
+    x: 247.95,
+    y: 108.56,
+    width: 38,
+    rotation: 0,
 
-    width: 156,
-    height: 190,
+    flightX: 70,
+    flightY: -760,
+
+    rotateX: 260,
+    rotateY: 360,
+    rotateZ: 300,
   },
 
   r: {
-    finalX: 337,
-    finalY: 188,
+    x: 266.87,
+    y: 32.9,
+    width: 153,
+    rotation: -22,
 
-    startX: 360,
-    startY: 170,
+    flightX: 760,
+    flightY: -240,
 
-    exitX: 370,
-    exitY: 130,
-
-    rotate: -8,
-
-    width: 108,
-    height: 151,
+    rotateX: -300,
+    rotateY: 240,
+    rotateZ: 480,
   },
 
   rLower: {
-    finalX: 350,
-    finalY: 292,
+    x: 313.28,
+    y: 153.54,
+    width: 168,
+    rotation: -21,
 
-    startX: 375,
-    startY: 220,
+    flightX: 650,
+    flightY: 620,
 
-    exitX: 390,
-    exitY: 330,
-
-    rotate: -10,
-
-    width: 149,
-    height: 132,
+    rotateX: 360,
+    rotateY: -280,
+    rotateZ: -520,
   },
 
   piston: {
-    finalX: 425,
-    finalY: 112,
+    x: 423.85,
+    y: 10.75,
+    width: 169,
+    rotation: -14,
 
-    startX: 450,
-    startY: 95,
+    flightX: 520,
+    flightY: -760,
 
-    exitX: 470,
-    exitY: 60,
-
-    rotate: 12,
-
-    width: 103,
-    height: 107,
+    rotateX: -360,
+    rotateY: 280,
+    rotateZ: 520,
   },
 
   q: {
-    finalX: 486,
-    finalY: 230,
+    x: 498.7,
+    y: 13.01,
+    width: 224,
+    rotation: -6,
 
-    startX: 535,
-    startY: 195,
+    flightX: 860,
+    flightY: 100,
 
-    exitX: 560,
-    exitY: 255,
-
-    rotate: 9,
-
-    width: 175,
-    height: 187,
+    rotateX: 300,
+    rotateY: 360,
+    rotateZ: -480,
   },
 
   qBase: {
-    finalX: 495,
-    finalY: 330,
+    x: 592.88,
+    y: 187.1,
+    width: 150,
+    rotation: 0,
 
-    startX: 535,
-    startY: 245,
+    flightX: 820,
+    flightY: 680,
 
-    exitX: 550,
-    exitY: 350,
-
-    rotate: -8,
-
-    width: 112,
-    height: 32,
-  },
-
-  /*
-   * The 26 wasn't in the original JSON.
-   *
-   * It belongs in the centre of the turbine.
-   *
-   * The turbine centre is approximately:
-   *
-   *       X = 214
-   *       Y = 205
-   *
-   */
-
-  number26: {
-    finalX: 214,
-    finalY: 205,
-
-    startX: 210,
-    startY: 195,
-
-    exitX: 270,
-    exitY: 115,
-
-    rotate: 6,
-
-    width: 111,
-    height: 122,
+    rotateX: -300,
+    rotateY: 260,
+    rotateZ: 440,
   },
 }
 
-/* ----------------------------------------------------------------------
+/* =========================================================================
    EASING
----------------------------------------------------------------------- */
+========================================================================= */
 
 function clamp(
   value: number,
@@ -263,9 +232,9 @@ function easeInOut(
           2
 }
 
-/* ----------------------------------------------------------------------
+/* =========================================================================
    HERO
----------------------------------------------------------------------- */
+========================================================================= */
 
 export function Hero() {
   const { open } =
@@ -277,9 +246,9 @@ export function Hero() {
   const [progress, setProgress] =
     useState(0)
 
-  /* --------------------------------------------------------------------
-     SCROLL
-  -------------------------------------------------------------------- */
+  /* -----------------------------------------------------------------------
+     SCROLL PROGRESS
+  ----------------------------------------------------------------------- */
 
   useEffect(() => {
     let raf = 0
@@ -355,62 +324,47 @@ export function Hero() {
     }
   }, [])
 
-  /* --------------------------------------------------------------------
-     TIMELINE
-  -------------------------------------------------------------------- */
+  /* =========================================================================
+     CINEMATIC TIMELINE
 
-  /*
-   * 0 → 12%
-   *
-   * Absolutely still.
-   *
-   * The visitor sees the assembled logo.
-   */
+     0.00 - 0.10
+     Completely assembled.
+
+     0.10 - 0.24
+     Tiny mechanical release.
+
+     0.24 - 1.00
+     Continuous acceleration.
+
+     There is NO pause at an intermediate position.
+  ========================================================================= */
 
   const release =
     easeInOut(
-      (progress - 0.12) /
-        0.18,
+      (progress - 0.10) /
+        0.14,
     )
-
-  /*
-   * 20 → 52%
-   *
-   * Components begin moving.
-   */
-
-  const launch =
-    easeIn(
-      (progress - 0.20) /
-        0.32,
-    )
-
-  /*
-   * 30 → 100%
-   *
-   * Full 3D flight.
-   */
 
   const flight =
     easeIn(
-      (progress - 0.30) /
-        0.70,
+      (progress - 0.24) /
+        0.76,
     )
 
   /*
-   * Fade only during the FINAL part of the flight.
+   * Fade only once the pieces are already leaving
+   * the screen.
    */
-
-  const fade =
+  const exitFade =
     1 -
     easeInOut(
-      (flight - 0.82) /
-        0.18,
+      (flight - 0.76) /
+        0.24,
     )
 
-  /* --------------------------------------------------------------------
+  /* =========================================================================
      INTRO TEXT
-  -------------------------------------------------------------------- */
+  ========================================================================= */
 
   const welcomeOpacity =
     1 -
@@ -424,9 +378,9 @@ export function Hero() {
       progress / 0.14,
     )
 
-  /* --------------------------------------------------------------------
+  /* =========================================================================
      BACKGROUND
-  -------------------------------------------------------------------- */
+  ========================================================================= */
 
   const backgroundOpacity =
     easeOut(
@@ -440,9 +394,9 @@ export function Hero() {
         0.27,
     )
 
-  /* --------------------------------------------------------------------
+  /* =========================================================================
      RENDER
-  -------------------------------------------------------------------- */
+  ========================================================================= */
 
   return (
     <section
@@ -455,9 +409,9 @@ export function Hero() {
       "
     >
 
-      {/* ================================================================
+      {/* ===================================================================
           STICKY HERO
-      ================================================================ */}
+      =================================================================== */}
 
       <div
         className="
@@ -473,9 +427,9 @@ export function Hero() {
         }}
       >
 
-        {/* ==============================================================
+        {/* ================================================================
             BACKGROUND
-        ============================================================== */}
+        ================================================================ */}
 
         <div
           className="
@@ -531,9 +485,9 @@ export function Hero() {
 
         </div>
 
-        {/* ==============================================================
+        {/* ================================================================
             HERO CONTENT
-        ============================================================== */}
+        ================================================================ */}
 
         <div
           className="
@@ -757,9 +711,9 @@ export function Hero() {
 
         </div>
 
-        {/* ==============================================================
-            LOGO STAGE
-        ============================================================== */}
+        {/* ================================================================
+            TOR'Q LOGO STAGE
+        ================================================================ */}
 
         <div
           className="
@@ -788,9 +742,9 @@ export function Hero() {
             "
           >
 
-            {/* ========================================================
+            {/* ============================================================
                 WELCOME
-            ======================================================== */}
+            ============================================================ */}
 
             <p
               className="
@@ -811,13 +765,9 @@ export function Hero() {
               Welcome to
             </p>
 
-            {/* ========================================================
-                VIRTUAL 597 × 418 STAGE
-
-                The stage scales as one unit.
-
-                Individual PNGs retain their actual proportions.
-            ======================================================== */}
+            {/* ============================================================
+                REGISTERED 790 × 316 STAGE
+            ============================================================ */}
 
             <div
               className="
@@ -834,123 +784,107 @@ export function Hero() {
               }}
             >
 
-              {/* ------------------------------------------------------
+              {/* ==========================================================
                   T
-              ------------------------------------------------------ */}
+              ========================================================== */}
 
               <MechanicalPiece
                 src="/images/torq-components/t_section.png"
                 data={COMPONENTS.t}
                 release={release}
-                launch={launch}
                 flight={flight}
-                opacity={fade}
-                direction="left"
+                opacity={exitFade}
               />
 
-              {/* ------------------------------------------------------
+              {/* ==========================================================
                   TURBINE
-              ------------------------------------------------------ */}
+              ========================================================== */}
 
               <MechanicalPiece
                 src="/images/torq-components/turbine.png"
                 data={COMPONENTS.turbine}
                 release={release}
-                launch={launch}
                 flight={flight}
-                opacity={fade}
-                direction="left"
+                opacity={exitFade}
               />
 
-              {/* ------------------------------------------------------
+              {/* ==========================================================
                   26
-              ------------------------------------------------------ */}
+              ========================================================== */}
 
               <MechanicalPiece
                 src="/images/torq-components/torq-26-transparent.png"
                 data={COMPONENTS.number26}
                 release={release}
-                launch={launch}
                 flight={flight}
-                opacity={fade}
-                direction="up"
+                opacity={exitFade}
               />
 
-              {/* ------------------------------------------------------
+              {/* ==========================================================
                   R
-              ------------------------------------------------------ */}
+              ========================================================== */}
 
               <MechanicalPiece
                 src="/images/torq-components/r_section.png"
                 data={COMPONENTS.r}
                 release={release}
-                launch={launch}
                 flight={flight}
-                opacity={fade}
-                direction="right"
+                opacity={exitFade}
               />
 
-              {/* ------------------------------------------------------
+              {/* ==========================================================
                   R LOWER
-              ------------------------------------------------------ */}
+              ========================================================== */}
 
               <MechanicalPiece
                 src="/images/torq-components/r_lower.png"
                 data={COMPONENTS.rLower}
                 release={release}
-                launch={launch}
                 flight={flight}
-                opacity={fade}
-                direction="down"
+                opacity={exitFade}
               />
 
-              {/* ------------------------------------------------------
+              {/* ==========================================================
                   PISTON
-              ------------------------------------------------------ */}
+              ========================================================== */}
 
               <MechanicalPiece
                 src="/images/torq-components/piston.png"
                 data={COMPONENTS.piston}
                 release={release}
-                launch={launch}
                 flight={flight}
-                opacity={fade}
-                direction="up"
+                opacity={exitFade}
               />
 
-              {/* ------------------------------------------------------
+              {/* ==========================================================
                   Q
-              ------------------------------------------------------ */}
+              ========================================================== */}
 
               <MechanicalPiece
                 src="/images/torq-components/q_section.png"
                 data={COMPONENTS.q}
                 release={release}
-                launch={launch}
                 flight={flight}
-                opacity={fade}
-                direction="right"
+                opacity={exitFade}
               />
 
-              {/* ------------------------------------------------------
+              {/* ==========================================================
                   Q BASE
-              ------------------------------------------------------ */}
+              ========================================================== */}
 
               <MechanicalPiece
                 src="/images/torq-components/q_base.png"
                 data={COMPONENTS.qBase}
                 release={release}
-                launch={launch}
                 flight={flight}
-                opacity={fade}
-                direction="down"
+                opacity={exitFade}
               />
 
             </div>
 
-            {/* ========================================================
+            {/* ============================================================
                 SCROLL CUE
-            ======================================================== */}
+            ============================================================ */}
 
             <div
               className="
@@ -1025,219 +959,177 @@ export function Hero() {
 
 /* =========================================================================
    MECHANICAL PIECE
-============================================================================ */
+
+   The critical difference from the previous version:
+
+   x/y are now treated as the SAME TOP-LEFT coordinates used by the
+   registration tool.
+
+   There is no -50% translation at the starting state.
+
+   Therefore:
+
+        REGISTRATION POSITION
+                 =
+        ANIMATION POSITION
+
+   exactly.
+
+========================================================================= */
 
 function MechanicalPiece({
   src,
   data,
   release,
-  launch,
   flight,
   opacity,
-  direction,
 }: {
   src: string
   data: Motion
   release: number
-  launch: number
   flight: number
   opacity: number
-  direction:
-    | 'left'
-    | 'right'
-    | 'up'
-    | 'down'
 }) {
-  /*
-   * ---------------------------------------------------------------
-   * ASSEMBLED POSITION
-   * ---------------------------------------------------------------
-   *
-   * Start from the exact final/assembled coordinate.
-   */
+  /* -----------------------------------------------------------------------
+     RELEASE
 
-  let x =
-    data.finalX
+     The component first moves only a tiny amount away from the registered
+     position. This creates the feeling that the logo itself is breaking
+     apart rather than switching to another image.
+  ----------------------------------------------------------------------- */
 
-  let y =
-    data.finalY
-
-  /*
-   * ---------------------------------------------------------------
-   * RELEASE
-   * ---------------------------------------------------------------
-   *
-   * Small movement from the original logo position.
-   */
-
-  x +=
-    (data.startX -
-      data.finalX) *
+  const releaseDistance =
     release
 
-  y +=
-    (data.startY -
-      data.finalY) *
-    release
+  /* -----------------------------------------------------------------------
+     FLIGHT
 
-  /*
-   * ---------------------------------------------------------------
-   * LAUNCH
-   * ---------------------------------------------------------------
-   *
-   * Move toward the intended exit trajectory.
-   */
+     This is deliberately nonlinear.
 
-  x +=
-    (data.exitX -
-      data.startX) *
-    launch
+     The component accelerates continuously.
 
-  y +=
-    (data.exitY -
-      data.startY) *
-    launch
+     It never reaches an "exit position" and waits there.
+  ----------------------------------------------------------------------- */
 
-  /*
-   * ---------------------------------------------------------------
-   * CONTINUOUS FLIGHT
-   * ---------------------------------------------------------------
-   *
-   * This is the important part.
-   *
-   * The piece doesn't stop at the exit point.
-   *
-   * It continues travelling aggressively.
-   */
-
-  const flightDistance =
-    1 +
-    flight * 5.5
-
-  const dx =
-    data.exitX -
-    data.finalX
-
-  const dy =
-    data.exitY -
-    data.finalY
-
-  x +=
-    dx *
+  const acceleration =
     flight *
-    flightDistance
-
-  y +=
-    dy *
-    flight *
-    flightDistance
+    flight
 
   /*
-   * ---------------------------------------------------------------
-   * ADD DIRECTIONAL IMPULSE
-   * ---------------------------------------------------------------
+   * Exaggerated forward travel.
    */
+  const travel =
+    acceleration *
+    2.15
 
-  const impulse =
-    flight * flight * 170
+  /* -----------------------------------------------------------------------
+     POSITION
+  ----------------------------------------------------------------------- */
 
-  if (
-    direction === 'left'
-  ) {
-    x -= impulse
-  }
+  const x =
+    data.x +
+    data.flightX *
+      travel
 
-  if (
-    direction === 'right'
-  ) {
-    x += impulse
-  }
-
-  if (
-    direction === 'up'
-  ) {
-    y -= impulse
-  }
-
-  if (
-    direction === 'down'
-  ) {
-    y += impulse
-  }
+  const y =
+    data.y +
+    data.flightY *
+      travel
 
   /*
-   * ---------------------------------------------------------------
-   * CAMERA DEPTH
-   * ---------------------------------------------------------------
-   *
-   * Positive Z makes the component travel toward the viewer.
+   * Tiny initial separation.
    */
+  const releaseX =
+    data.flightX *
+    0.035 *
+    releaseDistance
+
+  const releaseY =
+    data.flightY *
+    0.035 *
+    releaseDistance
+
+  const finalX =
+    x +
+    releaseX
+
+  const finalY =
+    y +
+    releaseY
+
+  /* -----------------------------------------------------------------------
+     CAMERA DEPTH
+
+     The components move toward the viewer, not simply sideways.
+
+     This is what creates the "3D object flying through the camera"
+     feeling.
+  ----------------------------------------------------------------------- */
 
   const z =
-    launch * 450 +
-    flight * 5000
+    releaseDistance *
+      40 +
+    acceleration *
+      5200
 
-  /*
-   * ---------------------------------------------------------------
-   * ROTATION
-   * ---------------------------------------------------------------
-   */
+  /* -----------------------------------------------------------------------
+     SCALE
 
-  const rotateX =
-    data.rotate *
-    flight *
-    2.2
+     Small at the beginning.
 
-  const rotateY =
-    -data.rotate *
-    flight *
-    3.0
+     Large when it gets close to the camera.
 
-  const rotateZ =
-    data.rotate *
-    (release * 0.25 +
-      launch * 2 +
-      flight * 8)
-
-  /*
-   * ---------------------------------------------------------------
-   * SCALE
-   * ---------------------------------------------------------------
-   *
-   * The closer the component comes to camera,
-   * the larger it becomes.
-   */
+     Then it effectively passes the camera and continues away.
+  ----------------------------------------------------------------------- */
 
   const scale =
     1 +
-    flight * 3.4
+    acceleration *
+      4.8
 
-  /*
-   * ---------------------------------------------------------------
-   * BLUR
-   * ---------------------------------------------------------------
-   *
-   * Very subtle at first.
-   *
-   * Stronger during the final camera rush.
-   */
+  /* -----------------------------------------------------------------------
+     3D ROTATION
+  ----------------------------------------------------------------------- */
+
+  const rotateX =
+    data.rotateX *
+    flight
+
+  const rotateY =
+    data.rotateY *
+    flight
+
+  const rotateZ =
+    data.rotation +
+    data.rotateZ *
+    flight
+
+  /* -----------------------------------------------------------------------
+     MOTION BLUR
+
+     Almost invisible at the beginning.
+
+     Strong only during the high-speed portion.
+  ----------------------------------------------------------------------- */
 
   const blur =
-    flight * flight * 8
+    Math.pow(
+      flight,
+      2.4,
+    ) *
+    5.5
 
-  /*
-   * ---------------------------------------------------------------
-   * Convert virtual 597 × 418 coordinates into percentages.
-   * ---------------------------------------------------------------
-   */
+  /* -----------------------------------------------------------------------
+     RESPONSIVE COORDINATES
+  ----------------------------------------------------------------------- */
 
   const left =
-    (x /
+    (finalX /
       ART_WIDTH) *
     100
 
   const top =
-    (y /
+    (finalY /
       ART_HEIGHT) *
     100
 
@@ -1246,10 +1138,33 @@ function MechanicalPiece({
       ART_WIDTH) *
     100
 
-  const height =
-    (data.height /
-      ART_HEIGHT) *
-    100
+  /* -----------------------------------------------------------------------
+     FINAL EXIT FADE
+
+     Nothing fades at the beginning.
+
+     Nothing fades while the pieces are visibly exploding.
+
+     Fade happens only when they are already travelling beyond the
+     viewer's normal visual field.
+  ----------------------------------------------------------------------- */
+
+  const fadeStart =
+    0.70
+
+  const fadeProgress =
+    clamp(
+      (flight -
+        fadeStart) /
+        (1 -
+          fadeStart),
+    )
+
+  const exitOpacity =
+    1 -
+    easeIn(
+      fadeProgress,
+    )
 
   return (
     <img
@@ -1263,16 +1178,31 @@ function MechanicalPiece({
         object-contain
       "
       style={{
+        /*
+         * EXACT REGISTERED POSITION
+         */
         left: `${left}%`,
         top: `${top}%`,
 
+        /*
+         * EXACT REGISTERED SIZE
+         */
         width: `${width}%`,
-        height: `${height}%`,
+        height: 'auto',
 
-        opacity,
+        /*
+         * Fade happens only during the final flight.
+         */
+        opacity:
+          exitOpacity *
+          opacity,
 
+        /*
+         * IMPORTANT:
+         * top-left matches the registration tool.
+         */
         transformOrigin:
-          'center center',
+          'top left',
 
         transformStyle:
           'preserve-3d',
@@ -1285,26 +1215,27 @@ function MechanicalPiece({
             ? `blur(${blur}px)`
             : 'none',
 
-        transform:
-          `
-            translate3d(
-              -50%,
-              -50%,
-              ${z}px
-            )
-            rotateX(${rotateX}deg)
-            rotateY(${rotateY}deg)
-            rotateZ(${rotateZ}deg)
-            scale(${scale})
-          `,
+        transform: `
+          rotate(${data.rotation}deg)
+          translate3d(
+            0,
+            0,
+            ${z}px
+          )
+          rotateX(${rotateX}deg)
+          rotateY(${rotateY}deg)
+          rotateZ(${rotateZ}deg)
+          scale(${scale})
+        `,
 
         willChange:
           'transform, opacity, filter',
 
+        /*
+         * Make pieces with more depth render above the others.
+         */
         zIndex:
-          Math.round(
-            z,
-          ),
+          Math.round(z),
       }}
     />
   )
@@ -1312,7 +1243,7 @@ function MechanicalPiece({
 
 /* =========================================================================
    HERO STAT
-============================================================================ */
+========================================================================= */
 
 function HeroStat({
   value,
