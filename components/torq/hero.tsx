@@ -41,7 +41,7 @@ const INITIAL_RELEASE = 0.32
  * public/images/hero-mustang-2026.webp
  */
 const MUSTANG_SRC =
-  '/images/hero-mustang-02.png'
+  '/images/Hero-mustang-03.jpg'
 
 /* ============================================================
    COMPONENT DATA
