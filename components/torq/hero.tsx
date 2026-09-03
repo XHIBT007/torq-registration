@@ -1,105 +1,56 @@
 'use client'
 
-import {
-  ChevronDown,
-  MapPin,
-  Ticket,
-} from 'lucide-react'
-
-import {
-  useEffect,
-  useRef,
-  useState,
-} from 'react'
-
+import { ChevronDown, MapPin, Ticket } from 'lucide-react'
+import { useEffect, useRef, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Countdown } from './countdown'
 import { useRegistration } from './registration'
 import { EVENT } from '@/lib/torq-data'
 
-/* ============================================================
-   MASTER TOR'Q ARTBOARD
-   ============================================================ */
-
 const STAGE_WIDTH = 790
 const STAGE_HEIGHT = 316
-
-/*
- * LOCKED APPROVED OPENING STATE
- */
 const INITIAL_RELEASE = 0.32
-
-/*
- * CURRENT MUSTANG IMAGE
- */
-const MUSTANG_SRC =
-  '/images/Hero-mustang-03.jpg'
-
-/* ============================================================
-   COMPONENT DATA
-   ============================================================ */
+const MUSTANG_SRC = '/images/Hero-mustang-03.jpg'
 
 type ComponentData = {
   x: number
   y: number
   width: number
   rotation: number
-
   flightX: number
   flightY: number
-
   rotateX: number
   rotateY: number
   rotateZ: number
-
   depth: number
-
   spinX: number
   spinY: number
   spinZ: number
-
   microX: number
   microY: number
-
   phase: number
-
   motionType: number
 }
 
-/* ============================================================
-   LOCKED COMPONENT POSITIONS
-
-   DO NOT CHANGE THESE VALUES.
-   ============================================================ */
-
-const COMPONENTS: Record<
-  string,
-  ComponentData
-> = {
+/* LOCKED TOR'Q GEOMETRY — DO NOT CHANGE */
+const COMPONENTS: Record<string, ComponentData> = {
   t: {
     x: -2.01,
     y: 34.27,
     width: 177,
     rotation: -21,
-
     flightX: -900,
     flightY: -350,
-
     rotateX: 300,
     rotateY: -220,
     rotateZ: -480,
-
-    depth: 1.0,
-
-    spinX: 1.00,
+    depth: 1,
+    spinX: 1,
     spinY: 0.75,
     spinZ: 1.15,
-
     microX: 10,
     microY: 5,
-
     phase: 0.4,
-
     motionType: 0,
   },
 
@@ -108,25 +59,18 @@ const COMPONENTS: Record<
     y: 39.31,
     width: 188,
     rotation: -7,
-
     flightX: -600,
     flightY: 650,
-
     rotateX: 320,
     rotateY: -260,
     rotateZ: 420,
-
     depth: 1.15,
-
-    spinX: 0.60,
+    spinX: 0.6,
     spinY: 0.85,
     spinZ: 1.55,
-
     microX: 7,
     microY: 7,
-
     phase: 1.8,
-
     motionType: 1,
   },
 
@@ -135,25 +79,18 @@ const COMPONENTS: Record<
     y: 108.56,
     width: 38,
     rotation: 0,
-
     flightX: 80,
     flightY: -900,
-
     rotateX: 280,
     rotateY: 350,
     rotateZ: 360,
-
     depth: 0.9,
-
     spinX: 0.55,
-    spinY: 0.70,
-    spinZ: 0.80,
-
+    spinY: 0.7,
+    spinZ: 0.8,
     microX: 4,
     microY: 3,
-
     phase: 2.9,
-
     motionType: 0,
   },
 
@@ -162,25 +99,18 @@ const COMPONENTS: Record<
     y: 32.9,
     width: 153,
     rotation: -22,
-
     flightX: 900,
     flightY: -280,
-
     rotateX: -320,
     rotateY: 260,
     rotateZ: 500,
-
     depth: 1.1,
-
-    spinX: 1.00,
+    spinX: 1,
     spinY: 1.05,
     spinZ: 1.15,
-
     microX: 8,
     microY: 5,
-
     phase: 4.1,
-
     motionType: 0,
   },
 
@@ -189,25 +119,18 @@ const COMPONENTS: Record<
     y: 153.54,
     width: 168,
     rotation: -21,
-
     flightX: 750,
     flightY: 700,
-
     rotateX: 350,
     rotateY: -300,
     rotateZ: -520,
-
     depth: 1.2,
-
     spinX: 1.15,
     spinY: 0.85,
     spinZ: 1.25,
-
     microX: 9,
     microY: 8,
-
     phase: 5.4,
-
     motionType: 0,
   },
 
@@ -216,25 +139,18 @@ const COMPONENTS: Record<
     y: 10.75,
     width: 169,
     rotation: -14,
-
     flightX: 600,
     flightY: -900,
-
     rotateX: -380,
     rotateY: 300,
     rotateZ: 520,
-
     depth: 1.35,
-
     spinX: 0.95,
     spinY: 0.75,
-    spinZ: 1.00,
-
+    spinZ: 1,
     microX: 6,
     microY: 16,
-
     phase: 6.8,
-
     motionType: 2,
   },
 
@@ -243,25 +159,18 @@ const COMPONENTS: Record<
     y: 13.01,
     width: 224,
     rotation: -6,
-
     flightX: 1000,
     flightY: 80,
-
     rotateX: 300,
     rotateY: 380,
     rotateZ: -500,
-
-    depth: 1.0,
-
-    spinX: 0.90,
-    spinY: 1.20,
-    spinZ: 1.30,
-
+    depth: 1,
+    spinX: 0.9,
+    spinY: 1.2,
+    spinZ: 1.3,
     microX: 12,
     microY: 5,
-
     phase: 8.1,
-
     motionType: 0,
   },
 
@@ -270,238 +179,176 @@ const COMPONENTS: Record<
     y: 187.1,
     width: 150,
     rotation: 0,
-
     flightX: 900,
     flightY: 750,
-
     rotateX: -320,
     rotateY: 280,
     rotateZ: 460,
-
     depth: 1.25,
-
-    spinX: 1.10,
-    spinY: 0.90,
-    spinZ: 1.20,
-
+    spinX: 1.1,
+    spinY: 0.9,
+    spinZ: 1.2,
     microX: 9,
     microY: 9,
-
     phase: 9.6,
-
     motionType: 0,
   },
 }
 
-/* ============================================================
-   MATH
-   ============================================================ */
-
-function clamp(value: number) {
-  return Math.max(
-    0,
-    Math.min(1, value),
-  )
+function clamp(v: number) {
+  return Math.max(0, Math.min(1, v))
 }
 
-function easeIn(value: number) {
-  const t = clamp(value)
-
+function easeIn(v: number) {
+  const t = clamp(v)
   return t * t * t
 }
 
-function easeOut(value: number) {
-  const t = clamp(value)
-
-  return (
-    1 -
-    Math.pow(
-      1 - t,
-      3,
-    )
-  )
+function easeOut(v: number) {
+  const t = clamp(v)
+  return 1 - Math.pow(1 - t, 3)
 }
 
-function easeInOut(value: number) {
-  const t = clamp(value)
+function easeInOut(v: number) {
+  const t = clamp(v)
 
   return t < 0.5
     ? 4 * t * t * t
-    : 1 -
-        Math.pow(
-          -2 * t + 2,
-          3,
-        ) /
-          2
+    : 1 - Math.pow(-2 * t + 2, 3) / 2
 }
 
-function flightCurve(
-  value: number,
-) {
-  const t = clamp(value)
-
-  return (
-    0.08 * t +
-    0.92 *
-      Math.pow(
-        t,
-        1.72,
-      )
-  )
+function flightCurve(v: number) {
+  const t = clamp(v)
+  return 0.08 * t + 0.92 * Math.pow(t, 1.72)
 }
-
-/* ============================================================
-   HERO
-   ============================================================ */
 
 export function Hero() {
-  const { open } =
-    useRegistration()
+  const { open } = useRegistration()
 
-  const sectionRef =
-    useRef<HTMLElement>(null)
+  const sectionRef = useRef<HTMLElement>(null)
+  const stageWrapperRef = useRef<HTMLDivElement>(null)
 
-  const stageWrapperRef =
-    useRef<HTMLDivElement>(null)
+  const [progress, setProgress] = useState(0)
 
-  const [progress, setProgress] =
-    useState(0)
+  const [viewport, setViewport] = useState({
+    width: 0,
+    height: 0,
+  })
 
-  const [stageScale, setStageScale] =
-    useState(1)
+  const [stageScale, setStageScale] = useState(1)
 
-  const [viewportHeight, setViewportHeight] =
-    useState(0)
-
-  /* ==========================================================
-     VIEWPORT
-
-     Uses visualViewport on Safari/iPad.
-     ========================================================== */
+  const compactLandscape =
+    viewport.width > 0 &&
+    viewport.height > 0 &&
+    viewport.width > viewport.height &&
+    viewport.height <= 760
 
   useEffect(() => {
-    const updateViewport = () => {
-      const height =
-        window.visualViewport?.height ??
-        window.innerHeight
+    const update = () => {
+      const vv = window.visualViewport
 
-      setViewportHeight(height)
+      setViewport({
+        width: vv?.width ?? window.innerWidth,
+        height: vv?.height ?? window.innerHeight,
+      })
     }
 
-    updateViewport()
+    update()
 
-    window.addEventListener(
-      'resize',
-      updateViewport,
-    )
+    window.addEventListener('resize', update)
 
     window.visualViewport?.addEventListener(
       'resize',
-      updateViewport,
+      update,
     )
 
     window.visualViewport?.addEventListener(
       'scroll',
-      updateViewport,
+      update,
     )
 
     return () => {
-      window.removeEventListener(
-        'resize',
-        updateViewport,
-      )
+      window.removeEventListener('resize', update)
 
       window.visualViewport?.removeEventListener(
         'resize',
-        updateViewport,
+        update,
       )
 
       window.visualViewport?.removeEventListener(
         'scroll',
-        updateViewport,
+        update,
       )
     }
   }, [])
 
-  /* ==========================================================
-     STAGE SCALE
-
-     Width AND height are considered.
-
-     This is what prevents the 790x316 master artboard
-     from becoming too large in short landscape mode.
-     ========================================================== */
-
   useEffect(() => {
-    const wrapper =
-      stageWrapperRef.current
+    const wrapper = stageWrapperRef.current
 
     if (!wrapper) return
 
-    const updateScale = () => {
+    const update = () => {
       const width =
-        wrapper.getBoundingClientRect()
-          .width
+        wrapper.getBoundingClientRect().width
 
-      const widthScale =
-        width / STAGE_WIDTH
+      const widthScale = Math.min(
+        1,
+        width / STAGE_WIDTH,
+      )
+
+      if (!compactLandscape) {
+        setStageScale(widthScale)
+        return
+      }
+
+      const h =
+        viewport.height ||
+        window.innerHeight
 
       /*
-       * Reserve room for:
-       *
-       * Welcome text
-       * logo
-       * scroll instruction
-       *
-       * in short landscape viewports.
+       * In desktop-mode landscape the CSS viewport
+       * is short. Fit the complete 790x316 composition
+       * to height as well as width.
        */
-      const availableHeight =
+      const heightScale = Math.min(
+        1,
         Math.max(
-          300,
-          viewportHeight -
-            145,
-        )
-
-      const heightScale =
-        availableHeight /
-        430
+          0.58,
+          (h - 110) / 620,
+        ),
+      )
 
       setStageScale(
         Math.min(
-          1,
           widthScale,
           heightScale,
         ),
       )
     }
 
-    updateScale()
+    update()
 
-    const observer =
-      new ResizeObserver(
-        updateScale,
-      )
+    const ro = new ResizeObserver(update)
 
-    observer.observe(wrapper)
+    ro.observe(wrapper)
 
     window.addEventListener(
       'resize',
-      updateScale,
+      update,
     )
 
     return () => {
-      observer.disconnect()
+      ro.disconnect()
 
       window.removeEventListener(
         'resize',
-        updateScale,
+        update,
       )
     }
-  }, [viewportHeight])
-
-  /* ==========================================================
-     SCROLL PROGRESS
-     ========================================================== */
+  }, [
+    compactLandscape,
+    viewport.height,
+  ])
 
   useEffect(() => {
     let raf = 0
@@ -509,8 +356,7 @@ export function Hero() {
     const update = () => {
       raf = 0
 
-      const section =
-        sectionRef.current
+      const section = sectionRef.current
 
       if (!section) return
 
@@ -525,13 +371,12 @@ export function Hero() {
 
       setProgress(
         clamp(
-          -rect.top /
-            distance,
+          -rect.top / distance,
         ),
       )
     }
 
-    const handleScroll = () => {
+    const scroll = () => {
       if (!raf) {
         raf =
           window.requestAnimationFrame(
@@ -544,10 +389,8 @@ export function Hero() {
 
     window.addEventListener(
       'scroll',
-      handleScroll,
-      {
-        passive: true,
-      },
+      scroll,
+      { passive: true },
     )
 
     window.addEventListener(
@@ -558,7 +401,7 @@ export function Hero() {
     return () => {
       window.removeEventListener(
         'scroll',
-        handleScroll,
+        scroll,
       )
 
       window.removeEventListener(
@@ -574,44 +417,20 @@ export function Hero() {
     }
   }, [])
 
-  /* ==========================================================
-     TOR'Q TIMELINE
-     ========================================================== */
-
-  const logoFade =
-    easeInOut(
-      progress / 0.30,
-    )
-
   const logoOpacity =
-    1 - logoFade
-
-  const releaseProgress =
-    easeInOut(
-      progress / 0.30,
-    )
+    1 - easeInOut(progress / 0.3)
 
   const release =
     INITIAL_RELEASE +
-    (
-      1 -
-      INITIAL_RELEASE
-    ) *
-      releaseProgress
+    (1 - INITIAL_RELEASE) *
+      easeInOut(progress / 0.3)
 
   const explosion =
-    easeInOut(
-      progress / 0.78,
-    )
-
-  /* ==========================================================
-     MUSTANG
-     ========================================================== */
+    easeInOut(progress / 0.78)
 
   const mustangProgress =
     easeInOut(
-      (progress - 0.28) /
-        0.48,
+      (progress - 0.28) / 0.48,
     )
 
   const mustangOpacity =
@@ -619,77 +438,51 @@ export function Hero() {
 
   const mustangScale =
     0.72 +
-    mustangProgress *
-      0.34
+    mustangProgress * 0.34
 
   const mustangY =
     18 -
-    mustangProgress *
-      18
+    mustangProgress * 18
 
   const mustangBlur =
-    (1 -
-      mustangProgress) *
-    4
+    (1 - mustangProgress) * 4
 
   const mustangBrightness =
     0.45 +
-    mustangProgress *
-      0.55
+    mustangProgress * 0.55
 
   const mustangContrast =
     0.95 +
-    mustangProgress *
-      0.12
-
-  /* ==========================================================
-     BRAKE LIGHT
-     ========================================================== */
+    mustangProgress * 0.12
 
   const brakeGlow =
     easeOut(
-      (progress - 0.36) /
-        0.28,
+      (progress - 0.36) / 0.28,
     )
 
   const brakePulse =
     0.82 +
     Math.sin(
-      brakeGlow *
-        Math.PI *
-        2,
-    ) *
-      0.08
+      brakeGlow * Math.PI * 2,
+    ) * 0.08
 
   const finalBrakeGlow =
-    brakeGlow *
-    brakePulse
-
-  /* ==========================================================
-     ATMOSPHERE
-     ========================================================== */
+    brakeGlow * brakePulse
 
   const atmosphereOpacity =
     easeOut(
-      (progress - 0.32) /
-        0.32,
+      (progress - 0.32) / 0.32,
     )
 
   const redWashOpacity =
     easeOut(
-      (progress - 0.40) /
-        0.30,
-    ) *
-    0.28
-
-  /* ==========================================================
-     INTRO
-     ========================================================== */
+      (progress - 0.4) / 0.3,
+    ) * 0.28
 
   const welcomeOpacity =
     1 -
     easeOut(
-      progress / 0.10,
+      progress / 0.1,
     )
 
   const scrollOpacity =
@@ -698,14 +491,9 @@ export function Hero() {
       progress / 0.14,
     )
 
-  /* ==========================================================
-     HEADLINE
-     ========================================================== */
-
   const headlineProgress =
     easeInOut(
-      (progress - 0.61) /
-        0.25,
+      (progress - 0.61) / 0.25,
     )
 
   const headlineOpacity =
@@ -713,37 +501,24 @@ export function Hero() {
 
   const headlineY =
     60 -
-    headlineProgress *
-      60
+    headlineProgress * 60
 
   const headlineScale =
     0.94 +
-    headlineProgress *
-      0.06
+    headlineProgress * 0.06
 
   const headlineX =
     -24 +
-    headlineProgress *
-      24
-
-  /* ==========================================================
-     KICKER
-     ========================================================== */
+    headlineProgress * 24
 
   const kickerProgress =
     easeOut(
-      (progress - 0.66) /
-        0.16,
+      (progress - 0.66) / 0.16,
     )
-
-  /* ==========================================================
-     DETAILS
-     ========================================================== */
 
   const detailProgress =
     easeInOut(
-      (progress - 0.72) /
-        0.18,
+      (progress - 0.72) / 0.18,
     )
 
   const detailOpacity =
@@ -751,128 +526,65 @@ export function Hero() {
 
   const detailY =
     22 -
-    detailProgress *
-      22
-
-  /* ==========================================================
-     LOWER CONTENT
-     ========================================================== */
+    detailProgress * 22
 
   const lowerProgress =
     easeOut(
-      (progress - 0.79) /
-        0.16,
+      (progress - 0.79) / 0.16,
     )
 
-  /* ==========================================================
-     LANDSCAPE COMPOSITION
-
-     This is the important fix.
-
-     Safari/iPad desktop mode can report a desktop width
-     while giving us a short landscape height.
-
-     Instead of allowing the desktop 6.5rem typography
-     to dominate the viewport, the composition becomes
-     height-aware.
-     ========================================================== */
-
-  const isShortLandscape =
-    viewportHeight > 0 &&
-    viewportHeight < 760
-
   /*
-   * Headline size in pixels.
-
-   Tall desktop:
-       104px
-
-   Short landscape:
-       approximately 58–76px
-
-   This avoids the huge 6.5rem desktop headline
-   swallowing a 600–700px tall viewport.
+   * MASTER RESPONSIVE RULE:
+   *
+   * Compact landscape is a separate layout,
+   * not a Tailwind breakpoint.
+   *
+   * Desktop-mode can report "desktop" while
+   * still having only ~500–700px of CSS height.
    */
-  const headlineFontSize =
-    isShortLandscape
+  const contentScale =
+    compactLandscape
       ? Math.max(
-          56,
+          0.66,
           Math.min(
-            82,
-            viewportHeight *
-              0.105,
+            0.82,
+            (viewport.height - 40) /
+              700,
           ),
         )
+      : 1
+
+  const headlineSize =
+    compactLandscape
+      ? 'clamp(42px, 8.6vh, 68px)'
+      : '6.5rem'
+
+  const paragraphSize =
+    compactLandscape
+      ? 'clamp(12px, 2.05vh, 17px)'
       : undefined
 
-  /*
-   * Content width also becomes slightly narrower
-   * in short landscape mode.
-   */
-  const contentMaxWidth =
-    isShortLandscape
-      ? 'min(880px, 82vw)'
+  const contentWidth =
+    compactLandscape
+      ? 'min(760px, 82vw)'
       : undefined
-
-  /*
-   * Vertical placement.
-
-   The headline is no longer allowed to sit directly
-   underneath the fixed navigation bar.
-   */
-  const contentTopPadding =
-    isShortLandscape
-      ? Math.max(
-          18,
-          (760 -
-            viewportHeight) *
-            0.20,
-        )
-      : 0
 
   return (
     <section
       ref={sectionRef}
       id="top"
-      className="
-        relative
-        h-[190vh]
-        bg-black
-      "
+      className="relative h-[190vh] bg-black"
     >
-      {/* ======================================================
-          STICKY CINEMATIC STAGE
-          ====================================================== */}
-
       <div
-        className="
-          sticky
-          top-0
-          h-[100dvh]
-          min-h-[100svh]
-          overflow-hidden
-          bg-black
-        "
+        className="sticky top-0 h-[100dvh] min-h-[100svh] overflow-hidden bg-black"
         style={{
-          perspective:
-            '1100px',
-
+          perspective: '1100px',
           perspectiveOrigin:
             '50% 50%',
         }}
       >
-        {/* ====================================================
-            MUSTANG BACKGROUND
-            ==================================================== */}
-
         <div
-          className="
-            pointer-events-none
-            absolute
-            inset-0
-            z-0
-            overflow-hidden
-          "
+          className="pointer-events-none absolute inset-0 z-0 overflow-hidden"
           style={{
             opacity:
               mustangOpacity,
@@ -881,15 +593,9 @@ export function Hero() {
           <img
             src={MUSTANG_SRC}
             alt=""
-            aria-hidden="true"
+            aria-hidden
             draggable={false}
-            className="
-              absolute
-              inset-0
-              h-full
-              w-full
-              object-cover
-            "
+            className="absolute inset-0 h-full w-full object-cover"
             style={{
               transform: `
                 translate3d(
@@ -901,10 +607,8 @@ export function Hero() {
                   ${mustangScale}
                 )
               `,
-
               transformOrigin:
                 'center 72%',
-
               filter: `
                 brightness(
                   ${mustangBrightness}
@@ -916,226 +620,113 @@ export function Hero() {
                   ${mustangBlur}px
                 )
               `,
-
               willChange:
-                'transform, filter, opacity',
+                'transform,filter,opacity',
             }}
           />
 
-          {/* DARK ATMOSPHERE */}
-
           <div
-            className="
-              absolute
-              inset-0
-            "
+            className="absolute inset-0"
             style={{
               opacity:
                 atmosphereOpacity,
-
-              background: `
-                linear-gradient(
-                  to bottom,
-                  rgba(0,0,0,0.72),
-                  rgba(0,0,0,0.20) 48%,
-                  rgba(0,0,0,0.80)
-                )
-              `,
+              background:
+                'linear-gradient(to bottom,rgba(0,0,0,.72),rgba(0,0,0,.20) 48%,rgba(0,0,0,.80))',
             }}
           />
 
-          {/* BRAKE LIGHT */}
-
           <div
-            className="
-              absolute
-              inset-0
-            "
+            className="absolute inset-0"
             style={{
               opacity:
                 finalBrakeGlow,
-
               mixBlendMode:
                 'screen',
-
-              background: `
+              background:
+                `
                 radial-gradient(
                   ellipse 15% 10%
                   at 36% 63%,
-                  rgba(
-                    255,
-                    30,
-                    20,
-                    0.82
-                  ),
-                  rgba(
-                    255,
-                    20,
-                    10,
-                    0.28
-                  ) 38%,
+                  rgba(255,30,20,.82),
+                  rgba(255,20,10,.28) 38%,
                   transparent 72%
                 ),
-
                 radial-gradient(
                   ellipse 15% 10%
                   at 64% 63%,
-                  rgba(
-                    255,
-                    30,
-                    20,
-                    0.82
-                  ),
-                  rgba(
-                    255,
-                    20,
-                    10,
-                    0.28
-                  ) 38%,
+                  rgba(255,30,20,.82),
+                  rgba(255,20,10,.28) 38%,
                   transparent 72%
                 ),
-
                 radial-gradient(
                   ellipse 70% 55%
                   at 50% 67%,
-                  rgba(
-                    255,
-                    20,
-                    10,
-                    0.18
-                  ),
+                  rgba(255,20,10,.18),
                   transparent 70%
                 )
               `,
-
-              transform:
-                `scale(
-                  ${
-                    0.88 +
-                    brakeGlow *
-                      0.16
-                  }
-                )`,
-
+              transform: `
+                scale(
+                  ${0.88 +
+                  brakeGlow * 0.16}
+                )
+              `,
               transformOrigin:
                 'center center',
-
-              willChange:
-                'opacity, transform',
             }}
           />
 
-          {/* RED REFLECTION */}
-
           <div
-            className="
-              absolute
-              inset-x-0
-              bottom-0
-              h-[55%]
-            "
+            className="absolute inset-x-0 bottom-0 h-[55%]"
             style={{
               opacity:
                 redWashOpacity,
-
-              background: `
-                radial-gradient(
-                  ellipse at 50% 100%,
-                  rgba(
-                    255,
-                    20,
-                    10,
-                    0.42
-                  ),
-                  transparent 68%
-                )
-              `,
-
+              background:
+                'radial-gradient(ellipse at 50% 100%,rgba(255,20,10,.42),transparent 68%)',
               mixBlendMode:
                 'screen',
             }}
           />
 
-          {/* VIGNETTE */}
-
           <div
-            className="
-              absolute
-              inset-0
-            "
+            className="absolute inset-0"
             style={{
-              background: `
-                radial-gradient(
-                  ellipse at center,
-                  transparent 25%,
-                  rgba(
-                    0,
-                    0,
-                    0,
-                    0.72
-                  ) 100%
-                )
-              `,
+              background:
+                'radial-gradient(ellipse at center,transparent 25%,rgba(0,0,0,.72) 100%)',
             }}
           />
         </div>
 
-        {/* ====================================================
-            HERO CONTENT
-            ==================================================== */}
-
-        <div
-          className="
-            absolute
-            inset-x-0
-            bottom-0
-            top-16
-            z-20
-            flex
-            items-center
-          "
-          style={{
-            paddingTop:
-              contentTopPadding,
-          }}
-        >
-          <div
-            className="
-              mx-auto
-              flex
-              h-full
-              w-full
-              max-w-7xl
-              items-center
-              px-6
-              sm:px-8
-              lg:px-10
-            "
-          >
+        <div className="absolute inset-x-0 bottom-0 top-16 z-20 flex items-center overflow-hidden">
+          <div className="mx-auto flex h-full w-full max-w-7xl items-center px-6 sm:px-8 lg:px-10">
             <div
-              className="
-                w-full
-                max-w-5xl
-              "
+              className="w-full max-w-5xl"
               style={{
-                maxWidth:
-                  contentMaxWidth,
+                transform: `
+                  translate3d(
+                    0,
+                    0,
+                    0
+                  )
+                  scale(
+                    ${contentScale}
+                  )
+                `,
+                transformOrigin:
+                  compactLandscape
+                    ? 'left center'
+                    : 'center center',
+                width:
+                  contentWidth,
+                willChange:
+                  'transform',
               }}
             >
-              {/* KICKER */}
-
               <div
-                className="
-                  mb-5
-                  flex
-                  items-center
-                  gap-3
-                  sm:mb-7
-                "
+                className="mb-5 flex items-center gap-3 sm:mb-7"
                 style={{
                   opacity:
                     kickerProgress,
-
                   transform: `
                     translate3d(
                       ${headlineX}px,
@@ -1145,58 +736,21 @@ export function Hero() {
                   `,
                 }}
               >
-                <div
-                  className="
-                    h-px
-                    w-8
-                    bg-red-500
-                    sm:w-12
-                  "
-                />
+                <div className="h-px w-8 bg-red-500 sm:w-12" />
 
-                <span
-                  className="
-                    text-[9px]
-                    font-semibold
-                    uppercase
-                    tracking-[0.38em]
-                    text-white/65
-                    sm:text-xs
-                  "
-                >
+                <span className="text-[9px] font-semibold uppercase tracking-[.38em] text-white/65 sm:text-xs">
                   TOR&apos;Q 2026
                 </span>
               </div>
 
-              {/* =================================================
-                  HEADLINE
-                  ================================================= */}
-
-              <div
-                className="
-                  overflow-visible
-                "
-              >
+              <div className="overflow-visible">
                 <h1
-                  className="
-                    max-w-5xl
-                    font-black
-                    uppercase
-                    leading-[0.84]
-                    tracking-[-0.055em]
-                    text-white
-                    text-[3rem]
-                    sm:text-6xl
-                    md:text-7xl
-                    lg:text-[6.5rem]
-                  "
+                  className="max-w-5xl font-black uppercase leading-[.84] tracking-[-.055em] text-white"
                   style={{
                     fontSize:
-                      headlineFontSize,
-
+                      headlineSize,
                     opacity:
                       headlineOpacity,
-
                     transform: `
                       translate3d(
                         ${headlineX}px,
@@ -1207,34 +761,19 @@ export function Hero() {
                         ${headlineScale}
                       )
                     `,
-
                     transformOrigin:
                       'left center',
-
-                    textShadow: `
-                      0 4px 30px
-                      rgba(
-                        0,
-                        0,
-                        0,
-                        0.55
-                      )
-                    `,
-
+                    textShadow:
+                      '0 4px 30px rgba(0,0,0,.55)',
                     willChange:
-                      'transform, opacity',
+                      'transform,opacity',
                   }}
                 >
                   <span className="block">
                     AFRICA&apos;S BIGGEST
                   </span>
 
-                  <span
-                    className="
-                      block
-                      text-red-500
-                    "
-                  >
+                  <span className="block text-red-500">
                     MOTORSPORT
                   </span>
 
@@ -1244,13 +783,10 @@ export function Hero() {
                 </h1>
               </div>
 
-              {/* DETAILS */}
-
               <div
                 style={{
                   opacity:
                     detailOpacity,
-
                   transform: `
                     translate3d(
                       0,
@@ -1261,137 +797,46 @@ export function Hero() {
                 }}
               >
                 <p
-                  className="
-                    mt-5
-                    max-w-2xl
-                    text-[14px]
-                    leading-[1.55]
-                    text-white/75
-                    sm:mt-7
-                    sm:text-lg
-                    sm:leading-8
-                    md:text-xl
-                  "
-                  style={{
-                    fontSize:
-                      isShortLandscape
-                        ? 'clamp(13px, 1.8vw, 17px)'
-                        : undefined,
-
-                    lineHeight:
-                      isShortLandscape
-                        ? 1.45
-                        : undefined,
-                  }}
+                  className="mt-5 max-w-2xl text-[14px] leading-[1.55] text-white/75 sm:mt-7 sm:text-lg sm:leading-8 md:text-xl"
+                  style={
+                    paragraphSize
+                      ? {
+                          fontSize:
+                            paragraphSize,
+                          lineHeight: 1.45,
+                        }
+                      : {}
+                  }
                 >
-                  A cinematic celebration of
-                  performance, sound and
-                  precision where drifting
-                  legends, stunt riders,
-                  performance cars and
-                  motorsport culture come
-                  together for one
-                  unforgettable experience.
+                  A cinematic celebration of performance,
+                  sound and precision where drifting legends,
+                  stunt riders, performance cars and motorsport
+                  culture come together for one unforgettable
+                  experience.
                 </p>
 
-                {/* CTA */}
-
-                <div
-                  className="
-                    mt-6
-                    flex
-                    flex-col
-                    gap-4
-                    sm:mt-8
-                    sm:flex-row
-                    sm:items-center
-                  "
-                  style={{
-                    marginTop:
-                      isShortLandscape
-                        ? 18
-                        : undefined,
-                  }}
-                >
+                <div className="mt-6 flex flex-col gap-4 sm:mt-8 sm:flex-row sm:items-center">
                   <Button
                     size="lg"
                     onClick={open}
-                    className="
-                      h-12
-                      w-full
-                      rounded-full
-                      bg-red-600
-                      px-7
-                      text-sm
-                      font-bold
-                      text-white
-                      shadow-[0_0_35px_rgba(220,38,38,0.25)]
-                      hover:bg-red-500
-                      sm:h-14
-                      sm:w-auto
-                      sm:px-8
-                      sm:text-base
-                    "
-                    style={{
-                      height:
-                        isShortLandscape
-                          ? 48
-                          : undefined,
-                    }}
+                    className="h-12 w-full rounded-full bg-red-600 px-7 text-sm font-bold text-white shadow-[0_0_35px_rgba(220,38,38,.25)] hover:bg-red-500 sm:h-14 sm:w-auto sm:px-8 sm:text-base"
                   >
-                    <Ticket
-                      className="
-                        mr-2
-                        h-5
-                        w-5
-                      "
-                    />
-
+                    <Ticket className="mr-2 h-5 w-5" />
                     REGISTER NOW
                   </Button>
 
-                  <div
-                    className="
-                      flex
-                      items-center
-                      gap-2
-                      text-sm
-                      text-white/75
-                      sm:text-base
-                    "
-                  >
-                    <MapPin
-                      className="
-                        h-5
-                        w-5
-                        text-red-500
-                      "
-                    />
-
+                  <div className="flex items-center gap-2 text-sm text-white/75 sm:text-base">
+                    <MapPin className="h-5 w-5 text-red-500" />
                     {EVENT.location}
                   </div>
                 </div>
               </div>
 
-              {/* STATS */}
-
               <div
-                className="
-                  mt-7
-                  grid
-                  grid-cols-4
-                  gap-3
-                  border-t
-                  border-white/15
-                  pt-6
-                  sm:mt-9
-                  sm:gap-6
-                  sm:pt-7
-                "
+                className="mt-7 grid grid-cols-4 gap-3 border-t border-white/15 pt-6 sm:mt-9 sm:gap-6 sm:pt-7"
                 style={{
                   opacity:
                     lowerProgress,
-
                   transform: `
                     translate3d(
                       0,
@@ -1401,50 +846,46 @@ export function Hero() {
                       0
                     )
                   `,
-
-                  marginTop:
-                    isShortLandscape
-                      ? 18
-                      : undefined,
-
-                  paddingTop:
-                    isShortLandscape
-                      ? 14
-                      : undefined,
                 }}
               >
                 <HeroStat
                   value="100+"
                   label="Performance Cars"
+                  compact={
+                    compactLandscape
+                  }
                 />
 
                 <HeroStat
                   value="50+"
                   label="Drivers & Riders"
+                  compact={
+                    compactLandscape
+                  }
                 />
 
                 <HeroStat
                   value="3"
                   label="Days of Action"
+                  compact={
+                    compactLandscape
+                  }
                 />
 
                 <HeroStat
                   value="1"
                   label="Epic Experience"
+                  compact={
+                    compactLandscape
+                  }
                 />
               </div>
 
-              {/* COUNTDOWN */}
-
               <div
-                className="
-                  mt-6
-                  sm:mt-9
-                "
+                className="mt-6 sm:mt-9"
                 style={{
                   opacity:
                     lowerProgress,
-
                   transform: `
                     translate3d(
                       0,
@@ -1454,22 +895,9 @@ export function Hero() {
                       0
                     )
                   `,
-
-                  marginTop:
-                    isShortLandscape
-                      ? 14
-                      : undefined,
                 }}
               >
-                <p
-                  className="
-                    mb-3
-                    text-[9px]
-                    uppercase
-                    tracking-[0.35em]
-                    text-white/50
-                  "
-                >
+                <p className="mb-3 text-[9px] uppercase tracking-[.35em] text-white/50">
                   The Experience Begins In
                 </p>
 
@@ -1481,51 +909,17 @@ export function Hero() {
           </div>
         </div>
 
-        {/* ====================================================
-            TOR'Q MECHANICAL INTRO
-
-            GEOMETRY REMAINS LOCKED.
-            ==================================================== */}
-
         <div
-          className="
-            pointer-events-none
-            absolute
-            inset-0
-            z-40
-            flex
-            items-center
-            justify-center
-          "
+          className="pointer-events-none absolute inset-0 z-40 flex items-center justify-center"
           style={{
-            perspective:
-              '1100px',
-
+            perspective: '1100px',
             perspectiveOrigin:
               '50% 50%',
           }}
         >
-          <div
-            className="
-              flex
-              w-full
-              flex-col
-              items-center
-            "
-          >
-            {/* WELCOME */}
-
+          <div className="flex w-full flex-col items-center">
             <p
-              className="
-                mb-5
-                text-[9px]
-                font-semibold
-                uppercase
-                tracking-[0.48em]
-                text-white/50
-                sm:mb-6
-                sm:text-xs
-              "
+              className="mb-5 text-[9px] font-semibold uppercase tracking-[.48em] text-white/50 sm:mb-6 sm:text-xs"
               style={{
                 opacity:
                   welcomeOpacity,
@@ -1534,71 +928,45 @@ export function Hero() {
               Welcome to
             </p>
 
-            {/* MASTER STAGE */}
-
             <div
               ref={stageWrapperRef}
-              className="
-                relative
-                w-[94vw]
-                max-w-[790px]
-              "
+              className="relative w-[94vw] max-w-[790px]"
               style={{
                 aspectRatio:
                   `${STAGE_WIDTH}/${STAGE_HEIGHT}`,
               }}
             >
               <div
-                className="
-                  absolute
-                  left-1/2
-                  top-1/2
-                "
+                className="absolute left-1/2 top-1/2"
                 style={{
                   width:
-                    `${STAGE_WIDTH}px`,
-
+                    STAGE_WIDTH,
                   height:
-                    `${STAGE_HEIGHT}px`,
-
-                  /*
-                   * THE REGISTERED 790x316 ARTBOARD
-                   * REMAINS UNCHANGED.
-                   *
-                   * Only its presentation scale changes.
-                   */
+                    STAGE_HEIGHT,
                   transform: `
-                    translate(-50%, -50%)
-                    scale(${stageScale})
+                    translate(
+                      -50%,
+                      -50%
+                    )
+                    scale(
+                      ${stageScale}
+                    )
                   `,
-
                   transformOrigin:
                     'center center',
-
                   transformStyle:
                     'preserve-3d',
                 }}
               >
-                {/* INTACT LOGO */}
-
                 <img
                   src="/images/torq-components/torq-logo-intact-reference.png"
                   alt="TOR'Q"
                   draggable={false}
-                  className="
-                    absolute
-                    left-0
-                    top-0
-                    h-full
-                    w-full
-                  "
+                  className="absolute left-0 top-0 h-full w-full"
                   style={{
-                    objectFit:
-                      'fill',
-
+                    objectFit: 'fill',
                     opacity:
                       logoOpacity,
-
                     transform: `
                       translate3d(
                         0,
@@ -1606,14 +974,11 @@ export function Hero() {
                         ${release * -8}px
                       )
                     `,
-
                     transformOrigin:
                       'center center',
-
                     zIndex: 1,
-
                     willChange:
-                      'opacity, transform',
+                      'opacity,transform',
                   }}
                 />
 
@@ -1626,18 +991,14 @@ export function Hero() {
 
                 <MechanicalPiece
                   src="/images/torq-components/turbine.png"
-                  data={
-                    COMPONENTS.turbine
-                  }
+                  data={COMPONENTS.turbine}
                   release={release}
                   explosion={explosion}
                 />
 
                 <MechanicalPiece
                   src="/images/torq-components/torq-26-transparent.png"
-                  data={
-                    COMPONENTS.number26
-                  }
+                  data={COMPONENTS.number26}
                   release={release}
                   explosion={explosion}
                 />
@@ -1651,18 +1012,14 @@ export function Hero() {
 
                 <MechanicalPiece
                   src="/images/torq-components/r_lower.png"
-                  data={
-                    COMPONENTS.rLower
-                  }
+                  data={COMPONENTS.rLower}
                   release={release}
                   explosion={explosion}
                 />
 
                 <MechanicalPiece
                   src="/images/torq-components/piston.png"
-                  data={
-                    COMPONENTS.piston
-                  }
+                  data={COMPONENTS.piston}
                   release={release}
                   explosion={explosion}
                 />
@@ -1676,72 +1033,28 @@ export function Hero() {
 
                 <MechanicalPiece
                   src="/images/torq-components/q_base.png"
-                  data={
-                    COMPONENTS.qBase
-                  }
+                  data={COMPONENTS.qBase}
                   release={release}
                   explosion={explosion}
                 />
               </div>
             </div>
 
-            {/* SCROLL PROMPT */}
-
             <div
-              className="
-                mt-8
-                flex
-                flex-col
-                items-center
-                gap-2
-                sm:mt-10
-              "
+              className="mt-8 flex flex-col items-center gap-2 sm:mt-10"
               style={{
                 opacity:
                   scrollOpacity,
               }}
             >
-              <span
-                className="
-                  whitespace-nowrap
-                  text-[8px]
-                  font-semibold
-                  uppercase
-                  tracking-[0.3em]
-                  text-white/45
-                  sm:text-[10px]
-                "
-              >
-                Scroll down to experience
-                TOR&apos;Q
+              <span className="whitespace-nowrap text-[8px] font-semibold uppercase tracking-[.3em] text-white/45 sm:text-[10px]">
+                Scroll down to experience TOR&apos;Q
               </span>
 
-              <div
-                className="
-                  flex
-                  flex-col
-                  items-center
-                "
-              >
-                <div
-                  className="
-                    h-7
-                    w-px
-                    bg-gradient-to-b
-                    from-white/50
-                    to-transparent
-                  "
-                />
+              <div className="flex flex-col items-center">
+                <div className="h-7 w-px bg-gradient-to-b from-white/50 to-transparent" />
 
-                <ChevronDown
-                  className="
-                    mt-1
-                    h-4
-                    w-4
-                    animate-bounce
-                    text-white/50
-                  "
-                />
+                <ChevronDown className="mt-1 h-4 w-4 animate-bounce text-white/50" />
               </div>
             </div>
           </div>
@@ -1750,10 +1063,6 @@ export function Hero() {
     </section>
   )
 }
-
-/* ================================================================
-   MECHANICAL PIECE
-   ================================================================ */
 
 function MechanicalPiece({
   src,
@@ -1773,12 +1082,10 @@ function MechanicalPiece({
     easeInOut(r)
 
   const lift =
-    -4 *
-    releaseAmount
+    -4 * releaseAmount
 
   const releaseZ =
-    16 *
-    releaseAmount
+    16 * releaseAmount
 
   const releaseRotateX =
     data.rotateX *
@@ -1807,13 +1114,10 @@ function MechanicalPiece({
     releaseZ +
     Math.pow(
       flight,
-      1.40,
+      1.4,
     ) *
-      (
-        460 +
-        data.depth *
-          180
-      )
+      (460 +
+        data.depth * 180)
 
   const scale =
     1 +
@@ -1821,11 +1125,8 @@ function MechanicalPiece({
       flight,
       1.65,
     ) *
-      (
-        0.38 +
-        data.depth *
-          0.08
-      )
+      (0.38 +
+        data.depth * 0.08)
 
   const rotationProgress =
     Math.pow(
@@ -1848,15 +1149,12 @@ function MechanicalPiece({
     0.48 *
     data.spinZ
 
-  const phase =
-    data.phase
-
   const slowWave =
     Math.sin(
       flight *
         Math.PI *
         1.35 +
-        phase,
+        data.phase,
     )
 
   const fastWave =
@@ -1864,7 +1162,7 @@ function MechanicalPiece({
       flight *
         Math.PI *
         3.1 +
-        phase,
+        data.phase,
     )
 
   const tumbleX =
@@ -1877,7 +1175,7 @@ function MechanicalPiece({
       flight *
         Math.PI *
         1.55 +
-        phase,
+        data.phase,
     ) *
     data.microX *
     0.75 *
@@ -1886,16 +1184,14 @@ function MechanicalPiece({
   const tumbleZ =
     fastWave *
     data.microX *
-    0.60 *
+    0.6 *
     flight
 
   let mechanicalX = 0
   let mechanicalY = 0
 
-  if (
-    data.motionType === 2
-  ) {
-    const pistonEnvelope =
+  if (data.motionType === 2) {
+    const envelope =
       Math.sin(
         Math.min(
           1,
@@ -1909,32 +1205,28 @@ function MechanicalPiece({
         flight *
           Math.PI *
           6 +
-          phase,
+          data.phase,
       ) *
       data.microY *
-      pistonEnvelope
+      envelope
 
     mechanicalX =
       Math.cos(
         flight *
           Math.PI *
           3 +
-          phase,
+          data.phase,
       ) *
       3 *
-      pistonEnvelope
+      envelope
   }
 
-  let turbineSpin = 0
-
-  if (
+  const turbineSpin =
     data.motionType === 1
-  ) {
-    turbineSpin =
-      flight *
-      flight *
-      70
-  }
+      ? flight *
+        flight *
+        70
+      : 0
 
   const rotateX =
     releaseRotateX +
@@ -1956,137 +1248,93 @@ function MechanicalPiece({
     turbineSpin
 
   const finalX =
-    x +
-    mechanicalX
+    x + mechanicalX
 
   const finalY =
-    y +
-    mechanicalY
-
-  const fadeProgress =
-    (
-      flight -
-      0.92
-    ) /
-    0.08
+    y + mechanicalY
 
   const opacity =
     1 -
     easeIn(
-      fadeProgress,
+      (flight - 0.92) /
+        0.08,
     )
 
   const blur =
     Math.pow(
       flight,
       3,
-    ) *
-    1.1
+    ) * 1.1
 
   const brightness =
-    1 +
-    flight *
-      0.055
+    1 + flight * 0.055
 
   const contrast =
-    1 +
-    flight *
-      0.08
+    1 + flight * 0.08
 
   const shadowOpacity =
     Math.min(
       0.18,
-      flight *
-        0.18,
+      flight * 0.18,
     )
 
   const shadowBlur =
-    5 +
-    flight *
-      14
+    5 + flight * 14
 
   const shadowX =
-    -flight *
-    6
+    -flight * 6
 
   const shadowY =
-    flight *
-    8
+    flight * 8
 
   return (
     <img
       src={src}
       alt=""
-      aria-hidden="true"
+      aria-hidden
       draggable={false}
-      className="
-        absolute
-        select-none
-        object-contain
-      "
+      className="absolute select-none object-contain"
       style={{
-        /*
-         * LOCKED GEOMETRY
-         */
-
-        left:
-          `${finalX}px`,
-
-        top:
-          `${finalY}px`,
-
-        width:
-          `${data.width}px`,
-
-        height:
-          'auto',
-
+        left: `${finalX}px`,
+        top: `${finalY}px`,
+        width: `${data.width}px`,
+        height: 'auto',
         opacity,
-
-        /*
-         * CRITICAL ALIGNMENT
-         *
-         * DO NOT CHANGE.
-         */
-
         transformOrigin:
           'top left',
-
         transformStyle:
           'preserve-3d',
-
         backfaceVisibility:
           'visible',
-
         transform: `
           translate3d(
             0,
             ${lift}px,
             ${depth}px
           )
-
           rotateX(
             ${rotateX}deg
           )
-
           rotateY(
             ${rotateY}deg
           )
-
           rotateZ(
             ${rotateZ}deg
           )
-
           scale(
             ${scale}
           )
         `,
-
         filter: `
-          brightness(${brightness})
-          contrast(${contrast})
-          blur(${blur}px)
-
+          brightness(
+            ${brightness}
+          )
+          contrast(
+            ${contrast}
+          )
+          blur(
+            ${blur}px
+          )
           drop-shadow(
             ${shadowX}px
             ${shadowY}px
@@ -2099,57 +1347,41 @@ function MechanicalPiece({
             )
           )
         `,
-
         zIndex:
           40 +
           Math.round(
             depth / 40,
           ),
-
         willChange:
-          'transform, opacity, filter',
+          'transform,opacity,filter',
       }}
     />
   )
 }
 
-/* ================================================================
-   HERO STAT
-   ================================================================ */
-
 function HeroStat({
   value,
   label,
+  compact,
 }: {
   value: string
   label: string
+  compact: boolean
 }) {
   return (
     <div className="min-w-0">
       <p
-        className="
-          text-2xl
-          font-black
-          leading-none
-          text-white
-          sm:text-4xl
-        "
+        className="font-black leading-none text-white"
+        style={{
+          fontSize: compact
+            ? 'clamp(22px,4.5vh,30px)'
+            : undefined,
+        }}
       >
         {value}
       </p>
 
-      <p
-        className="
-          mt-2
-          max-w-[120px]
-          text-[7px]
-          uppercase
-          tracking-[0.18em]
-          text-white/45
-          sm:text-[10px]
-          sm:tracking-[0.2em]
-        "
-      >
+      <p className="mt-2 max-w-[120px] text-[7px] uppercase tracking-[.18em] text-white/45 sm:text-[10px] sm:tracking-[.2em]">
         {label}
       </p>
     </div>
