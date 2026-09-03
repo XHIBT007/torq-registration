@@ -19,26 +19,23 @@ import { EVENT } from '@/lib/torq-data'
 
 /* ============================================================
    MASTER TOR'Q ARTBOARD
+
+   THESE VALUES ARE LOCKED.
+   DO NOT CHANGE.
    ============================================================ */
 
 const STAGE_WIDTH = 790
 const STAGE_HEIGHT = 316
 
 /*
- * IMPORTANT:
- *
- * This is the smoothened TOR'Q state we approved.
- *
- * It is present immediately on page load.
+ * Approved smoothened opening state.
  */
 const INITIAL_RELEASE = 0.32
 
 /*
- * MUSTANG HERO IMAGE
+ * CURRENT MUSTANG IMAGE
  *
- * Put the image here:
- *
- * public/images/hero-mustang-2026.webp
+ * Keep this path exactly as it exists in your repo.
  */
 const MUSTANG_SRC =
   '/images/Hero-mustang-03.jpg'
@@ -356,9 +353,7 @@ function easeInOut(value: number) {
 /*
  * Approved flight curve.
  */
-function flightCurve(
-  value: number,
-) {
+function flightCurve(value: number) {
   const t = clamp(value)
 
   return (
@@ -376,8 +371,7 @@ function flightCurve(
    ============================================================ */
 
 export function Hero() {
-  const { open } =
-    useRegistration()
+  const { open } = useRegistration()
 
   const sectionRef =
     useRef<HTMLElement>(null)
@@ -391,8 +385,84 @@ export function Hero() {
   const [stageScale, setStageScale] =
     useState(1)
 
+  /*
+   * NEW:
+   *
+   * Used only to prevent the cinematic intro from being
+   * vertically cropped on short desktop/iPad viewports.
+   *
+   * This does NOT alter any registered logo coordinates.
+   */
+  const [viewportHeight, setViewportHeight] =
+    useState(0)
+
   /* ==========================================================
-     RESPONSIVE STAGE
+     RESPONSIVE VIEWPORT
+     ========================================================== */
+
+  useEffect(() => {
+    const updateViewport =
+      () => {
+        setViewportHeight(
+          window.innerHeight,
+        )
+      }
+
+    updateViewport()
+
+    window.addEventListener(
+      'resize',
+      updateViewport,
+    )
+
+    return () => {
+      window.removeEventListener(
+        'resize',
+        updateViewport,
+      )
+    }
+  }, [])
+
+  /*
+   * Short-height protection.
+   *
+   * At normal desktop heights this remains exactly 1.
+   *
+   * On short desktop / iPad desktop mode it gradually
+   * scales the composition down so nothing is clipped.
+   *
+   * Minimum is intentionally conservative.
+   */
+  const introScale =
+    viewportHeight > 0
+      ? Math.max(
+          0.78,
+          Math.min(
+            1,
+            (viewportHeight - 120) /
+              648,
+          ),
+        )
+      : 1
+
+  /*
+   * The content also receives the same protection.
+   * This only activates on short viewports.
+   */
+  const contentScale =
+    viewportHeight > 0
+      ? Math.max(
+          0.82,
+          Math.min(
+            1,
+            (viewportHeight - 100) /
+              668,
+          ),
+        )
+      : 1
+
+  /* ==========================================================
+     RESPONSIVE STAGE WIDTH
      ========================================================== */
 
   useEffect(() => {
@@ -518,9 +588,6 @@ export function Hero() {
      TOR'Q TIMELINE
      ========================================================== */
 
-  /*
-   * Logo disappears immediately with scroll.
-   */
   const logoFade =
     easeInOut(
       progress / 0.30,
@@ -529,9 +596,6 @@ export function Hero() {
   const logoOpacity =
     1 - logoFade
 
-  /*
-   * Smooth opening state.
-   */
   const releaseProgress =
     easeInOut(
       progress / 0.30,
@@ -545,11 +609,6 @@ export function Hero() {
     ) *
       releaseProgress
 
-  /*
-   * Mechanical explosion.
-   *
-   * Begins from ZERO.
-   */
   const explosion =
     easeInOut(
       progress / 0.78,
@@ -559,57 +618,30 @@ export function Hero() {
      MUSTANG REVEAL
      ========================================================== */
 
-  /*
-   * The Mustang begins appearing BEFORE the final
-   * mechanical pieces have completely disappeared.
-   *
-   * This creates the feeling that the car was sitting
-   * inside the darkness behind the TOR'Q.
-   */
   const mustangProgress =
     easeInOut(
       (progress - 0.28) /
         0.48,
     )
 
-  /*
-   * Very dark beginning.
-   */
   const mustangOpacity =
     mustangProgress
 
-  /*
-   * The car physically appears to reverse toward
-   * the camera.
-   *
-   * It begins smaller and farther away.
-   */
   const mustangScale =
     0.72 +
     mustangProgress *
       0.34
 
-  /*
-   * Tiny vertical movement gives the impression
-   * of the car approaching rather than a flat
-   * background simply fading in.
-   */
   const mustangY =
     18 -
     mustangProgress *
       18
 
-  /*
-   * Slight blur while distant.
-   */
   const mustangBlur =
     (1 -
       mustangProgress) *
     4
 
-  /*
-   * Dark-to-visible atmospheric treatment.
-   */
   const mustangBrightness =
     0.45 +
     mustangProgress *
@@ -624,20 +656,12 @@ export function Hero() {
      BRAKE LIGHT GLOW
      ========================================================== */
 
-  /*
-   * Brake lights begin weakly and bloom as the Mustang
-   * approaches.
-   */
   const brakeGlow =
     easeOut(
       (progress - 0.36) /
         0.28,
     )
 
-  /*
-   * A secondary pulse gives the lights a sense of
-   * intensity rather than a simple opacity fade.
-   */
   const brakePulse =
     0.82 +
     Math.sin(
@@ -661,9 +685,6 @@ export function Hero() {
         0.32,
     )
 
-  /*
-   * Final red illumination.
-   */
   const redWashOpacity =
     easeOut(
       (progress - 0.40) /
@@ -691,10 +712,6 @@ export function Hero() {
      HERO HEADLINE
      ========================================================== */
 
-  /*
-   * The headline starts while the Mustang is still
-   * approaching.
-   */
   const headlineProgress =
     easeInOut(
       (progress - 0.61) /
@@ -787,7 +804,6 @@ export function Hero() {
             '50% 50%',
         }}
       >
-
         {/* ====================================================
             MUSTANG BACKGROUND
             ==================================================== */}
@@ -875,9 +891,6 @@ export function Hero() {
 
           {/* ==================================================
               RED BRAKE-LIGHT ILLUMINATION
-
-              Two concentrated red pools imitate light
-              spilling from the Mustang's rear lamps.
               ================================================== */}
 
           <div
@@ -944,9 +957,11 @@ export function Hero() {
 
               transform:
                 `scale(
-                  ${0.88 +
+                  ${
+                    0.88 +
                     brakeGlow *
-                      0.16}
+                      0.16
+                  }
                 )`,
 
               transformOrigin:
@@ -1018,10 +1033,6 @@ export function Hero() {
 
         {/* ====================================================
             HERO CONTENT
-
-            The Mustang is now the background.
-
-            Everything below sits above it.
             ==================================================== */}
 
         <div
@@ -1051,8 +1062,17 @@ export function Hero() {
                 w-full
                 max-w-5xl
               "
-            >
+              style={{
+                transform:
+                  `scale(${contentScale})`,
 
+                transformOrigin:
+                  'left center',
+
+                willChange:
+                  'transform',
+              }}
+            >
               {/* =================================================
                   KICKER
                   ================================================= */}
@@ -1314,9 +1334,11 @@ export function Hero() {
                   transform: `
                     translate3d(
                       0,
-                      ${(1 -
-                        lowerProgress) *
-                        14}px,
+                      ${
+                        (1 -
+                          lowerProgress) *
+                        14
+                      }px,
                       0
                     )
                   `,
@@ -1362,9 +1384,11 @@ export function Hero() {
                   transform: `
                     translate3d(
                       0,
-                      ${(1 -
-                        lowerProgress) *
-                        12}px,
+                      ${
+                        (1 -
+                          lowerProgress) *
+                        12
+                      }px,
                       0
                     )
                   `,
@@ -1419,6 +1443,17 @@ export function Hero() {
               '50% 50%',
           }}
         >
+          {/*
+           * IMPORTANT:
+           *
+           * This wrapper is the ONLY new visual scaling layer.
+           *
+           * The internal 790 x 316 artboard and every registered
+           * component coordinate remain untouched.
+           *
+           * This solves the short-height desktop/iPad crop.
+           */}
+
           <div
             className="
               flex
@@ -1426,8 +1461,17 @@ export function Hero() {
               flex-col
               items-center
             "
-          >
+            style={{
+              transform:
+                `scale(${introScale})`,
 
+              transformOrigin:
+                'center center',
+
+              willChange:
+                'transform',
+            }}
+          >
             {/* =================================================
                 WELCOME
                 ================================================= */}
@@ -1480,6 +1524,11 @@ export function Hero() {
                   height:
                     `${STAGE_HEIGHT}px`,
 
+                  /*
+                   * LOCKED.
+                   *
+                   * Do not change this transform origin.
+                   */
                   transform: `
                     translate(-50%, -50%)
                     scale(${stageScale})
@@ -1492,7 +1541,6 @@ export function Hero() {
                     'preserve-3d',
                 }}
               >
-
                 {/* =================================================
                     INTACT LOGO
                     ================================================= */}
@@ -1703,7 +1751,7 @@ export function Hero() {
 
 /* ================================================================
    MECHANICAL PIECE
-================================================================ */
+   ================================================================ */
 
 function MechanicalPiece({
   src,
@@ -1753,6 +1801,8 @@ function MechanicalPiece({
 
   /* ============================================================
      POSITION
+
+     LOCKED GEOMETRY IS PRESERVED.
      ============================================================ */
 
   const x =
@@ -1777,7 +1827,8 @@ function MechanicalPiece({
     ) *
       (
         460 +
-        data.depth * 180
+        data.depth *
+          180
       )
 
   /* ============================================================
@@ -1792,7 +1843,8 @@ function MechanicalPiece({
     ) *
       (
         0.38 +
-        data.depth * 0.08
+        data.depth *
+          0.08
       )
 
   /* ============================================================
@@ -1957,9 +2009,6 @@ function MechanicalPiece({
 
   /* ============================================================
      FADE
-
-     Keep pieces visible long enough to pass through
-     the Mustang/headline transition.
      ============================================================ */
 
   const fadeProgress =
@@ -1993,12 +2042,12 @@ function MechanicalPiece({
   const brightness =
     1 +
     flight *
-    0.055
+      0.055
 
   const contrast =
     1 +
     flight *
-    0.08
+      0.08
 
   /* ============================================================
      SHADOW
@@ -2007,18 +2056,22 @@ function MechanicalPiece({
   const shadowOpacity =
     Math.min(
       0.18,
-      flight * 0.18,
+      flight *
+        0.18,
     )
 
   const shadowBlur =
     5 +
-    flight * 14
+    flight *
+      14
 
   const shadowX =
-    -flight * 6
+    -flight *
+    6
 
   const shadowY =
-    flight * 8
+    flight *
+    8
 
   return (
     <img
@@ -2032,9 +2085,11 @@ function MechanicalPiece({
         object-contain
       "
       style={{
-        /* ======================================================
-           LOCKED GEOMETRY
-           ====================================================== */
+        /*
+         * ======================================================
+         * LOCKED GEOMETRY
+         * ======================================================
+         */
 
         left:
           `${finalX}px`,
@@ -2050,9 +2105,13 @@ function MechanicalPiece({
 
         opacity,
 
-        /* ======================================================
-           CRITICAL ALIGNMENT
-           ====================================================== */
+        /*
+         * ======================================================
+         * CRITICAL ALIGNMENT
+         *
+         * DO NOT CHANGE.
+         * ======================================================
+         */
 
         transformOrigin:
           'top left',
@@ -2063,9 +2122,11 @@ function MechanicalPiece({
         backfaceVisibility:
           'visible',
 
-        /* ======================================================
-           3D TRANSFORM
-           ====================================================== */
+        /*
+         * ======================================================
+         * 3D TRANSFORM
+         * ======================================================
+         */
 
         transform: `
           translate3d(
@@ -2112,6 +2173,7 @@ function MechanicalPiece({
         /*
          * Pieces remain above everything.
          */
+
         zIndex:
           40 +
           Math.round(
@@ -2127,7 +2189,7 @@ function MechanicalPiece({
 
 /* ================================================================
    HERO STAT
-================================================================ */
+   ================================================================ */
 
 function HeroStat({
   value,
