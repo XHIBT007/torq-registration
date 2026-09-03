@@ -69,7 +69,7 @@ type ComponentData = {
 /* ============================================================
    LOCKED COMPONENT POSITIONS
 
-   DO NOT CHANGE.
+   DO NOT CHANGE THESE VALUES.
    ============================================================ */
 
 const COMPONENTS: Record<
@@ -335,9 +335,6 @@ function easeInOut(value: number) {
           2
 }
 
-/*
- * LOCKED FLIGHT CURVE
- */
 function flightCurve(
   value: number,
 ) {
@@ -373,30 +370,23 @@ export function Hero() {
   const [stageScale, setStageScale] =
     useState(1)
 
-  /*
-   * Real visual viewport height.
-   *
-   * visualViewport is important for Safari/iOS desktop mode
-   * because innerHeight can include browser UI space.
-   */
   const [viewportHeight, setViewportHeight] =
     useState(0)
 
   /* ==========================================================
-     REAL VIEWPORT
+     VIEWPORT
+
+     Uses visualViewport on Safari/iPad.
      ========================================================== */
 
   useEffect(() => {
-    const updateViewport =
-      () => {
-        const visualHeight =
-          window.visualViewport?.height
+    const updateViewport = () => {
+      const height =
+        window.visualViewport?.height ??
+        window.innerHeight
 
-        setViewportHeight(
-          visualHeight ||
-            window.innerHeight,
-        )
-      }
+      setViewportHeight(height)
+    }
 
     updateViewport()
 
@@ -434,7 +424,12 @@ export function Hero() {
   }, [])
 
   /* ==========================================================
-     RESPONSIVE STAGE WIDTH
+     STAGE SCALE
+
+     Width AND height are considered.
+
+     This is what prevents the 790x316 master artboard
+     from becoming too large in short landscape mode.
      ========================================================== */
 
   useEffect(() => {
@@ -444,15 +439,38 @@ export function Hero() {
     if (!wrapper) return
 
     const updateScale = () => {
-      const availableWidth =
+      const width =
         wrapper.getBoundingClientRect()
           .width
+
+      const widthScale =
+        width / STAGE_WIDTH
+
+      /*
+       * Reserve room for:
+       *
+       * Welcome text
+       * logo
+       * scroll instruction
+       *
+       * in short landscape viewports.
+       */
+      const availableHeight =
+        Math.max(
+          300,
+          viewportHeight -
+            145,
+        )
+
+      const heightScale =
+        availableHeight /
+        430
 
       setStageScale(
         Math.min(
           1,
-          availableWidth /
-            STAGE_WIDTH,
+          widthScale,
+          heightScale,
         ),
       )
     }
@@ -479,7 +497,7 @@ export function Hero() {
         updateScale,
       )
     }
-  }, [])
+  }, [viewportHeight])
 
   /* ==========================================================
      SCROLL PROGRESS
@@ -747,61 +765,70 @@ export function Hero() {
     )
 
   /* ==========================================================
-     VIEWPORT-SAFE CONTENT
+     LANDSCAPE COMPOSITION
 
-     IMPORTANT:
+     This is the important fix.
 
-     We do NOT modify the mechanical logo.
+     Safari/iPad desktop mode can report a desktop width
+     while giving us a short landscape height.
 
-     We only calculate the usable area for the later
-     headline/content sequence.
-
-     Navbar = 64px.
+     Instead of allowing the desktop 6.5rem typography
+     to dominate the viewport, the composition becomes
+     height-aware.
      ========================================================== */
 
-  const safeHeight =
-    viewportHeight > 0
+  const isShortLandscape =
+    viewportHeight > 0 &&
+    viewportHeight < 760
+
+  /*
+   * Headline size in pixels.
+
+   Tall desktop:
+       104px
+
+   Short landscape:
+       approximately 58–76px
+
+   This avoids the huge 6.5rem desktop headline
+   swallowing a 600–700px tall viewport.
+   */
+  const headlineFontSize =
+    isShortLandscape
       ? Math.max(
-          560,
-          viewportHeight -
-            64,
+          56,
+          Math.min(
+            82,
+            viewportHeight *
+              0.105,
+          ),
         )
-      : 800
+      : undefined
 
   /*
-   * Content scaling is intentionally conservative.
-   *
-   * Normal desktop:
-   *   scale = 1
-   *
-   * Short desktop / Safari desktop mode:
-   *   scale decreases enough to keep the complete
-   *   composition inside the visual viewport.
+   * Content width also becomes slightly narrower
+   * in short landscape mode.
    */
-  const contentScale =
-    Math.max(
-      0.68,
-      Math.min(
-        1,
-        safeHeight / 780,
-      ),
-    )
+  const contentMaxWidth =
+    isShortLandscape
+      ? 'min(880px, 82vw)'
+      : undefined
 
   /*
-   * When the viewport gets shorter, move the content
-   * down slightly so the headline never sits underneath
-   * the fixed navbar.
+   * Vertical placement.
+
+   The headline is no longer allowed to sit directly
+   underneath the fixed navigation bar.
    */
-  const contentTopOffset =
-    Math.max(
-      0,
-      Math.min(
-        28,
-        (780 -
-          safeHeight) *
-          0.10,
-      ),
-    )
+  const contentTopPadding =
+    isShortLandscape
+      ? Math.max(
+          18,
+          (760 -
+            viewportHeight) *
+            0.20,
+        )
+      : 0
 
   return (
     <section
@@ -815,8 +842,6 @@ export function Hero() {
     >
       {/* ======================================================
           STICKY CINEMATIC STAGE
-
-          `100dvh` follows the real dynamic viewport.
           ====================================================== */}
 
       <div
@@ -1000,7 +1025,7 @@ export function Hero() {
             }}
           />
 
-          {/* LOW RED REFLECTION */}
+          {/* RED REFLECTION */}
 
           <div
             className="
@@ -1057,9 +1082,6 @@ export function Hero() {
 
         {/* ====================================================
             HERO CONTENT
-
-            The entire content stack is now contained inside
-            the visual viewport-safe area.
             ==================================================== */}
 
         <div
@@ -1071,8 +1093,11 @@ export function Hero() {
             z-20
             flex
             items-center
-            overflow-hidden
           "
+          style={{
+            paddingTop:
+              contentTopPadding,
+          }}
         >
           <div
             className="
@@ -1093,22 +1118,8 @@ export function Hero() {
                 max-w-5xl
               "
               style={{
-                transform: `
-                  translate3d(
-                    0,
-                    ${contentTopOffset}px,
-                    0
-                  )
-                  scale(
-                    ${contentScale}
-                  )
-                `,
-
-                transformOrigin:
-                  'center center',
-
-                willChange:
-                  'transform',
+                maxWidth:
+                  contentMaxWidth,
               }}
             >
               {/* KICKER */}
@@ -1157,7 +1168,9 @@ export function Hero() {
                 </span>
               </div>
 
-              {/* HEADLINE */}
+              {/* =================================================
+                  HEADLINE
+                  ================================================= */}
 
               <div
                 className="
@@ -1178,6 +1191,9 @@ export function Hero() {
                     lg:text-[6.5rem]
                   "
                   style={{
+                    fontSize:
+                      headlineFontSize,
+
                     opacity:
                       headlineOpacity,
 
@@ -1256,6 +1272,17 @@ export function Hero() {
                     sm:leading-8
                     md:text-xl
                   "
+                  style={{
+                    fontSize:
+                      isShortLandscape
+                        ? 'clamp(13px, 1.8vw, 17px)'
+                        : undefined,
+
+                    lineHeight:
+                      isShortLandscape
+                        ? 1.45
+                        : undefined,
+                  }}
                 >
                   A cinematic celebration of
                   performance, sound and
@@ -1279,6 +1306,12 @@ export function Hero() {
                     sm:flex-row
                     sm:items-center
                   "
+                  style={{
+                    marginTop:
+                      isShortLandscape
+                        ? 18
+                        : undefined,
+                  }}
                 >
                   <Button
                     size="lg"
@@ -1299,6 +1332,12 @@ export function Hero() {
                       sm:px-8
                       sm:text-base
                     "
+                    style={{
+                      height:
+                        isShortLandscape
+                          ? 48
+                          : undefined,
+                    }}
                   >
                     <Ticket
                       className="
@@ -1362,6 +1401,16 @@ export function Hero() {
                       0
                     )
                   `,
+
+                  marginTop:
+                    isShortLandscape
+                      ? 18
+                      : undefined,
+
+                  paddingTop:
+                    isShortLandscape
+                      ? 14
+                      : undefined,
                 }}
               >
                 <HeroStat
@@ -1405,6 +1454,11 @@ export function Hero() {
                       0
                     )
                   `,
+
+                  marginTop:
+                    isShortLandscape
+                      ? 14
+                      : undefined,
                 }}
               >
                 <p
@@ -1430,7 +1484,7 @@ export function Hero() {
         {/* ====================================================
             TOR'Q MECHANICAL INTRO
 
-            THIS SECTION IS KEPT GEOMETRICALLY INTACT.
+            GEOMETRY REMAINS LOCKED.
             ==================================================== */}
 
         <div
@@ -1507,6 +1561,12 @@ export function Hero() {
                   height:
                     `${STAGE_HEIGHT}px`,
 
+                  /*
+                   * THE REGISTERED 790x316 ARTBOARD
+                   * REMAINS UNCHANGED.
+                   *
+                   * Only its presentation scale changes.
+                   */
                   transform: `
                     translate(-50%, -50%)
                     scale(${stageScale})
@@ -1985,6 +2045,8 @@ function MechanicalPiece({
 
         /*
          * CRITICAL ALIGNMENT
+         *
+         * DO NOT CHANGE.
          */
 
         transformOrigin:
