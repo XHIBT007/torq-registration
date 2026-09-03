@@ -25,9 +25,7 @@ const STAGE_WIDTH = 790
 const STAGE_HEIGHT = 316
 
 /*
- * Approved smoothened opening state.
- *
- * DO NOT CHANGE.
+ * LOCKED APPROVED OPENING STATE
  */
 const INITIAL_RELEASE = 0.32
 
@@ -42,25 +40,20 @@ const MUSTANG_SRC =
    ============================================================ */
 
 type ComponentData = {
-  /* LOCKED REGISTRATION GEOMETRY */
   x: number
   y: number
   width: number
   rotation: number
 
-  /* LOCKED FLIGHT */
   flightX: number
   flightY: number
 
-  /* LOCKED ROTATION */
   rotateX: number
   rotateY: number
   rotateZ: number
 
-  /* DEPTH */
   depth: number
 
-  /* MECHANICAL CHARACTER */
   spinX: number
   spinY: number
   spinZ: number
@@ -70,18 +63,13 @@ type ComponentData = {
 
   phase: number
 
-  /*
-   * 0 = standard
-   * 1 = turbine
-   * 2 = piston
-   */
   motionType: number
 }
 
 /* ============================================================
    LOCKED COMPONENT POSITIONS
 
-   DO NOT CHANGE THESE VALUES.
+   DO NOT CHANGE.
    ============================================================ */
 
 const COMPONENTS: Record<
@@ -348,7 +336,7 @@ function easeInOut(value: number) {
 }
 
 /*
- * Approved flight curve.
+ * LOCKED FLIGHT CURVE
  */
 function flightCurve(
   value: number,
@@ -386,39 +374,61 @@ export function Hero() {
     useState(1)
 
   /*
-   * NEW:
+   * Real visual viewport height.
    *
-   * Tracks the real viewport height so the hero content
-   * can intelligently fit inside short desktop viewports.
-   *
-   * This does NOT touch the mechanical stage.
+   * visualViewport is important for Safari/iOS desktop mode
+   * because innerHeight can include browser UI space.
    */
   const [viewportHeight, setViewportHeight] =
     useState(0)
 
   /* ==========================================================
-     VIEWPORT HEIGHT
+     REAL VIEWPORT
      ========================================================== */
 
   useEffect(() => {
-    const updateViewportHeight =
+    const updateViewport =
       () => {
+        const visualHeight =
+          window.visualViewport?.height
+
         setViewportHeight(
-          window.innerHeight,
+          visualHeight ||
+            window.innerHeight,
         )
       }
 
-    updateViewportHeight()
+    updateViewport()
 
     window.addEventListener(
       'resize',
-      updateViewportHeight,
+      updateViewport,
+    )
+
+    window.visualViewport?.addEventListener(
+      'resize',
+      updateViewport,
+    )
+
+    window.visualViewport?.addEventListener(
+      'scroll',
+      updateViewport,
     )
 
     return () => {
       window.removeEventListener(
         'resize',
-        updateViewportHeight,
+        updateViewport,
+      )
+
+      window.visualViewport?.removeEventListener(
+        'resize',
+        updateViewport,
+      )
+
+      window.visualViewport?.removeEventListener(
+        'scroll',
+        updateViewport,
       )
     }
   }, [])
@@ -438,13 +448,13 @@ export function Hero() {
         wrapper.getBoundingClientRect()
           .width
 
-      const scale = Math.min(
-        1,
-        availableWidth /
-          STAGE_WIDTH,
+      setStageScale(
+        Math.min(
+          1,
+          availableWidth /
+            STAGE_WIDTH,
+        ),
       )
-
-      setStageScale(scale)
     }
 
     updateScale()
@@ -577,7 +587,7 @@ export function Hero() {
     )
 
   /* ==========================================================
-     MUSTANG REVEAL
+     MUSTANG
      ========================================================== */
 
   const mustangProgress =
@@ -615,7 +625,7 @@ export function Hero() {
       0.12
 
   /* ==========================================================
-     BRAKE LIGHT GLOW
+     BRAKE LIGHT
      ========================================================== */
 
   const brakeGlow =
@@ -655,7 +665,7 @@ export function Hero() {
     0.28
 
   /* ==========================================================
-     INTRO TEXT
+     INTRO
      ========================================================== */
 
   const welcomeOpacity =
@@ -671,7 +681,7 @@ export function Hero() {
     )
 
   /* ==========================================================
-     HERO HEADLINE
+     HEADLINE
      ========================================================== */
 
   const headlineProgress =
@@ -699,7 +709,7 @@ export function Hero() {
       24
 
   /* ==========================================================
-     HEADLINE KICKER
+     KICKER
      ========================================================== */
 
   const kickerProgress =
@@ -737,62 +747,61 @@ export function Hero() {
     )
 
   /* ==========================================================
-     SHORT DESKTOP VIEWPORT FIX
-     ==========================================================
-
-     The navigation occupies part of the visible viewport.
-
-     The hero content is one tall composition:
-       headline
-       paragraph
-       CTA
-       stats
-       countdown
-
-     On short desktop/iPad desktop viewports, the original
-     `items-center` positioning caused the top of the headline
-     to move underneath the navigation.
-
-     We scale the COMPLETE content block as one unit.
+     VIEWPORT-SAFE CONTENT
 
      IMPORTANT:
-     This does NOT alter:
-       - logo geometry
-       - component coordinates
-       - stage dimensions
-       - animation timing
-       - Mustang animation
+
+     We do NOT modify the mechanical logo.
+
+     We only calculate the usable area for the later
+     headline/content sequence.
+
+     Navbar = 64px.
      ========================================================== */
 
-  const heroContentScale =
+  const safeHeight =
     viewportHeight > 0
       ? Math.max(
-          0.72,
-          Math.min(
-            1,
-            (viewportHeight - 150) /
-              780,
-          ),
+          560,
+          viewportHeight -
+            64,
         )
-      : 1
+      : 800
 
   /*
-   * Shorter viewport = slightly more downward clearance.
+   * Content scaling is intentionally conservative.
    *
-   * On tall desktop this becomes 0.
+   * Normal desktop:
+   *   scale = 1
+   *
+   * Short desktop / Safari desktop mode:
+   *   scale decreases enough to keep the complete
+   *   composition inside the visual viewport.
    */
-  const heroContentOffset =
-    viewportHeight > 0
-      ? Math.max(
-          0,
-          Math.min(
-            38,
-            (900 -
-              viewportHeight) *
-              0.12,
-          ),
-        )
-      : 0
+  const contentScale =
+    Math.max(
+      0.68,
+      Math.min(
+        1,
+        safeHeight / 780,
+      ),
+    )
+
+  /*
+   * When the viewport gets shorter, move the content
+   * down slightly so the headline never sits underneath
+   * the fixed navbar.
+   */
+  const contentTopOffset =
+    Math.max(
+      0,
+      Math.min(
+        28,
+        (780 -
+          safeHeight) *
+          0.10,
+      ),
+    )
 
   return (
     <section
@@ -806,13 +815,16 @@ export function Hero() {
     >
       {/* ======================================================
           STICKY CINEMATIC STAGE
+
+          `100dvh` follows the real dynamic viewport.
           ====================================================== */}
 
       <div
         className="
           sticky
           top-0
-          h-screen
+          h-[100dvh]
+          min-h-[100svh]
           overflow-hidden
           bg-black
         "
@@ -885,9 +897,7 @@ export function Hero() {
             }}
           />
 
-          {/* ==================================================
-              DARK ATMOSPHERE
-              ================================================== */}
+          {/* DARK ATMOSPHERE */}
 
           <div
             className="
@@ -909,9 +919,7 @@ export function Hero() {
             }}
           />
 
-          {/* ==================================================
-              RED BRAKE LIGHT ILLUMINATION
-              ================================================== */}
+          {/* BRAKE LIGHT */}
 
           <div
             className="
@@ -992,9 +1000,7 @@ export function Hero() {
             }}
           />
 
-          {/* ==================================================
-              LOW RED REFLECTION
-              ================================================== */}
+          {/* LOW RED REFLECTION */}
 
           <div
             className="
@@ -1025,9 +1031,7 @@ export function Hero() {
             }}
           />
 
-          {/* ==================================================
-              CINEMATIC VIGNETTE
-              ================================================== */}
+          {/* VIGNETTE */}
 
           <div
             className="
@@ -1053,15 +1057,21 @@ export function Hero() {
 
         {/* ====================================================
             HERO CONTENT
+
+            The entire content stack is now contained inside
+            the visual viewport-safe area.
             ==================================================== */}
 
         <div
           className="
             absolute
-            inset-0
+            inset-x-0
+            bottom-0
+            top-16
             z-20
             flex
             items-center
+            overflow-hidden
           "
         >
           <div
@@ -1077,12 +1087,6 @@ export function Hero() {
               lg:px-10
             "
           >
-            {/* =================================================
-                RESPONSIVE CONTENT SCALE
-
-                THIS IS THE FIX FOR THE CROPPING.
-                ================================================= */}
-
             <div
               className="
                 w-full
@@ -1092,11 +1096,11 @@ export function Hero() {
                 transform: `
                   translate3d(
                     0,
-                    ${heroContentOffset}px,
+                    ${contentTopOffset}px,
                     0
                   )
                   scale(
-                    ${heroContentScale}
+                    ${contentScale}
                   )
                 `,
 
@@ -1107,9 +1111,7 @@ export function Hero() {
                   'transform',
               }}
             >
-              {/* =================================================
-                  KICKER
-                  ================================================= */}
+              {/* KICKER */}
 
               <div
                 className="
@@ -1130,9 +1132,6 @@ export function Hero() {
                       0
                     )
                   `,
-
-                  willChange:
-                    'transform, opacity',
                 }}
               >
                 <div
@@ -1158,13 +1157,11 @@ export function Hero() {
                 </span>
               </div>
 
-              {/* =================================================
-                  HEADLINE
-                  ================================================= */}
+              {/* HEADLINE */}
 
               <div
                 className="
-                  overflow-hidden
+                  overflow-visible
                 "
               >
                 <h1
@@ -1231,9 +1228,7 @@ export function Hero() {
                 </h1>
               </div>
 
-              {/* =================================================
-                  DETAILS
-                  ================================================= */}
+              {/* DETAILS */}
 
               <div
                 style={{
@@ -1247,9 +1242,6 @@ export function Hero() {
                       0
                     )
                   `,
-
-                  willChange:
-                    'transform, opacity',
                 }}
               >
                 <p
@@ -1275,9 +1267,7 @@ export function Hero() {
                   unforgettable experience.
                 </p>
 
-                {/* =============================================
-                    CTA
-                    ============================================= */}
+                {/* CTA */}
 
                 <div
                   className="
@@ -1344,9 +1334,7 @@ export function Hero() {
                 </div>
               </div>
 
-              {/* =================================================
-                  STATS
-                  ================================================= */}
+              {/* STATS */}
 
               <div
                 className="
@@ -1374,9 +1362,6 @@ export function Hero() {
                       0
                     )
                   `,
-
-                  willChange:
-                    'transform, opacity',
                 }}
               >
                 <HeroStat
@@ -1400,9 +1385,7 @@ export function Hero() {
                 />
               </div>
 
-              {/* =================================================
-                  COUNTDOWN
-                  ================================================= */}
+              {/* COUNTDOWN */}
 
               <div
                 className="
@@ -1422,9 +1405,6 @@ export function Hero() {
                       0
                     )
                   `,
-
-                  willChange:
-                    'transform, opacity',
                 }}
               >
                 <p
@@ -1448,11 +1428,9 @@ export function Hero() {
         </div>
 
         {/* ====================================================
-            TOR'Q INTRO / MECHANICAL STAGE
+            TOR'Q MECHANICAL INTRO
 
-            Z-INDEX 40
-
-            THIS ENTIRE SYSTEM REMAINS UNTOUCHED.
+            THIS SECTION IS KEPT GEOMETRICALLY INTACT.
             ==================================================== */}
 
         <div
@@ -1481,9 +1459,7 @@ export function Hero() {
               items-center
             "
           >
-            {/* =================================================
-                WELCOME
-                ================================================= */}
+            {/* WELCOME */}
 
             <p
               className="
@@ -1504,9 +1480,7 @@ export function Hero() {
               Welcome to
             </p>
 
-            {/* =================================================
-                MASTER STAGE
-                ================================================= */}
+            {/* MASTER STAGE */}
 
             <div
               ref={stageWrapperRef}
@@ -1533,9 +1507,6 @@ export function Hero() {
                   height:
                     `${STAGE_HEIGHT}px`,
 
-                  /*
-                   * LOCKED.
-                   */
                   transform: `
                     translate(-50%, -50%)
                     scale(${stageScale})
@@ -1548,9 +1519,7 @@ export function Hero() {
                     'preserve-3d',
                 }}
               >
-                {/* =================================================
-                    INTACT LOGO
-                    ================================================= */}
+                {/* INTACT LOGO */}
 
                 <img
                   src="/images/torq-components/torq-logo-intact-reference.png"
@@ -1588,20 +1557,12 @@ export function Hero() {
                   }}
                 />
 
-                {/* =================================================
-                    T
-                    ================================================= */}
-
                 <MechanicalPiece
                   src="/images/torq-components/t_section.png"
                   data={COMPONENTS.t}
                   release={release}
                   explosion={explosion}
                 />
-
-                {/* =================================================
-                    TURBINE
-                    ================================================= */}
 
                 <MechanicalPiece
                   src="/images/torq-components/turbine.png"
@@ -1612,10 +1573,6 @@ export function Hero() {
                   explosion={explosion}
                 />
 
-                {/* =================================================
-                    26
-                    ================================================= */}
-
                 <MechanicalPiece
                   src="/images/torq-components/torq-26-transparent.png"
                   data={
@@ -1625,20 +1582,12 @@ export function Hero() {
                   explosion={explosion}
                 />
 
-                {/* =================================================
-                    R
-                    ================================================= */}
-
                 <MechanicalPiece
                   src="/images/torq-components/r_section.png"
                   data={COMPONENTS.r}
                   release={release}
                   explosion={explosion}
                 />
-
-                {/* =================================================
-                    R LOWER
-                    ================================================= */}
 
                 <MechanicalPiece
                   src="/images/torq-components/r_lower.png"
@@ -1649,10 +1598,6 @@ export function Hero() {
                   explosion={explosion}
                 />
 
-                {/* =================================================
-                    PISTON
-                    ================================================= */}
-
                 <MechanicalPiece
                   src="/images/torq-components/piston.png"
                   data={
@@ -1662,20 +1607,12 @@ export function Hero() {
                   explosion={explosion}
                 />
 
-                {/* =================================================
-                    Q
-                    ================================================= */}
-
                 <MechanicalPiece
                   src="/images/torq-components/q_section.png"
                   data={COMPONENTS.q}
                   release={release}
                   explosion={explosion}
                 />
-
-                {/* =================================================
-                    Q BASE
-                    ================================================= */}
 
                 <MechanicalPiece
                   src="/images/torq-components/q_base.png"
@@ -1688,9 +1625,7 @@ export function Hero() {
               </div>
             </div>
 
-            {/* =================================================
-                SCROLL PROMPT
-                ================================================= */}
+            {/* SCROLL PROMPT */}
 
             <div
               className="
@@ -1774,10 +1709,6 @@ function MechanicalPiece({
   const r = clamp(release)
   const e = clamp(explosion)
 
-  /* ============================================================
-     RELEASE
-     ============================================================ */
-
   const releaseAmount =
     easeInOut(r)
 
@@ -1799,18 +1730,8 @@ function MechanicalPiece({
     0.006 *
     releaseAmount
 
-  /* ============================================================
-     FLIGHT
-     ============================================================ */
-
   const flight =
     flightCurve(e)
-
-  /* ============================================================
-     POSITION
-
-     LOCKED X/Y VALUES.
-     ============================================================ */
 
   const x =
     data.x +
@@ -1822,10 +1743,6 @@ function MechanicalPiece({
     data.flightY *
       flight
 
-  /* ============================================================
-     DEPTH
-     ============================================================ */
-
   const depth =
     releaseZ +
     Math.pow(
@@ -1834,12 +1751,9 @@ function MechanicalPiece({
     ) *
       (
         460 +
-        data.depth * 180
+        data.depth *
+          180
       )
-
-  /* ============================================================
-     SCALE
-     ============================================================ */
 
   const scale =
     1 +
@@ -1849,12 +1763,9 @@ function MechanicalPiece({
     ) *
       (
         0.38 +
-        data.depth * 0.08
+        data.depth *
+          0.08
       )
-
-  /* ============================================================
-     ROTATION
-     ============================================================ */
 
   const rotationProgress =
     Math.pow(
@@ -1876,10 +1787,6 @@ function MechanicalPiece({
     data.rotateZ *
     0.48 *
     data.spinZ
-
-  /* ============================================================
-     MECHANICAL WAVES
-     ============================================================ */
 
   const phase =
     data.phase
@@ -1922,10 +1829,6 @@ function MechanicalPiece({
     0.60 *
     flight
 
-  /* ============================================================
-     PISTON
-     ============================================================ */
-
   let mechanicalX = 0
   let mechanicalY = 0
 
@@ -1962,10 +1865,6 @@ function MechanicalPiece({
       pistonEnvelope
   }
 
-  /* ============================================================
-     TURBINE
-     ============================================================ */
-
   let turbineSpin = 0
 
   if (
@@ -1976,10 +1875,6 @@ function MechanicalPiece({
       flight *
       70
   }
-
-  /* ============================================================
-     FINAL ROTATION
-     ============================================================ */
 
   const rotateX =
     releaseRotateX +
@@ -2000,10 +1895,6 @@ function MechanicalPiece({
     tumbleZ +
     turbineSpin
 
-  /* ============================================================
-     FINAL POSITION
-     ============================================================ */
-
   const finalX =
     x +
     mechanicalX
@@ -2011,10 +1902,6 @@ function MechanicalPiece({
   const finalY =
     y +
     mechanicalY
-
-  /* ============================================================
-     FADE
-     ============================================================ */
 
   const fadeProgress =
     (
@@ -2029,20 +1916,12 @@ function MechanicalPiece({
       fadeProgress,
     )
 
-  /* ============================================================
-     MOTION BLUR
-     ============================================================ */
-
   const blur =
     Math.pow(
       flight,
       3,
     ) *
     1.1
-
-  /* ============================================================
-     METALLIC EMPHASIS
-     ============================================================ */
 
   const brightness =
     1 +
@@ -2054,25 +1933,25 @@ function MechanicalPiece({
     flight *
       0.08
 
-  /* ============================================================
-     SHADOW
-     ============================================================ */
-
   const shadowOpacity =
     Math.min(
       0.18,
-      flight * 0.18,
+      flight *
+        0.18,
     )
 
   const shadowBlur =
     5 +
-    flight * 14
+    flight *
+      14
 
   const shadowX =
-    -flight * 6
+    -flight *
+    6
 
   const shadowY =
-    flight * 8
+    flight *
+    8
 
   return (
     <img
@@ -2086,9 +1965,9 @@ function MechanicalPiece({
         object-contain
       "
       style={{
-        /* ======================================================
-           LOCKED GEOMETRY
-           ====================================================== */
+        /*
+         * LOCKED GEOMETRY
+         */
 
         left:
           `${finalX}px`,
@@ -2104,11 +1983,9 @@ function MechanicalPiece({
 
         opacity,
 
-        /* ======================================================
-           CRITICAL ALIGNMENT
-
-           DO NOT CHANGE.
-           ====================================================== */
+        /*
+         * CRITICAL ALIGNMENT
+         */
 
         transformOrigin:
           'top left',
@@ -2118,10 +1995,6 @@ function MechanicalPiece({
 
         backfaceVisibility:
           'visible',
-
-        /* ======================================================
-           3D TRANSFORM
-           ====================================================== */
 
         transform: `
           translate3d(
