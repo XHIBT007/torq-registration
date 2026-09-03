@@ -37,6 +37,10 @@ function generateRegistrationNumber() {
   return `TORQ-2026-${String(number).padStart(6, '0')}`
 }
 
+function isValidEmail(email: string) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
+}
+
 export async function POST(request: Request) {
   try {
     const body = await request.json()
@@ -62,34 +66,89 @@ export async function POST(request: Request) {
       vipWebsite,
     } = body
 
-    // Basic validation
+    const cleanFullName =
+      typeof fullName === 'string' ? fullName.trim() : ''
+
+    const cleanEmail =
+      typeof email === 'string'
+        ? email.trim().toLowerCase()
+        : ''
+
+    const cleanPhone =
+      typeof phone === 'string' ? phone.trim() : ''
+
+    const cleanCity =
+      typeof city === 'string' ? city.trim() : ''
+
+    const cleanEmergencyContact =
+      typeof emergencyContact === 'string'
+        ? emergencyContact.trim()
+        : ''
+
+    /* ---------------------------------------------------------------------- */
+    /* Basic validation                                                       */
+    /* ---------------------------------------------------------------------- */
+
     if (
-      !fullName?.trim() ||
-      !email?.trim() ||
-      !phone?.trim() ||
-      !city?.trim() ||
+      !cleanFullName ||
+      !cleanEmail ||
+      !cleanPhone ||
+      !cleanCity ||
       !participantType ||
-      !emergencyContact?.trim()
+      !cleanEmergencyContact
     ) {
       return NextResponse.json(
-        { error: 'Please complete all required fields.' },
+        {
+          error:
+            'Please complete all required fields.',
+        },
+        { status: 400 },
+      )
+    }
+
+    if (!isValidEmail(cleanEmail)) {
+      return NextResponse.json(
+        {
+          error:
+            'Please enter a valid email address.',
+        },
         { status: 400 },
       )
     }
 
     if (!PARTICIPANT_TYPES.includes(participantType)) {
       return NextResponse.json(
-        { error: 'Invalid participant type.' },
+        {
+          error: 'Invalid participant type.',
+        },
         { status: 400 },
       )
     }
 
-    // VIP-specific validation
+    /* ---------------------------------------------------------------------- */
+    /* VIP validation                                                         */
+    /* ---------------------------------------------------------------------- */
+
     if (participantType === 'VIP') {
+      const cleanVipCategory =
+        typeof vipCategory === 'string'
+          ? vipCategory.trim()
+          : ''
+
+      const cleanVipReason =
+        typeof vipReason === 'string'
+          ? vipReason.trim()
+          : ''
+
+      const cleanVipReferralSource =
+        typeof vipReferralSource === 'string'
+          ? vipReferralSource.trim()
+          : ''
+
       if (
-        !vipCategory?.trim() ||
-        !vipReason?.trim() ||
-        !vipReferralSource?.trim()
+        !cleanVipCategory ||
+        !cleanVipReason ||
+        !cleanVipReferralSource
       ) {
         return NextResponse.json(
           {
@@ -101,43 +160,107 @@ export async function POST(request: Request) {
       }
 
       if (
-        !VIP_CATEGORIES.includes(vipCategory) ||
-        !VIP_REFERRAL_SOURCES.includes(vipReferralSource)
+        !VIP_CATEGORIES.includes(cleanVipCategory) ||
+        !VIP_REFERRAL_SOURCES.includes(
+          cleanVipReferralSource,
+        )
       ) {
         return NextResponse.json(
           {
-            error: 'Invalid VIP application information.',
+            error:
+              'Invalid VIP application information.',
           },
           { status: 400 },
         )
       }
     }
 
-    // Generate a registration number.
-    // The database UNIQUE constraint provides the final
-    // protection against duplicates.
+    /* ---------------------------------------------------------------------- */
+    /* Duplicate email check                                                  */
+    /* ---------------------------------------------------------------------- */
+
+    const {
+      data: existingRegistration,
+      error: existingError,
+    } = await supabaseAdmin
+      .from('registrations')
+      .select(
+        'id, registration_number, status, participant_type',
+      )
+      .eq('email', cleanEmail)
+      .maybeSingle()
+
+    if (existingError) {
+      console.error(
+        'Existing registration lookup error:',
+        existingError,
+      )
+
+      return NextResponse.json(
+        {
+          error:
+            'Unable to verify your registration. Please try again.',
+        },
+        { status: 500 },
+      )
+    }
+
+    if (existingRegistration) {
+      return NextResponse.json(
+        {
+          error:
+            "This email address has already been used for a TOR'Q 2026 registration.",
+        },
+        { status: 409 },
+      )
+    }
+
+    /* ---------------------------------------------------------------------- */
+    /* Create registration                                                    */
+    /* ---------------------------------------------------------------------- */
+
     let registrationNumber = ''
     let registrationCreated = false
     let data = null
 
     for (let attempt = 0; attempt < 5; attempt++) {
-      registrationNumber = generateRegistrationNumber()
+      registrationNumber =
+        generateRegistrationNumber()
 
       const result = await supabaseAdmin
         .from('registrations')
         .insert({
-          full_name: fullName.trim(),
-          email: email.trim().toLowerCase(),
-          phone: phone.trim(),
-          city: city.trim(),
+          full_name: cleanFullName,
+          email: cleanEmail,
+          phone: cleanPhone,
+          city: cleanCity,
           participant_type: participantType,
-          emergency_contact: emergencyContact.trim(),
-          vehicle_make: vehicleMake?.trim() || null,
-          vehicle_model: vehicleModel?.trim() || null,
-          instagram: instagram?.trim() || null,
-          registration_number: registrationNumber,
+          emergency_contact: cleanEmergencyContact,
 
-          // VIP application
+          vehicle_make:
+            typeof vehicleMake === 'string'
+              ? vehicleMake.trim() || null
+              : null,
+
+          vehicle_model:
+            typeof vehicleModel === 'string'
+              ? vehicleModel.trim() || null
+              : null,
+
+          instagram:
+            typeof instagram === 'string'
+              ? instagram.trim() || null
+              : null,
+
+          registration_number:
+            registrationNumber,
+
+          // Every new application starts here.
+          // Admin controls approval/rejection.
+          status: 'Pending',
+
+          /* VIP application */
+
           vip_category:
             participantType === 'VIP'
               ? vipCategory.trim()
@@ -145,12 +268,16 @@ export async function POST(request: Request) {
 
           vip_organisation:
             participantType === 'VIP'
-              ? vipOrganisation?.trim() || null
+              ? typeof vipOrganisation === 'string'
+                ? vipOrganisation.trim() || null
+                : null
               : null,
 
           vip_role:
             participantType === 'VIP'
-              ? vipRole?.trim() || null
+              ? typeof vipRole === 'string'
+                ? vipRole.trim() || null
+                : null
               : null,
 
           vip_reason:
@@ -170,7 +297,9 @@ export async function POST(request: Request) {
 
           vip_website:
             participantType === 'VIP'
-              ? vipWebsite?.trim() || null
+              ? typeof vipWebsite === 'string'
+                ? vipWebsite.trim() || null
+                : null
               : null,
         })
         .select()
@@ -182,9 +311,53 @@ export async function POST(request: Request) {
         break
       }
 
-      // 23505 = PostgreSQL unique violation.
-      // If the generated number already exists, try again.
+      /*
+       * PostgreSQL 23505 means unique violation.
+       *
+       * It can mean:
+       * 1. registration_number collision
+       * 2. email collision
+       *
+       * Check the email before retrying.
+       */
+
       if (result.error.code === '23505') {
+        const {
+          data: emailMatch,
+          error: emailLookupError,
+        } = await supabaseAdmin
+          .from('registrations')
+          .select('id')
+          .eq('email', cleanEmail)
+          .maybeSingle()
+
+        if (emailLookupError) {
+          console.error(
+            'Duplicate registration lookup error:',
+            emailLookupError,
+          )
+
+          return NextResponse.json(
+            {
+              error:
+                'Unable to complete your registration. Please try again.',
+            },
+            { status: 500 },
+          )
+        }
+
+        if (emailMatch) {
+          return NextResponse.json(
+            {
+              error:
+                "This email address has already been used for a TOR'Q 2026 registration.",
+            },
+            { status: 409 },
+          )
+        }
+
+        // No matching email means the generated
+        // registration number likely collided.
         continue
       }
 
@@ -194,10 +367,17 @@ export async function POST(request: Request) {
       )
 
       return NextResponse.json(
-        { error: result.error.message },
+        {
+          error:
+            'Unable to create your registration at this time. Please try again.',
+        },
         { status: 500 },
       )
     }
+
+    /* ---------------------------------------------------------------------- */
+    /* Final creation check                                                   */
+    /* ---------------------------------------------------------------------- */
 
     if (!registrationCreated || !data) {
       console.error(
@@ -212,6 +392,10 @@ export async function POST(request: Request) {
         { status: 500 },
       )
     }
+
+    /* ---------------------------------------------------------------------- */
+    /* Success                                                                */
+    /* ---------------------------------------------------------------------- */
 
     return NextResponse.json({
       success: true,
