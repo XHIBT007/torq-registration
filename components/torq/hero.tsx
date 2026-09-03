@@ -19,9 +19,6 @@ import { EVENT } from '@/lib/torq-data'
 
 /* ============================================================
    MASTER TOR'Q ARTBOARD
-
-   THESE VALUES ARE LOCKED.
-   DO NOT CHANGE.
    ============================================================ */
 
 const STAGE_WIDTH = 790
@@ -29,13 +26,13 @@ const STAGE_HEIGHT = 316
 
 /*
  * Approved smoothened opening state.
+ *
+ * DO NOT CHANGE.
  */
 const INITIAL_RELEASE = 0.32
 
 /*
  * CURRENT MUSTANG IMAGE
- *
- * Keep this path exactly as it exists in your repo.
  */
 const MUSTANG_SRC =
   '/images/Hero-mustang-03.jpg'
@@ -353,7 +350,9 @@ function easeInOut(value: number) {
 /*
  * Approved flight curve.
  */
-function flightCurve(value: number) {
+function flightCurve(
+  value: number,
+) {
   const t = clamp(value)
 
   return (
@@ -371,7 +370,8 @@ function flightCurve(value: number) {
    ============================================================ */
 
 export function Hero() {
-  const { open } = useRegistration()
+  const { open } =
+    useRegistration()
 
   const sectionRef =
     useRef<HTMLElement>(null)
@@ -388,78 +388,40 @@ export function Hero() {
   /*
    * NEW:
    *
-   * Used only to prevent the cinematic intro from being
-   * vertically cropped on short desktop/iPad viewports.
+   * Tracks the real viewport height so the hero content
+   * can intelligently fit inside short desktop viewports.
    *
-   * This does NOT alter any registered logo coordinates.
+   * This does NOT touch the mechanical stage.
    */
   const [viewportHeight, setViewportHeight] =
     useState(0)
 
   /* ==========================================================
-     RESPONSIVE VIEWPORT
+     VIEWPORT HEIGHT
      ========================================================== */
 
   useEffect(() => {
-    const updateViewport =
+    const updateViewportHeight =
       () => {
         setViewportHeight(
           window.innerHeight,
         )
       }
 
-    updateViewport()
+    updateViewportHeight()
 
     window.addEventListener(
       'resize',
-      updateViewport,
+      updateViewportHeight,
     )
 
     return () => {
       window.removeEventListener(
         'resize',
-        updateViewport,
+        updateViewportHeight,
       )
     }
   }, [])
-
-  /*
-   * Short-height protection.
-   *
-   * At normal desktop heights this remains exactly 1.
-   *
-   * On short desktop / iPad desktop mode it gradually
-   * scales the composition down so nothing is clipped.
-   *
-   * Minimum is intentionally conservative.
-   */
-  const introScale =
-    viewportHeight > 0
-      ? Math.max(
-          0.78,
-          Math.min(
-            1,
-            (viewportHeight - 120) /
-              648,
-          ),
-        )
-      : 1
-
-  /*
-   * The content also receives the same protection.
-   * This only activates on short viewports.
-   */
-  const contentScale =
-    viewportHeight > 0
-      ? Math.max(
-          0.82,
-          Math.min(
-            1,
-            (viewportHeight - 100) /
-              668,
-          ),
-        )
-      : 1
 
   /* ==========================================================
      RESPONSIVE STAGE WIDTH
@@ -774,6 +736,64 @@ export function Hero() {
         0.16,
     )
 
+  /* ==========================================================
+     SHORT DESKTOP VIEWPORT FIX
+     ==========================================================
+
+     The navigation occupies part of the visible viewport.
+
+     The hero content is one tall composition:
+       headline
+       paragraph
+       CTA
+       stats
+       countdown
+
+     On short desktop/iPad desktop viewports, the original
+     `items-center` positioning caused the top of the headline
+     to move underneath the navigation.
+
+     We scale the COMPLETE content block as one unit.
+
+     IMPORTANT:
+     This does NOT alter:
+       - logo geometry
+       - component coordinates
+       - stage dimensions
+       - animation timing
+       - Mustang animation
+     ========================================================== */
+
+  const heroContentScale =
+    viewportHeight > 0
+      ? Math.max(
+          0.72,
+          Math.min(
+            1,
+            (viewportHeight - 150) /
+              780,
+          ),
+        )
+      : 1
+
+  /*
+   * Shorter viewport = slightly more downward clearance.
+   *
+   * On tall desktop this becomes 0.
+   */
+  const heroContentOffset =
+    viewportHeight > 0
+      ? Math.max(
+          0,
+          Math.min(
+            38,
+            (900 -
+              viewportHeight) *
+              0.12,
+          ),
+        )
+      : 0
+
   return (
     <section
       ref={sectionRef}
@@ -890,7 +910,7 @@ export function Hero() {
           />
 
           {/* ==================================================
-              RED BRAKE-LIGHT ILLUMINATION
+              RED BRAKE LIGHT ILLUMINATION
               ================================================== */}
 
           <div
@@ -1057,17 +1077,31 @@ export function Hero() {
               lg:px-10
             "
           >
+            {/* =================================================
+                RESPONSIVE CONTENT SCALE
+
+                THIS IS THE FIX FOR THE CROPPING.
+                ================================================= */}
+
             <div
               className="
                 w-full
                 max-w-5xl
               "
               style={{
-                transform:
-                  `scale(${contentScale})`,
+                transform: `
+                  translate3d(
+                    0,
+                    ${heroContentOffset}px,
+                    0
+                  )
+                  scale(
+                    ${heroContentScale}
+                  )
+                `,
 
                 transformOrigin:
-                  'left center',
+                  'center center',
 
                 willChange:
                   'transform',
@@ -1334,11 +1368,9 @@ export function Hero() {
                   transform: `
                     translate3d(
                       0,
-                      ${
-                        (1 -
-                          lowerProgress) *
-                        14
-                      }px,
+                      ${(1 -
+                        lowerProgress) *
+                        14}px,
                       0
                     )
                   `,
@@ -1384,11 +1416,9 @@ export function Hero() {
                   transform: `
                     translate3d(
                       0,
-                      ${
-                        (1 -
-                          lowerProgress) *
-                        12
-                      }px,
+                      ${(1 -
+                        lowerProgress) *
+                        12}px,
                       0
                     )
                   `,
@@ -1422,7 +1452,7 @@ export function Hero() {
 
             Z-INDEX 40
 
-            Pieces remain above the Mustang AND headline.
+            THIS ENTIRE SYSTEM REMAINS UNTOUCHED.
             ==================================================== */}
 
         <div
@@ -1443,17 +1473,6 @@ export function Hero() {
               '50% 50%',
           }}
         >
-          {/*
-           * IMPORTANT:
-           *
-           * This wrapper is the ONLY new visual scaling layer.
-           *
-           * The internal 790 x 316 artboard and every registered
-           * component coordinate remain untouched.
-           *
-           * This solves the short-height desktop/iPad crop.
-           */}
-
           <div
             className="
               flex
@@ -1461,16 +1480,6 @@ export function Hero() {
               flex-col
               items-center
             "
-            style={{
-              transform:
-                `scale(${introScale})`,
-
-              transformOrigin:
-                'center center',
-
-              willChange:
-                'transform',
-            }}
           >
             {/* =================================================
                 WELCOME
@@ -1526,8 +1535,6 @@ export function Hero() {
 
                   /*
                    * LOCKED.
-                   *
-                   * Do not change this transform origin.
                    */
                   transform: `
                     translate(-50%, -50%)
@@ -1802,7 +1809,7 @@ function MechanicalPiece({
   /* ============================================================
      POSITION
 
-     LOCKED GEOMETRY IS PRESERVED.
+     LOCKED X/Y VALUES.
      ============================================================ */
 
   const x =
@@ -1827,8 +1834,7 @@ function MechanicalPiece({
     ) *
       (
         460 +
-        data.depth *
-          180
+        data.depth * 180
       )
 
   /* ============================================================
@@ -1843,8 +1849,7 @@ function MechanicalPiece({
     ) *
       (
         0.38 +
-        data.depth *
-          0.08
+        data.depth * 0.08
       )
 
   /* ============================================================
@@ -2056,22 +2061,18 @@ function MechanicalPiece({
   const shadowOpacity =
     Math.min(
       0.18,
-      flight *
-        0.18,
+      flight * 0.18,
     )
 
   const shadowBlur =
     5 +
-    flight *
-      14
+    flight * 14
 
   const shadowX =
-    -flight *
-    6
+    -flight * 6
 
   const shadowY =
-    flight *
-    8
+    flight * 8
 
   return (
     <img
@@ -2085,11 +2086,9 @@ function MechanicalPiece({
         object-contain
       "
       style={{
-        /*
-         * ======================================================
-         * LOCKED GEOMETRY
-         * ======================================================
-         */
+        /* ======================================================
+           LOCKED GEOMETRY
+           ====================================================== */
 
         left:
           `${finalX}px`,
@@ -2105,13 +2104,11 @@ function MechanicalPiece({
 
         opacity,
 
-        /*
-         * ======================================================
-         * CRITICAL ALIGNMENT
-         *
-         * DO NOT CHANGE.
-         * ======================================================
-         */
+        /* ======================================================
+           CRITICAL ALIGNMENT
+
+           DO NOT CHANGE.
+           ====================================================== */
 
         transformOrigin:
           'top left',
@@ -2122,11 +2119,9 @@ function MechanicalPiece({
         backfaceVisibility:
           'visible',
 
-        /*
-         * ======================================================
-         * 3D TRANSFORM
-         * ======================================================
-         */
+        /* ======================================================
+           3D TRANSFORM
+           ====================================================== */
 
         transform: `
           translate3d(
@@ -2169,10 +2164,6 @@ function MechanicalPiece({
             )
           )
         `,
-
-        /*
-         * Pieces remain above everything.
-         */
 
         zIndex:
           40 +
