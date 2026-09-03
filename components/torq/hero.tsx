@@ -32,7 +32,20 @@ type ComponentData = {
   motionType: number
 }
 
-/* LOCKED TOR'Q GEOMETRY — DO NOT CHANGE */
+/*
+ * ==========================================================
+ * LOCKED TOR'Q GEOMETRY
+ * ==========================================================
+ *
+ * DO NOT CHANGE:
+ * x
+ * y
+ * width
+ * rotation
+ *
+ * These values are calibrated to the intact TOR'Q logo.
+ */
+
 const COMPONENTS: Record<string, ComponentData> = {
   t: {
     x: -2.01,
@@ -225,208 +238,214 @@ function flightCurve(v: number) {
 export function Hero() {
   const { open } = useRegistration()
 
-  const sectionRef = useRef<HTMLElement>(null)
-  const stageWrapperRef = useRef<HTMLDivElement>(null)
+  const sectionRef =
+    useRef<HTMLElement>(null)
 
-  const [progress, setProgress] = useState(0)
+  const stageWrapperRef =
+    useRef<HTMLDivElement>(null)
 
-  const [viewport, setViewport] = useState({
-    width: 0,
-    height: 0,
-  })
+  const [progress, setProgress] =
+    useState(0)
 
-  const [stageScale, setStageScale] = useState(1)
+  const [viewport, setViewport] =
+    useState({
+      width: 0,
+      height: 0,
+    })
 
   /*
-   * IMPORTANT:
-   *
-   * We deliberately detect desktop-mode/tablet landscape
-   * from WIDTH as well as HEIGHT.
-   *
-   * Safari/iPad desktop mode can report a desktop breakpoint
-   * while the actual CSS canvas is only around 1024px wide.
+   * ==========================================================
+   * REAL VIEWPORT
+   * ==========================================================
    */
-  const compactLandscape =
-    viewport.width > 0 &&
-    viewport.height > 0 &&
-    viewport.width > viewport.height &&
-    (
-      viewport.width <= 1100 ||
-      viewport.height <= 820
-    )
 
   useEffect(() => {
-    const update = () => {
-      const vv = window.visualViewport
-
-      const width =
-        vv?.width ??
-        window.innerWidth
-
-      const height =
-        vv?.height ??
-        window.innerHeight
+    const updateViewport = () => {
+      const vv =
+        window.visualViewport
 
       setViewport({
-        width,
-        height,
+        width:
+          vv?.width ??
+          window.innerWidth,
+
+        height:
+          vv?.height ??
+          window.innerHeight,
       })
     }
 
-    update()
+    updateViewport()
 
     window.addEventListener(
       'resize',
-      update,
+      updateViewport,
     )
 
     window.visualViewport?.addEventListener(
       'resize',
-      update,
-    )
-
-    window.visualViewport?.addEventListener(
-      'scroll',
-      update,
+      updateViewport,
     )
 
     return () => {
       window.removeEventListener(
         'resize',
-        update,
+        updateViewport,
       )
 
       window.visualViewport?.removeEventListener(
         'resize',
-        update,
-      )
-
-      window.visualViewport?.removeEventListener(
-        'scroll',
-        update,
+        updateViewport,
       )
     }
   }, [])
 
   /*
-   * MASTER STAGE SCALING
+   * ==========================================================
+   * RESPONSIVE MODE
+   * ==========================================================
    *
-   * The internal TOR'Q artwork remains a fixed
-   * 790 × 316 composition.
+   * We intentionally don't rely on Tailwind's lg/md
+   * breakpoints for the hero composition.
    *
-   * We only scale the presentation containing it.
+   * A tablet in "desktop mode" can have a desktop
+   * breakpoint while still having a small physical canvas.
    */
-  useEffect(() => {
-    const wrapper =
-      stageWrapperRef.current
 
-    if (!wrapper) return
+  const isPortrait =
+    viewport.width > 0 &&
+    viewport.height > 0 &&
+    viewport.height >=
+      viewport.width
 
-    const update = () => {
-      const width =
-        wrapper.getBoundingClientRect().width
+  const isLandscape =
+    viewport.width > 0 &&
+    viewport.height > 0 &&
+    viewport.width >
+      viewport.height
 
-      const viewportWidth =
-        viewport.width ||
-        window.innerWidth
-
-      const viewportHeight =
-        viewport.height ||
-        window.innerHeight
-
-      const widthScale =
-        Math.min(
-          1,
-          width / STAGE_WIDTH,
-        )
-
-      if (!compactLandscape) {
-        setStageScale(
-          widthScale,
-        )
-
-        return
-      }
-
-      /*
-       * Compact landscape has a deliberately smaller
-       * presentation footprint.
-       *
-       * We calculate the scale from the actual available
-       * height rather than allowing the 790px canvas to
-       * dominate the screen.
-       */
-      const availableHeight =
-        Math.max(
-          280,
-          viewportHeight - 180,
-        )
-
-      const heightScale =
-        availableHeight /
-        STAGE_HEIGHT
-
-      /*
-       * Width is also constrained so the artwork does
-       * not become oversized on a 1024px desktop-mode
-       * viewport.
-       */
-      const compactWidthScale =
-        Math.min(
-          0.72,
-          viewportWidth /
-            1180,
-        )
-
-      const scale =
-        Math.min(
-          widthScale,
-          heightScale,
-          compactWidthScale,
-        )
-
-      setStageScale(
-        Math.max(
-          0.48,
-          Math.min(
-            0.72,
-            scale,
-          ),
-        ),
-      )
-    }
-
-    update()
-
-    const ro =
-      new ResizeObserver(
-        update,
-      )
-
-    ro.observe(wrapper)
-
-    window.addEventListener(
-      'resize',
-      update,
+  const isCompactLandscape =
+    isLandscape &&
+    (
+      viewport.width <= 1200 ||
+      viewport.height <= 820
     )
 
-    return () => {
-      ro.disconnect()
+  const isSmallPortrait =
+    isPortrait &&
+    viewport.width <= 600
 
-      window.removeEventListener(
-        'resize',
-        update,
-      )
-    }
-  }, [
-    compactLandscape,
-    viewport.width,
-    viewport.height,
-  ])
+  const isVeryShortLandscape =
+    isCompactLandscape &&
+    viewport.height <= 620
 
   /*
-   * SCROLL PROGRESS
+   * ==========================================================
+   * MECHANICAL LOGO DISPLAY SIZE
+   * ==========================================================
+   *
+   * The internal artwork remains 790 × 316.
+   *
+   * We only change how large that master canvas is
+   * presented on screen.
    */
+
+  let stageDisplayWidth: number
+
+  if (isVeryShortLandscape) {
+    stageDisplayWidth =
+      Math.min(
+        viewport.width * 0.58,
+        560,
+      )
+  } else if (isCompactLandscape) {
+    stageDisplayWidth =
+      Math.min(
+        viewport.width * 0.66,
+        660,
+      )
+  } else if (isSmallPortrait) {
+    stageDisplayWidth =
+      Math.min(
+        viewport.width * 0.84,
+        440,
+      )
+  } else if (isPortrait) {
+    stageDisplayWidth =
+      Math.min(
+        viewport.width * 0.78,
+        560,
+      )
+  } else {
+    stageDisplayWidth =
+      Math.min(
+        viewport.width * 0.94,
+        790,
+      )
+  }
+
+  const stageScale =
+    stageDisplayWidth /
+    STAGE_WIDTH
+
+  /*
+   * ==========================================================
+   * CONTENT DIMENSIONS
+   * ==========================================================
+   */
+
+  let headlineSize: string
+  let contentWidth: string
+  let contentScale: number
+
+  if (isVeryShortLandscape) {
+    headlineSize =
+      'clamp(28px, 6.2vw, 48px)'
+
+    contentWidth =
+      'min(620px, 72vw)'
+
+    contentScale = 0.82
+  } else if (isCompactLandscape) {
+    headlineSize =
+      'clamp(34px, 5.8vw, 58px)'
+
+    contentWidth =
+      'min(700px, 72vw)'
+
+    contentScale = 0.9
+  } else if (isSmallPortrait) {
+    headlineSize =
+      'clamp(30px, 9vw, 43px)'
+
+    contentWidth =
+      'min(92vw, 470px)'
+
+    contentScale = 0.94
+  } else if (isPortrait) {
+    headlineSize =
+      'clamp(34px, 7.5vw, 58px)'
+
+    contentWidth =
+      'min(88vw, 620px)'
+
+    contentScale = 0.94
+  } else {
+    headlineSize =
+      'clamp(56px, 6.5vw, 104px)'
+
+    contentWidth =
+      'min(880px, 62vw)'
+
+    contentScale = 1
+  }
+
+  /*
+   * ==========================================================
+   * SCROLL PROGRESS
+   * ==========================================================
+   */
+
   useEffect(() => {
     let raf = 0
 
@@ -499,8 +518,11 @@ export function Hero() {
   }, [])
 
   /*
+   * ==========================================================
    * ANIMATION TIMELINE
+   * ==========================================================
    */
+
   const logoOpacity =
     1 -
     easeInOut(
@@ -522,6 +544,7 @@ export function Hero() {
   /*
    * MUSTANG
    */
+
   const mustangProgress =
     easeInOut(
       (progress - 0.28) /
@@ -558,6 +581,7 @@ export function Hero() {
   /*
    * BRAKE LIGHTS
    */
+
   const brakeGlow =
     easeOut(
       (progress - 0.36) /
@@ -593,6 +617,7 @@ export function Hero() {
   /*
    * INTRO
    */
+
   const welcomeOpacity =
     1 -
     easeOut(
@@ -608,6 +633,7 @@ export function Hero() {
   /*
    * HEADLINE
    */
+
   const headlineProgress =
     easeInOut(
       (progress - 0.61) /
@@ -660,43 +686,9 @@ export function Hero() {
 
   /*
    * ==========================================================
-   * COMPACT LANDSCAPE PRESENTATION
+   * RENDER
    * ==========================================================
-   *
-   * This is intentionally independent of Tailwind's
-   * lg breakpoint.
-   *
-   * A device can be "desktop" according to Tailwind
-   * while still having a very short physical canvas.
    */
-
-  const compactContentScale =
-    compactLandscape
-      ? Math.max(
-          0.56,
-          Math.min(
-            0.72,
-            (viewport.height -
-              70) /
-              720,
-          ),
-        )
-      : 1
-
-  const headlineSize =
-    compactLandscape
-      ? 'clamp(38px, 7.6vh, 58px)'
-      : '6.5rem'
-
-  const paragraphSize =
-    compactLandscape
-      ? 'clamp(11px, 1.7vh, 14px)'
-      : undefined
-
-  const contentWidth =
-    compactLandscape
-      ? 'min(720px, 78vw)'
-      : undefined
 
   return (
     <section
@@ -709,6 +701,7 @@ export function Hero() {
         style={{
           perspective:
             '1100px',
+
           perspectiveOrigin:
             '50% 50%',
         }}
@@ -741,8 +734,10 @@ export function Hero() {
                   ${mustangScale}
                 )
               `,
+
               transformOrigin:
                 'center 72%',
+
               filter: `
                 brightness(
                   ${mustangBrightness}
@@ -754,6 +749,7 @@ export function Hero() {
                   ${mustangBlur}px
                 )
               `,
+
               willChange:
                 'transform,filter,opacity',
             }}
@@ -764,6 +760,7 @@ export function Hero() {
             style={{
               opacity:
                 atmosphereOpacity,
+
               background:
                 'linear-gradient(to bottom,rgba(0,0,0,.72),rgba(0,0,0,.20) 48%,rgba(0,0,0,.80))',
             }}
@@ -774,8 +771,10 @@ export function Hero() {
             style={{
               opacity:
                 finalBrakeGlow,
+
               mixBlendMode:
                 'screen',
+
               background:
                 `
                 radial-gradient(
@@ -785,6 +784,7 @@ export function Hero() {
                   rgba(255,20,10,.28) 38%,
                   transparent 72%
                 ),
+
                 radial-gradient(
                   ellipse 15% 10%
                   at 64% 63%,
@@ -792,6 +792,7 @@ export function Hero() {
                   rgba(255,20,10,.28) 38%,
                   transparent 72%
                 ),
+
                 radial-gradient(
                   ellipse 70% 55%
                   at 50% 67%,
@@ -799,6 +800,7 @@ export function Hero() {
                   transparent 70%
                 )
               `,
+
               transform: `
                 scale(
                   ${0.88 +
@@ -806,6 +808,7 @@ export function Hero() {
                     0.16}
                 )
               `,
+
               transformOrigin:
                 'center center',
             }}
@@ -816,8 +819,10 @@ export function Hero() {
             style={{
               opacity:
                 redWashOpacity,
+
               background:
                 'radial-gradient(ellipse at 50% 100%,rgba(255,20,10,.42),transparent 68%)',
+
               mixBlendMode:
                 'screen',
             }}
@@ -833,14 +838,32 @@ export function Hero() {
         </div>
 
         {/* =====================================================
-            HEADLINE / CONTENT
+            CONTENT
             ===================================================== */}
 
-        <div className="absolute inset-x-0 bottom-0 top-16 z-20 flex items-center overflow-hidden">
-          <div className="mx-auto flex h-full w-full max-w-7xl items-center px-6 sm:px-8 lg:px-10">
+        <div
+          className="absolute inset-x-0 bottom-0 top-16 z-20 flex items-center overflow-hidden"
+        >
+          <div
+            className="mx-auto flex h-full w-full max-w-7xl items-center"
+            style={{
+              paddingLeft:
+                isPortrait
+                  ? '5vw'
+                  : 'clamp(40px, 8vw, 120px)',
+
+              paddingRight:
+                isPortrait
+                  ? '5vw'
+                  : 'clamp(40px, 8vw, 120px)',
+            }}
+          >
             <div
-              className="w-full max-w-5xl"
+              className="w-full"
               style={{
+                width:
+                  contentWidth,
+
                 transform: `
                   translate3d(
                     0,
@@ -848,15 +871,25 @@ export function Hero() {
                     0
                   )
                   scale(
-                    ${compactContentScale}
+                    ${contentScale}
                   )
                 `,
+
                 transformOrigin:
-                  compactLandscape
-                    ? 'left center'
-                    : 'center center',
-                width:
-                  contentWidth,
+                  isPortrait
+                    ? 'center center'
+                    : 'left center',
+
+                marginLeft:
+                  isPortrait
+                    ? 'auto'
+                    : undefined,
+
+                marginRight:
+                  isPortrait
+                    ? 'auto'
+                    : undefined,
+
                 willChange:
                   'transform',
               }}
@@ -864,10 +897,11 @@ export function Hero() {
               {/* KICKER */}
 
               <div
-                className="mb-5 flex items-center gap-3 sm:mb-7"
+                className="mb-4 flex items-center gap-3 sm:mb-6"
                 style={{
                   opacity:
                     kickerProgress,
+
                   transform: `
                     translate3d(
                       ${headlineX}px,
@@ -877,9 +911,9 @@ export function Hero() {
                   `,
                 }}
               >
-                <div className="h-px w-8 bg-red-500 sm:w-12" />
+                <div className="h-px w-7 bg-red-500 sm:w-12" />
 
-                <span className="text-[9px] font-semibold uppercase tracking-[.38em] text-white/65 sm:text-xs">
+                <span className="text-[8px] font-semibold uppercase tracking-[.38em] text-white/65 sm:text-xs">
                   TOR&apos;Q 2026
                 </span>
               </div>
@@ -888,10 +922,15 @@ export function Hero() {
 
               <div className="overflow-visible">
                 <h1
-                  className="max-w-5xl font-black uppercase leading-[.84] tracking-[-.055em] text-white"
+                  className="font-black uppercase leading-[.84] tracking-[-.055em] text-white"
                   style={{
                     fontSize:
                       headlineSize,
+
+                    maxWidth:
+                      isPortrait
+                        ? '100%'
+                        : '100%',
 
                     opacity:
                       headlineOpacity,
@@ -908,7 +947,9 @@ export function Hero() {
                     `,
 
                     transformOrigin:
-                      'left center',
+                      isPortrait
+                        ? 'center center'
+                        : 'left center',
 
                     textShadow:
                       '0 4px 30px rgba(0,0,0,.55)',
@@ -917,15 +958,15 @@ export function Hero() {
                       'transform,opacity',
                   }}
                 >
-                  <span className="block">
+                  <span className="block whitespace-nowrap">
                     AFRICA&apos;S BIGGEST
                   </span>
 
-                  <span className="block text-red-500">
+                  <span className="block text-red-500 whitespace-nowrap">
                     MOTORSPORT
                   </span>
 
-                  <span className="block">
+                  <span className="block whitespace-nowrap">
                     SPECTACLE
                   </span>
                 </h1>
@@ -937,6 +978,7 @@ export function Hero() {
                 style={{
                   opacity:
                     detailOpacity,
+
                   transform: `
                     translate3d(
                       0,
@@ -947,16 +989,53 @@ export function Hero() {
                 }}
               >
                 <p
-                  className="mt-5 max-w-2xl text-[14px] leading-[1.55] text-white/75 sm:mt-7 sm:text-lg sm:leading-8 md:text-xl"
+                  className="mt-4 max-w-2xl text-[13px] leading-[1.45] text-white/75 sm:mt-7 sm:text-lg sm:leading-8 md:text-xl"
                   style={
-                    paragraphSize
+                    isVeryShortLandscape
                       ? {
                           fontSize:
-                            paragraphSize,
+                            '11px',
                           lineHeight:
                             1.4,
+                          maxWidth:
+                            '520px',
+                          marginTop:
+                            '10px',
                         }
-                      : undefined
+                      : isCompactLandscape
+                        ? {
+                            fontSize:
+                              '13px',
+                            lineHeight:
+                              1.4,
+                            maxWidth:
+                              '600px',
+                            marginTop:
+                              '13px',
+                          }
+                        : isSmallPortrait
+                          ? {
+                              fontSize:
+                                '12px',
+                              lineHeight:
+                                1.4,
+                              maxWidth:
+                                '100%',
+                              marginTop:
+                                '14px',
+                            }
+                          : isPortrait
+                            ? {
+                                fontSize:
+                                  '13px',
+                                lineHeight:
+                                  1.45,
+                                maxWidth:
+                                  '560px',
+                                marginTop:
+                                  '16px',
+                              }
+                            : undefined
                   }
                 >
                   A cinematic celebration of performance,
@@ -966,18 +1045,45 @@ export function Hero() {
                   experience.
                 </p>
 
-                <div className="mt-6 flex flex-col gap-4 sm:mt-8 sm:flex-row sm:items-center">
+                {/* CTA */}
+
+                <div
+                  className="mt-5 flex flex-col gap-3 sm:mt-8 sm:flex-row sm:items-center"
+                  style={
+                    isVeryShortLandscape
+                      ? {
+                          marginTop:
+                            '10px',
+                          flexDirection:
+                            'row',
+                        }
+                      : isCompactLandscape
+                        ? {
+                            marginTop:
+                              '13px',
+                            flexDirection:
+                              'row',
+                          }
+                        : isSmallPortrait
+                          ? {
+                              marginTop:
+                                '16px',
+                          }
+                          : undefined
+                  }
+                >
                   <Button
                     size="lg"
                     onClick={open}
-                    className="h-12 w-full rounded-full bg-red-600 px-7 text-sm font-bold text-white shadow-[0_0_35px_rgba(220,38,38,.25)] hover:bg-red-500 sm:h-14 sm:w-auto sm:px-8 sm:text-base"
+                    className="h-11 w-full rounded-full bg-red-600 px-6 text-xs font-bold text-white shadow-[0_0_35px_rgba(220,38,38,.25)] hover:bg-red-500 sm:h-14 sm:w-auto sm:px-8 sm:text-base"
                   >
-                    <Ticket className="mr-2 h-5 w-5" />
+                    <Ticket className="mr-2 h-4 w-4 sm:h-5 sm:w-5" />
+
                     REGISTER NOW
                   </Button>
 
-                  <div className="flex items-center gap-2 text-sm text-white/75 sm:text-base">
-                    <MapPin className="h-5 w-5 text-red-500" />
+                  <div className="flex items-center gap-2 text-xs text-white/75 sm:text-base">
+                    <MapPin className="h-4 w-4 text-red-500 sm:h-5 sm:w-5" />
 
                     {EVENT.location}
                   </div>
@@ -987,7 +1093,7 @@ export function Hero() {
               {/* STATS */}
 
               <div
-                className="mt-7 grid grid-cols-4 gap-3 border-t border-white/15 pt-6 sm:mt-9 sm:gap-6 sm:pt-7"
+                className="mt-6 grid grid-cols-4 gap-2 border-t border-white/15 pt-5 sm:mt-9 sm:gap-6 sm:pt-7"
                 style={{
                   opacity:
                     lowerProgress,
@@ -1001,13 +1107,28 @@ export function Hero() {
                       0
                     )
                   `,
+
+                  marginTop:
+                    isVeryShortLandscape
+                      ? '13px'
+                      : isCompactLandscape
+                        ? '17px'
+                        : undefined,
+
+                  paddingTop:
+                    isVeryShortLandscape
+                      ? '11px'
+                      : isCompactLandscape
+                        ? '13px'
+                        : undefined,
                 }}
               >
                 <HeroStat
                   value="100+"
                   label="Performance Cars"
                   compact={
-                    compactLandscape
+                    compactLandscape ||
+                    isPortrait
                   }
                 />
 
@@ -1015,7 +1136,8 @@ export function Hero() {
                   value="50+"
                   label="Drivers & Riders"
                   compact={
-                    compactLandscape
+                    compactLandscape ||
+                    isPortrait
                   }
                 />
 
@@ -1023,7 +1145,8 @@ export function Hero() {
                   value="3"
                   label="Days of Action"
                   compact={
-                    compactLandscape
+                    compactLandscape ||
+                    isPortrait
                   }
                 />
 
@@ -1031,7 +1154,8 @@ export function Hero() {
                   value="1"
                   label="Epic Experience"
                   compact={
-                    compactLandscape
+                    compactLandscape ||
+                    isPortrait
                   }
                 />
               </div>
@@ -1039,7 +1163,7 @@ export function Hero() {
               {/* COUNTDOWN */}
 
               <div
-                className="mt-6 sm:mt-9"
+                className="mt-5 sm:mt-9"
                 style={{
                   opacity:
                     lowerProgress,
@@ -1053,9 +1177,18 @@ export function Hero() {
                       0
                     )
                   `,
+
+                  marginTop:
+                    isVeryShortLandscape
+                      ? '10px'
+                      : isCompactLandscape
+                        ? '13px'
+                        : undefined,
                 }}
               >
-                <p className="mb-3 text-[9px] uppercase tracking-[.35em] text-white/50">
+                <p
+                  className="mb-2 text-[8px] uppercase tracking-[.35em] text-white/50 sm:mb-3 sm:text-[9px]"
+                >
                   The Experience Begins In
                 </p>
 
@@ -1076,13 +1209,28 @@ export function Hero() {
           style={{
             perspective:
               '1100px',
+
             perspectiveOrigin:
               '50% 50%',
           }}
         >
-          <div className="flex w-full flex-col items-center">
+          <div
+            className="flex w-full flex-col items-center"
+            style={{
+              transform:
+                isVeryShortLandscape
+                  ? 'translateY(-4px)'
+                  : isCompactLandscape
+                    ? 'translateY(-2px)'
+                    : isPortrait
+                      ? 'translateY(-8px)'
+                      : undefined,
+            }}
+          >
+            {/* WELCOME */}
+
             <p
-              className="mb-5 text-[9px] font-semibold uppercase tracking-[.48em] text-white/50 sm:mb-6 sm:text-xs"
+              className="mb-4 text-[8px] font-semibold uppercase tracking-[.48em] text-white/50 sm:mb-6 sm:text-xs"
               style={{
                 opacity:
                   welcomeOpacity,
@@ -1091,12 +1239,21 @@ export function Hero() {
               Welcome to
             </p>
 
+            {/* MASTER STAGE */}
+
             <div
-              ref={stageWrapperRef}
-              className="relative w-[94vw] max-w-[790px]"
+              ref={
+                stageWrapperRef
+              }
+              className="relative"
               style={{
-                aspectRatio:
-                  `${STAGE_WIDTH}/${STAGE_HEIGHT}`,
+                width:
+                  `${stageDisplayWidth}px`,
+
+                height:
+                  `${STAGE_HEIGHT * stageScale}px`,
+
+                flexShrink: 0,
               }}
             >
               <div
@@ -1266,20 +1423,33 @@ export function Hero() {
             {/* SCROLL PROMPT */}
 
             <div
-              className="mt-8 flex flex-col items-center gap-2 sm:mt-10"
+              className="mt-6 flex flex-col items-center gap-2 sm:mt-10"
               style={{
                 opacity:
                   scrollOpacity,
+
+                marginTop:
+                  isVeryShortLandscape
+                    ? '6px'
+                    : isCompactLandscape
+                      ? '10px'
+                      : isPortrait
+                        ? '14px'
+                        : undefined,
               }}
             >
-              <span className="whitespace-nowrap text-[8px] font-semibold uppercase tracking-[.3em] text-white/45 sm:text-[10px]">
+              <span
+                className="whitespace-nowrap text-[7px] font-semibold uppercase tracking-[.3em] text-white/45 sm:text-[10px]"
+              >
                 Scroll down to experience TOR&apos;Q
               </span>
 
               <div className="flex flex-col items-center">
-                <div className="h-7 w-px bg-gradient-to-b from-white/50 to-transparent" />
+                <div
+                  className="h-5 w-px bg-gradient-to-b from-white/50 to-transparent sm:h-7"
+                />
 
-                <ChevronDown className="mt-1 h-4 w-4 animate-bounce text-white/50" />
+                <ChevronDown className="mt-1 h-3 w-3 animate-bounce text-white/50 sm:h-4 sm:w-4" />
               </div>
             </div>
           </div>
@@ -1288,6 +1458,12 @@ export function Hero() {
     </section>
   )
 }
+
+/*
+ * ==========================================================
+ * MECHANICAL PIECE
+ * ==========================================================
+ */
 
 function MechanicalPiece({
   src,
@@ -1553,8 +1729,8 @@ function MechanicalPiece({
         /*
          * LOCKED.
          *
-         * This is required to preserve the exact
-         * component registration against the logo.
+         * Required for exact registration
+         * against the intact logo.
          */
         transformOrigin:
           'top left',
@@ -1571,15 +1747,19 @@ function MechanicalPiece({
             ${lift}px,
             ${depth}px
           )
+
           rotateX(
             ${rotateX}deg
           )
+
           rotateY(
             ${rotateY}deg
           )
+
           rotateZ(
             ${rotateZ}deg
           )
+
           scale(
             ${scale}
           )
@@ -1589,12 +1769,15 @@ function MechanicalPiece({
           brightness(
             ${brightness}
           )
+
           contrast(
             ${contrast}
           )
+
           blur(
             ${blur}px
           )
+
           drop-shadow(
             ${shadowX}px
             ${shadowY}px
@@ -1621,6 +1804,12 @@ function MechanicalPiece({
   )
 }
 
+/*
+ * ==========================================================
+ * STAT
+ * ==========================================================
+ */
+
 function HeroStat({
   value,
   label,
@@ -1637,25 +1826,26 @@ function HeroStat({
         style={{
           fontSize:
             compact
-              ? 'clamp(18px,3.8vh,27px)'
-              : undefined,
+              ? 'clamp(17px,3.4vh,27px)'
+              : 'clamp(24px,2vw,32px)',
         }}
       >
         {value}
       </p>
 
       <p
-        className="mt-2 max-w-[120px] text-[7px] uppercase tracking-[.18em] text-white/45 sm:text-[10px] sm:tracking-[.2em]"
-        style={
-          compact
-            ? {
-                fontSize:
-                  'clamp(6px,1.15vh,9px)',
-                marginTop:
-                  '5px',
-              }
-            : undefined
-        }
+        className="mt-2 max-w-[120px] uppercase tracking-[.18em] text-white/45"
+        style={{
+          fontSize:
+            compact
+              ? 'clamp(5px,1.05vh,8px)'
+              : '10px',
+
+          marginTop:
+            compact
+              ? '4px'
+              : '8px',
+        }}
       >
         {label}
       </p>
