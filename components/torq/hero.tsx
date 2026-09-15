@@ -1193,8 +1193,8 @@ export function Hero() {
                 />
 
                 <HeroStat
-                  value="3"
-                  label="Days of Action"
+                  value="1"
+                  label="Day of Action"
                   compact={
                     isCompactLandscape ||
                     isPortrait
