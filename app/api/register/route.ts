@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server'
+import { randomInt } from 'crypto'
 import { supabaseAdmin } from '@/lib/supabase-admin'
 
 const PARTICIPANT_TYPES = [
@@ -31,58 +32,165 @@ const VIP_REFERRAL_SOURCES = [
   'Other',
 ] as const
 
+const MAX_BODY_BYTES = 32 * 1024
+
+const MAX_LENGTHS = {
+  fullName: 120,
+  email: 254,
+  phone: 40,
+  city: 80,
+  emergencyContact: 120,
+  vehicleMake: 80,
+  vehicleModel: 80,
+  instagram: 100,
+  vipOrganisation: 150,
+  vipRole: 100,
+  vipReason: 1000,
+  vipWebsite: 300,
+} as const
+
 function generateRegistrationNumber() {
-  const number = Math.floor(Math.random() * 1_000_000)
+  const number = randomInt(0, 1_000_000)
 
   return `TORQ-2026-${String(number).padStart(6, '0')}`
 }
 
+function cleanString(
+  value: unknown,
+  maxLength: number,
+) {
+  if (typeof value !== 'string') {
+    return ''
+  }
+
+  return value.trim().slice(0, maxLength)
+}
+
 function isValidEmail(email: string) {
-  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
+  return (
+    email.length <= MAX_LENGTHS.email &&
+    /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
+  )
+}
+
+function isValidWebsite(value: string) {
+  if (!value) return true
+
+  try {
+    const url = new URL(value)
+
+    return (
+      url.protocol === 'http:' ||
+      url.protocol === 'https:'
+    )
+  } catch {
+    return false
+  }
 }
 
 export async function POST(request: Request) {
   try {
-    const body = await request.json()
+    /* ---------------------------------------------------------------------- */
+    /* Request size protection                                                */
+    /* ---------------------------------------------------------------------- */
 
-    const {
-      fullName,
-      email,
-      phone,
-      city,
-      participantType,
-      emergencyContact,
-      vehicleMake,
-      vehicleModel,
-      instagram,
+    const contentLength = request.headers.get(
+      'content-length',
+    )
 
-      // VIP application
-      vipCategory,
-      vipOrganisation,
-      vipRole,
-      vipReason,
-      vipReferralSource,
-      vipRepresentsOrganisation,
-      vipWebsite,
-    } = body
+    if (
+      contentLength &&
+      Number(contentLength) > MAX_BODY_BYTES
+    ) {
+      return NextResponse.json(
+        {
+          error:
+            'Request is too large. Please reduce the amount of information submitted.',
+        },
+        { status: 413 },
+      )
+    }
 
-    const cleanFullName =
-      typeof fullName === 'string' ? fullName.trim() : ''
+    /* ---------------------------------------------------------------------- */
+    /* Parse request                                                           */
+    /* ---------------------------------------------------------------------- */
 
-    const cleanEmail =
-      typeof email === 'string'
-        ? email.trim().toLowerCase()
-        : ''
+    let body: Record<string, unknown>
 
-    const cleanPhone =
-      typeof phone === 'string' ? phone.trim() : ''
+    try {
+      body = await request.json()
+    } catch {
+      return NextResponse.json(
+        {
+          error:
+            'Invalid registration request.',
+        },
+        { status: 400 },
+      )
+    }
 
-    const cleanCity =
-      typeof city === 'string' ? city.trim() : ''
+    if (
+      !body ||
+      typeof body !== 'object' ||
+      Array.isArray(body)
+    ) {
+      return NextResponse.json(
+        {
+          error:
+            'Invalid registration request.',
+        },
+        { status: 400 },
+      )
+    }
+
+    /* ---------------------------------------------------------------------- */
+    /* Clean input                                                             */
+    /* ---------------------------------------------------------------------- */
+
+    const cleanFullName = cleanString(
+      body.fullName,
+      MAX_LENGTHS.fullName,
+    )
+
+    const cleanEmail = cleanString(
+      body.email,
+      MAX_LENGTHS.email,
+    ).toLowerCase()
+
+    const cleanPhone = cleanString(
+      body.phone,
+      MAX_LENGTHS.phone,
+    )
+
+    const cleanCity = cleanString(
+      body.city,
+      MAX_LENGTHS.city,
+    )
 
     const cleanEmergencyContact =
-      typeof emergencyContact === 'string'
-        ? emergencyContact.trim()
+      cleanString(
+        body.emergencyContact,
+        MAX_LENGTHS.emergencyContact,
+      )
+
+    const cleanVehicleMake = cleanString(
+      body.vehicleMake,
+      MAX_LENGTHS.vehicleMake,
+    )
+
+    const cleanVehicleModel = cleanString(
+      body.vehicleModel,
+      MAX_LENGTHS.vehicleModel,
+    )
+
+    const cleanInstagram = cleanString(
+      body.instagram,
+      MAX_LENGTHS.instagram,
+    )
+
+    const participantType =
+      typeof body.participantType === 'string'
+        ? body.participantType.trim()
         : ''
 
     /* ---------------------------------------------------------------------- */
@@ -116,7 +224,11 @@ export async function POST(request: Request) {
       )
     }
 
-    if (!PARTICIPANT_TYPES.includes(participantType)) {
+    if (
+      !PARTICIPANT_TYPES.includes(
+        participantType as (typeof PARTICIPANT_TYPES)[number],
+      )
+    ) {
       return NextResponse.json(
         {
           error: 'Invalid participant type.',
@@ -129,21 +241,48 @@ export async function POST(request: Request) {
     /* VIP validation                                                         */
     /* ---------------------------------------------------------------------- */
 
+    let cleanVipCategory = ''
+    let cleanVipOrganisation = ''
+    let cleanVipRole = ''
+    let cleanVipReason = ''
+    let cleanVipReferralSource = ''
+    let cleanVipWebsite = ''
+    let vipRepresentsOrganisation = false
+
     if (participantType === 'VIP') {
-      const cleanVipCategory =
-        typeof vipCategory === 'string'
-          ? vipCategory.trim()
-          : ''
+      cleanVipCategory = cleanString(
+        body.vipCategory,
+        100,
+      )
 
-      const cleanVipReason =
-        typeof vipReason === 'string'
-          ? vipReason.trim()
-          : ''
+      cleanVipOrganisation = cleanString(
+        body.vipOrganisation,
+        MAX_LENGTHS.vipOrganisation,
+      )
 
-      const cleanVipReferralSource =
-        typeof vipReferralSource === 'string'
-          ? vipReferralSource.trim()
-          : ''
+      cleanVipRole = cleanString(
+        body.vipRole,
+        MAX_LENGTHS.vipRole,
+      )
+
+      cleanVipReason = cleanString(
+        body.vipReason,
+        MAX_LENGTHS.vipReason,
+      )
+
+      cleanVipReferralSource =
+        cleanString(
+          body.vipReferralSource,
+          100,
+        )
+
+      cleanVipWebsite = cleanString(
+        body.vipWebsite,
+        MAX_LENGTHS.vipWebsite,
+      )
+
+      vipRepresentsOrganisation =
+        body.vipRepresentsOrganisation === true
 
       if (
         !cleanVipCategory ||
@@ -160,15 +299,30 @@ export async function POST(request: Request) {
       }
 
       if (
-        !VIP_CATEGORIES.includes(cleanVipCategory) ||
+        !VIP_CATEGORIES.includes(
+          cleanVipCategory as (typeof VIP_CATEGORIES)[number],
+        ) ||
         !VIP_REFERRAL_SOURCES.includes(
-          cleanVipReferralSource,
+          cleanVipReferralSource as (typeof VIP_REFERRAL_SOURCES)[number],
         )
       ) {
         return NextResponse.json(
           {
             error:
               'Invalid VIP application information.',
+          },
+          { status: 400 },
+        )
+      }
+
+      if (
+        cleanVipWebsite &&
+        !isValidWebsite(cleanVipWebsite)
+      ) {
+        return NextResponse.json(
+          {
+            error:
+              'Please enter a valid website URL.',
           },
           { status: 400 },
         )
@@ -235,22 +389,17 @@ export async function POST(request: Request) {
           phone: cleanPhone,
           city: cleanCity,
           participant_type: participantType,
-          emergency_contact: cleanEmergencyContact,
+          emergency_contact:
+            cleanEmergencyContact,
 
           vehicle_make:
-            typeof vehicleMake === 'string'
-              ? vehicleMake.trim() || null
-              : null,
+            cleanVehicleMake || null,
 
           vehicle_model:
-            typeof vehicleModel === 'string'
-              ? vehicleModel.trim() || null
-              : null,
+            cleanVehicleModel || null,
 
           instagram:
-            typeof instagram === 'string'
-              ? instagram.trim() || null
-              : null,
+            cleanInstagram || null,
 
           registration_number:
             registrationNumber,
@@ -263,43 +412,37 @@ export async function POST(request: Request) {
 
           vip_category:
             participantType === 'VIP'
-              ? vipCategory.trim()
+              ? cleanVipCategory
               : null,
 
           vip_organisation:
             participantType === 'VIP'
-              ? typeof vipOrganisation === 'string'
-                ? vipOrganisation.trim() || null
-                : null
+              ? cleanVipOrganisation || null
               : null,
 
           vip_role:
             participantType === 'VIP'
-              ? typeof vipRole === 'string'
-                ? vipRole.trim() || null
-                : null
+              ? cleanVipRole || null
               : null,
 
           vip_reason:
             participantType === 'VIP'
-              ? vipReason.trim()
+              ? cleanVipReason
               : null,
 
           vip_referral_source:
             participantType === 'VIP'
-              ? vipReferralSource.trim()
+              ? cleanVipReferralSource
               : null,
 
           vip_represents_organisation:
             participantType === 'VIP'
-              ? Boolean(vipRepresentsOrganisation)
+              ? vipRepresentsOrganisation
               : false,
 
           vip_website:
             participantType === 'VIP'
-              ? typeof vipWebsite === 'string'
-                ? vipWebsite.trim() || null
-                : null
+              ? cleanVipWebsite || null
               : null,
         })
         .select()
@@ -311,15 +454,9 @@ export async function POST(request: Request) {
         break
       }
 
-      /*
-       * PostgreSQL 23505 means unique violation.
-       *
-       * It can mean:
-       * 1. registration_number collision
-       * 2. email collision
-       *
-       * Check the email before retrying.
-       */
+      /* ------------------------------------------------------------------ */
+      /* Unique violation                                                    */
+      /* ------------------------------------------------------------------ */
 
       if (result.error.code === '23505') {
         const {
@@ -356,8 +493,7 @@ export async function POST(request: Request) {
           )
         }
 
-        // No matching email means the generated
-        // registration number likely collided.
+        // Registration number collision.
         continue
       }
 
@@ -398,9 +534,9 @@ export async function POST(request: Request) {
     /* ---------------------------------------------------------------------- */
 
     return NextResponse.json({
-  success: true,
-  registrationNumber,
-})
+      success: true,
+      registrationNumber,
+    })
   } catch (error) {
     console.error(
       'Registration API error:',
