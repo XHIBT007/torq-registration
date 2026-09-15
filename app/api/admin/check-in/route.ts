@@ -2,6 +2,21 @@ import { NextResponse } from 'next/server'
 import { requireAdmin } from '@/lib/admin-auth'
 import { supabaseAdmin } from '@/lib/supabase-admin'
 
+const REGISTRATION_SELECT = `
+  id,
+  registration_number,
+  full_name,
+  email,
+  phone,
+  city,
+  participant_type,
+  vehicle_make,
+  vehicle_model,
+  status,
+  checked_in,
+  checked_in_at
+`
+
 export async function POST(request: Request) {
   try {
     /* ---------------------------------------------------------------------- */
@@ -15,14 +30,14 @@ export async function POST(request: Request) {
     }
 
     /* ---------------------------------------------------------------------- */
-    /* Read registration number from QR scanner                               */
+    /* Read registration number                                               */
     /* ---------------------------------------------------------------------- */
 
     const body = await request.json()
 
     const registrationNumber =
-      typeof body.registrationNumber === 'string'
-        ? body.registrationNumber.trim()
+      typeof body?.registrationNumber === 'string'
+        ? body.registrationNumber.trim().slice(0, 50)
         : ''
 
     if (!registrationNumber) {
@@ -43,29 +58,22 @@ export async function POST(request: Request) {
       error: findError,
     } = await supabaseAdmin
       .from('registrations')
-      .select(
-        `
-        id,
-        registration_number,
-        full_name,
-        email,
-        phone,
-        city,
-        participant_type,
-        vehicle_make,
-        vehicle_model,
-        status,
-        checked_in,
-        checked_in_at
-        `,
-      )
-      .eq(
-        'registration_number',
-        registrationNumber,
-      )
-      .single()
+      .select(REGISTRATION_SELECT)
+      .eq('registration_number', registrationNumber)
+      .maybeSingle()
 
-    if (findError || !registration) {
+    if (findError) {
+      console.error('Check-in lookup error:', findError)
+
+      return NextResponse.json(
+        {
+          error: 'Unable to find registration',
+        },
+        { status: 500 },
+      )
+    }
+
+    if (!registration) {
       return NextResponse.json(
         {
           error: 'Registration not found',
@@ -89,7 +97,7 @@ export async function POST(request: Request) {
     }
 
     /* ---------------------------------------------------------------------- */
-    /* Prevent duplicate check-in                                             */
+    /* Fast duplicate check                                                   */
     /* ---------------------------------------------------------------------- */
 
     if (registration.checked_in) {
@@ -104,8 +112,19 @@ export async function POST(request: Request) {
     }
 
     /* ---------------------------------------------------------------------- */
-    /* Mark registration as checked in                                        */
+    /* Atomic check-in                                                        */
     /* ---------------------------------------------------------------------- */
+    /*
+     * The important protection is here:
+     *
+     * WHERE id = ... AND checked_in = false
+     *
+     * Only one simultaneous request can successfully change the row from
+     * false -> true. If another scanner gets there first, this update
+     * returns no row and we report that the participant was already checked in.
+     */
+
+    const checkedInAt = new Date().toISOString()
 
     const {
       data: updatedRegistration,
@@ -114,26 +133,12 @@ export async function POST(request: Request) {
       .from('registrations')
       .update({
         checked_in: true,
-        checked_in_at: new Date().toISOString(),
+        checked_in_at: checkedInAt,
       })
       .eq('id', registration.id)
-      .select(
-        `
-        id,
-        registration_number,
-        full_name,
-        email,
-        phone,
-        city,
-        participant_type,
-        vehicle_make,
-        vehicle_model,
-        status,
-        checked_in,
-        checked_in_at
-        `,
-      )
-      .single()
+      .eq('checked_in', false)
+      .select(REGISTRATION_SELECT)
+      .maybeSingle()
 
     if (updateError) {
       console.error(
@@ -146,6 +151,38 @@ export async function POST(request: Request) {
           error: 'Unable to complete check-in',
         },
         { status: 500 },
+      )
+    }
+
+    /* ---------------------------------------------------------------------- */
+    /* Another scanner won the race                                           */
+    /* ---------------------------------------------------------------------- */
+
+    if (!updatedRegistration) {
+      const {
+        data: currentRegistration,
+        error: currentError,
+      } = await supabaseAdmin
+        .from('registrations')
+        .select(REGISTRATION_SELECT)
+        .eq('id', registration.id)
+        .maybeSingle()
+
+      if (currentError) {
+        console.error(
+          'Check-in race-condition lookup error:',
+          currentError,
+        )
+      }
+
+      return NextResponse.json(
+        {
+          error: 'Already checked in',
+          alreadyCheckedIn: true,
+          registration:
+            currentRegistration || registration,
+        },
+        { status: 409 },
       )
     }
 
