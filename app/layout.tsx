@@ -4,6 +4,7 @@ import { Geist, Oswald } from 'next/font/google'
 
 import './globals.css'
 import { ScrollProgress } from '@/components/torq/scroll-progress'
+import { StructuredData } from '@/components/torq/structured-data'
 
 const geist = Geist({
   subsets: ['latin'],
@@ -117,7 +118,8 @@ export default function RootLayout({
       className={`dark ${geist.variable} ${oswald.variable}`}
     >
       <body className="bg-background font-sans antialiased">
-        <ScrollProgress />
+  <StructuredData />
+  <ScrollProgress />
 
         {children}
 
