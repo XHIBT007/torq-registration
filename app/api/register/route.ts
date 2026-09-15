@@ -398,10 +398,9 @@ export async function POST(request: Request) {
     /* ---------------------------------------------------------------------- */
 
     return NextResponse.json({
-      success: true,
-      registrationNumber,
-      registration: data,
-    })
+  success: true,
+  registrationNumber,
+})
   } catch (error) {
     console.error(
       'Registration API error:',
