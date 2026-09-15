@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { supabase } from '@/lib/supabase'
+import { requireAdmin } from '@/lib/admin-auth'
 import { supabaseAdmin } from '@/lib/supabase-admin'
 import { Resend } from 'resend'
 import QRCode from 'qrcode'
@@ -37,40 +37,25 @@ function escapeHtml(value: string | null | undefined) {
     .replace(/'/g, '&#039;')
 }
 
-function generateRegistrationNumber() {
-  const number = Math.floor(Math.random() * 1_000_000)
-
-  return `TORQ-2026-${String(number).padStart(6, '0')}`
-}
-
 /* -------------------------------------------------------------------------- */
 /* GET — Load registrations                                                    */
 /* -------------------------------------------------------------------------- */
 
 export async function GET(request: Request) {
   try {
-    const authHeader = request.headers.get('authorization')
+    /* ---------------------------------------------------------------------- */
+    /* Admin authorization                                                    */
+    /* ---------------------------------------------------------------------- */
 
-    if (!authHeader?.startsWith('Bearer ')) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 },
-      )
+    const auth = await requireAdmin(request)
+
+    if (auth.response) {
+      return auth.response
     }
 
-    const token = authHeader.replace('Bearer ', '')
-
-    const {
-      data: { user },
-      error: authError,
-    } = await supabase.auth.getUser(token)
-
-    if (authError || !user) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 },
-      )
-    }
+    /* ---------------------------------------------------------------------- */
+    /* Load registrations                                                     */
+    /* ---------------------------------------------------------------------- */
 
     const { data, error } = await supabaseAdmin
       .from('registrations')
@@ -140,296 +125,271 @@ export async function GET(request: Request) {
 
 export async function PATCH(request: Request) {
   try {
-    const authHeader = request.headers.get('authorization')
+    /* ---------------------------------------------------------------------- */
+    /* Admin authorization                                                    */
+    /* ---------------------------------------------------------------------- */
 
-    if (!authHeader?.startsWith('Bearer ')) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 },
-      )
+    const auth = await requireAdmin(request)
+
+    if (auth.response) {
+      return auth.response
     }
 
-    const token = authHeader.replace('Bearer ', '')
+    const user = auth.user
 
-    const {
-      data: { user },
-      error: authError,
-    } = await supabase.auth.getUser(token)
-
-    if (authError || !user) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 },
-      )
-    }
+    /* ---------------------------------------------------------------------- */
+    /* Parse request body                                                     */
+    /* ---------------------------------------------------------------------- */
 
     const body = await request.json()
 
-const {
-  registrationId,
-  status,
+    const {
+      registrationId,
+      status,
 
-  vipRelevanceScore,
-  vipStrategicScore,
-  vipProfileScore,
-  vipMotorsportScore,
-  vipBrandScore,
-  vipCompletenessScore,
-  vipScore,
-  vipAssessmentNotes,
-} = body
-
-/* ---------------------------------------------------------------------- */
-/* Validate request                                                       */
-/* ---------------------------------------------------------------------- */
-
-if (!registrationId) {
-  return NextResponse.json(
-    { error: 'Registration ID is required' },
-    { status: 400 },
-  )
-}
-
-if (
-  status !== undefined &&
-  !['Pending', 'Approved', 'Rejected'].includes(status)
-) {
-  return NextResponse.json(
-    { error: 'Invalid status' },
-    { status: 400 },
-  )
-}
-
-/* ---------------------------------------------------------------------- */
-/* Determine whether this is a VIP assessment update                     */
-/* ---------------------------------------------------------------------- */
-
-const isVipAssessmentUpdate =
-  vipRelevanceScore !== undefined ||
-  vipStrategicScore !== undefined ||
-  vipProfileScore !== undefined ||
-  vipMotorsportScore !== undefined ||
-  vipBrandScore !== undefined ||
-  vipCompletenessScore !== undefined ||
-  vipScore !== undefined ||
-  vipAssessmentNotes !== undefined
-
-/* ---------------------------------------------------------------------- */
-/* Get current registration                                               */
-/* ---------------------------------------------------------------------- */
-
-const {
-  data: existingRegistration,
-  error: findError,
-} = await supabaseAdmin
-  .from('registrations')
-  .select(
-    `
-    id,
-    full_name,
-    email,
-    registration_number,
-    participant_type,
-    status
-    `,
-  )
-  .eq('id', registrationId)
-  .single()
-
-if (findError || !existingRegistration) {
-  console.error(
-    'Registration lookup error:',
-    findError,
-  )
-
-  return NextResponse.json(
-    { error: 'Registration not found' },
-    { status: 404 },
-  )
-}
-
-const previousStatus =
-  existingRegistration.status
-
-/* ---------------------------------------------------------------------- */
-/* Build update payload                                                   */
-/* ---------------------------------------------------------------------- */
-
-const updatePayload: Record<string, unknown> = {}
-
-/* ---------------------------- Status update --------------------------- */
-
-if (status !== undefined) {
-  updatePayload.status = status
-}
-
-/* ------------------------- VIP assessment ----------------------------- */
-
-if (isVipAssessmentUpdate) {
-  if (
-    existingRegistration.participant_type !==
-    'VIP'
-  ) {
-    return NextResponse.json(
-      {
-        error:
-          'VIP assessment can only be performed on VIP registrations.',
-      },
-      { status: 400 },
-    )
-  }
-
-  const relevanceScore = Math.min(
-    20,
-    Math.max(
-      0,
-      Number(vipRelevanceScore ?? 0),
-    ),
-  )
-
-  const strategicScore = Math.min(
-    20,
-    Math.max(
-      0,
-      Number(vipStrategicScore ?? 0),
-    ),
-  )
-
-  const profileScore = Math.min(
-    15,
-    Math.max(
-      0,
-      Number(vipProfileScore ?? 0),
-    ),
-  )
-
-  const motorsportScore = Math.min(
-    15,
-    Math.max(
-      0,
-      Number(vipMotorsportScore ?? 0),
-    ),
-  )
-
-  const brandScore = Math.min(
-    15,
-    Math.max(
-      0,
-      Number(vipBrandScore ?? 0),
-    ),
-  )
-
-  const completenessScore = Math.min(
-    15,
-    Math.max(
-      0,
-      Number(vipCompletenessScore ?? 0),
-    ),
-  )
-
-  const totalScore =
-    relevanceScore +
-    strategicScore +
-    profileScore +
-    motorsportScore +
-    brandScore +
-    completenessScore
-
-  updatePayload.vip_relevance_score =
-  relevanceScore
-
-updatePayload.vip_strategic_score =
-  strategicScore
-
-updatePayload.vip_profile_score =
-  profileScore
-
-updatePayload.vip_motorsport_score =
-  motorsportScore
-
-updatePayload.vip_brand_score =
-  brandScore
-
-updatePayload.vip_completeness_score =
-  completenessScore
-
-updatePayload.vip_score =
-  totalScore
-
-  updatePayload.vip_assessment_notes =
-    typeof vipAssessmentNotes === 'string'
-      ? vipAssessmentNotes.trim() || null
-      : null
-
-  updatePayload.vip_assessed_at =
-    new Date().toISOString()
-
-  updatePayload.vip_assessed_by =
-    user.email || user.id
-}
-
-/* ---------------------------------------------------------------------- */
-/* Make sure something is being updated                                   */
-/* ---------------------------------------------------------------------- */
-
-if (
-  Object.keys(updatePayload).length === 0
-) {
-  return NextResponse.json(
-    {
-      error:
-        'No status or VIP assessment data was provided.',
-    },
-    { status: 400 },
-  )
-}
-
-/* ---------------------------------------------------------------------- */
-/* Update registration                                                    */
-/* ---------------------------------------------------------------------- */
-
-const {
-  data,
-  error,
-} = await supabaseAdmin
-  .from('registrations')
-  .update(updatePayload)
-  .eq('id', registrationId)
-  .select()
-  .single()
-
-if (error) {
-  console.error(
-    'Registration update error:',
-    error,
-  )
-
-  return NextResponse.json(
-    { error: error.message },
-    { status: 500 },
-  )
-}
-
-/* ---------------------------------------------------------------------- */
-/* Return assessment response                                             */
-/* ---------------------------------------------------------------------- */
-
-if (isVipAssessmentUpdate) {
-  return NextResponse.json({
-    success: true,
-    assessment: data,
-    message:
-      'VIP assessment saved successfully.',
-  })
-}
-
-const newStatus =
-  status !== undefined
-    ? status
-    : existingRegistration.status
+      vipRelevanceScore,
+      vipStrategicScore,
+      vipProfileScore,
+      vipMotorsportScore,
+      vipBrandScore,
+      vipCompletenessScore,
+      vipScore,
+      vipAssessmentNotes,
+    } = body
 
     /* ---------------------------------------------------------------------- */
-    /* Send approval email only when status changes to Approved               */
+    /* Validate request                                                       */
+    /* ---------------------------------------------------------------------- */
+
+    if (!registrationId) {
+      return NextResponse.json(
+        { error: 'Registration ID is required' },
+        { status: 400 },
+      )
+    }
+
+    if (
+      status !== undefined &&
+      !isValidStatus(status)
+    ) {
+      return NextResponse.json(
+        { error: 'Invalid status' },
+        { status: 400 },
+      )
+    }
+
+    /* ---------------------------------------------------------------------- */
+    /* Determine whether this is a VIP assessment update                     */
+    /* ---------------------------------------------------------------------- */
+
+    const isVipAssessmentUpdate =
+      vipRelevanceScore !== undefined ||
+      vipStrategicScore !== undefined ||
+      vipProfileScore !== undefined ||
+      vipMotorsportScore !== undefined ||
+      vipBrandScore !== undefined ||
+      vipCompletenessScore !== undefined ||
+      vipScore !== undefined ||
+      vipAssessmentNotes !== undefined
+
+    /* ---------------------------------------------------------------------- */
+    /* Get current registration                                               */
+    /* ---------------------------------------------------------------------- */
+
+    const {
+      data: existingRegistration,
+      error: findError,
+    } = await supabaseAdmin
+      .from('registrations')
+      .select(
+        `
+        id,
+        full_name,
+        email,
+        registration_number,
+        participant_type,
+        status
+        `,
+      )
+      .eq('id', registrationId)
+      .single()
+
+    if (findError || !existingRegistration) {
+      console.error(
+        'Registration lookup error:',
+        findError,
+      )
+
+      return NextResponse.json(
+        { error: 'Registration not found' },
+        { status: 404 },
+      )
+    }
+
+    const previousStatus =
+      existingRegistration.status
+
+    /* ---------------------------------------------------------------------- */
+    /* Build update payload                                                   */
+    /* ---------------------------------------------------------------------- */
+
+    const updatePayload: Record<string, unknown> = {}
+
+    /* ---------------------------- Status update --------------------------- */
+
+    if (status !== undefined) {
+      updatePayload.status = status
+    }
+
+    /* ------------------------- VIP assessment ----------------------------- */
+
+    if (isVipAssessmentUpdate) {
+      if (
+        existingRegistration.participant_type !==
+        'VIP'
+      ) {
+        return NextResponse.json(
+          {
+            error:
+              'VIP assessment can only be performed on VIP registrations.',
+          },
+          { status: 400 },
+        )
+      }
+
+      const relevanceScore = clampScore(
+        vipRelevanceScore,
+        20,
+      )
+
+      const strategicScore = clampScore(
+        vipStrategicScore,
+        20,
+      )
+
+      const profileScore = clampScore(
+        vipProfileScore,
+        15,
+      )
+
+      const motorsportScore = clampScore(
+        vipMotorsportScore,
+        15,
+      )
+
+      const brandScore = clampScore(
+        vipBrandScore,
+        15,
+      )
+
+      const completenessScore = clampScore(
+        vipCompletenessScore,
+        15,
+      )
+
+      const totalScore =
+        relevanceScore +
+        strategicScore +
+        profileScore +
+        motorsportScore +
+        brandScore +
+        completenessScore
+
+      updatePayload.vip_relevance_score =
+        relevanceScore
+
+      updatePayload.vip_strategic_score =
+        strategicScore
+
+      updatePayload.vip_profile_score =
+        profileScore
+
+      updatePayload.vip_motorsport_score =
+        motorsportScore
+
+      updatePayload.vip_brand_score =
+        brandScore
+
+      updatePayload.vip_completeness_score =
+        completenessScore
+
+      updatePayload.vip_score =
+        totalScore
+
+      updatePayload.vip_assessment_notes =
+        typeof vipAssessmentNotes === 'string'
+          ? vipAssessmentNotes.trim() || null
+          : null
+
+      updatePayload.vip_assessed_at =
+        new Date().toISOString()
+
+      updatePayload.vip_assessed_by =
+        user.email || user.id
+    }
+
+    /* ---------------------------------------------------------------------- */
+    /* Make sure something is being updated                                   */
+    /* ---------------------------------------------------------------------- */
+
+    if (
+      Object.keys(updatePayload).length === 0
+    ) {
+      return NextResponse.json(
+        {
+          error:
+            'No status or VIP assessment data was provided.',
+        },
+        { status: 400 },
+      )
+    }
+
+    /* ---------------------------------------------------------------------- */
+    /* Update registration                                                    */
+    /* ---------------------------------------------------------------------- */
+
+    const {
+      data,
+      error,
+    } = await supabaseAdmin
+      .from('registrations')
+      .update(updatePayload)
+      .eq('id', registrationId)
+      .select()
+      .single()
+
+    if (error) {
+      console.error(
+        'Registration update error:',
+        error,
+      )
+
+      return NextResponse.json(
+        { error: error.message },
+        { status: 500 },
+      )
+    }
+
+    /* ---------------------------------------------------------------------- */
+    /* Return assessment response                                             */
+    /* ---------------------------------------------------------------------- */
+
+    if (isVipAssessmentUpdate) {
+      return NextResponse.json({
+        success: true,
+        assessment: data,
+        message:
+          'VIP assessment saved successfully.',
+      })
+    }
+
+    const newStatus =
+      status !== undefined
+        ? status
+        : existingRegistration.status
+
+    /* ---------------------------------------------------------------------- */
+    /* Send approval email only when status changes to Approved              */
     /* ---------------------------------------------------------------------- */
 
     if (
@@ -449,14 +409,15 @@ const newStatus =
           })
         }
 
-        const qrDataUrl = await QRCode.toDataURL(
-          qrData,
-          {
-            width: 800,
-            margin: 2,
-            errorCorrectionLevel: 'H',
-          },
-        )
+        const qrDataUrl =
+          await QRCode.toDataURL(
+            qrData,
+            {
+              width: 800,
+              margin: 2,
+              errorCorrectionLevel: 'H',
+            },
+          )
 
         const qrBase64 =
           qrDataUrl.split(',')[1]
@@ -490,20 +451,22 @@ const newStatus =
               </p>
             `
 
-        const { data: emailData, error: emailError } =
-          await resend.emails.send({
-            from:
-              process.env.RESEND_FROM_EMAIL!,
-            to: existingRegistration.email,
-            subject,
-            attachments: [
-              {
-                filename: `TORQ-${existingRegistration.registration_number}-PASS.png`,
-                content: qrBase64,
-                contentType: 'image/png',
-              },
-            ],
-            html: `
+        const {
+          data: emailData,
+          error: emailError,
+        } = await resend.emails.send({
+          from:
+            process.env.RESEND_FROM_EMAIL!,
+          to: existingRegistration.email,
+          subject,
+          attachments: [
+            {
+              filename: `TORQ-${existingRegistration.registration_number}-PASS.png`,
+              content: qrBase64,
+              contentType: 'image/png',
+            },
+          ],
+          html: `
               <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 40px 20px; color: #111;">
 
                 <h1 style="font-size: 32px; margin-bottom: 8px;">
@@ -591,7 +554,7 @@ const newStatus =
 
               </div>
             `,
-          })
+        })
 
         if (emailError) {
           console.error(
@@ -602,21 +565,15 @@ const newStatus =
           return NextResponse.json({
             ...data,
             emailSent: false,
-            emailError:
-              emailError.message,
             message:
-              'Registration approved, but the QR email could not be sent.',
+              'Registration approved, but the approval email could not be sent.',
           })
         }
 
         return NextResponse.json({
           ...data,
           emailSent: true,
-          emailId: emailData?.id,
-          message:
-            isVip
-              ? 'VIP registration approved and QR pass sent successfully.'
-              : 'Registration approved and QR pass sent successfully.',
+          emailId: emailData?.id || null,
         })
       } catch (emailError) {
         console.error(
@@ -628,14 +585,21 @@ const newStatus =
           ...data,
           emailSent: false,
           message:
-            'Registration approved, but the QR email could not be sent.',
+            'Registration approved, but the approval email could not be sent.',
         })
       }
     }
 
-    return NextResponse.json(data)
+    /* ---------------------------------------------------------------------- */
+    /* Normal status update response                                          */
+    /* ---------------------------------------------------------------------- */
+
+    return NextResponse.json({
+      ...data,
+      emailSent: false,
+    })
   } catch (error) {
-    console.error('PATCH error:', error)
+    console.error('API error:', error)
 
     return NextResponse.json(
       { error: 'Something went wrong' },
