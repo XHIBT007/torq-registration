@@ -1,38 +1,35 @@
 import { NextResponse } from 'next/server'
-import { supabase } from '@/lib/supabase'
+import { requireAdmin } from '@/lib/admin-auth'
 import { supabaseAdmin } from '@/lib/supabase-admin'
 
 export async function GET(request: Request) {
   try {
-    const authHeader = request.headers.get('authorization')
+    /* ---------------------------------------------------------------------- */
+    /* Admin authorization                                                    */
+    /* ---------------------------------------------------------------------- */
 
-    if (!authHeader?.startsWith('Bearer ')) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 },
-      )
+    const auth = await requireAdmin(request)
+
+    if (auth.response) {
+      return auth.response
     }
 
-    const token = authHeader.replace('Bearer ', '')
-
-    const {
-      data: { user },
-      error: authError,
-    } = await supabase.auth.getUser(token)
-
-    if (authError || !user) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 },
-      )
-    }
+    /* ---------------------------------------------------------------------- */
+    /* Read search query                                                      */
+    /* ---------------------------------------------------------------------- */
 
     const { searchParams } = new URL(request.url)
-    const query = searchParams.get('q')?.trim()
+
+    const query =
+      searchParams.get('q')?.trim() || ''
 
     if (!query) {
       return NextResponse.json([])
     }
+
+    /* ---------------------------------------------------------------------- */
+    /* Search approved registrations                                          */
+    /* ---------------------------------------------------------------------- */
 
     const { data, error } = await supabaseAdmin
       .from('registrations')
@@ -55,24 +52,37 @@ export async function GET(request: Request) {
       .or(
         `full_name.ilike.%${query}%,registration_number.ilike.%${query}%,email.ilike.%${query}%,phone.ilike.%${query}%`,
       )
-      .order('created_at', { ascending: false })
+      .order('created_at', {
+        ascending: false,
+      })
       .limit(10)
 
     if (error) {
-      console.error('Manual search error:', error)
+      console.error(
+        'Manual search error:',
+        error,
+      )
 
       return NextResponse.json(
-        { error: 'Unable to search registrations' },
+        {
+          error:
+            'Unable to search registrations',
+        },
         { status: 500 },
       )
     }
 
     return NextResponse.json(data || [])
   } catch (error) {
-    console.error('Search API error:', error)
+    console.error(
+      'Search API error:',
+      error,
+    )
 
     return NextResponse.json(
-      { error: 'Something went wrong' },
+      {
+        error: 'Something went wrong',
+      },
       { status: 500 },
     )
   }
