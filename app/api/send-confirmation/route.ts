@@ -2,12 +2,17 @@ import { NextResponse } from 'next/server'
 import { Resend } from 'resend'
 import { supabaseAdmin } from '@/lib/supabase-admin'
 
-const resend = new Resend(
-  process.env.RESEND_API_KEY,
-)
+const resend = new Resend(process.env.RESEND_API_KEY)
 
-function escapeHtml(value: string | null | undefined) {
-  return String(value || '')
+const MAX_BODY_BYTES = 16 * 1024
+
+function cleanString(value: unknown, maxLength: number) {
+  if (typeof value !== 'string') return ''
+  return value.trim().slice(0, maxLength)
+}
+
+function escapeHtml(value: string) {
+  return value
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;')
@@ -17,436 +22,296 @@ function escapeHtml(value: string | null | undefined) {
 
 export async function POST(request: Request) {
   try {
-    const body = await request.json()
+    // Basic request-size protection
+    const contentLength = request.headers.get('content-length')
 
-    const {
-      email,
-      fullName,
-      registrationNumber,
-      participantType,
-    } = body
-
-    if (
-      !email ||
-      !fullName ||
-      !registrationNumber
-    ) {
+    if (contentLength && Number(contentLength) > MAX_BODY_BYTES) {
       return NextResponse.json(
-        {
-          error:
-            'Missing required email information.',
-        },
-        { status: 400 },
+        { error: 'Request too large' },
+        { status: 413 }
       )
     }
 
-    const cleanEmail =
-      typeof email === 'string'
-        ? email.trim().toLowerCase()
-        : ''
+    const body = await request.json()
 
-    const cleanRegistrationNumber =
-      typeof registrationNumber === 'string'
-        ? registrationNumber.trim()
-        : ''
+    const email = cleanString(body?.email, 254).toLowerCase()
+    const fullName = cleanString(body?.fullName, 120)
+    const registrationNumber = cleanString(
+      body?.registrationNumber,
+      30
+    )
 
-    /* ---------------------------------------------------------------------- */
-    /* Verify registration exists                                             */
-    /* ---------------------------------------------------------------------- */
-
-    const {
-      data: registration,
-      error: lookupError,
-    } = await supabaseAdmin
-      .from('registrations')
-      .select(
-        `
-        full_name,
-        email,
-        participant_type,
-        registration_number,
-        status
-        `,
+    if (!email || !fullName || !registrationNumber) {
+      return NextResponse.json(
+        { error: 'Missing required information' },
+        { status: 400 }
       )
-      .eq('email', cleanEmail)
-      .eq(
-        'registration_number',
-        cleanRegistrationNumber,
-      )
-      .maybeSingle()
+    }
 
-    if (lookupError) {
+    /*
+     * Find the registration using the trusted server-side client.
+     */
+    const { data: registration, error: registrationError } =
+      await supabaseAdmin
+        .from('registrations')
+        .select(
+          `
+            id,
+            full_name,
+            email,
+            participant_type,
+            registration_number,
+            status,
+            confirmation_email_sent_at
+          `
+        )
+        .eq('email', email)
+        .eq('registration_number', registrationNumber)
+        .maybeSingle()
+
+    if (registrationError) {
       console.error(
         'Confirmation registration lookup error:',
-        lookupError,
+        registrationError
       )
 
       return NextResponse.json(
-        {
-          error:
-            'Unable to verify your registration.',
-        },
-        { status: 500 },
+        { error: 'Unable to process confirmation' },
+        { status: 500 }
       )
     }
 
     if (!registration) {
       return NextResponse.json(
-        {
-          error:
-            'Registration could not be verified.',
-        },
-        { status: 404 },
+        { error: 'Registration not found' },
+        { status: 404 }
       )
     }
 
-    const isVip =
-      registration.participant_type === 'VIP'
-
-    const safeName = escapeHtml(
-      registration.full_name,
-    )
-
-    const safeRegistrationNumber =
-      escapeHtml(
-        registration.registration_number,
+    /*
+     * If this registration has already received a confirmation email,
+     * do not send another one.
+     */
+    if (registration.confirmation_email_sent_at) {
+      return NextResponse.json(
+        {
+          success: false,
+          alreadySent: true,
+          message: 'Confirmation email has already been sent.',
+        },
+        { status: 409 }
       )
+    }
 
-    const safeParticipantType =
-      escapeHtml(
-        registration.participant_type,
-      )
+    /*
+     * Atomically claim the confirmation-email slot.
+     *
+     * If two requests arrive at nearly the same time, only one should
+     * successfully update the NULL timestamp.
+     */
+    const claimTimestamp = new Date().toISOString()
 
-    /* ---------------------------------------------------------------------- */
-    /* VIP email                                                               */
-    /* ---------------------------------------------------------------------- */
+    const { data: claimedRegistration, error: claimError } =
+      await supabaseAdmin
+        .from('registrations')
+        .update({
+          confirmation_email_sent_at: claimTimestamp,
+        })
+        .eq('id', registration.id)
+        .is('confirmation_email_sent_at', null)
+        .select('id')
+        .maybeSingle()
 
-    const subject = isVip
-      ? "TOR'Q 2026 — VIP Request Received"
-      : "TOR'Q 2026 — Registration Received"
-
-    const heading = isVip
-      ? 'VIP Request Received'
-      : 'Registration Received'
-
-    const intro = isVip
-      ? `
-        <p style="font-size:16px;line-height:1.7;">
-          Thank you for submitting your VIP request
-          for <strong>TOR'Q 2026</strong>.
-        </p>
-
-        <p style="font-size:16px;line-height:1.7;">
-          Your application has been received and is
-          currently under review by the TOR'Q team.
-          VIP access is subject to approval.
-        </p>
-      `
-      : `
-        <p style="font-size:16px;line-height:1.7;">
-          Thank you for registering for
-          <strong>TOR'Q 2026</strong>.
-        </p>
-
-        <p style="font-size:16px;line-height:1.7;">
-          Your registration has been received and is
-          currently being processed by the TOR'Q team.
-        </p>
-      `
-
-    /* ---------------------------------------------------------------------- */
-    /* Send email                                                             */
-    /* ---------------------------------------------------------------------- */
-
-    const { data, error } =
-      await resend.emails.send({
-        from: process.env.RESEND_FROM_EMAIL!,
-        to: registration.email,
-        subject,
-
-        html: `
-          <div
-            style="
-              font-family:Arial,sans-serif;
-              max-width:600px;
-              margin:0 auto;
-              padding:40px 20px;
-              color:#111;
-            "
-          >
-
-            <div
-              style="
-                border-top:4px solid #e31b23;
-                padding-top:28px;
-              "
-            >
-
-              <h1
-                style="
-                  font-size:32px;
-                  margin:0 0 8px;
-                  letter-spacing:-1px;
-                "
-              >
-                TOR'Q 2026
-              </h1>
-
-              <p
-                style="
-                  font-size:13px;
-                  letter-spacing:3px;
-                  color:#777;
-                  margin:0;
-                "
-              >
-                ARTISTRY IN MOTORSPORT
-              </p>
-
-            </div>
-
-            <hr
-              style="
-                border:none;
-                border-top:1px solid #ddd;
-                margin:32px 0;
-              "
-            />
-
-            <h2
-              style="
-                font-size:26px;
-                margin-bottom:20px;
-              "
-            >
-              ${heading}
-            </h2>
-
-            <p
-              style="
-                font-size:16px;
-                line-height:1.7;
-              "
-            >
-              Hi ${safeName},
-            </p>
-
-            ${intro}
-
-            <div
-              style="
-                background:#f5f5f5;
-                padding:24px;
-                margin:32px 0;
-                border-radius:12px;
-              "
-            >
-
-              <p
-                style="
-                  margin:0 0 8px;
-                  color:#777;
-                  font-size:12px;
-                  letter-spacing:1px;
-                  text-transform:uppercase;
-                "
-              >
-                ${isVip
-                  ? 'Application Number'
-                  : 'Registration Number'}
-              </p>
-
-              <p
-                style="
-                  margin:0;
-                  font-size:24px;
-                  font-weight:bold;
-                  letter-spacing:2px;
-                "
-              >
-                ${safeRegistrationNumber}
-              </p>
-
-              <p
-                style="
-                  margin:20px 0 0;
-                  color:#777;
-                  font-size:12px;
-                  letter-spacing:1px;
-                  text-transform:uppercase;
-                "
-              >
-                Participation
-              </p>
-
-              <p
-                style="
-                  margin:5px 0 0;
-                  font-size:16px;
-                  font-weight:bold;
-                "
-              >
-                ${safeParticipantType}
-              </p>
-
-            </div>
-
-            ${
-              isVip
-                ? `
-                  <div
-                    style="
-                      border:1px solid #d4a72c;
-                      background:#fffaf0;
-                      padding:22px;
-                      border-radius:12px;
-                      margin:30px 0;
-                    "
-                  >
-
-                    <h3
-                      style="
-                        margin:0 0 10px;
-                        font-size:18px;
-                      "
-                    >
-                      VIP Review
-                    </h3>
-
-                    <p
-                      style="
-                        margin:0;
-                        font-size:14px;
-                        line-height:1.6;
-                        color:#555;
-                      "
-                    >
-                      Our team will review your application.
-                      If your VIP request is approved, you will
-                      receive a separate approval email containing
-                      your official TOR'Q QR pass and access details.
-                    </p>
-
-                  </div>
-                `
-                : `
-                  <div
-                    style="
-                      border:1px solid #ddd;
-                      padding:22px;
-                      border-radius:12px;
-                      margin:30px 0;
-                    "
-                  >
-
-                    <h3
-                      style="
-                        margin:0 0 10px;
-                        font-size:18px;
-                      "
-                    >
-                      What's next?
-                    </h3>
-
-                    <p
-                      style="
-                        margin:0;
-                        font-size:14px;
-                        line-height:1.6;
-                        color:#555;
-                      "
-                    >
-                      Your registration is now with the TOR'Q
-                      team. Once your registration is approved,
-                      you will receive a separate email containing
-                      your official QR pass.
-                    </p>
-
-                  </div>
-                `
-            }
-
-            <p
-              style="
-                margin-top:36px;
-                font-size:16px;
-                line-height:1.6;
-              "
-            >
-              Please keep this email and your
-              ${isVip
-                ? 'application number'
-                : 'registration number'}
-              for your records.
-            </p>
-
-            <p
-              style="
-                margin-top:40px;
-                font-size:16px;
-              "
-            >
-              See you at TOR'Q.
-            </p>
-
-            <p
-              style="
-                font-weight:bold;
-                margin-bottom:4px;
-              "
-            >
-              TOR'Q Motorsport
-            </p>
-
-            <p
-              style="
-                color:#777;
-                font-size:12px;
-                margin-top:0;
-              "
-            >
-              Artistry in Motorsport
-            </p>
-
-          </div>
-        `,
-      })
-
-    /* ---------------------------------------------------------------------- */
-    /* Resend error                                                           */
-    /* ---------------------------------------------------------------------- */
-
-    if (error) {
+    if (claimError) {
       console.error(
-        'Resend error:',
-        error,
+        'Confirmation email claim error:',
+        claimError
       )
 
       return NextResponse.json(
+        { error: 'Unable to process confirmation' },
+        { status: 500 }
+      )
+    }
+
+    /*
+     * Another request already claimed the email slot.
+     */
+    if (!claimedRegistration) {
+      return NextResponse.json(
         {
-          error:
-            'Registration was received, but the confirmation email could not be sent.',
+          success: false,
+          alreadySent: true,
+          message: 'Confirmation email is already being processed.',
         },
-        { status: 500 },
+        { status: 409 }
+      )
+    }
+
+    const safeName = escapeHtml(registration.full_name)
+    const safeEmail = escapeHtml(registration.email)
+    const safeRegistrationNumber = escapeHtml(
+      registration.registration_number
+    )
+
+    const isVip =
+      registration.participant_type?.toLowerCase() === 'vip'
+
+    const subject = isVip
+      ? "TOR'Q 2026 — VIP Registration Received"
+      : "TOR'Q 2026 — Registration Confirmed"
+
+    const html = isVip
+      ? `
+        <!DOCTYPE html>
+        <html>
+          <body style="margin:0;padding:0;background:#050505;font-family:Arial,Helvetica,sans-serif;color:#ffffff;">
+            <div style="max-width:620px;margin:0 auto;padding:40px 24px;">
+              <div style="text-align:center;margin-bottom:32px;">
+                <h1 style="margin:0;font-size:32px;letter-spacing:2px;">
+                  TOR'Q 2026
+                </h1>
+                <p style="color:#f59e0b;font-size:14px;letter-spacing:3px;">
+                  ARTISTRY IN MOTORSPORT
+                </p>
+              </div>
+
+              <div style="background:#111111;border:1px solid #2a2a2a;border-radius:14px;padding:32px;">
+                <h2 style="margin-top:0;">
+                  VIP Request Received
+                </h2>
+
+                <p>
+                  Hello ${safeName},
+                </p>
+
+                <p>
+                  Your VIP registration request for TOR'Q 2026 has been received successfully.
+                </p>
+
+                <div style="margin:28px 0;padding:20px;background:#050505;border-radius:10px;">
+                  <p style="margin:0 0 8px;color:#999999;font-size:13px;">
+                    REGISTRATION NUMBER
+                  </p>
+
+                  <p style="margin:0;font-size:28px;font-weight:bold;letter-spacing:3px;">
+                    ${safeRegistrationNumber}
+                  </p>
+                </div>
+
+                <p>
+                  Your VIP request is currently under review. A separate communication will be sent regarding your VIP approval status.
+                </p>
+
+                <p style="color:#aaaaaa;font-size:13px;">
+                  Registered email: ${safeEmail}
+                </p>
+              </div>
+
+              <p style="text-align:center;color:#777777;font-size:12px;margin-top:28px;">
+                TOR'Q 2026 • Lagos, Nigeria
+              </p>
+            </div>
+          </body>
+        </html>
+      `
+      : `
+        <!DOCTYPE html>
+        <html>
+          <body style="margin:0;padding:0;background:#050505;font-family:Arial,Helvetica,sans-serif;color:#ffffff;">
+            <div style="max-width:620px;margin:0 auto;padding:40px 24px;">
+              <div style="text-align:center;margin-bottom:32px;">
+                <h1 style="margin:0;font-size:32px;letter-spacing:2px;">
+                  TOR'Q 2026
+                </h1>
+                <p style="color:#f59e0b;font-size:14px;letter-spacing:3px;">
+                  ARTISTRY IN MOTORSPORT
+                </p>
+              </div>
+
+              <div style="background:#111111;border:1px solid #2a2a2a;border-radius:14px;padding:32px;">
+                <h2 style="margin-top:0;">
+                  Registration Confirmed
+                </h2>
+
+                <p>
+                  Hello ${safeName},
+                </p>
+
+                <p>
+                  Your registration for TOR'Q 2026 has been received successfully.
+                </p>
+
+                <div style="margin:28px 0;padding:20px;background:#050505;border-radius:10px;">
+                  <p style="margin:0 0 8px;color:#999999;font-size:13px;">
+                    REGISTRATION NUMBER
+                  </p>
+
+                  <p style="margin:0;font-size:28px;font-weight:bold;letter-spacing:3px;">
+                    ${safeRegistrationNumber}
+                  </p>
+                </div>
+
+                <p>
+                  Please keep your registration number safe. You may need it for event access and check-in.
+                </p>
+
+                <p style="color:#aaaaaa;font-size:13px;">
+                  Registered email: ${safeEmail}
+                </p>
+              </div>
+
+              <p style="text-align:center;color:#777777;font-size:12px;margin-top:28px;">
+                TOR'Q 2026 • Lagos, Nigeria
+              </p>
+            </div>
+          </body>
+        </html>
+      `
+
+    /*
+     * Send through Resend.
+     */
+    const { data, error: resendError } = await resend.emails.send({
+      from:
+        process.env.RESEND_FROM_EMAIL ||
+        'TOR’Q 2026 <onboarding@resend.dev>',
+      to: [registration.email],
+      subject,
+      html,
+    })
+
+    /*
+     * If Resend rejects the email, release the claim so the legitimate
+     * registration can try again.
+     */
+    if (resendError) {
+      console.error('Resend confirmation error:', resendError)
+
+      await supabaseAdmin
+        .from('registrations')
+        .update({
+          confirmation_email_sent_at: null,
+        })
+        .eq('id', registration.id)
+        .eq('confirmation_email_sent_at', claimTimestamp)
+
+      return NextResponse.json(
+        { error: 'Unable to send confirmation email' },
+        { status: 500 }
       )
     }
 
     return NextResponse.json({
       success: true,
-      id: data?.id,
+      id: data?.id ?? null,
     })
   } catch (error) {
-    console.error(
-      'Confirmation email error:',
-      error,
-    )
+    console.error('Confirmation endpoint error:', error)
 
     return NextResponse.json(
-      {
-        error:
-          'Failed to send confirmation email.',
-      },
-      { status: 500 },
+      { error: 'Unable to process confirmation' },
+      { status: 500 }
     )
   }
 }
