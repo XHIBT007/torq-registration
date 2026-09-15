@@ -1,68 +1,69 @@
 import { NextResponse } from 'next/server'
-import { supabase } from '@/lib/supabase'
+import { requireAdmin } from '@/lib/admin-auth'
 import { supabaseAdmin } from '@/lib/supabase-admin'
 
 export async function POST(request: Request) {
   try {
-    // Check admin authentication
-    const authHeader = request.headers.get('authorization')
+    /* ---------------------------------------------------------------------- */
+    /* Admin authorization                                                    */
+    /* ---------------------------------------------------------------------- */
 
-    if (!authHeader?.startsWith('Bearer ')) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 },
-      )
+    const auth = await requireAdmin(request)
+
+    if (auth.response) {
+      return auth.response
     }
 
-    const token = authHeader.replace('Bearer ', '')
+    /* ---------------------------------------------------------------------- */
+    /* Read registration number from QR scanner                               */
+    /* ---------------------------------------------------------------------- */
 
-    const {
-      data: { user },
-      error: authError,
-    } = await supabase.auth.getUser(token)
-
-    if (authError || !user) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 },
-      )
-    }
-
-    // Read registration number from QR scanner
     const body = await request.json()
 
     const registrationNumber =
-      body.registrationNumber?.trim()
+      typeof body.registrationNumber === 'string'
+        ? body.registrationNumber.trim()
+        : ''
 
     if (!registrationNumber) {
       return NextResponse.json(
-        { error: 'Registration number is required' },
+        {
+          error: 'Registration number is required',
+        },
         { status: 400 },
       )
     }
 
-    // Find registration
-    const { data: registration, error: findError } =
-      await supabaseAdmin
-        .from('registrations')
-        .select(
-          `
-          id,
-          registration_number,
-          full_name,
-          email,
-          phone,
-          city,
-          participant_type,
-          vehicle_make,
-          vehicle_model,
-          status,
-          checked_in,
-          checked_in_at
-          `,
-        )
-        .eq('registration_number', registrationNumber)
-        .single()
+    /* ---------------------------------------------------------------------- */
+    /* Find registration                                                      */
+    /* ---------------------------------------------------------------------- */
+
+    const {
+      data: registration,
+      error: findError,
+    } = await supabaseAdmin
+      .from('registrations')
+      .select(
+        `
+        id,
+        registration_number,
+        full_name,
+        email,
+        phone,
+        city,
+        participant_type,
+        vehicle_make,
+        vehicle_model,
+        status,
+        checked_in,
+        checked_in_at
+        `,
+      )
+      .eq(
+        'registration_number',
+        registrationNumber,
+      )
+      .single()
 
     if (findError || !registration) {
       return NextResponse.json(
@@ -73,7 +74,10 @@ export async function POST(request: Request) {
       )
     }
 
-    // Registration must be approved
+    /* ---------------------------------------------------------------------- */
+    /* Registration must be approved                                          */
+    /* ---------------------------------------------------------------------- */
+
     if (registration.status !== 'Approved') {
       return NextResponse.json(
         {
@@ -84,7 +88,10 @@ export async function POST(request: Request) {
       )
     }
 
-    // Prevent duplicate check-in
+    /* ---------------------------------------------------------------------- */
+    /* Prevent duplicate check-in                                             */
+    /* ---------------------------------------------------------------------- */
+
     if (registration.checked_in) {
       return NextResponse.json(
         {
@@ -96,35 +103,43 @@ export async function POST(request: Request) {
       )
     }
 
-    // Mark registration as checked in
-    const { data: updatedRegistration, error: updateError } =
-      await supabaseAdmin
-        .from('registrations')
-        .update({
-          checked_in: true,
-          checked_in_at: new Date().toISOString(),
-        })
-        .eq('id', registration.id)
-        .select(
-          `
-          id,
-          registration_number,
-          full_name,
-          email,
-          phone,
-          city,
-          participant_type,
-          vehicle_make,
-          vehicle_model,
-          status,
-          checked_in,
-          checked_in_at
-          `,
-        )
-        .single()
+    /* ---------------------------------------------------------------------- */
+    /* Mark registration as checked in                                        */
+    /* ---------------------------------------------------------------------- */
+
+    const {
+      data: updatedRegistration,
+      error: updateError,
+    } = await supabaseAdmin
+      .from('registrations')
+      .update({
+        checked_in: true,
+        checked_in_at: new Date().toISOString(),
+      })
+      .eq('id', registration.id)
+      .select(
+        `
+        id,
+        registration_number,
+        full_name,
+        email,
+        phone,
+        city,
+        participant_type,
+        vehicle_make,
+        vehicle_model,
+        status,
+        checked_in,
+        checked_in_at
+        `,
+      )
+      .single()
 
     if (updateError) {
-      console.error('Check-in update error:', updateError)
+      console.error(
+        'Check-in update error:',
+        updateError,
+      )
 
       return NextResponse.json(
         {
@@ -134,13 +149,20 @@ export async function POST(request: Request) {
       )
     }
 
+    /* ---------------------------------------------------------------------- */
+    /* Success                                                                */
+    /* ---------------------------------------------------------------------- */
+
     return NextResponse.json({
       success: true,
       message: 'Check-in successful',
       registration: updatedRegistration,
     })
   } catch (error) {
-    console.error('Check-in API error:', error)
+    console.error(
+      'Check-in API error:',
+      error,
+    )
 
     return NextResponse.json(
       {
