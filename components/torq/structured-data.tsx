@@ -8,7 +8,7 @@ export function StructuredData() {
     description:
       "TOR'Q is a premium motorsport spectacle in Lagos, Nigeria, bringing together drifting, burnouts, power bike stunts, performance cars, sim racing, music and immersive automotive experiences.",
 
-    startDate: '2026-12-06T10:00:00+01:00',
+    startDate: '2026-12-06',
 
     eventStatus: 'https://schema.org/EventScheduled',
 
@@ -37,7 +37,6 @@ export function StructuredData() {
 
     url: 'https://tor-q-event-website.vercel.app',
 
-    isAccessibleForFree: true,
   }
 
   return (
