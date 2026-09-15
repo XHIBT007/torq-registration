@@ -1,103 +1,147 @@
 import { NextResponse } from 'next/server'
-import { supabase } from '@/lib/supabase'
+import { requireAdmin } from '@/lib/admin-auth'
 import { supabaseAdmin } from '@/lib/supabase-admin'
 
 export async function PATCH(request: Request) {
   try {
-    const authHeader = request.headers.get('authorization')
+    /* ---------------------------------------------------------------------- */
+    /* Admin authorization                                                    */
+    /* ---------------------------------------------------------------------- */
 
-    if (!authHeader?.startsWith('Bearer ')) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 },
-      )
+    const auth = await requireAdmin(request)
+
+    if (auth.response) {
+      return auth.response
     }
 
-    const token = authHeader.replace('Bearer ', '')
-
-    const {
-      data: { user },
-      error: authError,
-    } = await supabase.auth.getUser(token)
-
-    if (authError || !user) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 },
-      )
-    }
+    /* ---------------------------------------------------------------------- */
+    /* Read request body                                                       */
+    /* ---------------------------------------------------------------------- */
 
     const body = await request.json()
-    const { registrationNumber } = body
+
+    const registrationNumber =
+      typeof body.registrationNumber === 'string'
+        ? body.registrationNumber.trim()
+        : ''
 
     if (!registrationNumber) {
       return NextResponse.json(
-        { error: 'Registration number is required.' },
+        {
+          error:
+            'Registration number is required.',
+        },
         { status: 400 },
       )
     }
 
-    const { data: registration, error: findError } =
-      await supabaseAdmin
-        .from('registrations')
-        .select(`
-          id,
-          registration_number,
-          full_name,
-          checked_in,
-          checked_in_at
-        `)
-        .eq('registration_number', registrationNumber)
-        .single()
+    /* ---------------------------------------------------------------------- */
+    /* Find registration                                                      */
+    /* ---------------------------------------------------------------------- */
+
+    const {
+      data: registration,
+      error: findError,
+    } = await supabaseAdmin
+      .from('registrations')
+      .select(
+        `
+        id,
+        registration_number,
+        full_name,
+        checked_in,
+        checked_in_at
+        `,
+      )
+      .eq(
+        'registration_number',
+        registrationNumber,
+      )
+      .single()
 
     if (findError || !registration) {
       return NextResponse.json(
-        { error: 'Registration not found.' },
+        {
+          error: 'Registration not found.',
+        },
         { status: 404 },
       )
     }
 
+    /* ---------------------------------------------------------------------- */
+    /* Make sure participant is currently checked in                          */
+    /* ---------------------------------------------------------------------- */
+
     if (!registration.checked_in) {
       return NextResponse.json(
-        { error: 'This participant is not currently checked in.' },
+        {
+          error:
+            'This participant is not currently checked in.',
+        },
         { status: 400 },
       )
     }
 
-    const { data, error: updateError } = await supabaseAdmin
+    /* ---------------------------------------------------------------------- */
+    /* Reverse check-in                                                       */
+    /* ---------------------------------------------------------------------- */
+
+    const {
+      data,
+      error: updateError,
+    } = await supabaseAdmin
       .from('registrations')
       .update({
         checked_in: false,
         checked_in_at: null,
       })
       .eq('id', registration.id)
-      .select(`
+      .select(
+        `
         id,
         registration_number,
         full_name,
         checked_in,
         checked_in_at
-      `)
+        `,
+      )
       .single()
 
     if (updateError) {
-      console.error('Check-in reversal error:', updateError)
+      console.error(
+        'Check-in reversal error:',
+        updateError,
+      )
 
       return NextResponse.json(
-        { error: 'Unable to reverse check-in.' },
+        {
+          error:
+            'Unable to reverse check-in.',
+        },
         { status: 500 },
       )
     }
 
+    /* ---------------------------------------------------------------------- */
+    /* Success                                                                */
+    /* ---------------------------------------------------------------------- */
+
     return NextResponse.json({
-      message: 'Check-in reversed successfully.',
+      success: true,
+      message:
+        'Check-in reversed successfully.',
       registration: data,
     })
   } catch (error) {
-    console.error('Reverse check-in API error:', error)
+    console.error(
+      'Reverse check-in API error:',
+      error,
+    )
 
     return NextResponse.json(
-      { error: 'Something went wrong.' },
+      {
+        error: 'Something went wrong.',
+      },
       { status: 500 },
     )
   }
