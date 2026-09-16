@@ -2,6 +2,41 @@ import { NextResponse } from 'next/server'
 import { requireAdmin } from '@/lib/admin-auth'
 import { supabaseAdmin } from '@/lib/supabase-admin'
 
+const MAX_QUERY_LENGTH = 100
+
+const SEARCH_SELECT = `
+  id,
+  registration_number,
+  full_name,
+  email,
+  phone,
+  participant_type,
+  vehicle_make,
+  vehicle_model,
+  status,
+  checked_in,
+  checked_in_at
+`
+
+function escapeSearchQuery(value: string) {
+  /*
+   * Supabase/PostgREST filter syntax uses special characters such as:
+   * %, _, ., ,, (, ), and *
+   *
+   * We escape them so the user's input is treated strictly as search text.
+   */
+  return value
+    .replace(/\\/g, '\\\\')
+    .replace(/%/g, '\\%')
+    .replace(/_/g, '\\_')
+    .replace(/,/g, '\\,')
+    .replace(/\(/g, '\\(')
+    .replace(/\)/g, '\\)')
+    .replace(/\./g, '\\.')
+    .replace(/\*/g, '\\*')
+    .slice(0, MAX_QUERY_LENGTH)
+}
+
 export async function GET(request: Request) {
   try {
     /* ---------------------------------------------------------------------- */
@@ -20,12 +55,28 @@ export async function GET(request: Request) {
 
     const { searchParams } = new URL(request.url)
 
-    const query =
-      searchParams.get('q')?.trim() || ''
+    const rawQuery = searchParams.get('q')?.trim() || ''
 
-    if (!query) {
+    if (!rawQuery) {
       return NextResponse.json([])
     }
+
+    const query = rawQuery.slice(0, MAX_QUERY_LENGTH)
+
+    /*
+     * Prevent extremely unusual control characters from reaching the
+     * database filter.
+     */
+    const normalizedQuery = query.replace(
+      /[\u0000-\u001F\u007F]/g,
+      '',
+    )
+
+    if (!normalizedQuery) {
+      return NextResponse.json([])
+    }
+
+    const safeQuery = escapeSearchQuery(normalizedQuery)
 
     /* ---------------------------------------------------------------------- */
     /* Search approved registrations                                          */
@@ -33,24 +84,10 @@ export async function GET(request: Request) {
 
     const { data, error } = await supabaseAdmin
       .from('registrations')
-      .select(
-        `
-        id,
-        registration_number,
-        full_name,
-        email,
-        phone,
-        participant_type,
-        vehicle_make,
-        vehicle_model,
-        status,
-        checked_in,
-        checked_in_at
-        `,
-      )
+      .select(SEARCH_SELECT)
       .eq('status', 'Approved')
       .or(
-        `full_name.ilike.%${query}%,registration_number.ilike.%${query}%,email.ilike.%${query}%,phone.ilike.%${query}%`,
+        `full_name.ilike.%${safeQuery}%,registration_number.ilike.%${safeQuery}%,email.ilike.%${safeQuery}%,phone.ilike.%${safeQuery}%`,
       )
       .order('created_at', {
         ascending: false,
@@ -65,8 +102,7 @@ export async function GET(request: Request) {
 
       return NextResponse.json(
         {
-          error:
-            'Unable to search registrations',
+          error: 'Unable to search registrations',
         },
         { status: 500 },
       )
