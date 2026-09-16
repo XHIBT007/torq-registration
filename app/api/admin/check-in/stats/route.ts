@@ -2,6 +2,20 @@ import { NextResponse } from 'next/server'
 import { requireAdmin } from '@/lib/admin-auth'
 import { supabaseAdmin } from '@/lib/supabase-admin'
 
+const RECENT_CHECK_INS_LIMIT = 10
+
+const RECENT_CHECK_IN_SELECT = `
+  id,
+  registration_number,
+  full_name,
+  participant_type,
+  vehicle_make,
+  vehicle_model,
+  checked_in,
+  checked_in_at,
+  status
+`
+
 export async function GET(request: Request) {
   try {
     /* ---------------------------------------------------------------------- */
@@ -15,34 +29,24 @@ export async function GET(request: Request) {
     }
 
     /* ---------------------------------------------------------------------- */
-    /* Load approved registrations                                            */
+    /* Get total approved count                                               */
     /* ---------------------------------------------------------------------- */
 
-    const { data, error } = await supabaseAdmin
+    const {
+      count: totalApproved,
+      error: totalError,
+    } = await supabaseAdmin
       .from('registrations')
-      .select(
-        `
-        id,
-        registration_number,
-        full_name,
-        participant_type,
-        vehicle_make,
-        vehicle_model,
-        checked_in,
-        checked_in_at,
-        status
-        `,
-      )
-      .eq('status', 'Approved')
-      .order('checked_in_at', {
-        ascending: false,
-        nullsFirst: false,
+      .select('id', {
+        count: 'exact',
+        head: true,
       })
+      .eq('status', 'Approved')
 
-    if (error) {
+    if (totalError) {
       console.error(
-        'Check-in stats error:',
-        error,
+        'Total approved count error:',
+        totalError,
       )
 
       return NextResponse.json(
@@ -54,47 +58,99 @@ export async function GET(request: Request) {
       )
     }
 
-    const registrations = data || []
-
     /* ---------------------------------------------------------------------- */
-    /* Calculate statistics                                                   */
+    /* Get checked-in count                                                   */
     /* ---------------------------------------------------------------------- */
 
-    const totalApproved =
-      registrations.length
+    const {
+      count: checkedIn,
+      error: checkedInError,
+    } = await supabaseAdmin
+      .from('registrations')
+      .select('id', {
+        count: 'exact',
+        head: true,
+      })
+      .eq('status', 'Approved')
+      .eq('checked_in', true)
 
-    const checkedIn =
-      registrations.filter(
-        (registration) =>
-          registration.checked_in === true,
-      ).length
+    if (checkedInError) {
+      console.error(
+        'Checked-in count error:',
+        checkedInError,
+      )
 
-    const remaining =
-      totalApproved - checkedIn
+      return NextResponse.json(
+        {
+          error:
+            'Unable to load check-in statistics',
+        },
+        { status: 500 },
+      )
+    }
+
+    /* ---------------------------------------------------------------------- */
+    /* Calculate totals                                                       */
+    /* ---------------------------------------------------------------------- */
+
+    const approvedCount = totalApproved ?? 0
+    const checkedInCount = checkedIn ?? 0
+
+    const remaining = Math.max(
+      approvedCount - checkedInCount,
+      0,
+    )
 
     const percentage =
-      totalApproved > 0
+      approvedCount > 0
         ? Math.round(
-            (checkedIn / totalApproved) * 100,
+            (checkedInCount / approvedCount) * 100,
           )
         : 0
+
+    /* ---------------------------------------------------------------------- */
+    /* Get only recent check-ins                                              */
+    /* ---------------------------------------------------------------------- */
+
+    const {
+      data: recentCheckIns,
+      error: recentError,
+    } = await supabaseAdmin
+      .from('registrations')
+      .select(RECENT_CHECK_IN_SELECT)
+      .eq('status', 'Approved')
+      .eq('checked_in', true)
+      .order('checked_in_at', {
+        ascending: false,
+        nullsFirst: false,
+      })
+      .limit(RECENT_CHECK_INS_LIMIT)
+
+    if (recentError) {
+      console.error(
+        'Recent check-ins error:',
+        recentError,
+      )
+
+      return NextResponse.json(
+        {
+          error:
+            'Unable to load recent check-ins',
+        },
+        { status: 500 },
+      )
+    }
 
     /* ---------------------------------------------------------------------- */
     /* Return statistics                                                      */
     /* ---------------------------------------------------------------------- */
 
     return NextResponse.json({
-      totalApproved,
-      checkedIn,
+      totalApproved: approvedCount,
+      checkedIn: checkedInCount,
       remaining,
       percentage,
-      recentCheckIns:
-        registrations
-          .filter(
-            (registration) =>
-              registration.checked_in === true,
-          )
-          .slice(0, 10),
+      recentCheckIns: recentCheckIns || [],
     })
   } catch (error) {
     console.error(
