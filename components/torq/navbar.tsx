@@ -23,8 +23,9 @@ export function Navbar() {
   const [menuOpen, setMenuOpen] =
     useState(false)
 
+  // visible is a numeric animation progress value from 0 → 1
   const [visible, setVisible] =
-    useState(false)
+    useState(0)
 
   useEffect(() => {
     let frame = 0
@@ -178,7 +179,6 @@ export function Navbar() {
           lg:px-8
         "
       >
-
         {/* ====================================================
             LOGO
             ==================================================== */}
@@ -268,7 +268,6 @@ export function Navbar() {
             gap-2
           "
         >
-
           {/* REGISTER */}
 
           <Button
@@ -321,7 +320,6 @@ export function Navbar() {
               <Menu className="size-5" />
             )}
           </button>
-
         </div>
       </nav>
 
@@ -356,7 +354,6 @@ export function Navbar() {
             py-4
           "
         >
-
           {LINKS.map((link) => (
             <a
               key={link.href}
@@ -395,7 +392,6 @@ export function Navbar() {
           >
             Register Now
           </Button>
-
         </div>
       </div>
     </header>
