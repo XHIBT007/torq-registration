@@ -66,7 +66,6 @@ export default function CheckInScanner() {
     try {
       const cameras = await Html5Qrcode.getCameras()
 
-      console.log('Available cameras:', cameras)
 
       if (!cameras || cameras.length === 0) {
         throw new Error(
@@ -87,7 +86,6 @@ export default function CheckInScanner() {
 
       scannerRef.current = scanner
 
-      console.log('Starting camera:', rearCamera)
 
       await scanner.start(
         rearCamera.id,
