@@ -2,6 +2,14 @@ import { NextResponse } from 'next/server'
 import { requireAdmin } from '@/lib/admin-auth'
 import { supabaseAdmin } from '@/lib/supabase-admin'
 
+const REGISTRATION_SELECT = `
+  id,
+  registration_number,
+  full_name,
+  checked_in,
+  checked_in_at
+`
+
 export async function PATCH(request: Request) {
   try {
     /* ---------------------------------------------------------------------- */
@@ -21,15 +29,14 @@ export async function PATCH(request: Request) {
     const body = await request.json()
 
     const registrationNumber =
-      typeof body.registrationNumber === 'string'
-        ? body.registrationNumber.trim()
+      typeof body?.registrationNumber === 'string'
+        ? body.registrationNumber.trim().slice(0, 50)
         : ''
 
     if (!registrationNumber) {
       return NextResponse.json(
         {
-          error:
-            'Registration number is required.',
+          error: 'Registration number is required.',
         },
         { status: 400 },
       )
@@ -44,22 +51,25 @@ export async function PATCH(request: Request) {
       error: findError,
     } = await supabaseAdmin
       .from('registrations')
-      .select(
-        `
-        id,
-        registration_number,
-        full_name,
-        checked_in,
-        checked_in_at
-        `,
-      )
-      .eq(
-        'registration_number',
-        registrationNumber,
-      )
-      .single()
+      .select(REGISTRATION_SELECT)
+      .eq('registration_number', registrationNumber)
+      .maybeSingle()
 
-    if (findError || !registration) {
+    if (findError) {
+      console.error(
+        'Reverse check-in lookup error:',
+        findError,
+      )
+
+      return NextResponse.json(
+        {
+          error: 'Unable to find registration.',
+        },
+        { status: 500 },
+      )
+    }
+
+    if (!registration) {
       return NextResponse.json(
         {
           error: 'Registration not found.',
@@ -69,25 +79,31 @@ export async function PATCH(request: Request) {
     }
 
     /* ---------------------------------------------------------------------- */
-    /* Make sure participant is currently checked in                          */
+    /* Fast state check                                                       */
     /* ---------------------------------------------------------------------- */
 
     if (!registration.checked_in) {
       return NextResponse.json(
         {
-          error:
-            'This participant is not currently checked in.',
+          error: 'This participant is not currently checked in.',
         },
         { status: 400 },
       )
     }
 
     /* ---------------------------------------------------------------------- */
-    /* Reverse check-in                                                       */
+    /* Atomic reversal                                                        */
     /* ---------------------------------------------------------------------- */
+    /*
+     * The important protection is here:
+     *
+     * WHERE id = ... AND checked_in = true
+     *
+     * Only one simultaneous reversal can change the row from true -> false.
+     */
 
     const {
-      data,
+      data: updatedRegistration,
       error: updateError,
     } = await supabaseAdmin
       .from('registrations')
@@ -96,16 +112,9 @@ export async function PATCH(request: Request) {
         checked_in_at: null,
       })
       .eq('id', registration.id)
-      .select(
-        `
-        id,
-        registration_number,
-        full_name,
-        checked_in,
-        checked_in_at
-        `,
-      )
-      .single()
+      .eq('checked_in', true)
+      .select(REGISTRATION_SELECT)
+      .maybeSingle()
 
     if (updateError) {
       console.error(
@@ -115,10 +124,41 @@ export async function PATCH(request: Request) {
 
       return NextResponse.json(
         {
-          error:
-            'Unable to reverse check-in.',
+          error: 'Unable to reverse check-in.',
         },
         { status: 500 },
+      )
+    }
+
+    /* ---------------------------------------------------------------------- */
+    /* Another request already reversed it                                   */
+    /* ---------------------------------------------------------------------- */
+
+    if (!updatedRegistration) {
+      const {
+        data: currentRegistration,
+        error: currentError,
+      } = await supabaseAdmin
+        .from('registrations')
+        .select(REGISTRATION_SELECT)
+        .eq('id', registration.id)
+        .maybeSingle()
+
+      if (currentError) {
+        console.error(
+          'Reverse check-in race-condition lookup error:',
+          currentError,
+        )
+      }
+
+      return NextResponse.json(
+        {
+          error:
+            'This participant is not currently checked in.',
+          registration:
+            currentRegistration || registration,
+        },
+        { status: 400 },
       )
     }
 
@@ -128,9 +168,8 @@ export async function PATCH(request: Request) {
 
     return NextResponse.json({
       success: true,
-      message:
-        'Check-in reversed successfully.',
-      registration: data,
+      message: 'Check-in reversed successfully.',
+      registration: updatedRegistration,
     })
   } catch (error) {
     console.error(
