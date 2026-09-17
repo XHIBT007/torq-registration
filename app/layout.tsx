@@ -17,7 +17,7 @@ const oswald = Oswald({
 })
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://tor-q-event-website.vercel.app'),
+  metadataBase: new URL('https://torq.ng'),
 
   title: {
     default: "TOR'Q 2026 — Artistry in Motorsport",
