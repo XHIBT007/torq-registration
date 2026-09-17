@@ -19,9 +19,12 @@ export function HomePage() {
 
         <main>
           <Hero />
+
+          {/* VISUAL IMPACT — placed immediately after the hero */}
+          <Gallery />
+
           <About />
           <Experiences />
-          <Gallery />
           <Sponsors />
           <Faq />
           <Contact />
