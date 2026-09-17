@@ -26,17 +26,16 @@ export function StructuredData() {
     },
 
     image: [
-      'https://tor-q-event-website.vercel.app/images/Hero-mustang-03.jpg',
+      'https://torq.ng/images/Hero-mustang-03.jpg',
     ],
 
     organizer: {
       '@type': 'Organization',
       name: "TOR'Q",
-      url: 'https://tor-q-event-website.vercel.app',
+      url: 'https://torq.ng',
     },
 
-    url: 'https://tor-q-event-website.vercel.app',
-
+    url: 'https://torq.ng',
   }
 
   return (
