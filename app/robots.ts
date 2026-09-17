@@ -7,6 +7,6 @@ export default function robots(): MetadataRoute.Robots {
       allow: '/',
     },
 
-    sitemap: 'https://tor-q-event-website.vercel.app/sitemap.xml',
+    sitemap: 'https://torq.ng/sitemap.xml',
   }
 }
