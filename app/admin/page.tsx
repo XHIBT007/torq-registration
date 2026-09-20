@@ -957,16 +957,16 @@ const arrivalActivity = Object.entries(arrivalByHour)
     className="h-4 w-4 accent-red-600"
   />
 </th>
-                    <th className="px-6 py-4">Registration</th>
-                    <th className="px-6 py-4">Name</th>
-                    <th className="px-6 py-4">Type</th>
-                    <th className="px-6 py-4">City</th>
-                    <th className="px-6 py-4">Vehicle</th>
-<th className="px-6 py-4">Check-In</th>
-<th className="px-6 py-4 text-left">
+                   <th className="whitespace-nowrap px-6 py-4">Registration</th>
+<th className="whitespace-nowrap px-6 py-4">Name</th>
+<th className="whitespace-nowrap px-6 py-4">Type</th>
+<th className="whitespace-nowrap px-6 py-4">City</th>
+<th className="whitespace-nowrap px-6 py-4">Vehicle</th>
+<th className="whitespace-nowrap px-6 py-4">Check-In</th>
+<th className="whitespace-nowrap px-6 py-4 text-left">
   Status
 </th>
-<th className="px-6 py-4">Date</th>
+<th className="whitespace-nowrap px-6 py-4">Date</th>
                   </tr>
                 </thead>
 
@@ -994,14 +994,14 @@ const arrivalActivity = Object.entries(arrivalByHour)
     className="h-4 w-4 accent-red-600"
   />
 </td>
-                        <td className="px-6 py-5">
+                        <td className="whitespace-nowrap px-6 py-5">
                           <p className="font-mono text-sm font-semibold text-red-400">
                             {registration.registration_number || '—'}
                           </p>
                         </td>
 
-                        <td className="px-6 py-5">
-                          <p className="font-semibold">
+                        <td className="whitespace-nowrap px-6 py-5">
+                        <p className="font-semibold">
                             {registration.full_name}
                           </p>
 
@@ -1010,23 +1010,23 @@ const arrivalActivity = Object.entries(arrivalByHour)
                           </p>
                         </td>
 
-                        <td className="px-6 py-5">
-                          <div className="flex items-center gap-2 text-sm">
+                        <td className="whitespace-nowrap px-6 py-5">
+                        <div className="flex items-center gap-2 text-sm">
                             <Icon className="h-4 w-4 text-red-500" />
                             {registration.participant_type || '—'}
                           </div>
                         </td>
 
-                        <td className="px-6 py-5 text-sm text-white/70">
+                        <td className="whitespace-nowrap px-6 py-5 text-sm text-white/70">
                           {registration.city || '—'}
                         </td>
 
-                        <td className="px-6 py-5 text-sm text-white/70">
+                        <td className="whitespace-nowrap px-6 py-5 text-sm text-white/70">
                           {registration.vehicle_make
                             ? `${registration.vehicle_make} ${registration.vehicle_model || ''}`
                             : '—'}
                         </td>
-    <td className="px-6 py-5">
+    <td className="whitespace-nowrap px-6 py-5">
   {registration.checked_in ? (
     <div>
       <span className="inline-flex rounded-full bg-green-500/15 px-3 py-1 text-xs font-semibold text-green-400">
@@ -1050,7 +1050,7 @@ const arrivalActivity = Object.entries(arrivalByHour)
     </span>
   )}
 </td>
-    <td className="px-6 py-4">
+    <td className="whitespace-nowrap px-6 py-4">
   <span
     className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${
       registration.status === 'Approved'
@@ -1064,7 +1064,7 @@ const arrivalActivity = Object.entries(arrivalByHour)
   </span>
 </td>
 
-                        <td className="px-6 py-5 text-sm text-white/40">
+                        <td className="whitespace-nowrap px-6 py-5 text-sm text-white/40">
                           {new Date(
                             registration.created_at,
                           ).toLocaleDateString('en-NG')}
