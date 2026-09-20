@@ -15,9 +15,7 @@ export function Faq() {
 
   const toggle = (index: number) => {
     setOpenIndex((current) =>
-      current === index
-        ? null
-        : index,
+      current === index ? null : index,
     )
   }
 
@@ -35,12 +33,12 @@ export function Faq() {
         sm:py-32
       "
     >
-
       {/* ==========================================================
           ATMOSPHERE
           ========================================================== */}
 
       <div
+        aria-hidden="true"
         className="
           pointer-events-none
           absolute
@@ -55,6 +53,7 @@ export function Faq() {
       />
 
       <div
+        aria-hidden="true"
         className="
           pointer-events-none
           absolute
@@ -68,10 +67,6 @@ export function Faq() {
         "
       />
 
-      {/* ==========================================================
-          CONTENT
-          ========================================================== */}
-
       <div
         className="
           relative
@@ -81,7 +76,6 @@ export function Faq() {
           md:px-10
         "
       >
-
         <div
           className="
             grid
@@ -90,41 +84,37 @@ export function Faq() {
             lg:gap-20
           "
         >
-
           {/* ======================================================
               INTRO
               ====================================================== */}
 
           <div>
-
             <Reveal>
-
               <p
                 className="
                   mb-5
                   text-xs
                   font-bold
                   uppercase
-                  tracking-[0.4em]
+                  tracking-[0.34em]
                   text-red-500
+                  sm:text-sm
                 "
               >
                 Frequently Asked
               </p>
-
             </Reveal>
 
-            <Reveal delay={100}>
-
+            <Reveal delay={80}>
               <h2
                 className="
-                  text-4xl
+                  text-5xl
                   font-black
                   uppercase
                   leading-[0.88]
-                  tracking-[-0.04em]
-                  sm:text-5xl
-                  md:text-6xl
+                  tracking-[-0.045em]
+                  sm:text-6xl
+                  md:text-7xl
                 "
               >
                 Everything
@@ -134,11 +124,9 @@ export function Faq() {
                   you need to know.
                 </span>
               </h2>
-
             </Reveal>
 
-            <Reveal delay={200}>
-
+            <Reveal delay={160}>
               <p
                 className="
                   mt-7
@@ -149,18 +137,13 @@ export function Faq() {
                   md:text-lg
                 "
               >
-                Your guide to experiencing
-                TOR&apos;Q. If you still have a
-                question, our team is always
-                available.
+                Your guide to experiencing TOR&apos;Q.
+                If you still have a question, our team
+                is always available.
               </p>
-
             </Reveal>
 
-            {/* SMALL BRAND MARKER */}
-
-            <Reveal delay={300}>
-
+            <Reveal delay={240}>
               <div
                 className="
                   mt-10
@@ -169,8 +152,8 @@ export function Faq() {
                   gap-4
                 "
               >
-
                 <div
+                  aria-hidden="true"
                   className="
                     h-px
                     w-12
@@ -189,11 +172,8 @@ export function Faq() {
                 >
                   Artistry in Motorsport
                 </span>
-
               </div>
-
             </Reveal>
-
           </div>
 
           {/* ======================================================
@@ -201,7 +181,6 @@ export function Faq() {
               ====================================================== */}
 
           <div>
-
             <div
               className="
                 divide-y
@@ -210,201 +189,203 @@ export function Faq() {
                 border-white/10
               "
             >
+              {FAQS.map((item, index) => {
+                const isOpen =
+                  openIndex === index
 
-              {FAQS.map(
-                (item, index) => {
+                const questionId =
+                  `faq-question-${index}`
 
-                  const isOpen =
-                    openIndex === index
+                const answerId =
+                  `faq-answer-${index}`
 
-                  return (
-                    <Reveal
-                      key={index}
-                      delay={
-                        100 +
-                        index * 70
+                return (
+                  <div key={questionId}>
+                    <button
+                      id={questionId}
+                      type="button"
+                      onClick={() =>
+                        toggle(index)
                       }
+                      aria-expanded={isOpen}
+                      aria-controls={answerId}
+                      className={`
+                        group
+                        flex
+                        min-h-16
+                        w-full
+                        items-center
+                        justify-between
+                        gap-5
+                        py-5
+                        text-left
+                        outline-none
+                        transition-colors
+                        duration-200
+                        sm:min-h-20
+                        sm:py-6
+
+                        focus-visible:ring-2
+                        focus-visible:ring-red-500
+                        focus-visible:ring-inset
+
+                        ${
+                          isOpen
+                            ? 'text-white'
+                            : 'text-white/75'
+                        }
+                      `}
                     >
-
-                      <div>
-
-                        {/* QUESTION */}
-
-                        <button
-                          type="button"
-                          onClick={() =>
-                            toggle(index)
-                          }
-                          aria-expanded={
-                            isOpen
-                          }
-                          className="
-                            group
-                            flex
-                            w-full
-                            items-center
-                            justify-between
-                            gap-6
-                            py-6
-                            text-left
-                            transition-colors
-                            duration-300
-                            hover:text-white
-                            sm:py-7
-                          "
-                        >
-
-                          <div
-                            className="
-                              flex
-                              items-start
-                              gap-5
-                            "
-                          >
-
-                            <span
-                              className="
-                                pt-1
-                                text-[9px]
-                                font-bold
-                                tracking-[0.2em]
-                                text-white/20
-                              "
-                            >
-                              {String(
-                                index + 1,
-                              ).padStart(
-                                2,
-                                '0',
-                              )}
-                            </span>
-
-                            <span
-                              className="
-                                text-base
-                                font-semibold
-                                leading-6
-                                text-white/75
-                                transition-colors
-                                duration-300
-                                group-hover:text-white
-                                sm:text-lg
-                              "
-                            >
-                              {item.question}
-                            </span>
-
-                          </div>
-
-                          <span
-                            className={`
-                              flex
-                              h-9
-                              w-9
-                              shrink-0
-                              items-center
-                              justify-center
-                              rounded-full
-                              border
-                              transition-all
-                              duration-500
-
-                              ${
-                                isOpen
-                                  ? `
-                                    border-red-500
-                                    bg-red-500
-                                    text-white
-                                  `
-                                  : `
-                                    border-white/15
-                                    bg-white/[0.02]
-                                    text-white/40
-                                    group-hover:border-white/30
-                                    group-hover:text-white
-                                  `
-                              }
-                            `}
-                          >
-
-                            <ChevronDown
-                              size={17}
-                              className={`
-                                transition-transform
-                                duration-500
-                                ${
-                                  isOpen
-                                    ? 'rotate-180'
-                                    : ''
-                                }
-                              `}
-                            />
-
-                          </span>
-
-                        </button>
-
-                        {/* ANSWER */}
-
-                        <div
+                      <div
+                        className="
+                          flex
+                          min-w-0
+                          items-start
+                          gap-4
+                          sm:gap-5
+                        "
+                      >
+                        <span
+                          aria-hidden="true"
                           className={`
-                            grid
-                            transition-[grid-template-rows]
-                            duration-500
-                            ease-out
-
+                            pt-1
+                            text-[9px]
+                            font-bold
+                            tracking-[0.2em]
+                            transition-colors
+                            duration-200
                             ${
                               isOpen
-                                ? 'grid-rows-[1fr]'
-                                : 'grid-rows-[0fr]'
+                                ? 'text-red-500'
+                                : 'text-white/20'
                             }
                           `}
                         >
+                          {String(index + 1).padStart(
+                            2,
+                            '0',
+                          )}
+                        </span>
 
-                          <div
-                            className="
-                              overflow-hidden
-                            "
-                          >
-
-                            <div
-                              className="
-                                pb-7
-                                pl-10
-                                pr-12
-                                text-sm
-                                leading-7
-                                text-white/40
-                                sm:pl-14
-                                sm:text-base
-                              "
-                            >
-                              {item.answer}
-                            </div>
-
-                          </div>
-
-                        </div>
-
+                        <span
+                          className={`
+                            text-base
+                            font-semibold
+                            leading-6
+                            transition-colors
+                            duration-200
+                            sm:text-lg
+                            ${
+                              isOpen
+                                ? 'text-white'
+                                : 'text-white/70 group-hover:text-white'
+                            }
+                          `}
+                        >
+                          {item.question}
+                        </span>
                       </div>
 
-                    </Reveal>
-                  )
-                },
-              )}
+                      <span
+                        aria-hidden="true"
+                        className={`
+                          flex
+                          h-10
+                          w-10
+                          shrink-0
+                          items-center
+                          justify-center
+                          rounded-full
+                          border
+                          transition-[background-color,border-color,color,transform]
+                          duration-200
 
+                          ${
+                            isOpen
+                              ? `
+                                border-red-500
+                                bg-red-500
+                                text-white
+                              `
+                              : `
+                                border-white/15
+                                bg-white/[0.02]
+                                text-white/40
+                                group-hover:border-white/30
+                                group-hover:text-white
+                              `
+                          }
+                        `}
+                      >
+                        <ChevronDown
+                          className={`
+                            h-4
+                            w-4
+                            transition-transform
+                            duration-200
+                            ${
+                              isOpen
+                                ? 'rotate-180'
+                                : ''
+                            }
+                          `}
+                        />
+                      </span>
+                    </button>
+
+                    <div
+                      id={answerId}
+                      role="region"
+                      aria-labelledby={questionId}
+                      className={`
+                        grid
+                        transition-[grid-template-rows]
+                        duration-300
+                        ease-out
+
+                        ${
+                          isOpen
+                            ? 'grid-rows-[1fr]'
+                            : 'grid-rows-[0fr]'
+                        }
+                      `}
+                    >
+                      <div className="overflow-hidden">
+                        <div
+                          className="
+                            pb-6
+                            pl-9
+                            pr-4
+                            text-sm
+                            leading-7
+                            text-white/40
+                            sm:pb-7
+                            sm:pl-14
+                            sm:pr-12
+                            sm:text-base
+                          "
+                        >
+                          {item.answer}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )
+              })}
             </div>
 
-            {/* CONTACT LINK */}
+            {/* ====================================================
+                CONTACT LINK
+                ==================================================== */}
 
-            <Reveal delay={300}>
-
+            <Reveal delay={180}>
               <a
                 href="#contact"
                 className="
                   group
                   mt-8
                   inline-flex
+                  min-h-10
                   items-center
                   gap-3
                   text-xs
@@ -412,53 +393,52 @@ export function Faq() {
                   uppercase
                   tracking-[0.2em]
                   text-white/50
+                  outline-none
                   transition-colors
-                  duration-300
+                  duration-200
                   hover:text-white
+                  focus-visible:text-white
+                  focus-visible:ring-2
+                  focus-visible:ring-red-500
+                  focus-visible:ring-offset-4
+                  focus-visible:ring-offset-black
                 "
               >
-
                 Still have questions?
 
                 <span
                   className="
                     flex
-                    h-8
-                    w-8
+                    h-9
+                    w-9
                     items-center
                     justify-center
                     rounded-full
                     border
                     border-white/15
-                    transition-all
-                    duration-300
+                    transition-[background-color,border-color,color]
+                    duration-200
                     group-hover:border-red-500
                     group-hover:bg-red-500
+                    group-hover:text-white
                   "
                 >
-
                   <ArrowUpRight
-                    size={14}
                     className="
+                      h-3.5
+                      w-3.5
                       transition-transform
-                      duration-300
+                      duration-200
                       group-hover:-translate-y-0.5
                       group-hover:translate-x-0.5
                     "
                   />
-
                 </span>
-
               </a>
-
             </Reveal>
-
           </div>
-
         </div>
-
       </div>
-
     </section>
   )
 }
