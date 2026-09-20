@@ -3,7 +3,6 @@
 import {
   ArrowRight,
   ArrowUpRight,
-  Instagram,
   Play,
 } from 'lucide-react'
 
@@ -30,8 +29,43 @@ const REELS = [
   },
 ]
 
-const INSTAGRAM_URL =
-  'https://www.instagram.com/torq.ng/'
+const INSTAGRAM_URL = 'https://www.instagram.com/torq.ng/'
+
+function InstagramIcon({ className = '' }: { className?: string }) {
+  return (
+    <svg
+      aria-hidden="true"
+      viewBox="0 0 24 24"
+      fill="none"
+      className={className}
+    >
+      <rect
+        x="3"
+        y="3"
+        width="18"
+        height="18"
+        rx="5"
+        stroke="currentColor"
+        strokeWidth="1.8"
+      />
+
+      <circle
+        cx="12"
+        cy="12"
+        r="4.2"
+        stroke="currentColor"
+        strokeWidth="1.8"
+      />
+
+      <circle
+        cx="17.4"
+        cy="6.7"
+        r="1.1"
+        fill="currentColor"
+      />
+    </svg>
+  )
+}
 
 export function TorqInMotion() {
   return (
@@ -61,10 +95,6 @@ export function TorqInMotion() {
           blur-[130px]
         "
       />
-
-      {/* ==========================================================
-          INTRO
-          ========================================================== */}
 
       <div className="relative mx-auto max-w-7xl px-6 md:px-10">
         <div className="flex flex-col gap-8 md:flex-row md:items-end md:justify-between">
@@ -155,7 +185,7 @@ export function TorqInMotion() {
               focus-visible:ring-red-500
             "
           >
-            <Instagram className="h-4 w-4" />
+            <InstagramIcon className="h-4 w-4" />
 
             Follow @torq.ng
 
@@ -171,10 +201,6 @@ export function TorqInMotion() {
           </a>
         </div>
       </div>
-
-      {/* ==========================================================
-          REEL RAIL
-          ========================================================== */}
 
       <div className="relative mt-14 md:mt-20">
         <div
@@ -263,7 +289,6 @@ export function TorqInMotion() {
                   md:max-w-[520px]
                 "
               >
-                {/* Visual placeholder */}
                 <div
                   aria-hidden="true"
                   className="
@@ -276,7 +301,6 @@ export function TorqInMotion() {
                   "
                 />
 
-                {/* Play */}
                 <div
                   aria-hidden="true"
                   className="
@@ -311,7 +335,6 @@ export function TorqInMotion() {
                   </div>
                 </div>
 
-                {/* Top metadata */}
                 <div
                   className="
                     absolute
@@ -347,10 +370,9 @@ export function TorqInMotion() {
                     {String(index + 1).padStart(2, '0')}
                   </div>
 
-                  <Instagram className="h-5 w-5 text-white/50" />
+                  <InstagramIcon className="h-5 w-5 text-white/50" />
                 </div>
 
-                {/* Bottom content */}
                 <div
                   className="
                     absolute
@@ -422,7 +444,6 @@ export function TorqInMotion() {
                   </div>
                 </div>
 
-                {/* Accent */}
                 <div
                   aria-hidden="true"
                   className="
@@ -442,10 +463,6 @@ export function TorqInMotion() {
           </div>
         </div>
       </div>
-
-      {/* ==========================================================
-          FOOTER CUE
-          ========================================================== */}
 
       <div
         className="
