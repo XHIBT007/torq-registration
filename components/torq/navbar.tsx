@@ -17,15 +17,9 @@ const LINKS = [
 export function Navbar() {
   const { open } = useRegistration()
 
-  const [scrolled, setScrolled] =
-    useState(false)
-
-  const [menuOpen, setMenuOpen] =
-    useState(false)
-
-  // visible is a numeric animation progress value from 0 → 1
-  const [visible, setVisible] =
-    useState(0)
+  const [scrolled, setScrolled] = useState(false)
+  const [menuOpen, setMenuOpen] = useState(false)
+  const [visible, setVisible] = useState(0)
 
   useEffect(() => {
     let frame = 0
@@ -33,53 +27,28 @@ export function Navbar() {
     const update = () => {
       frame = 0
 
-      const scroll =
-        window.scrollY
+      const scroll = window.scrollY
+      const viewport = window.innerHeight
 
-      const viewport =
-        window.innerHeight
+      const fadeStart = viewport * 0.08
+      const fadeEnd = viewport * 0.32
 
-      /*
-       * The navbar begins appearing while
-       * the large hero TOR'Q logo is leaving.
-       *
-       * It reaches full visibility before
-       * the hero content starts moving.
-       */
-      const fadeStart =
-        viewport * 0.08
-
-      const fadeEnd =
-        viewport * 0.32
-
-      const progress =
-        Math.min(
-          1,
-          Math.max(
-            0,
-            (scroll - fadeStart) /
-              (fadeEnd - fadeStart),
-          ),
-        )
+      const progress = Math.min(
+        1,
+        Math.max(
+          0,
+          (scroll - fadeStart) /
+            (fadeEnd - fadeStart),
+        ),
+      )
 
       setVisible(progress)
-
-      /*
-       * Once we're properly into the page,
-       * give the navbar its premium glass
-       * treatment.
-       */
-      setScrolled(
-        scroll > viewport * 0.08,
-      )
+      setScrolled(scroll > viewport * 0.08)
     }
 
     const onScroll = () => {
       if (!frame) {
-        frame =
-          window.requestAnimationFrame(
-            update,
-          )
+        frame = window.requestAnimationFrame(update)
       }
     }
 
@@ -91,10 +60,7 @@ export function Navbar() {
       { passive: true },
     )
 
-    window.addEventListener(
-      'resize',
-      update,
-    )
+    window.addEventListener('resize', update)
 
     return () => {
       window.removeEventListener(
@@ -108,22 +74,49 @@ export function Navbar() {
       )
 
       if (frame) {
-        window.cancelAnimationFrame(
-          frame,
-        )
+        window.cancelAnimationFrame(frame)
       }
     }
   }, [])
 
-  /*
-   * Close the mobile menu if the user
-   * returns to the very top of the page.
-   */
   useEffect(() => {
     if (visible < 0.05) {
       setMenuOpen(false)
     }
   }, [visible])
+
+  useEffect(() => {
+    if (!menuOpen) return
+
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setMenuOpen(false)
+      }
+    }
+
+    window.addEventListener('keydown', onKeyDown)
+
+    return () => {
+      window.removeEventListener(
+        'keydown',
+        onKeyDown,
+      )
+    }
+  }, [menuOpen])
+
+  useEffect(() => {
+    if (!menuOpen) return
+
+    const previousOverflow =
+      document.body.style.overflow
+
+    document.body.style.overflow = 'hidden'
+
+    return () => {
+      document.body.style.overflow =
+        previousOverflow
+    }
+  }, [menuOpen])
 
   return (
     <header
@@ -133,16 +126,17 @@ export function Navbar() {
           inset-x-0
           top-0
           z-50
-          transition-all
-          duration-700
-          ease-[cubic-bezier(0.22,1,0.36,1)]
+          transition-[background-color,border-color,box-shadow,backdrop-filter,opacity,transform]
+          duration-300
+          ease-out
+          motion-reduce:transition-none
         `,
         scrolled
           ? `
             border-b
             border-white/10
-            bg-black/75
-            shadow-[0_10px_40px_rgba(0,0,0,0.25)]
+            bg-black/80
+            shadow-[0_8px_32px_rgba(0,0,0,0.24)]
             backdrop-blur-xl
           `
           : `
@@ -154,12 +148,9 @@ export function Navbar() {
       )}
       style={{
         opacity: visible,
-
-        transform:
-          `translate3d(0, ${
-            (1 - visible) * -14
-          }px, 0)`,
-
+        transform: `translate3d(0, ${
+          (1 - visible) * -10
+        }px, 0)`,
         pointerEvents:
           visible > 0.05
             ? 'auto'
@@ -189,20 +180,28 @@ export function Navbar() {
           className="
             group
             flex
+            h-10
             items-center
+            rounded-md
+            outline-none
+            focus-visible:ring-2
+            focus-visible:ring-red-500
+            focus-visible:ring-offset-2
+            focus-visible:ring-offset-black
           "
         >
           <img
             src="/images/torq-logo.png"
             alt="TOR'Q"
             className="
-              h-9
+              h-8
               w-auto
               object-contain
               transition-transform
-              duration-500
-              group-hover:scale-105
-              sm:h-10
+              duration-200
+              motion-reduce:transition-none
+              group-hover:scale-[1.02]
+              sm:h-9
             "
           />
         </a>
@@ -215,7 +214,7 @@ export function Navbar() {
           className="
             hidden
             items-center
-            gap-7
+            gap-6
             md:flex
             lg:gap-8
           "
@@ -225,32 +224,41 @@ export function Navbar() {
               key={link.href}
               href={link.href}
               className="
+                group
                 relative
+                rounded-sm
+                px-1
                 py-2
                 text-sm
                 font-medium
                 tracking-wide
                 text-white/55
+                outline-none
                 transition-colors
-                duration-300
+                duration-200
                 hover:text-white
+                focus-visible:text-white
+                focus-visible:ring-2
+                focus-visible:ring-red-500
               "
             >
               {link.label}
 
-              {/* subtle hover line */}
-
               <span
+                aria-hidden="true"
                 className="
                   absolute
                   bottom-0
-                  left-0
+                  left-1
                   h-px
                   w-0
                   bg-red-500
-                  transition-all
-                  duration-300
-                  group-hover:w-full
+                  transition-[width]
+                  duration-200
+                  ease-out
+                  motion-reduce:transition-none
+                  group-hover:w-[calc(100%-0.5rem)]
+                  group-focus-visible:w-[calc(100%-0.5rem)]
                 "
               />
             </a>
@@ -261,33 +269,23 @@ export function Navbar() {
             ACTIONS
             ==================================================== */}
 
-        <div
-          className="
-            flex
-            items-center
-            gap-2
-          "
-        >
-          {/* REGISTER */}
-
+        <div className="flex items-center gap-2">
           <Button
             size="lg"
-            className="
-              hidden
-              sm:inline-flex
-            "
             onClick={open}
+            className="hidden sm:inline-flex"
           >
             Register Now
           </Button>
 
-          {/* MOBILE MENU BUTTON */}
+          {/* MOBILE MENU */}
 
           <button
             type="button"
             className="
               flex
-              size-11
+              h-11
+              w-11
               items-center
               justify-center
               rounded-full
@@ -296,10 +294,16 @@ export function Navbar() {
               bg-black/40
               text-white
               backdrop-blur-md
-              transition-all
-              duration-300
-              hover:border-red-500/60
-              hover:bg-white/10
+              outline-none
+              transition-[background-color,border-color,transform]
+              duration-200
+              hover:border-white/30
+              hover:bg-white/[0.08]
+              focus-visible:ring-2
+              focus-visible:ring-red-500
+              focus-visible:ring-offset-2
+              focus-visible:ring-offset-black
+              active:scale-[0.97]
               md:hidden
             "
             aria-label={
@@ -308,16 +312,21 @@ export function Navbar() {
                 : 'Open menu'
             }
             aria-expanded={menuOpen}
+            aria-controls="torq-mobile-menu"
             onClick={() =>
-              setMenuOpen(
-                (open) => !open,
-              )
+              setMenuOpen((open) => !open)
             }
           >
             {menuOpen ? (
-              <X className="size-5" />
+              <X
+                className="h-5 w-5"
+                strokeWidth={1.8}
+              />
             ) : (
-              <Menu className="size-5" />
+              <Menu
+                className="h-5 w-5"
+                strokeWidth={1.8}
+              />
             )}
           </button>
         </div>
@@ -328,6 +337,7 @@ export function Navbar() {
           ====================================================== */}
 
       <div
+        id="torq-mobile-menu"
         className={cn(
           `
             overflow-hidden
@@ -335,56 +345,52 @@ export function Navbar() {
             border-white/10
             bg-black/95
             backdrop-blur-xl
-            transition-all
-            duration-500
-            ease-[cubic-bezier(0.22,1,0.36,1)]
+            transition-[max-height,opacity]
+            duration-300
+            ease-out
+            motion-reduce:transition-none
             md:hidden
           `,
           menuOpen
-            ? 'max-h-[500px] opacity-100'
+            ? 'max-h-[520px] opacity-100'
             : 'max-h-0 border-t-transparent opacity-0',
         )}
       >
-        <div
-          className="
-            flex
-            flex-col
-            gap-1
-            px-4
-            py-4
-          "
-        >
-          {LINKS.map((link) => (
-            <a
-              key={link.href}
-              href={link.href}
-              onClick={() =>
-                setMenuOpen(false)
-              }
-              className="
-                rounded-md
-                px-3
-                py-3
-                text-sm
-                font-medium
-                text-white/60
-                transition-all
-                duration-300
-                hover:bg-white/5
-                hover:pl-4
-                hover:text-white
-              "
-            >
-              {link.label}
-            </a>
-          ))}
+        <div className="px-4 pb-5 pt-3 sm:px-6">
+          <div className="flex flex-col gap-1">
+            {LINKS.map((link) => (
+              <a
+                key={link.href}
+                href={link.href}
+                onClick={() =>
+                  setMenuOpen(false)
+                }
+                className="
+                  rounded-lg
+                  px-3
+                  py-3.5
+                  text-sm
+                  font-medium
+                  text-white/60
+                  outline-none
+                  transition-[background-color,color]
+                  duration-200
+                  hover:bg-white/[0.06]
+                  hover:text-white
+                  focus-visible:bg-white/[0.06]
+                  focus-visible:text-white
+                  focus-visible:ring-2
+                  focus-visible:ring-red-500
+                "
+              >
+                {link.label}
+              </a>
+            ))}
+          </div>
 
           <Button
             size="lg"
-            className="
-              mt-2
-              w-full
-            "
+            className="mt-3 w-full"
             onClick={() => {
               setMenuOpen(false)
               open()
