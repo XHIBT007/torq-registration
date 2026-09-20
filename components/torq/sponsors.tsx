@@ -1,9 +1,35 @@
 'use client'
 
-import { ArrowUpRight, Handshake } from 'lucide-react'
+import {
+  ArrowRight,
+  ArrowUpRight,
+  Handshake,
+  Play,
+  Sparkles,
+} from 'lucide-react'
 
 import { Reveal } from './reveal'
-import { SPONSORS } from '@/lib/torq-data'
+
+const PARTNERSHIP_PILLARS = [
+  {
+    number: '01',
+    title: 'Brand Experience',
+    description:
+      'Own a physical moment at TOR’Q through immersive activations, hospitality and branded experiences.',
+  },
+  {
+    number: '02',
+    title: 'Content & Media',
+    description:
+      'Turn TOR’Q into a content platform through film, social storytelling, branded content and media production.',
+  },
+  {
+    number: '03',
+    title: 'Audience & Culture',
+    description:
+      'Connect your brand with the automotive, lifestyle and creative communities that make TOR’Q move.',
+  },
+]
 
 export function Sponsors() {
   return (
@@ -20,19 +46,19 @@ export function Sponsors() {
         sm:py-32
       "
     >
-
       {/* ==========================================================
           ATMOSPHERE
           ========================================================== */}
 
       <div
+        aria-hidden="true"
         className="
           pointer-events-none
           absolute
           left-1/2
           top-0
-          h-[500px]
-          w-[700px]
+          h-[520px]
+          w-[760px]
           -translate-x-1/2
           rounded-full
           bg-red-600/[0.035]
@@ -40,26 +66,29 @@ export function Sponsors() {
         "
       />
 
-      {/* ==========================================================
-          INTRO
-          ========================================================== */}
-
       <div
+        aria-hidden="true"
         className="
-          relative
-          mx-auto
-          max-w-7xl
-          px-6
-          md:px-10
+          pointer-events-none
+          absolute
+          -right-32
+          bottom-0
+          h-[420px]
+          w-[420px]
+          rounded-full
+          bg-white/[0.015]
+          blur-[120px]
         "
-      >
+      />
+
+      <div className="relative mx-auto max-w-7xl px-6 md:px-10">
+
+        {/* ========================================================
+            INTRO
+            ======================================================== */}
 
         <Reveal>
-          <div
-            className="
-              max-w-4xl
-            "
-          >
+          <div className="max-w-4xl">
 
             <p
               className="
@@ -67,29 +96,30 @@ export function Sponsors() {
                 text-xs
                 font-bold
                 uppercase
-                tracking-[0.4em]
+                tracking-[0.34em]
                 text-red-500
+                sm:text-sm
               "
             >
-              Our Partners
+              Partnerships
             </p>
 
             <h2
               className="
-                text-4xl
+                text-5xl
                 font-black
                 uppercase
                 leading-[0.88]
-                tracking-[-0.04em]
-                sm:text-5xl
+                tracking-[-0.045em]
+                sm:text-6xl
                 md:text-7xl
               "
             >
-              Built with
+              Built for brands
               <br />
 
               <span className="text-red-500">
-                great brands.
+                that move.
               </span>
             </h2>
 
@@ -103,362 +133,500 @@ export function Sponsors() {
                 md:text-lg
               "
             >
-              TOR&apos;Q brings together brands,
-              communities and creators that believe
-              in the power of extraordinary
-              experiences.
+              TOR’Q creates a physical, cultural and media
+              platform where brands can become part of the
+              experience — not simply appear beside it.
             </p>
 
           </div>
         </Reveal>
 
         {/* ========================================================
-            PARTNER AREA
+            PARTNERSHIP PLATFORM
             ======================================================== */}
 
-        <div
-          className="
-            mt-16
-            md:mt-20
-          "
-        >
+        <Reveal delay={100}>
+          <div
+            className="
+              relative
+              mt-14
+              overflow-hidden
+              rounded-3xl
+              border
+              border-white/10
+              bg-white/[0.018]
+              md:mt-20
+            "
+          >
 
-          {SPONSORS.length > 0 ? (
+            {/* Background grid */}
+
+            <div
+              aria-hidden="true"
+              className="
+                pointer-events-none
+                absolute
+                inset-0
+                opacity-[0.035]
+                [background-image:linear-gradient(rgba(255,255,255,0.5)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.5)_1px,transparent_1px)]
+                [background-size:56px_56px]
+              "
+            />
+
+            {/* Red atmosphere */}
+
+            <div
+              aria-hidden="true"
+              className="
+                pointer-events-none
+                absolute
+                -right-32
+                -top-32
+                h-[420px]
+                w-[420px]
+                rounded-full
+                bg-red-600/[0.08]
+                blur-[120px]
+              "
+            />
 
             <div
               className="
+                relative
                 grid
-                gap-4
-                sm:grid-cols-2
-                lg:grid-cols-3
+                lg:grid-cols-[1.05fr_0.95fr]
               "
             >
 
-              {SPONSORS.map(
-                (sponsor, index) => (
-                  <SponsorCard
-                    key={
-                      sponsor.name ??
-                      index
-                    }
-                    sponsor={sponsor}
-                    index={index}
-                  />
-                ),
-              )}
+              {/* ==================================================
+                  PRIMARY MESSAGE
+                  ================================================== */}
 
-            </div>
-
-          ) : (
-
-            /* ======================================================
-               PARTNERSHIP PLACEHOLDER
-
-               This is intentionally subtle while the partner
-               roster is being finalised.
-               ====================================================== */
-
-            <Reveal delay={150}>
               <div
                 className="
-                  group
-                  relative
-                  overflow-hidden
-                  rounded-2xl
-                  border
+                  border-b
                   border-white/10
-                  bg-white/[0.015]
-                  p-8
-                  transition-all
-                  duration-700
-                  hover:border-white/20
+                  p-7
                   sm:p-10
-                  md:p-12
+                  lg:border-b-0
+                  lg:border-r
+                  lg:p-14
+                  xl:p-16
                 "
               >
 
-                {/* Decorative glow */}
-
                 <div
                   className="
-                    pointer-events-none
-                    absolute
-                    -right-20
-                    -top-20
-                    h-64
-                    w-64
-                    rounded-full
-                    bg-red-600/[0.06]
-                    blur-[100px]
-                    transition-opacity
-                    duration-700
-                    group-hover:bg-red-600/[0.10]
-                  "
-                />
-
-                <div
-                  className="
-                    relative
                     flex
-                    flex-col
-                    gap-8
-                    md:flex-row
-                    md:items-center
-                    md:justify-between
+                    h-11
+                    w-11
+                    items-center
+                    justify-center
+                    rounded-full
+                    border
+                    border-white/10
+                    bg-white/[0.035]
+                    text-red-500
                   "
                 >
+                  <Handshake className="h-5 w-5" />
+                </div>
 
-                  <div>
+                <p
+                  className="
+                    mt-8
+                    text-[10px]
+                    font-bold
+                    uppercase
+                    tracking-[0.3em]
+                    text-white/30
+                  "
+                >
+                  Become part of TOR’Q
+                </p>
 
-                    <div
-                      className="
-                        flex
-                        h-12
-                        w-12
-                        items-center
-                        justify-center
-                        rounded-full
-                        border
-                        border-white/10
-                        bg-white/[0.03]
-                        transition-all
-                        duration-500
-                        group-hover:border-red-500/40
-                        group-hover:bg-red-500/10
-                      "
-                    >
-                      <Handshake
-                        className="
-                          h-5
-                          w-5
-                          text-white/60
-                          transition-colors
-                          duration-500
-                          group-hover:text-red-500
-                        "
-                      />
-                    </div>
+                <h3
+                  className="
+                    mt-3
+                    max-w-xl
+                    text-3xl
+                    font-black
+                    uppercase
+                    leading-[0.92]
+                    tracking-[-0.03em]
+                    sm:text-4xl
+                    md:text-5xl
+                  "
+                >
+                  Your brand.
+                  <br />
 
-                    <p
-                      className="
-                        mt-6
-                        text-xs
-                        font-bold
-                        uppercase
-                        tracking-[0.3em]
-                        text-white/30
-                      "
-                    >
-                      Become part of TOR&apos;Q
-                    </p>
+                  <span className="text-red-500">
+                    Inside the experience.
+                  </span>
+                </h3>
 
-                    <h3
-                      className="
-                        mt-3
-                        max-w-2xl
-                        text-2xl
-                        font-black
-                        uppercase
-                        leading-tight
-                        sm:text-3xl
-                      "
-                    >
-                      Put your brand
-                      <br />
-                      inside the experience.
-                    </h3>
+                <p
+                  className="
+                    mt-6
+                    max-w-xl
+                    text-sm
+                    leading-6
+                    text-white/40
+                    md:text-base
+                    md:leading-7
+                  "
+                >
+                  From immersive activations and hospitality
+                  to content partnerships and audience
+                  engagement, TOR’Q offers brands multiple
+                  ways to participate in one of Nigeria&apos;s
+                  most distinctive automotive experiences.
+                </p>
 
-                    <p
-                      className="
-                        mt-4
-                        max-w-xl
-                        text-sm
-                        leading-6
-                        text-white/40
-                      "
-                    >
-                      From brand experiences and content
-                      partnerships to hospitality and
-                      audience engagement, TOR&apos;Q creates
-                      meaningful spaces for brands to connect
-                      with culture.
-                    </p>
+                <a
+                  href="#contact"
+                  className="
+                    group
+                    mt-8
+                    inline-flex
+                    h-12
+                    w-fit
+                    items-center
+                    gap-3
+                    rounded-lg
+                    bg-red-500
+                    px-5
+                    text-sm
+                    font-semibold
+                    text-white
+                    shadow-[0_8px_28px_rgba(239,68,68,0.16)]
+                    transition-[background-color,transform,box-shadow]
+                    duration-200
+                    hover:bg-red-400
+                    hover:shadow-[0_10px_32px_rgba(239,68,68,0.22)]
+                    active:translate-y-px
+                    focus-visible:outline-none
+                    focus-visible:ring-2
+                    focus-visible:ring-red-500
+                    focus-visible:ring-offset-2
+                    focus-visible:ring-offset-black
+                  "
+                >
+                  Discuss a partnership
 
-                  </div>
-
-                  <a
-                    href="#contact"
+                  <ArrowUpRight
                     className="
-                      group/link
-                      inline-flex
-                      w-fit
-                      shrink-0
-                      items-center
-                      gap-3
-                      rounded-full
-                      border
-                      border-white/15
-                      bg-white/[0.03]
-                      px-6
-                      py-3
-                      text-xs
+                      h-4
+                      w-4
+                      transition-transform
+                      duration-200
+                      group-hover:-translate-y-0.5
+                      group-hover:translate-x-0.5
+                    "
+                  />
+                </a>
+
+              </div>
+
+              {/* ==================================================
+                  PARTNERSHIP PILLARS
+                  ================================================== */}
+
+              <div className="p-7 sm:p-10 lg:p-14 xl:p-16">
+
+                <div
+                  className="
+                    mb-8
+                    flex
+                    items-center
+                    gap-3
+                  "
+                >
+                  <Sparkles className="h-4 w-4 text-red-500" />
+
+                  <p
+                    className="
+                      text-[10px]
                       font-bold
                       uppercase
-                      tracking-[0.2em]
-                      text-white/70
-                      transition-all
-                      duration-500
-                      hover:border-red-500
-                      hover:bg-red-500
-                      hover:text-white
+                      tracking-[0.3em]
+                      text-white/35
                     "
                   >
+                    Partnership platform
+                  </p>
+                </div>
 
-                    Partner with us
+                <div className="divide-y divide-white/10">
 
-                    <ArrowUpRight
-                      className="
-                        h-4
-                        w-4
-                        transition-transform
-                        duration-300
-                        group-hover/link:-translate-y-0.5
-                        group-hover/link:translate-x-0.5
-                      "
-                    />
+                  {PARTNERSHIP_PILLARS.map(
+                    (pillar) => (
+                      <div
+                        key={pillar.number}
+                        className="
+                          group
+                          py-6
+                          first:pt-0
+                          last:pb-0
+                        "
+                      >
 
-                  </a>
+                        <div
+                          className="
+                            flex
+                            items-start
+                            gap-5
+                          "
+                        >
+
+                          <span
+                            className="
+                              pt-1
+                              text-[10px]
+                              font-bold
+                              tabular-nums
+                              tracking-[0.15em]
+                              text-red-500/70
+                            "
+                          >
+                            {pillar.number}
+                          </span>
+
+                          <div className="min-w-0">
+
+                            <h4
+                              className="
+                                text-base
+                                font-bold
+                                uppercase
+                                tracking-[0.01em]
+                                text-white
+                                transition-colors
+                                duration-200
+                                group-hover:text-red-400
+                                sm:text-lg
+                              "
+                            >
+                              {pillar.title}
+                            </h4>
+
+                            <p
+                              className="
+                                mt-2
+                                max-w-lg
+                                text-sm
+                                leading-6
+                                text-white/35
+                              "
+                            >
+                              {pillar.description}
+                            </p>
+
+                          </div>
+
+                        </div>
+
+                      </div>
+                    ),
+                  )}
 
                 </div>
 
               </div>
-            </Reveal>
 
-          )}
+            </div>
+          </div>
+        </Reveal>
 
-        </div>
+        {/* ========================================================
+            PARTNERSHIP SIGNAL
+            ======================================================== */}
+
+        <Reveal delay={180}>
+          <div
+            className="
+              mt-6
+              grid
+              gap-4
+              sm:grid-cols-3
+            "
+          >
+
+            <PartnershipSignal
+              icon="01"
+              title="Experiences"
+              text="Physical brand presence"
+            />
+
+            <PartnershipSignal
+              icon="02"
+              title="Content"
+              text="Stories built for distribution"
+            />
+
+            <PartnershipSignal
+              icon="03"
+              title="Community"
+              text="Culture beyond the event"
+            />
+
+          </div>
+        </Reveal>
+
+        {/* ========================================================
+            FOOTER CTA
+            ======================================================== */}
+
+        <Reveal delay={240}>
+          <div
+            className="
+              mt-14
+              flex
+              flex-col
+              gap-5
+              border-t
+              border-white/10
+              pt-6
+              sm:flex-row
+              sm:items-center
+              sm:justify-between
+              md:mt-16
+              md:pt-7
+            "
+          >
+
+            <div
+              className="
+                flex
+                items-center
+                gap-3
+                text-[9px]
+                font-semibold
+                uppercase
+                tracking-[0.28em]
+                text-white/30
+              "
+            >
+              <span className="h-1.5 w-1.5 rounded-full bg-red-500" />
+
+              TOR’Q 2026
+
+              <span className="text-white/15">
+                /
+              </span>
+
+              Lagos, Nigeria
+            </div>
+
+            <a
+              href="#contact"
+              className="
+                group
+                inline-flex
+                w-fit
+                items-center
+                gap-3
+                text-[10px]
+                font-bold
+                uppercase
+                tracking-[0.25em]
+                text-white/55
+                transition-colors
+                duration-200
+                hover:text-white
+                focus-visible:outline-none
+                focus-visible:ring-2
+                focus-visible:ring-red-500
+              "
+            >
+              Start a conversation
+
+              <ArrowRight
+                className="
+                  h-3.5
+                  w-3.5
+                  text-red-500
+                  transition-transform
+                  duration-200
+                  group-hover:translate-x-1
+                "
+              />
+            </a>
+
+          </div>
+        </Reveal>
 
       </div>
-
     </section>
   )
 }
 
 /* ================================================================
-   SPONSOR CARD
+   PARTNERSHIP SIGNAL
    ================================================================ */
 
-function SponsorCard({
-  sponsor,
-  index,
+function PartnershipSignal({
+  icon,
+  title,
+  text,
 }: {
-  sponsor: (typeof SPONSORS)[number]
-  index: number
+  icon: string
+  title: string
+  text: string
 }) {
   return (
-    <Reveal delay={index * 80}>
-
-      <div
+    <div
+      className="
+        flex
+        items-center
+        gap-4
+        rounded-xl
+        border
+        border-white/10
+        bg-white/[0.012]
+        px-5
+        py-4
+      "
+    >
+      <span
         className="
-          group
-          relative
-          flex
-          min-h-[220px]
-          items-center
-          justify-center
-          overflow-hidden
-          rounded-2xl
-          border
-          border-white/10
-          bg-white/[0.015]
-          p-8
-          transition-all
-          duration-700
-          hover:-translate-y-1
-          hover:border-white/20
-          hover:bg-white/[0.03]
+          text-[9px]
+          font-bold
+          tabular-nums
+          tracking-[0.15em]
+          text-red-500/70
         "
       >
+        {icon}
+      </span>
 
-        {/* Hover atmosphere */}
+      <div className="min-w-0">
 
-        <div
+        <p
           className="
-            pointer-events-none
-            absolute
-            inset-0
-            bg-radial
-            from-red-500/[0.06]
-            to-transparent
-            opacity-0
-            transition-opacity
-            duration-700
-            group-hover:opacity-100
+            text-[10px]
+            font-bold
+            uppercase
+            tracking-[0.16em]
+            text-white/70
           "
-        />
+        >
+          {title}
+        </p>
 
-        <div className="relative flex items-center justify-center">
-
-          {sponsor.logo ? (
-
-            <img
-              src={sponsor.logo}
-              alt={sponsor.name}
-              className="
-                max-h-20
-                max-w-[220px]
-                object-contain
-                opacity-70
-                grayscale
-                transition-all
-                duration-500
-                group-hover:opacity-100
-                group-hover:grayscale-0
-              "
-            />
-
-          ) : (
-
-            <span
-              className="
-                text-center
-                text-lg
-                font-black
-                uppercase
-                tracking-wide
-                text-white/60
-                transition-colors
-                duration-500
-                group-hover:text-white
-              "
-            >
-              {sponsor.name}
-            </span>
-
-          )}
-
-        </div>
-
-        {/* Corner */}
-
-        <ArrowUpRight
+        <p
           className="
-            absolute
-            bottom-5
-            right-5
-            h-4
-            w-4
-            text-white/20
-            transition-all
-            duration-500
-            group-hover:-translate-y-0.5
-            group-hover:translate-x-0.5
-            group-hover:text-red-500
+            mt-0.5
+            truncate
+            text-[11px]
+            text-white/30
           "
-        />
+        >
+          {text}
+        </p>
 
       </div>
-
-    </Reveal>
+    </div>
   )
 }
