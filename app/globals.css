@@ -38,8 +38,10 @@
   --color-background: var(--background);
   --color-gold: var(--gold);
   --color-ember: var(--ember);
+
   --font-sans: var(--font-sans);
   --font-display: var(--font-display);
+
   --radius-sm: calc(var(--radius) * 0.6);
   --radius-md: calc(var(--radius) * 0.8);
   --radius-lg: var(--radius);
@@ -51,33 +53,46 @@
 
 :root {
   color-scheme: dark;
+
   --background: oklch(0.16 0.008 40);
   --foreground: oklch(0.96 0.006 80);
+
   --card: oklch(0.2 0.01 40);
   --card-foreground: oklch(0.96 0.006 80);
+
   --popover: oklch(0.19 0.01 40);
   --popover-foreground: oklch(0.96 0.006 80);
+
   --primary: oklch(0.57 0.22 27);
   --primary-foreground: oklch(0.98 0.01 80);
+
   --secondary: oklch(0.26 0.012 45);
   --secondary-foreground: oklch(0.96 0.006 80);
+
   --muted: oklch(0.24 0.01 45);
   --muted-foreground: oklch(0.72 0.02 70);
+
   --accent: oklch(0.78 0.14 75);
   --accent-foreground: oklch(0.18 0.01 40);
+
   --destructive: oklch(0.6 0.24 27);
+
   --border: oklch(0.32 0.02 55);
   --input: oklch(0.28 0.015 50);
   --ring: oklch(0.78 0.14 75);
+
   --chart-1: oklch(0.57 0.22 27);
   --chart-2: oklch(0.7 0.18 45);
   --chart-3: oklch(0.78 0.14 75);
   --chart-4: oklch(0.5 0.15 30);
   --chart-5: oklch(0.85 0.1 85);
-  --radius: 0.25rem;
+
+  --radius: 0.375rem;
+
   --gold: oklch(0.82 0.13 82);
   --gold-light: oklch(0.95 0.06 90);
   --ember: oklch(0.68 0.2 45);
+
   --sidebar: oklch(0.18 0.01 40);
   --sidebar-foreground: oklch(0.96 0.006 80);
   --sidebar-primary: oklch(0.57 0.22 27);
@@ -86,33 +101,59 @@
   --sidebar-accent-foreground: oklch(0.18 0.01 40);
   --sidebar-border: oklch(0.32 0.02 55);
   --sidebar-ring: oklch(0.78 0.14 75);
+
+  /* TOR'Q UX SYSTEM */
+
+  --ui-radius-sm: 10px;
+  --ui-radius-md: 14px;
+  --ui-radius-lg: 20px;
+  --ui-radius-xl: 28px;
+
+  --ui-control-h: 48px;
+
+  --ui-ease: cubic-bezier(0.22, 1, 0.36, 1);
+
+  --ui-duration-fast: 160ms;
+  --ui-duration: 260ms;
+  --ui-duration-slow: 520ms;
 }
 
 .dark {
   color-scheme: dark;
+
   --background: oklch(0.145 0 0);
   --foreground: oklch(0.985 0 0);
+
   --card: oklch(0.205 0 0);
   --card-foreground: oklch(0.985 0 0);
+
   --popover: oklch(0.205 0 0);
   --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
+
+  --primary: oklch(0.57 0.22 27);
+  --primary-foreground: oklch(0.985 0 0);
+
   --secondary: oklch(0.269 0 0);
   --secondary-foreground: oklch(0.985 0 0);
+
   --muted: oklch(0.269 0 0);
   --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
+
+  --accent: oklch(0.78 0.14 75);
+  --accent-foreground: oklch(0.145 0 0);
+
   --destructive: oklch(0.704 0.191 22.216);
+
   --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
+  --input: oklch(1 0 0 / 14%);
+  --ring: oklch(0.78 0.14 75);
+
   --chart-1: oklch(0.87 0 0);
   --chart-2: oklch(0.556 0 0);
   --chart-3: oklch(0.439 0 0);
   --chart-4: oklch(0.371 0 0);
   --chart-5: oklch(0.269 0 0);
+
   --sidebar: oklch(0.205 0 0);
   --sidebar-foreground: oklch(0.985 0 0);
   --sidebar-primary: oklch(0.488 0.243 264.376);
@@ -123,60 +164,330 @@
   --sidebar-ring: oklch(0.556 0 0);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root:not(.light) {
-    color-scheme: dark;
-    --background: oklch(0.145 0 0);
-    --foreground: oklch(0.985 0 0);
-    --card: oklch(0.205 0 0);
-    --card-foreground: oklch(0.985 0 0);
-    --popover: oklch(0.205 0 0);
-    --popover-foreground: oklch(0.985 0 0);
-    --primary: oklch(0.922 0 0);
-    --primary-foreground: oklch(0.205 0 0);
-    --secondary: oklch(0.269 0 0);
-    --secondary-foreground: oklch(0.985 0 0);
-    --muted: oklch(0.269 0 0);
-    --muted-foreground: oklch(0.708 0 0);
-    --accent: oklch(0.269 0 0);
-    --accent-foreground: oklch(0.985 0 0);
-    --destructive: oklch(0.704 0.191 22.216);
-    --border: oklch(1 0 0 / 10%);
-    --input: oklch(1 0 0 / 15%);
-    --ring: oklch(0.556 0 0);
-    --chart-1: oklch(0.87 0 0);
-    --chart-2: oklch(0.556 0 0);
-    --chart-3: oklch(0.439 0 0);
-    --chart-4: oklch(0.371 0 0);
-    --chart-5: oklch(0.269 0 0);
-    --sidebar: oklch(0.205 0 0);
-    --sidebar-foreground: oklch(0.985 0 0);
-    --sidebar-primary: oklch(0.488 0.243 264.376);
-    --sidebar-primary-foreground: oklch(0.985 0 0);
-    --sidebar-accent: oklch(0.269 0 0);
-    --sidebar-accent-foreground: oklch(0.985 0 0);
-    --sidebar-border: oklch(1 0 0 / 10%);
-    --sidebar-ring: oklch(0.556 0 0);
+@layer base {
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+    @apply border-border outline-ring/50;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    text-size-adjust: 100%;
+    -webkit-text-size-adjust: 100%;
+    scrollbar-gutter: stable;
+    overscroll-behavior-x: none;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+
+    min-width: 320px;
+    overflow-x: hidden;
+
+    font-family:
+      var(--font-sans),
+      ui-sans-serif,
+      system-ui,
+      sans-serif;
+
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  button,
+  input,
+  textarea,
+  select {
+    font: inherit;
+  }
+
+  button,
+  a,
+  input,
+  textarea,
+  select {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  button {
+    touch-action: manipulation;
+  }
+
+  img,
+  video,
+  svg,
+  canvas {
+    display: block;
+    max-width: 100%;
+  }
+
+  img,
+  video {
+    height: auto;
+  }
+
+  :where(a, button, input, textarea, select):focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 3px;
+  }
+
+  ::placeholder {
+    opacity: 1;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    text-wrap: balance;
+  }
+
+  p,
+  li,
+  label {
+    overflow-wrap: anywhere;
   }
 }
 
-@layer base {
-  * {
-    @apply border-border outline-ring/50;
+/* =========================================================
+   TOR'Q — SHARED CONTROLS
+   ========================================================= */
+
+.torq-control {
+  min-height: var(--ui-control-h);
+  width: 100%;
+
+  border: 1px solid color-mix(
+    in oklab,
+    white 14%,
+    transparent
+  );
+
+  border-radius: var(--ui-radius-md);
+
+  background: color-mix(
+    in oklab,
+    var(--background) 88%,
+    white 12%
+  );
+
+  color: var(--foreground);
+
+  padding: 0 14px;
+
+  font-size: 15px;
+  line-height: 1.35;
+
+  transition:
+    border-color var(--ui-duration-fast) var(--ui-ease),
+    background-color var(--ui-duration-fast) var(--ui-ease),
+    box-shadow var(--ui-duration-fast) var(--ui-ease);
+}
+
+.torq-control:hover {
+  border-color: color-mix(
+    in oklab,
+    white 24%,
+    transparent
+  );
+}
+
+.torq-control:focus {
+  border-color: var(--accent);
+
+  background: color-mix(
+    in oklab,
+    var(--background) 94%,
+    white 6%
+  );
+
+  box-shadow:
+    0 0 0 4px
+    color-mix(
+      in oklab,
+      var(--accent) 18%,
+      transparent
+    );
+
+  outline: none;
+}
+
+.torq-control.textarea {
+  min-height: 112px;
+  padding-top: 12px;
+  padding-bottom: 12px;
+  resize: vertical;
+}
+
+.torq-field-label {
+  display: block;
+
+  color: color-mix(
+    in oklab,
+    var(--muted-foreground) 92%,
+    white 8%
+  );
+
+  font-size: 11px;
+  font-weight: 650;
+  line-height: 1.25;
+
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+/* =========================================================
+   TOR'Q — SURFACES / MEDIA
+   ========================================================= */
+
+.torq-surface {
+  border: 1px solid color-mix(
+    in oklab,
+    white 10%,
+    transparent
+  );
+
+  border-radius: var(--ui-radius-lg);
+
+  background: color-mix(
+    in oklab,
+    var(--card) 94%,
+    transparent
+  );
+}
+
+.torq-media-frame {
+  position: relative;
+
+  aspect-ratio: 16 / 10;
+
+  overflow: hidden;
+
+  border-radius: var(--ui-radius-lg);
+}
+
+.torq-media-frame > img,
+.torq-media-frame > video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* =========================================================
+   TOR'Q — SCROLL RAILS
+   ========================================================= */
+
+.torq-scroll-rail {
+  scroll-behavior: smooth;
+
+  overscroll-behavior-inline: contain;
+
+  scroll-snap-type: x mandatory;
+
+  -webkit-overflow-scrolling: touch;
+}
+
+/* =========================================================
+   TOR'Q — MODALS
+   ========================================================= */
+
+.torq-modal-backdrop {
+  background: rgb(0 0 0 / 78%);
+
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.torq-modal-shell {
+  width: min(92vw, 640px);
+
+  max-height:
+    min(88svh, 780px);
+
+  border-radius: var(--ui-radius-xl);
+
+  box-shadow:
+    0 30px 90px rgb(0 0 0 / 48%),
+    0 8px 30px rgb(0 0 0 / 28%);
+
+  contain: layout paint;
+}
+
+.torq-modal-scroll {
+  max-height:
+    calc(min(88svh, 780px) - 5px);
+
+  overflow-y: auto;
+
+  overscroll-behavior: contain;
+
+  -webkit-overflow-scrolling: touch;
+
+  scrollbar-width: thin;
+}
+
+/* =========================================================
+   TOR'Q — MOTION
+   ========================================================= */
+
+@keyframes torq-step-enter {
+  from {
+    opacity: 0;
+    transform: translate3d(10px, 0, 0);
   }
-  body {
-    @apply bg-background text-foreground;
+
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
   }
+}
+
+@keyframes torq-modal-enter {
+  from {
+    opacity: 0;
+    transform:
+      translate3d(0, 14px, 0)
+      scale(0.985);
+  }
+
+  to {
+    opacity: 1;
+    transform:
+      translate3d(0, 0, 0)
+      scale(1);
+  }
+}
+
+.torq-step-enter {
+  animation:
+    torq-step-enter
+    var(--ui-duration)
+    var(--ui-ease)
+    both;
+}
+
+.torq-modal-enter {
+  animation:
+    torq-modal-enter
+    360ms
+    var(--ui-ease)
+    both;
 }
 
 @keyframes fade-up {
   from {
     opacity: 0;
-    transform: translateY(24px);
+    transform: translate3d(0, 24px, 0);
   }
+
   to {
     opacity: 1;
-    transform: translateY(0);
+    transform: translate3d(0, 0, 0);
   }
 }
 
@@ -184,6 +495,7 @@
   from {
     opacity: 0;
   }
+
   to {
     opacity: 1;
   }
@@ -192,11 +504,16 @@
 @keyframes scale-in {
   from {
     opacity: 0;
-    transform: scale(0.94);
+    transform:
+      translate3d(0, 10px, 0)
+      scale(0.985);
   }
+
   to {
     opacity: 1;
-    transform: scale(1);
+    transform:
+      translate3d(0, 0, 0)
+      scale(1);
   }
 }
 
@@ -204,17 +521,19 @@
   from {
     transform: scale(1.05);
   }
+
   to {
-    transform: scale(1.18);
+    transform: scale(1.12);
   }
 }
 
 @keyframes marquee {
   from {
-    transform: translateX(0);
+    transform: translate3d(0, 0, 0);
   }
+
   to {
-    transform: translateX(-50%);
+    transform: translate3d(-50%, 0, 0);
   }
 }
 
@@ -222,74 +541,29 @@
   0% {
     background-position: -200% center;
   }
+
   100% {
     background-position: 200% center;
   }
 }
 
-@utility animate-fade-up {
-  animation: fade-up 0.8s cubic-bezier(0.22, 1, 0.36, 1) both;
-}
-
-@utility animate-fade-in {
-  animation: fade-in 1s ease both;
-}
-
-@utility animate-scale-in {
-  animation: scale-in 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
-}
-
-@utility animate-slow-zoom {
-  animation: slow-zoom 18s ease-in-out infinite alternate;
-}
-
-@utility animate-marquee {
-  animation: marquee 32s linear infinite;
-}
-
-.reveal {
-  opacity: 0;
-  transform: translateY(36px);
-  transition: opacity 0.9s cubic-bezier(0.22, 1, 0.36, 1),
-    transform 0.9s cubic-bezier(0.22, 1, 0.36, 1);
-}
-
-.reveal.is-visible {
-  opacity: 1;
-  transform: translateY(0);
-}
-
-@utility text-gold-shimmer {
-  background-image: linear-gradient(
-    100deg,
-    var(--gold) 20%,
-    var(--gold-light) 40%,
-    var(--gold) 60%
-  );
-  background-size: 200% auto;
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-  color: transparent;
-  animation: shimmer 6s linear infinite;
-}
 @keyframes hero-word {
   from {
     opacity: 0;
-    transform: translateY(40px);
+    transform: translate3d(0, 40px, 0);
     filter: blur(8px);
   }
 
   to {
     opacity: 1;
-    transform: translateY(0);
+    transform: translate3d(0, 0, 0);
     filter: blur(0);
   }
 }
 
 @keyframes scan {
   0% {
-    transform: translateY(-100%);
+    transform: translate3d(0, -100%, 0);
     opacity: 0;
   }
 
@@ -306,7 +580,7 @@
   }
 
   100% {
-    transform: translateY(100vh);
+    transform: translate3d(0, 100vh, 0);
     opacity: 0;
   }
 }
@@ -314,36 +588,175 @@
 @keyframes scroll-pulse {
   0%,
   100% {
-    transform: translateY(0);
+    transform: translate3d(0, 0, 0);
     opacity: 0.5;
   }
 
   50% {
-    transform: translateY(6px);
+    transform: translate3d(0, 6px, 0);
     opacity: 1;
   }
 }
 
+@utility animate-fade-up {
+  animation:
+    fade-up
+    650ms
+    var(--ui-ease)
+    both;
+}
+
+@utility animate-fade-in {
+  animation:
+    fade-in
+    420ms
+    var(--ui-ease)
+    both;
+}
+
+@utility animate-scale-in {
+  animation:
+    scale-in
+    360ms
+    var(--ui-ease)
+    both;
+}
+
+@utility animate-slow-zoom {
+  animation:
+    slow-zoom
+    18s
+    ease-in-out
+    infinite
+    alternate;
+}
+
+@utility animate-marquee {
+  animation:
+    marquee
+    32s
+    linear
+    infinite;
+}
+
 @utility animate-hero-word {
-  animation: hero-word 0.9s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation:
+    hero-word
+    700ms
+    var(--ui-ease)
+    both;
 }
 
 @utility animate-scan {
-  animation: scan 7s linear infinite;
+  animation:
+    scan
+    7s
+    linear
+    infinite;
 }
 
 @utility animate-scroll-pulse {
-  animation: scroll-pulse 1.8s ease-in-out infinite;
+  animation:
+    scroll-pulse
+    1.8s
+    ease-in-out
+    infinite;
 }
 
+/* =========================================================
+   TOR'Q — REVEAL
+   ========================================================= */
+
+.reveal {
+  opacity: 0;
+
+  transform:
+    translate3d(0, 28px, 0);
+
+  transition:
+    opacity 650ms var(--ui-ease),
+    transform 650ms var(--ui-ease);
+
+  will-change:
+    opacity,
+    transform;
+}
+
+.reveal.is-visible {
+  opacity: 1;
+
+  transform:
+    translate3d(0, 0, 0);
+}
+
+/* =========================================================
+   TOR'Q — GOLD TYPE
+   ========================================================= */
+
+@utility text-gold-shimmer {
+  background-image:
+    linear-gradient(
+      100deg,
+      var(--gold) 20%,
+      var(--gold-light) 40%,
+      var(--gold) 60%
+    );
+
+  background-size: 200% auto;
+
+  -webkit-background-clip: text;
+  background-clip: text;
+
+  -webkit-text-fill-color: transparent;
+
+  color: transparent;
+
+  animation:
+    shimmer
+    6s
+    linear
+    infinite;
+}
+
+/* =========================================================
+   MOBILE
+   ========================================================= */
+
+@media (max-width: 640px) {
+  .torq-modal-shell {
+    width: min(94vw, 640px);
+
+    max-height: 90svh;
+
+    border-radius: 22px;
+  }
+
+  .torq-modal-scroll {
+    max-height:
+      calc(90svh - 5px);
+  }
+}
+
+/* =========================================================
+   REDUCED MOTION
+   ========================================================= */
+
 @media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
   *,
   *::before,
   *::after {
-    scroll-behavior: auto !important;
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
+  }
+
+  .reveal {
+    opacity: 1;
+    transform: none;
   }
 }
 
@@ -351,3 +764,10 @@
   background: var(--primary);
   color: var(--primary-foreground);
 }
+`;
+
+text(JSON.stringify({sha, contentLength:content.length}));
+const r=await tools.mcp__GitHub__update_file({repository_full_name:repo,path,content,message:"Refine TOR'Q global UX motion and design system",sha,branch:"main"});
+text(JSON.stringify(r));
+♀♀♀♀♀♀
+text("If write fails, stop and report the permission limitation.");
