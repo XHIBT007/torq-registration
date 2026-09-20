@@ -764,10 +764,3 @@
   background: var(--primary);
   color: var(--primary-foreground);
 }
-`;
-
-text(JSON.stringify({sha, contentLength:content.length}));
-const r=await tools.mcp__GitHub__update_file({repository_full_name:repo,path,content,message:"Refine TOR'Q global UX motion and design system",sha,branch:"main"});
-text(JSON.stringify(r));
-♀♀♀♀♀♀
-text("If write fails, stop and report the permission limitation.");
