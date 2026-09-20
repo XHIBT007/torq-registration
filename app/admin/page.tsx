@@ -715,7 +715,7 @@ const arrivalActivity = Object.entries(arrivalByHour)
   )}
 </section>
         {/* Controls */}
-        <div className="mt-10 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+        <div className="mt-10 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
           <div className="relative w-full md:max-w-md">
             <Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-white/40" />
 
@@ -727,11 +727,11 @@ const arrivalActivity = Object.entries(arrivalByHour)
             />
           </div>
 
-          <div className="flex flex-col gap-3 sm:flex-row">
+         <div className="flex flex-col gap-3 md:flex-row md:items-start">
   <select
     value={filter}
     onChange={(event) => setFilter(event.target.value)}
-    className="rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white outline-none"
+    className="rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white outline-none lg:w-44 lg:shrink-0"
   >
     <option value="All" className="bg-black">
       All Participants
@@ -754,10 +754,10 @@ const arrivalActivity = Object.entries(arrivalByHour)
   </select>
 
   <select
-    value={statusFilter}
-    onChange={(event) => setStatusFilter(event.target.value)}
-    className="rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white outline-none"
-  >
+  value={statusFilter}
+  onChange={(event) => setStatusFilter(event.target.value)}
+  className="rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white outline-none lg:w-44 lg:shrink-0"
+>
     <option value="All" className="bg-black">
       All Statuses
     </option>
@@ -775,28 +775,28 @@ const arrivalActivity = Object.entries(arrivalByHour)
   <div className="flex flex-wrap gap-2">
   <button
     onClick={() => exportRegistrations()}
-    className="rounded-xl bg-red-600 px-5 py-3 text-sm font-semibold text-white"
+    className="shrink-0 whitespace-nowrap rounded-xl bg-red-600 px-5 py-3 text-sm font-semibold text-white"
   >
     Export Current
   </button>
 
   <button
     onClick={() => exportRegistrations('Approved')}
-    className="rounded-xl bg-green-600 px-5 py-3 text-sm font-semibold text-white"
+    className="shrink-0 whitespace-nowrap rounded-xl bg-green-600 px-5 py-3 text-sm font-semibold text-white"
   >
     Export Approved
   </button>
 
   <button
     onClick={() => exportRegistrations('Pending')}
-    className="rounded-xl bg-yellow-600 px-5 py-3 text-sm font-semibold text-white"
+    className="shrink-0 whitespace-nowrap rounded-xl bg-yellow-600 px-5 py-3 text-sm font-semibold text-white"
   >
     Export Pending
   </button>
 
   <button
     onClick={() => exportRegistrations('Rejected')}
-    className="rounded-xl bg-gray-700 px-5 py-3 text-sm font-semibold text-white"
+    className="shrink-0 whitespace-nowrap rounded-xl bg-gray-700 px-5 py-3 text-sm font-semibold text-white"
   >
     Export Rejected
   </button>
