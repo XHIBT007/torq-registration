@@ -1,59 +1,52 @@
 'use client'
 
 import { useState } from 'react'
-import { ArrowUpRight } from 'lucide-react'
+import { ArrowRight, ArrowUpRight } from 'lucide-react'
 
 import { GALLERY } from '@/lib/torq-data'
 import { Reveal } from './reveal'
 import { Lightbox } from './lightbox'
 
 export function Gallery() {
-  const [activeIndex, setActiveIndex] =
-    useState<number | null>(null)
+  const [activeIndex, setActiveIndex] = useState<number | null>(null)
 
   return (
     <section
       id="gallery"
-      className="
-        relative
-        overflow-hidden
-        bg-black
-        py-24
-        text-white
-        md:py-32
-      "
+      className="relative overflow-hidden bg-black py-24 text-white md:py-32"
     >
-
       {/* ==========================================================
           ATMOSPHERE
           ========================================================== */}
 
       <div
+        aria-hidden="true"
         className="
           pointer-events-none
           absolute
           left-1/2
           top-0
-          h-[500px]
-          w-[700px]
+          h-[460px]
+          w-[680px]
           -translate-x-1/2
           rounded-full
-          bg-red-600/[0.05]
-          blur-[140px]
+          bg-red-600/[0.045]
+          blur-[130px]
         "
       />
 
       <div
+        aria-hidden="true"
         className="
           pointer-events-none
           absolute
           bottom-0
           right-0
-          h-[400px]
-          w-[400px]
+          h-[360px]
+          w-[360px]
           rounded-full
-          bg-red-600/[0.03]
-          blur-[120px]
+          bg-red-600/[0.025]
+          blur-[110px]
         "
       />
 
@@ -61,27 +54,18 @@ export function Gallery() {
           INTRO
           ========================================================== */}
 
-      <div
-        className="
-          relative
-          mx-auto
-          max-w-7xl
-          px-6
-          md:px-10
-        "
-      >
-
+      <div className="relative mx-auto max-w-7xl px-6 md:px-10">
         <Reveal>
           <div className="max-w-5xl">
-
             <p
               className="
                 mb-5
-                text-sm
+                text-xs
                 font-bold
                 uppercase
-                tracking-[0.35em]
+                tracking-[0.32em]
                 text-red-500
+                sm:text-sm
               "
             >
               The Gallery
@@ -114,83 +98,70 @@ export function Gallery() {
               className="
                 mt-8
                 max-w-2xl
-                text-lg
-                leading-8
+                text-base
+                leading-7
                 text-white/45
+                sm:text-lg
+                sm:leading-8
                 md:text-xl
               "
             >
-              A visual archive of performance,
-              engineering, adrenaline and the people
-              who make TOR&apos;Q more than just an
-              event.
+              A visual archive of performance, engineering,
+              adrenaline and the people who make TOR&apos;Q
+              more than just an event.
             </p>
-
           </div>
         </Reveal>
-
       </div>
 
       {/* ==========================================================
-          HORIZONTAL GALLERY
+          GALLERY RAIL
           ========================================================== */}
 
-      <div
-        className="
-          relative
-          mt-16
-          md:mt-20
-        "
-      >
-
-        {/* LEFT EDGE */}
+      <div className="relative mt-14 md:mt-20">
+        {/* DESKTOP EDGE FADES */}
 
         <div
+          aria-hidden="true"
           className="
             pointer-events-none
             absolute
             left-0
             top-0
             z-10
+            hidden
             h-full
-            w-12
+            w-24
             bg-gradient-to-r
             from-black
             to-transparent
-            md:w-28
+            md:block
           "
         />
 
-        {/* RIGHT EDGE */}
-
         <div
+          aria-hidden="true"
           className="
             pointer-events-none
             absolute
             right-0
             top-0
             z-10
+            hidden
             h-full
-            w-12
+            w-24
             bg-gradient-to-l
             from-black
             to-transparent
-            md:w-28
+            md:block
           "
         />
 
-        {/* ========================================================
-            INDEPENDENT HORIZONTAL RAIL
-
-            Vertical page scrolling is never intercepted.
-            Users can swipe/drag horizontally inside this rail.
-            ======================================================== */}
-
         <div
           className="
+            torq-scroll-rail
             overflow-x-auto
             overscroll-x-contain
-            overscroll-y-none
             px-6
             pb-5
             [scrollbar-width:none]
@@ -198,33 +169,18 @@ export function Gallery() {
             md:px-[8vw]
           "
         >
-
-          <div
-            className="
-              flex
-              w-max
-              items-stretch
-              gap-5
-            "
-          >
-
-            {GALLERY.map(
-              (img, index) => (
-                <GalleryCard
-                  key={`${img.src}-${index}`}
-                  img={img}
-                  index={index}
-                  onOpen={() =>
-                    setActiveIndex(index)
-                  }
-                />
-              ),
-            )}
-
+          <div className="flex w-max snap-x snap-mandatory gap-4 sm:gap-5 md:gap-6">
+            {GALLERY.map((img, index) => (
+              <GalleryCard
+                key={`${img.src}-${index}`}
+                img={img}
+                index={index}
+                total={GALLERY.length}
+                onOpen={() => setActiveIndex(index)}
+              />
+            ))}
           </div>
-
         </div>
-
       </div>
 
       {/* ==========================================================
@@ -234,63 +190,39 @@ export function Gallery() {
       <div
         className="
           mx-auto
-          mt-7
+          mt-5
           flex
           max-w-7xl
           items-center
           gap-4
           px-6
+          md:mt-7
           md:px-10
         "
       >
+        <div className="h-px flex-1 bg-white/10" />
 
-        <div
-          className="
-            h-px
-            flex-1
-            bg-white/10
-          "
-        />
-
-        <div
-          className="
-            flex
-            shrink-0
-            items-center
-            gap-3
-          "
-        >
-
+        <div className="flex shrink-0 items-center gap-3">
           <span
             className="
               text-[9px]
               font-semibold
               uppercase
-              tracking-[0.35em]
-              text-white/25
+              tracking-[0.3em]
+              text-white/30
+              sm:text-[10px]
             "
           >
-            Explore the moments
+            Swipe to explore
           </span>
 
-          <ArrowUpRight
-            size={13}
-            className="
-              rotate-45
-              text-red-500
-            "
+          <ArrowRight
+            aria-hidden="true"
+            className="h-3.5 w-3.5 text-red-500"
           />
-
         </div>
 
-        <div
-          className="
-            h-px
-            flex-1
-            bg-white/10
-          "
-        />
-
+        <div className="h-px flex-1 bg-white/10" />
       </div>
 
       {/* ==========================================================
@@ -311,7 +243,6 @@ export function Gallery() {
           md:px-10
         "
       >
-
         <div
           className="
             flex
@@ -322,15 +253,13 @@ export function Gallery() {
             md:justify-between
           "
         >
-
           <div>
-
             <p
               className="
                 text-xs
                 font-bold
                 uppercase
-                tracking-[0.35em]
+                tracking-[0.32em]
                 text-white/30
               "
             >
@@ -344,13 +273,13 @@ export function Gallery() {
                 text-3xl
                 font-black
                 uppercase
-                leading-tight
+                leading-[0.95]
+                tracking-[-0.025em]
                 md:text-5xl
               "
             >
               Every machine
               <br />
-
               has a story.
               <br />
 
@@ -358,7 +287,6 @@ export function Gallery() {
                 TOR&apos;Q tells it.
               </span>
             </h3>
-
           </div>
 
           <p
@@ -369,13 +297,10 @@ export function Gallery() {
               text-white/35
             "
           >
-            From the roar of the engine to the
-            details in the build, this is where
-            performance becomes culture.
+            From the roar of the engine to the details in the
+            build, this is where performance becomes culture.
           </p>
-
         </div>
-
       </Reveal>
 
       {/* ==========================================================
@@ -386,13 +311,10 @@ export function Gallery() {
         <Lightbox
           images={GALLERY}
           activeIndex={activeIndex}
-          onClose={() =>
-            setActiveIndex(null)
-          }
+          onClose={() => setActiveIndex(null)}
           onNavigate={setActiveIndex}
         />
       )}
-
     </section>
   )
 }
@@ -404,67 +326,84 @@ export function Gallery() {
 function GalleryCard({
   img,
   index,
+  total,
   onOpen,
 }: {
   img: (typeof GALLERY)[number]
   index: number
+  total: number
   onOpen: () => void
 }) {
-
-  const featured =
-    index === 0 ||
-    index === 3 ||
-    index === 6
+  const number = String(index + 1).padStart(2, '0')
+  const totalNumber = String(total).padStart(2, '0')
 
   return (
     <article
-      onClick={onOpen}
-      className={`
+      className="
         group
         relative
+        h-[430px]
+        w-[82vw]
+        max-w-[360px]
         shrink-0
-        cursor-pointer
+        snap-start
         overflow-hidden
-        rounded-xl
+        rounded-2xl
         border
         border-white/10
         bg-neutral-950
-
-        ${
-          featured
-            ? 'h-[500px] w-[58vw] max-w-[860px]'
-            : 'h-[500px] w-[38vw] max-w-[560px]'
-        }
-
-        sm:h-[520px]
-
-        transition-all
-        duration-700
-
-        hover:border-white/20
-      `}
+        sm:h-[470px]
+        sm:w-[62vw]
+        sm:max-w-[420px]
+        md:h-[520px]
+        md:w-[38vw]
+        md:max-w-[500px]
+        lg:w-[34vw]
+        lg:max-w-[520px]
+      "
     >
+      <button
+        type="button"
+        onClick={onOpen}
+        className="
+          absolute
+          inset-0
+          z-20
+          cursor-pointer
+          rounded-2xl
+          text-left
+          outline-none
+          focus-visible:ring-2
+          focus-visible:ring-red-500
+          focus-visible:ring-inset
+        "
+        aria-label={`Open image ${index + 1} of ${total}: ${img.alt}`}
+      >
+        <span className="sr-only">
+          Open {img.alt}
+        </span>
+      </button>
 
       {/* ==========================================================
           IMAGE
           ========================================================== */}
 
       <img
-        src={
-          img.src ||
-          '/placeholder.svg'
-        }
-        alt={img.alt}
+        src={img.src || '/placeholder.svg'}
+        alt=""
+        aria-hidden="true"
         draggable={false}
+        loading={index < 2 ? 'eager' : 'lazy'}
         className="
           h-full
           w-full
           select-none
           object-cover
           transition-transform
-          duration-[1400ms]
+          duration-500
           ease-out
-          group-hover:scale-[1.035]
+          motion-reduce:transition-none
+          group-hover:scale-[1.025]
         "
       />
 
@@ -473,47 +412,84 @@ function GalleryCard({
           ========================================================== */}
 
       <div
+        aria-hidden="true"
         className="
+          pointer-events-none
           absolute
           inset-0
           bg-gradient-to-t
-          from-black/90
-          via-black/10
-          to-transparent
-          transition-opacity
-          duration-700
-          group-hover:from-black
+          from-black/95
+          via-black/15
+          to-black/5
+        "
+      />
+
+      <div
+        aria-hidden="true"
+        className="
+          pointer-events-none
+          absolute
+          inset-0
+          bg-black/0
+          transition-colors
+          duration-300
+          motion-reduce:transition-none
+          group-hover:bg-black/10
         "
       />
 
       {/* ==========================================================
-          CARD NUMBER
+          TOP METADATA
           ========================================================== */}
 
       <div
         className="
+          pointer-events-none
           absolute
-          left-5
-          top-5
+          inset-x-0
+          top-0
+          z-10
           flex
-          h-10
-          w-10
-          items-center
-          justify-center
-          border
-          border-white/20
-          bg-black/50
-          text-xs
-          font-bold
-          text-white
-          backdrop-blur-sm
-          transition-all
-          duration-500
-          group-hover:border-red-500/70
-          group-hover:bg-red-500/20
+          items-start
+          justify-between
+          p-5
+          sm:p-6
         "
       >
-        {String(index + 1).padStart(2, '0')}
+        <div
+          className="
+            flex
+            h-10
+            min-w-10
+            items-center
+            justify-center
+            rounded-full
+            border
+            border-white/15
+            bg-black/40
+            px-3
+            text-[10px]
+            font-bold
+            tabular-nums
+            tracking-[0.12em]
+            text-white/85
+            backdrop-blur-md
+          "
+        >
+          {number}
+        </div>
+
+        <div
+          className="
+            text-[9px]
+            font-semibold
+            uppercase
+            tracking-[0.25em]
+            text-white/45
+          "
+        >
+          {number} / {totalNumber}
+        </div>
       </div>
 
       {/* ==========================================================
@@ -522,57 +498,52 @@ function GalleryCard({
 
       <div
         className="
+          pointer-events-none
           absolute
           inset-x-0
           bottom-0
+          z-10
           flex
           items-end
           justify-between
-          p-6
-          md:p-8
+          gap-5
+          p-5
+          sm:p-6
+          md:p-7
         "
       >
-
-        <div
-          className="
-            max-w-[75%]
-            transition-transform
-            duration-500
-            group-hover:-translate-y-1
-          "
-        >
-
+        <div className="min-w-0 max-w-[78%]">
           <p
             className="
               mb-2
-              text-[10px]
+              text-[9px]
               font-bold
               uppercase
               tracking-[0.3em]
               text-red-500
             "
           >
-            TOR&apos;Q
+            TOR&apos;Q Archive
           </p>
 
           <p
             className="
+              line-clamp-2
               text-sm
               font-bold
               uppercase
-              tracking-wide
+              leading-snug
+              tracking-[0.04em]
               text-white
-              md:text-base
+              sm:text-base
             "
           >
             {img.alt}
           </p>
-
         </div>
 
-        {/* OPEN */}
-
         <div
+          aria-hidden="true"
           className="
             flex
             h-11
@@ -582,44 +553,53 @@ function GalleryCard({
             justify-center
             rounded-full
             border
-            border-white/30
+            border-white/20
+            bg-white/[0.06]
             text-white
+            backdrop-blur-md
             transition-all
-            duration-500
-            group-hover:scale-110
-            group-hover:border-red-500
-            group-hover:bg-red-500
+            duration-300
+            motion-reduce:transition-none
+            group-hover:border-white/35
+            group-hover:bg-white/[0.14]
           "
         >
-
           <ArrowUpRight
-            size={17}
             className="
+              h-4
+              w-4
               transition-transform
-              duration-500
+              duration-300
+              motion-reduce:transition-none
               group-hover:rotate-45
             "
           />
-
         </div>
-
       </div>
 
       {/* ==========================================================
-          ACTIVE EDGE
+          TOR'Q ACCENT
           ========================================================== */}
 
       <div
+        aria-hidden="true"
         className="
+          pointer-events-none
           absolute
           bottom-0
           left-0
+          z-10
           h-[2px]
           w-full
+          origin-left
+          scale-x-0
           bg-red-500
+          transition-transform
+          duration-300
+          motion-reduce:transition-none
+          group-hover:scale-x-100
         "
       />
-
     </article>
   )
 }
