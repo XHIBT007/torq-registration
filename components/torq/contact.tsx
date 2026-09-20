@@ -22,23 +22,22 @@ import { useRegistration } from './registration'
 const DETAILS = [
   {
     icon: Mail,
-    label: 'Email',
-    value: 'baiohpm007@gmail.com',
-  },
-  {
-    icon: Mail,
-    label: 'Email',
-    value: 'Adeniyie.b115@yahoo.com',
+    label: 'Partnerships',
+    value: 'partnerships@torq.ng',
+    href: 'mailto:partnerships@torq.ng',
+    featured: true,
   },
   {
     icon: Phone,
     label: 'Phone',
     value: '+234 903 018 8030',
+    href: 'tel:+2349030188030',
   },
   {
     icon: Phone,
     label: 'Phone',
     value: '+234 814 339 2465',
+    href: 'tel:+2348143392465',
   },
   {
     icon: MapPin,
@@ -373,54 +372,119 @@ export function Contact() {
                 </Reveal>
 
                 {/* ==================================================
-                    CTA
+                    CTAs
                     ================================================== */}
 
                 <Reveal delay={400}>
 
-                  <Button
-                    size="lg"
-                    onClick={open}
+                  <div
                     className="
-                      group
                       mt-8
-                      h-13
-                      rounded-full
-                      bg-red-600
-                      px-7
-                      text-base
-                      font-bold
-                      text-white
-                      transition-all
-                      duration-500
-                      hover:scale-105
-                      hover:bg-red-500
-                      hover:shadow-[0_0_35px_rgba(239,68,68,0.3)]
+                      flex
+                      flex-wrap
+                      gap-3
                     "
                   >
 
-                    <Ticket
+                    <Button
+                      size="lg"
+                      onClick={open}
                       className="
-                        size-4
-                        transition-transform
-                        duration-300
-                        group-hover:rotate-[-8deg]
+                        group
+                        h-13
+                        rounded-full
+                        bg-red-600
+                        px-7
+                        text-base
+                        font-bold
+                        text-white
+                        transition-all
+                        duration-500
+                        hover:scale-105
+                        hover:bg-red-500
+                        hover:shadow-[0_0_35px_rgba(239,68,68,0.3)]
                       "
-                    />
+                    >
 
-                    Register Now
+                      <Ticket
+                        className="
+                          size-4
+                          transition-transform
+                          duration-300
+                          group-hover:rotate-[-8deg]
+                        "
+                      />
 
-                    <ArrowUpRight
+                      Register Now
+
+                      <ArrowUpRight
+                        className="
+                          size-4
+                          transition-transform
+                          duration-300
+                          group-hover:translate-x-0.5
+                          group-hover:-translate-y-0.5
+                        "
+                      />
+
+                    </Button>
+
+                    <a
+                      href="mailto:partnerships@torq.ng?subject=TOR%27Q%202026%20Partnership%20Enquiry"
+                      aria-label="Email TOR'Q partnerships"
                       className="
-                        size-4
-                        transition-transform
+                        group
+                        inline-flex
+                        h-13
+                        items-center
+                        justify-center
+                        gap-2
+                        rounded-full
+                        border
+                        border-white/15
+                        bg-white/[0.04]
+                        px-6
+                        text-sm
+                        font-bold
+                        text-white
+                        backdrop-blur-sm
+                        transition-all
                         duration-300
-                        group-hover:translate-x-0.5
-                        group-hover:-translate-y-0.5
+                        hover:border-red-500/50
+                        hover:bg-red-500/10
+                        focus-visible:outline-none
+                        focus-visible:ring-2
+                        focus-visible:ring-red-500
+                        focus-visible:ring-offset-2
+                        focus-visible:ring-offset-black
                       "
-                    />
+                    >
 
-                  </Button>
+                      <Mail
+                        className="
+                          size-4
+                          text-red-500
+                          transition-transform
+                          duration-300
+                          group-hover:scale-110
+                        "
+                      />
+
+                      Discuss a Partnership
+
+                      <ArrowUpRight
+                        className="
+                          size-4
+                          transition-transform
+                          duration-300
+                          group-hover:translate-x-0.5
+                          group-hover:-translate-y-0.5
+                        "
+                      />
+
+                    </a>
+
+                  </div>
 
                 </Reveal>
 
@@ -447,6 +511,118 @@ export function Contact() {
                     const Icon =
                       detail.icon
 
+                    const cardClassName = `
+                      group
+                      h-full
+                      rounded-xl
+                      border
+                      p-5
+                      backdrop-blur-md
+                      transition-all
+                      duration-500
+                      ${
+                        detail.featured
+                          ? `
+                            border-red-500/40
+                            bg-red-500/[0.08]
+                            hover:-translate-y-1
+                            hover:border-red-500/60
+                            hover:bg-red-500/[0.12]
+                          `
+                          : `
+                            border-white/10
+                            bg-black/30
+                            hover:-translate-y-1
+                            hover:border-red-500/40
+                            hover:bg-black/45
+                          `
+                      }
+                    `
+
+                    const content = (
+                      <>
+                        <div
+                          className={`
+                            flex
+                            h-10
+                            w-10
+                            items-center
+                            justify-center
+                            rounded-full
+                            border
+                            transition-all
+                            duration-500
+                            ${
+                              detail.featured
+                                ? `
+                                  border-red-500/40
+                                  bg-red-500/10
+                                `
+                                : `
+                                  border-white/10
+                                  bg-white/[0.04]
+                                  group-hover:border-red-500/50
+                                  group-hover:bg-red-500/10
+                                `
+                            }
+                          `}
+                        >
+
+                          <Icon
+                            className="
+                              size-5
+                              text-red-500
+                              transition-transform
+                              duration-500
+                              group-hover:scale-110
+                            "
+                          />
+
+                        </div>
+
+                        <p
+                          className="
+                            mt-4
+                            text-[10px]
+                            uppercase
+                            tracking-[0.2em]
+                            text-white/35
+                          "
+                        >
+                          {detail.label}
+                        </p>
+
+                        <p
+                          className={`
+                            mt-1
+                            break-words
+                            font-medium
+                            ${
+                              detail.featured
+                                ? 'text-white'
+                                : 'text-white/80'
+                            }
+                          `}
+                        >
+                          {detail.value}
+                        </p>
+
+                        {detail.featured && (
+                          <p
+                            className="
+                              mt-2
+                              text-xs
+                              uppercase
+                              tracking-[0.14em]
+                              text-red-400/80
+                            "
+                          >
+                            Sponsorships · Media · Collaborations
+                          </p>
+                        )}
+                      </>
+                    )
+
                     return (
                       <Reveal
                         key={`${detail.label}-${detail.value}`}
@@ -456,78 +632,28 @@ export function Contact() {
                         }
                       >
 
-                        <div
-                          className="
-                            group
-                            h-full
-                            rounded-xl
-                            border
-                            border-white/10
-                            bg-black/30
-                            p-5
-                            backdrop-blur-md
-                            transition-all
-                            duration-500
-                            hover:-translate-y-1
-                            hover:border-red-500/40
-                            hover:bg-black/45
-                          "
-                        >
-
+                        {detail.href ? (
+                          <a
+                            href={detail.href}
+                            className={`
+                              block
+                              focus-visible:outline-none
+                              focus-visible:ring-2
+                              focus-visible:ring-red-500
+                              focus-visible:ring-offset-2
+                              focus-visible:ring-offset-black
+                              ${cardClassName}
+                            `}
+                          >
+                            {content}
+                          </a>
+                        ) : (
                           <div
-                            className="
-                              flex
-                              h-10
-                              w-10
-                              items-center
-                              justify-center
-                              rounded-full
-                              border
-                              border-white/10
-                              bg-white/[0.04]
-                              transition-all
-                              duration-500
-                              group-hover:border-red-500/50
-                              group-hover:bg-red-500/10
-                            "
+                            className={cardClassName}
                           >
-
-                            <Icon
-                              className="
-                                size-5
-                                text-red-500
-                                transition-transform
-                                duration-500
-                                group-hover:scale-110
-                              "
-                            />
-
+                            {content}
                           </div>
-
-                          <p
-                            className="
-                              mt-4
-                              text-[10px]
-                              uppercase
-                              tracking-[0.2em]
-                              text-white/35
-                            "
-                          >
-                            {detail.label}
-                          </p>
-
-                          <p
-                            className="
-                              mt-1
-                              break-words
-                              font-medium
-                              text-white/80
-                            "
-                          >
-                            {detail.value}
-                          </p>
-
-                        </div>
+                        )}
 
                       </Reveal>
                     )
