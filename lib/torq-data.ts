@@ -2,7 +2,7 @@ export const EVENT = {
   name: "TOR'Q",
   tagline: "Artistry in Motorsport",
 
-  date: "2026-12-06T10:00:00",
+  date: "2026-12-06",
 
   dateLabel: "December 6, 2026",
 
