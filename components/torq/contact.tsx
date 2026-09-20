@@ -47,7 +47,7 @@ const DETAILS = [
   {
     icon: AtSign,
     label: 'Social',
-    value: '@torq.motorsport',
+    value: '@torq.ng',
   },
 ]
 
