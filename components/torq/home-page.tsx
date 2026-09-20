@@ -10,6 +10,7 @@ import { Hero } from '@/components/torq/hero'
 import { Navbar } from '@/components/torq/navbar'
 import { RegistrationProvider } from '@/components/torq/registration'
 import { Sponsors } from '@/components/torq/sponsors'
+import { TorqInMotion } from '@/components/torq/torq-in-motion'
 
 export function HomePage() {
   return (
@@ -20,8 +21,11 @@ export function HomePage() {
         <main>
           <Hero />
 
-          {/* VISUAL IMPACT — placed immediately after the hero */}
+          {/* VISUAL IMPACT */}
           <Gallery />
+
+          {/* TOR'Q VISUAL ARCHIVE */}
+          <TorqInMotion />
 
           <About />
           <Experiences />
