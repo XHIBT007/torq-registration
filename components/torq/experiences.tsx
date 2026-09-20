@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react'
 import {
+  ArrowRight,
   ArrowUpRight,
   Bike,
   Car,
@@ -24,17 +25,12 @@ const ICONS = [
 export function Experiences() {
   const railRef = useRef<HTMLDivElement>(null)
 
-  const cardRefs =
-    useRef<(HTMLElement | null)[]>([])
+  const cardRefs = useRef<(HTMLElement | null)[]>([])
 
-  const [activeIndex, setActiveIndex] =
-    useState(0)
+  const [activeIndex, setActiveIndex] = useState(0)
 
   /* ================================================================
      ACTIVE CARD DETECTION
-
-     The observer belongs to the horizontal rail.
-     It does not control or hijack the page scroll.
      ================================================================ */
 
   useEffect(() => {
@@ -42,40 +38,42 @@ export function Experiences() {
 
     if (!rail) return
 
-    const observer =
-      new IntersectionObserver(
-        (entries) => {
-          entries.forEach((entry) => {
-            if (
-              entry.isIntersecting &&
-              entry.intersectionRatio > 0.6
-            ) {
-              const index =
-                cardRefs.current.findIndex(
-                  (element) =>
-                    element === entry.target,
-                )
+    const observer = new IntersectionObserver(
+      (entries) => {
+        let strongestIndex = activeIndex
+        let strongestRatio = 0
 
-              if (index !== -1) {
-                setActiveIndex(index)
-              }
-            }
-          })
-        },
-        {
-          root: rail,
-          threshold: [0.6],
-        },
-      )
+        entries.forEach((entry) => {
+          const index = cardRefs.current.findIndex(
+            (element) => element === entry.target,
+          )
+
+          if (
+            index !== -1 &&
+            entry.isIntersecting &&
+            entry.intersectionRatio > strongestRatio
+          ) {
+            strongestRatio = entry.intersectionRatio
+            strongestIndex = index
+          }
+        })
+
+        if (strongestRatio > 0.55) {
+          setActiveIndex(strongestIndex)
+        }
+      },
+      {
+        root: rail,
+        threshold: [0.55, 0.7, 0.85],
+      },
+    )
 
     cardRefs.current.forEach((card) => {
-      if (card) {
-        observer.observe(card)
-      }
+      if (card) observer.observe(card)
     })
 
     return () => observer.disconnect()
-  }, [])
+  }, [activeIndex])
 
   return (
     <section
@@ -89,23 +87,23 @@ export function Experiences() {
         md:py-32
       "
     >
-
       {/* ==========================================================
           ATMOSPHERE
           ========================================================== */}
 
       <div
+        aria-hidden="true"
         className="
           pointer-events-none
           absolute
           left-1/2
           top-0
-          h-[500px]
-          w-[700px]
+          h-[460px]
+          w-[680px]
           -translate-x-1/2
           rounded-full
-          bg-red-600/[0.05]
-          blur-[140px]
+          bg-red-600/[0.045]
+          blur-[130px]
         "
       />
 
@@ -113,35 +111,18 @@ export function Experiences() {
           INTRO
           ========================================================== */}
 
-      <div
-        className="
-          relative
-          mx-auto
-          max-w-7xl
-          px-6
-          md:px-10
-        "
-      >
-
-        <div
-          className="
-            flex
-            items-end
-            justify-between
-            gap-8
-          "
-        >
-
-          <div>
-
+      <div className="relative mx-auto max-w-7xl px-6 md:px-10">
+        <div className="flex items-end justify-between gap-8">
+          <div className="max-w-3xl">
             <p
               className="
                 mb-5
                 text-xs
                 font-bold
                 uppercase
-                tracking-[0.4em]
+                tracking-[0.32em]
                 text-red-500
+                sm:text-sm
               "
             >
               The TOR&apos;Q Experience
@@ -149,12 +130,12 @@ export function Experiences() {
 
             <h2
               className="
-                text-4xl
+                text-5xl
                 font-black
                 uppercase
                 leading-[0.88]
                 tracking-[-0.04em]
-                sm:text-5xl
+                sm:text-6xl
                 md:text-7xl
               "
             >
@@ -168,7 +149,7 @@ export function Experiences() {
 
             <p
               className="
-                mt-6
+                mt-7
                 max-w-xl
                 text-base
                 leading-7
@@ -177,25 +158,18 @@ export function Experiences() {
               "
             >
               {EXPERIENCES.length} experiences.
-              One destination.
-              Step into the world of TOR&apos;Q.
+              One destination. Step into the world of
+              TOR&apos;Q.
             </p>
-
           </div>
 
           {/* DESKTOP COUNTER */}
 
-          <div
-            className="
-              hidden
-              text-right
-              md:block
-            "
-          >
-
+          <div className="hidden shrink-0 text-right md:block">
             <p
               className="
                 text-[10px]
+                font-semibold
                 uppercase
                 tracking-[0.3em]
                 text-white/25
@@ -214,89 +188,65 @@ export function Experiences() {
                 text-white/50
               "
             >
-              {String(
-                activeIndex + 1,
-              ).padStart(2, '0')}
+              {String(activeIndex + 1).padStart(2, '0')}
 
               <span className="text-white/20">
                 {' '}
                 /{' '}
-                {String(
-                  EXPERIENCES.length,
-                ).padStart(2, '0')}
+                {String(EXPERIENCES.length).padStart(2, '0')}
               </span>
             </p>
-
           </div>
-
         </div>
-
       </div>
 
       {/* ==========================================================
-          HORIZONTAL EXPERIENCE JOURNEY
+          EXPERIENCE RAIL
           ========================================================== */}
 
-      <div
-        className="
-          relative
-          mt-16
-          md:mt-20
-        "
-      >
-
-        {/* LEFT EDGE FADE */}
+      <div className="relative mt-14 md:mt-20">
+        {/* EDGE FADES */}
 
         <div
+          aria-hidden="true"
           className="
             pointer-events-none
             absolute
             left-0
             top-0
             z-10
+            hidden
             h-full
-            w-16
+            w-24
             bg-gradient-to-r
             from-black
             to-transparent
-            md:w-28
+            md:block
           "
         />
 
-        {/* RIGHT EDGE FADE */}
-
         <div
+          aria-hidden="true"
           className="
             pointer-events-none
             absolute
             right-0
             top-0
             z-10
+            hidden
             h-full
-            w-16
+            w-24
             bg-gradient-to-l
             from-black
             to-transparent
-            md:w-28
+            md:block
           "
         />
-
-        {/* ========================================================
-            INDEPENDENT HORIZONTAL RAIL
-
-            IMPORTANT:
-            No wheel event is captured here.
-
-            Vertical scrolling remains vertical.
-            Horizontal interaction happens naturally through
-            touch, trackpad, mouse drag/browser horizontal input.
-            ======================================================== */}
 
         <div
           ref={railRef}
           className="
-            snap-x
-            snap-mandatory
+            torq-scroll-rail
             overflow-x-auto
             overscroll-x-contain
             overscroll-y-none
@@ -307,320 +257,304 @@ export function Experiences() {
             md:px-[8vw]
           "
         >
+          <div className="flex w-max snap-x snap-mandatory gap-4 sm:gap-5 md:gap-6">
+            {EXPERIENCES.map((experience, index) => {
+              const Icon = ICONS[index] ?? Flame
+              const isActive = index === activeIndex
 
-          <div
-            className="
-              flex
-              w-max
-              gap-5
-            "
-          >
+              return (
+                <article
+                  key={`${experience.number}-${index}`}
+                  ref={(element) => {
+                    cardRefs.current[index] = element
+                  }}
+                  className={`
+                    group
+                    relative
+                    h-[430px]
+                    w-[82vw]
+                    max-w-[380px]
+                    shrink-0
+                    snap-center
+                    overflow-hidden
+                    rounded-2xl
+                    border
+                    bg-neutral-950
 
-            {EXPERIENCES.map(
-              (
-                experience,
-                index,
-              ) => {
+                    sm:h-[460px]
+                    sm:w-[66vw]
+                    sm:max-w-[500px]
 
-                const Icon =
-                  ICONS[index] ??
-                  Flame
+                    md:h-[500px]
+                    md:w-[62vw]
+                    md:max-w-[780px]
 
-                const isActive =
-                  index === activeIndex
+                    transition-[transform,opacity,border-color]
+                    duration-500
+                    ease-out
+                    motion-reduce:transition-none
 
-                return (
-                  <article
-                    key={`${experience.number}-${index}`}
-                    ref={(element) => {
-                      cardRefs.current[index] =
-                        element
-                    }}
-                    className={`
-                      group
-                      relative
-                      h-[390px]
-                      w-[82vw]
-                      shrink-0
-                      snap-center
-                      overflow-hidden
-                      rounded-2xl
-                      border
-                      border-white/10
-                      bg-neutral-950
+                    ${
+                      isActive
+                        ? 'scale-100 border-white/20 opacity-100'
+                        : 'scale-[0.985] border-white/10 opacity-65 md:scale-[0.975]'
+                    }
+                  `}
+                >
+                  {/* ==================================================
+                      IMAGE
+                      ================================================== */}
 
-                      sm:h-[420px]
-                      sm:w-[70vw]
-
-                      md:h-[430px]
-                      md:w-[58vw]
-                      md:max-w-[860px]
-
-                      transition-all
+                  <div
+                    aria-hidden="true"
+                    className="
+                      absolute
+                      inset-0
+                      bg-cover
+                      bg-center
+                      opacity-50
+                      transition-transform
                       duration-700
+                      ease-out
+                      motion-reduce:transition-none
+                      group-hover:scale-[1.025]
+                    "
+                    style={{
+                      backgroundImage: `url(${experience.image})`,
+                    }}
+                  />
 
-                      ${
-                        isActive
-                          ? 'border-white/20 opacity-100 md:scale-100'
-                          : 'border-white/10 opacity-75 md:scale-[0.975]'
-                      }
-                    `}
+                  {/* ==================================================
+                      IMAGE TREATMENT
+                      ================================================== */}
+
+                  <div
+                    aria-hidden="true"
+                    className="
+                      pointer-events-none
+                      absolute
+                      inset-0
+                      bg-gradient-to-r
+                      from-black
+                      via-black/65
+                      to-black/15
+                    "
+                  />
+
+                  <div
+                    aria-hidden="true"
+                    className="
+                      pointer-events-none
+                      absolute
+                      inset-0
+                      bg-gradient-to-t
+                      from-black
+                      via-black/10
+                      to-transparent
+                    "
+                  />
+
+                  {/* ==================================================
+                      CARD CONTENT
+                      ================================================== */}
+
+                  <div
+                    className="
+                      relative
+                      flex
+                      h-full
+                      flex-col
+                      justify-between
+                      p-6
+                      sm:p-7
+                      md:p-9
+                    "
                   >
+                    {/* TOP */}
 
-                    {/* ==================================================
-                        IMAGE
-                        ================================================== */}
-
-                    <div
-                      className="
-                        absolute
-                        inset-0
-                        bg-cover
-                        bg-center
-                        opacity-45
-                        transition-all
-                        duration-[1400ms]
-                        ease-out
-                        group-hover:scale-[1.035]
-                        group-hover:opacity-55
-                      "
-                      style={{
-                        backgroundImage:
-                          `url(${experience.image})`,
-                      }}
-                    />
-
-                    {/* ==================================================
-                        CINEMATIC OVERLAYS
-                        ================================================== */}
-
-                    <div
-                      className="
-                        absolute
-                        inset-0
-                        bg-gradient-to-r
-                        from-black
-                        via-black/65
-                        to-black/10
-                      "
-                    />
-
-                    <div
-                      className="
-                        absolute
-                        inset-0
-                        bg-gradient-to-t
-                        from-black
-                        via-transparent
-                        to-transparent
-                      "
-                    />
-
-                    {/* ==================================================
-                        CARD CONTENT
-                        ================================================== */}
-
-                    <div
-                      className="
-                        relative
-                        flex
-                        h-full
-                        flex-col
-                        justify-between
-                        p-7
-                        sm:p-8
-                        lg:p-10
-                      "
-                    >
-
-                      {/* TOP */}
-
+                    <div className="flex items-start justify-between gap-6">
                       <div
                         className="
-                          flex
-                          items-start
-                          justify-between
-                        "
-                      >
-
-                        <div
-                          className="
-                            flex
-                            h-12
-                            w-12
-                            items-center
-                            justify-center
-                            rounded-full
-                            border
-                            border-white/20
-                            bg-white/5
-                            backdrop-blur-sm
-                            transition-all
-                            duration-500
-                            group-hover:border-red-500/50
-                            group-hover:bg-red-500/10
-                          "
-                        >
-                          <Icon
-                            size={21}
-                            strokeWidth={1.7}
-                          />
-                        </div>
-
-                        <span
-                          className="
-                            text-7xl
-                            font-black
-                            leading-none
-                            text-white/[0.06]
-                          "
-                        >
-                          {experience.number}
-                        </span>
-
-                      </div>
-
-                      {/* MAIN CONTENT */}
-
-                      <div className="max-w-xl">
-
-                        <div
-                          className="
-                            mb-4
-                            flex
-                            items-center
-                            gap-3
-                          "
-                        >
-
-                          <span
-                            className="
-                              text-[10px]
-                              font-bold
-                              uppercase
-                              tracking-[0.3em]
-                              text-red-500
-                            "
-                          >
-                            {experience.category}
-                          </span>
-
-                          <span
-                            className="
-                              h-1
-                              w-1
-                              rounded-full
-                              bg-white/30
-                            "
-                          />
-
-                          <span
-                            className="
-                              text-[9px]
-                              uppercase
-                              tracking-[0.2em]
-                              text-white/40
-                            "
-                          >
-                            {experience.label}
-                          </span>
-
-                        </div>
-
-                        <h3
-                          className="
-                            text-4xl
-                            font-black
-                            uppercase
-                            leading-none
-                            tracking-tight
-                            sm:text-5xl
-                          "
-                        >
-                          {experience.title}
-                        </h3>
-
-                        <p
-                          className="
-                            mt-5
-                            max-w-lg
-                            text-sm
-                            leading-7
-                            text-white/55
-                          "
-                        >
-                          {experience.description}
-                        </p>
-
-                      </div>
-
-                      {/* OPEN INDICATOR */}
-
-                      <div
-                        className="
-                          absolute
-                          bottom-7
-                          right-7
                           flex
                           h-11
                           w-11
+                          shrink-0
                           items-center
                           justify-center
                           rounded-full
                           border
-                          border-white/20
-                          transition-all
-                          duration-500
-                          group-hover:border-red-500
-                          group-hover:bg-red-500
-                          sm:bottom-8
-                          sm:right-8
+                          border-white/15
+                          bg-white/[0.06]
+                          backdrop-blur-md
+                          transition-colors
+                          duration-300
+                          motion-reduce:transition-none
+                          group-hover:border-white/30
+                          group-hover:bg-white/[0.1]
                         "
                       >
+                        <Icon
+                          className="h-5 w-5"
+                          strokeWidth={1.7}
+                        />
+                      </div>
 
-                        <ArrowUpRight
-                          size={18}
+                      <span
+                        aria-hidden="true"
+                        className="
+                          text-6xl
+                          font-black
+                          leading-none
+                          tracking-[-0.06em]
+                          text-white/[0.055]
+                          sm:text-7xl
+                        "
+                      >
+                        {experience.number}
+                      </span>
+                    </div>
+
+                    {/* MAIN CONTENT */}
+
+                    <div className="max-w-2xl">
+                      <div className="mb-4 flex items-center gap-3">
+                        <span
                           className="
-                            transition-transform
-                            duration-500
-                            group-hover:rotate-45
+                            text-[9px]
+                            font-bold
+                            uppercase
+                            tracking-[0.3em]
+                            text-red-500
+                            sm:text-[10px]
+                          "
+                        >
+                          {experience.category}
+                        </span>
+
+                        <span
+                          aria-hidden="true"
+                          className="
+                            h-1
+                            w-1
+                            shrink-0
+                            rounded-full
+                            bg-white/25
                           "
                         />
 
+                        <span
+                          className="
+                            truncate
+                            text-[9px]
+                            uppercase
+                            tracking-[0.2em]
+                            text-white/40
+                          "
+                        >
+                          {experience.label}
+                        </span>
                       </div>
 
+                      <h3
+                        className="
+                          max-w-xl
+                          text-4xl
+                          font-black
+                          uppercase
+                          leading-[0.92]
+                          tracking-[-0.035em]
+                          sm:text-5xl
+                        "
+                      >
+                        {experience.title}
+                      </h3>
+
+                      <p
+                        className="
+                          mt-5
+                          max-w-xl
+                          text-sm
+                          leading-6
+                          text-white/55
+                          sm:text-base
+                          sm:leading-7
+                        "
+                      >
+                        {experience.description}
+                      </p>
                     </div>
 
-                    {/* ==================================================
-                        ACTIVE EDGE
-                        ================================================== */}
+                    {/* CARD ACTION */}
 
                     <div
-                      className={`
+                      aria-hidden="true"
+                      className="
                         absolute
-                        bottom-0
-                        left-0
-                        h-[2px]
-                        bg-red-500
+                        bottom-6
+                        right-6
+                        flex
+                        h-11
+                        w-11
+                        items-center
+                        justify-center
+                        rounded-full
+                        border
+                        border-white/20
+                        bg-white/[0.04]
+                        backdrop-blur-md
                         transition-all
-                        duration-700
-                        ${
-                          isActive
-                            ? 'w-full opacity-100'
-                            : 'w-1/3 opacity-30'
-                        }
-                      `}
-                    />
+                        duration-300
+                        motion-reduce:transition-none
+                        group-hover:border-white/35
+                        group-hover:bg-white/[0.12]
+                        sm:bottom-7
+                        sm:right-7
+                        md:bottom-9
+                        md:right-9
+                      "
+                    >
+                      <ArrowUpRight
+                        className="
+                          h-4
+                          w-4
+                          transition-transform
+                          duration-300
+                          motion-reduce:transition-none
+                          group-hover:rotate-45
+                        "
+                      />
+                    </div>
+                  </div>
 
-                  </article>
-                )
-              },
-            )}
+                  {/* ==================================================
+                      ACTIVE EDGE
+                      ================================================== */}
 
+                  <div
+                    aria-hidden="true"
+                    className={`
+                      pointer-events-none
+                      absolute
+                      bottom-0
+                      left-0
+                      h-[2px]
+                      bg-red-500
+                      transition-[width,opacity]
+                      duration-500
+                      motion-reduce:transition-none
+
+                      ${
+                        isActive
+                          ? 'w-full opacity-100'
+                          : 'w-1/4 opacity-25'
+                      }
+                    `}
+                  />
+                </article>
+              )
+            })}
           </div>
-
         </div>
-
       </div>
 
       {/* ==========================================================
@@ -630,65 +564,40 @@ export function Experiences() {
       <div
         className="
           mx-auto
-          mt-7
+          mt-5
           flex
           max-w-7xl
           items-center
           gap-4
           px-6
+          md:mt-7
           md:px-10
         "
       >
+        <div className="h-px flex-1 bg-white/10" />
 
-        <div
-          className="
-            h-px
-            flex-1
-            bg-white/10
-          "
-        />
-
-        <div
-          className="
-            flex
-            shrink-0
-            items-center
-            gap-3
-          "
-        >
-
+        <div className="flex shrink-0 items-center gap-3">
           <span
             className="
               text-[9px]
               font-semibold
               uppercase
-              tracking-[0.35em]
-              text-white/25
+              tracking-[0.3em]
+              text-white/30
+              sm:text-[10px]
             "
           >
-            Move through TOR&apos;Q
+            Swipe to explore
           </span>
 
-          <ArrowUpRight
-            size={13}
-            className="
-              rotate-45
-              text-red-500
-            "
+          <ArrowRight
+            aria-hidden="true"
+            className="h-3.5 w-3.5 text-red-500"
           />
-
         </div>
 
-        <div
-          className="
-            h-px
-            flex-1
-            bg-white/10
-          "
-        />
-
+        <div className="h-px flex-1 bg-white/10" />
       </div>
-
     </section>
   )
 }
