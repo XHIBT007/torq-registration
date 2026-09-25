@@ -1878,7 +1878,7 @@ function MechanicalPiece({
           ),
 
         willChange:
-          'transform,opacity,filter',
+  'transform,opacity',
       }}
     />
   )
