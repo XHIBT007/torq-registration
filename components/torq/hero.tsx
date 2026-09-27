@@ -444,14 +444,10 @@ export function Hero() {
   let contentScale: number
 
   if (isVeryShortLandscape) {
-    headlineSize =
-      'clamp(24px, 5.2vh, 40px)'
-
-    contentWidth =
-      'min(540px, 68vw)'
-
-    contentScale = 0.74
- } else if (isCompactLandscape) {
+  headlineSize = 'clamp(30px, 6.6vh, 52px)'
+  contentWidth = 'min(680px, 68vw)'
+  contentScale = 0.88
+} else if (isCompactLandscape) {
   headlineSize = 'clamp(32px, 6.8vh, 58px)'
     
   contentWidth = 'min(700px, 68vw)'
