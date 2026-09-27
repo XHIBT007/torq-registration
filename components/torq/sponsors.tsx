@@ -439,41 +439,7 @@ export function Sponsors() {
           </div>
         </Reveal>
 
-        {/* ========================================================
-            PARTNERSHIP SIGNAL
-            ======================================================== */}
-
-        <Reveal delay={180}>
-          <div
-            className="
-              mt-6
-              grid
-              gap-4
-              sm:grid-cols-3
-            "
-          >
-
-            <PartnershipSignal
-              icon="01"
-              title="Experiences"
-              text="Physical brand presence"
-            />
-
-            <PartnershipSignal
-              icon="02"
-              title="Content"
-              text="Stories built for distribution"
-            />
-
-            <PartnershipSignal
-              icon="03"
-              title="Community"
-              text="Culture beyond the event"
-            />
-
-          </div>
-        </Reveal>
-
+        
         {/* ========================================================
             FOOTER CTA
             ======================================================== */}
@@ -559,74 +525,5 @@ export function Sponsors() {
 
       </div>
     </section>
-  )
-}
-
-/* ================================================================
-   PARTNERSHIP SIGNAL
-   ================================================================ */
-
-function PartnershipSignal({
-  icon,
-  title,
-  text,
-}: {
-  icon: string
-  title: string
-  text: string
-}) {
-  return (
-    <div
-      className="
-        flex
-        items-center
-        gap-4
-        rounded-xl
-        border
-        border-white/10
-        bg-white/[0.012]
-        px-5
-        py-4
-      "
-    >
-      <span
-        className="
-          text-[9px]
-          font-bold
-          tabular-nums
-          tracking-[0.15em]
-          text-red-500/70
-        "
-      >
-        {icon}
-      </span>
-
-      <div className="min-w-0">
-
-        <p
-          className="
-            text-[10px]
-            font-bold
-            uppercase
-            tracking-[0.16em]
-            text-white/70
-          "
-        >
-          {title}
-        </p>
-
-        <p
-          className="
-            mt-0.5
-            truncate
-            text-[11px]
-            text-white/30
-          "
-        >
-          {text}
-        </p>
-
-      </div>
-    </div>
   )
 }
