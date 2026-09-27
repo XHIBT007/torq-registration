@@ -451,14 +451,12 @@ export function Hero() {
       'min(540px, 68vw)'
 
     contentScale = 0.74
-  } else if (isCompactLandscape) {
-  headlineSize =
-    'clamp(24px, 4.6vh, 42px)'
+ } else if (isCompactLandscape) {
+  headlineSize = 'clamp(32px, 6.8vh, 58px)'
+    
+  contentWidth = 'min(700px, 68vw)'
 
-  contentWidth =
-    'min(560px, 60vw)'
-
-  contentScale = 0.72
+  contentScale = 0.92
   } else if (isSmallPortrait) {
     headlineSize =
       'clamp(30px, 9vw, 43px)'
