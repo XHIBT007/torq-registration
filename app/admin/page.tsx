@@ -356,7 +356,6 @@ const toggleRegistration = (id: string) => {
     registration.vehicle_make || '',
     registration.vehicle_model || '',
     registration.instagram || '',
-    registration.emergency_contact || '',
     new Date(registration.created_at).toLocaleString(),
   ])
 
