@@ -39,7 +39,6 @@ const MAX_LENGTHS = {
   email: 254,
   phone: 40,
   city: 80,
-  emergencyContact: 120,
   vehicleMake: 80,
   vehicleModel: 80,
   instagram: 100,
@@ -167,22 +166,6 @@ export async function POST(request: Request) {
       MAX_LENGTHS.city,
     )
 
-    const cleanEmergencyContact =
-      cleanString(
-        body.emergencyContact,
-        MAX_LENGTHS.emergencyContact,
-      )
-
-    const cleanVehicleMake = cleanString(
-      body.vehicleMake,
-      MAX_LENGTHS.vehicleMake,
-    )
-
-    const cleanVehicleModel = cleanString(
-      body.vehicleModel,
-      MAX_LENGTHS.vehicleModel,
-    )
-
     const cleanInstagram = cleanString(
       body.instagram,
       MAX_LENGTHS.instagram,
@@ -194,6 +177,26 @@ export async function POST(request: Request) {
         : ''
 
     /* ---------------------------------------------------------------------- */
+    /* Vehicle details — DRIVER ONLY                                         */
+    /* ---------------------------------------------------------------------- */
+
+    const cleanVehicleMake =
+      participantType === 'Driver'
+        ? cleanString(
+            body.vehicleMake,
+            MAX_LENGTHS.vehicleMake,
+          )
+        : ''
+
+    const cleanVehicleModel =
+      participantType === 'Driver'
+        ? cleanString(
+            body.vehicleModel,
+            MAX_LENGTHS.vehicleModel,
+          )
+        : ''
+
+    /* ---------------------------------------------------------------------- */
     /* Basic validation                                                       */
     /* ---------------------------------------------------------------------- */
 
@@ -202,8 +205,7 @@ export async function POST(request: Request) {
       !cleanEmail ||
       !cleanPhone ||
       !cleanCity ||
-      !participantType ||
-      !cleanEmergencyContact
+      !participantType
     ) {
       return NextResponse.json(
         {
@@ -270,11 +272,10 @@ export async function POST(request: Request) {
         MAX_LENGTHS.vipReason,
       )
 
-      cleanVipReferralSource =
-        cleanString(
-          body.vipReferralSource,
-          100,
-        )
+      cleanVipReferralSource = cleanString(
+        body.vipReferralSource,
+        100,
+      )
 
       cleanVipWebsite = cleanString(
         body.vipWebsite,
@@ -389,14 +390,17 @@ export async function POST(request: Request) {
           phone: cleanPhone,
           city: cleanCity,
           participant_type: participantType,
-          emergency_contact:
-            cleanEmergencyContact,
 
+          /* Driver vehicle details only */
           vehicle_make:
-            cleanVehicleMake || null,
+            participantType === 'Driver'
+              ? cleanVehicleMake || null
+              : null,
 
           vehicle_model:
-            cleanVehicleModel || null,
+            participantType === 'Driver'
+              ? cleanVehicleModel || null
+              : null,
 
           instagram:
             cleanInstagram || null,
