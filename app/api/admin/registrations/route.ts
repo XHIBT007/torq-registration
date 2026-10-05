@@ -67,7 +67,6 @@ export async function GET(request: Request) {
         phone,
         city,
         participant_type,
-        emergency_contact,
         vehicle_make,
         vehicle_model,
         instagram,
