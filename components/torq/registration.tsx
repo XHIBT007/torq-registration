@@ -2,10 +2,7 @@
 
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
-import {
-  PARTICIPANT_TYPES,
-  type ParticipantType,
-} from '@/lib/torq-data'
+import { PARTICIPANT_TYPES, type ParticipantType } from '@/lib/torq-data'
 import {
   Bike,
   Car,
@@ -30,9 +27,7 @@ import {
   type ReactNode,
 } from 'react'
 
-type RegistrationContextValue = {
-  open: () => void
-}
+type RegistrationContextValue = { open: () => void }
 
 const RegistrationContext =
   createContext<RegistrationContextValue | null>(null)
@@ -55,12 +50,10 @@ type FormData = {
   phone: string
   city: string
   participantType: ParticipantType | ''
-  emergencyContact: string
   vehicleMake: string
   vehicleModel: string
   instagram: string
   agree: boolean
-
   vipCategory: string
   vipOrganisation: string
   vipRole: string
@@ -76,12 +69,10 @@ const EMPTY_FORM: FormData = {
   phone: '',
   city: '',
   participantType: '',
-  emergencyContact: '',
   vehicleMake: '',
   vehicleModel: '',
   instagram: '',
   agree: false,
-
   vipCategory: '',
   vipOrganisation: '',
   vipRole: '',
@@ -91,10 +82,7 @@ const EMPTY_FORM: FormData = {
   vipWebsite: '',
 }
 
-const PARTICIPANT_ICONS: Record<
-  ParticipantType,
-  LucideIcon
-> = {
+const PARTICIPANT_ICONS: Record<ParticipantType, LucideIcon> = {
   Driver: Car,
   Rider: Bike,
   VIP: Crown,
@@ -103,22 +91,10 @@ const PARTICIPANT_ICONS: Record<
 }
 
 const STEPS = [
-  {
-    number: '01',
-    label: 'Details',
-  },
-  {
-    number: '02',
-    label: 'Participation',
-  },
-  {
-    number: '03',
-    label: 'Machine',
-  },
-  {
-    number: '04',
-    label: 'Confirm',
-  },
+  { number: '01', label: 'Details' },
+  { number: '02', label: 'Participation' },
+  { number: '03', label: 'Machine' },
+  { number: '04', label: 'Confirm' },
 ] as const
 
 export function RegistrationProvider({
@@ -131,18 +107,12 @@ export function RegistrationProvider({
   const open = useCallback(() => setIsOpen(true), [])
   const close = useCallback(() => setIsOpen(false), [])
 
-  const value = useMemo(
-    () => ({
-      open,
-    }),
-    [open],
-  )
+  const value = useMemo(() => ({ open }), [open])
 
   useEffect(() => {
     if (!isOpen) return
 
-    const originalOverflow =
-      document.body.style.overflow
+    const originalOverflow = document.body.style.overflow
 
     document.body.style.overflow = 'hidden'
 
@@ -168,30 +138,23 @@ function RegistrationDialog({
   onClose: () => void
 }) {
   const [step, setStep] = useState(0)
-  const [form, setForm] =
-    useState<FormData>(EMPTY_FORM)
+  const [form, setForm] = useState<FormData>(EMPTY_FORM)
+  const [submitted, setSubmitted] = useState(false)
+  const [regNumber, setRegNumber] = useState('')
+  const [copied, setCopied] = useState(false)
+  const [submitting, setSubmitting] = useState(false)
+  const [error, setError] = useState('')
+  const [attempted, setAttempted] = useState(false)
 
-  const [submitted, setSubmitted] =
-    useState(false)
-
-  const [regNumber, setRegNumber] =
-    useState('')
-
-  const [copied, setCopied] =
-    useState(false)
-
-  const [submitting, setSubmitting] =
-    useState(false)
-
-  const [error, setError] =
-    useState('')
-
-  const [attempted, setAttempted] =
-    useState(false)
+  const isDriver =
+    form.participantType === 'Driver'
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape' && !submitting) {
+      if (
+        event.key === 'Escape' &&
+        !submitting
+      ) {
         onClose()
       }
     }
@@ -201,22 +164,43 @@ function RegistrationDialog({
       handleKeyDown,
     )
 
-    return () => {
+    return () =>
       window.removeEventListener(
         'keydown',
         handleKeyDown,
       )
-    }
   }, [onClose, submitting])
 
-  const update = <K extends keyof FormData>(
+  const update = <
+    K extends keyof FormData,
+  >(
     key: K,
     value: FormData[K],
   ) => {
-    setForm((current) => ({
-      ...current,
-      [key]: value,
-    }))
+    setForm((current) => {
+      /*
+       * Vehicle information belongs only to Drivers.
+       * If someone changes away from Driver,
+       * clear all vehicle-related information.
+       */
+      if (
+        key === 'participantType' &&
+        value !== 'Driver'
+      ) {
+        return {
+          ...current,
+          [key]: value,
+          vehicleMake: '',
+          vehicleModel: '',
+          instagram: '',
+        } as FormData
+      }
+
+      return {
+        ...current,
+        [key]: value,
+      }
+    })
 
     setError('')
   }
@@ -226,7 +210,8 @@ function RegistrationDialog({
 
     if (step === 0) {
       if (!form.fullName.trim()) {
-        errors.fullName = 'Enter your full name.'
+        errors.fullName =
+          'Enter your full name.'
       }
 
       if (
@@ -243,7 +228,8 @@ function RegistrationDialog({
       }
 
       if (!form.city.trim()) {
-        errors.city = 'Enter your city.'
+        errors.city =
+          'Enter your city.'
       }
     }
 
@@ -253,12 +239,9 @@ function RegistrationDialog({
           'Select how you are joining TOR’Q.'
       }
 
-      if (!form.emergencyContact.trim()) {
-        errors.emergencyContact =
-          'Enter an emergency contact.'
-      }
-
-      if (form.participantType === 'VIP') {
+      if (
+        form.participantType === 'VIP'
+      ) {
         if (!form.vipCategory.trim()) {
           errors.vipCategory =
             'Select a category.'
@@ -269,14 +252,19 @@ function RegistrationDialog({
             'Tell us briefly why you would like VIP access.'
         }
 
-        if (!form.vipReferralSource.trim()) {
+        if (
+          !form.vipReferralSource.trim()
+        ) {
           errors.vipReferralSource =
             'Select how you heard about TOR’Q.'
         }
       }
     }
 
-    if (step === 3 && !form.agree) {
+    if (
+      step === 3 &&
+      !form.agree
+    ) {
       errors.agree =
         'Please accept the TOR’Q safety acknowledgement.'
     }
@@ -294,7 +282,31 @@ function RegistrationDialog({
 
     setAttempted(false)
     setError('')
-    setStep((current) => current + 1)
+
+    setStep((current) => {
+      /*
+       * Non-drivers skip Machine completely.
+       *
+       * Driver:
+       * 0 Details
+       * 1 Participation
+       * 2 Machine
+       * 3 Confirm
+       *
+       * Everyone else:
+       * 0 Details
+       * 1 Participation
+       * 3 Confirm
+       */
+      if (
+        current === 1 &&
+        !isDriver
+      ) {
+        return 3
+      }
+
+      return current + 1
+    })
   }
 
   const handleBack = () => {
@@ -302,9 +314,24 @@ function RegistrationDialog({
 
     setAttempted(false)
     setError('')
-    setStep((current) =>
-      Math.max(0, current - 1),
-    )
+
+    setStep((current) => {
+      /*
+       * If a non-driver is on Confirm,
+       * return directly to Participation.
+       */
+      if (
+        current === 3 &&
+        !isDriver
+      ) {
+        return 1
+      }
+
+      return Math.max(
+        0,
+        current - 1,
+      )
+    })
   }
 
   const handleSubmit = async () => {
@@ -327,33 +354,55 @@ function RegistrationDialog({
               'application/json',
           },
           body: JSON.stringify({
-            fullName: form.fullName,
-            email: form.email,
-            phone: form.phone,
-            city: form.city,
+            fullName:
+              form.fullName,
+
+            email:
+              form.email,
+
+            phone:
+              form.phone,
+
+            city:
+              form.city,
+
             participantType:
               form.participantType,
-            emergencyContact:
-              form.emergencyContact,
-            vehicleMake:
-              form.vehicleMake,
-            vehicleModel:
-              form.vehicleModel,
-            instagram:
-              form.instagram,
+
+            /*
+             * Only Drivers send vehicle
+             * information to the API.
+             */
+            vehicleMake: isDriver
+              ? form.vehicleMake
+              : '',
+
+            vehicleModel: isDriver
+              ? form.vehicleModel
+              : '',
+
+            instagram: isDriver
+              ? form.instagram
+              : '',
 
             vipCategory:
               form.vipCategory,
+
             vipOrganisation:
               form.vipOrganisation,
+
             vipRole:
               form.vipRole,
+
             vipReason:
               form.vipReason,
+
             vipReferralSource:
               form.vipReferralSource,
+
             vipRepresentsOrganisation:
               form.vipRepresentsOrganisation,
+
             vipWebsite:
               form.vipWebsite,
           }),
@@ -395,8 +444,7 @@ function RegistrationDialog({
 
       /*
        * Confirmation email is intentionally
-       * non-blocking. The registration remains
-       * successful even if email delivery fails.
+       * non-blocking.
        */
       try {
         const emailResponse =
@@ -409,10 +457,14 @@ function RegistrationDialog({
                   'application/json',
               },
               body: JSON.stringify({
-                email: form.email,
+                email:
+                  form.email,
+
                 fullName:
                   form.fullName,
+
                 registrationNumber,
+
                 participantType:
                   form.participantType,
               }),
@@ -438,6 +490,7 @@ function RegistrationDialog({
       setRegNumber(
         registrationNumber,
       )
+
       setSubmitted(true)
     } catch (submissionError) {
       console.error(
@@ -461,13 +514,14 @@ function RegistrationDialog({
       .then(() => {
         setCopied(true)
 
-        window.setTimeout(() => {
-          setCopied(false)
-        }, 2000)
+        window.setTimeout(
+          () => setCopied(false),
+          2000,
+        )
       })
-      .catch(() => {
-        setCopied(false)
-      })
+      .catch(() =>
+        setCopied(false),
+      )
   }
 
   return (
@@ -481,7 +535,9 @@ function RegistrationDialog({
         type="button"
         aria-label="Close registration"
         onClick={() => {
-          if (!submitting) onClose()
+          if (!submitting) {
+            onClose()
+          }
         }}
         className="fixed inset-0 cursor-default"
       />
@@ -523,12 +579,14 @@ function RegistrationDialog({
                 </h2>
 
                 <p className="mt-2 max-w-md text-sm leading-relaxed text-muted-foreground">
-                  Register for Africa&apos;s biggest
-                  motorsport spectacle in Lagos.
+                  Register for Africa&apos;s biggest motorsport spectacle in Lagos.
                 </p>
               </header>
 
-              <Stepper step={step} />
+              <Stepper
+                step={step}
+                isDriver={isDriver}
+              />
 
               <div
                 key={step}
@@ -559,12 +617,13 @@ function RegistrationDialog({
                     />
                   )}
 
-                  {step === 2 && (
-                    <MachineStep
-                      form={form}
-                      update={update}
-                    />
-                  )}
+                  {step === 2 &&
+                    isDriver && (
+                      <MachineStep
+                        form={form}
+                        update={update}
+                      />
+                    )}
 
                   {step === 3 && (
                     <ConfirmStep
@@ -575,6 +634,7 @@ function RegistrationDialog({
                           ? validation
                           : {}
                       }
+                      isDriver={isDriver}
                     />
                   )}
                 </div>
@@ -608,8 +668,7 @@ function RegistrationDialog({
                     : 'Back'}
                 </Button>
 
-                {step <
-                STEPS.length - 1 ? (
+                {step < 3 ? (
                   <Button
                     size="lg"
                     onClick={
@@ -626,9 +685,7 @@ function RegistrationDialog({
                     onClick={
                       handleSubmit
                     }
-                    disabled={
-                      submitting
-                    }
+                    disabled={submitting}
                     className="min-w-[190px]"
                   >
                     {submitting ? (
@@ -655,20 +712,52 @@ function RegistrationDialog({
 
 function Stepper({
   step,
+  isDriver,
 }: {
   step: number
+  isDriver: boolean
 }) {
+  const visibleSteps = isDriver
+    ? STEPS
+    : STEPS.filter(
+        (item) =>
+          item.label !== 'Machine',
+      )
+
   return (
     <nav
       aria-label="Registration progress"
       className="mt-7"
     >
-      <div className="grid grid-cols-4 gap-2">
-        {STEPS.map(
-          ({ number, label }, index) => {
-            const active = index <= step
+      <div
+        className={cn(
+          'grid gap-2',
+          isDriver
+            ? 'grid-cols-4'
+            : 'grid-cols-3',
+        )}
+      >
+        {visibleSteps.map(
+          (
+            { label },
+            visibleIndex,
+          ) => {
+            const actualIndex =
+              STEPS.findIndex(
+                (item) =>
+                  item.label === label,
+              )
+
+            const active =
+              actualIndex <= step
+
             const current =
-              index === step
+              actualIndex === step
+
+            const displayNumber =
+              String(
+                visibleIndex + 1,
+              ).padStart(2, '0')
 
             return (
               <div
@@ -693,7 +782,7 @@ function Stepper({
                         : 'text-muted-foreground',
                     )}
                   >
-                    {number}
+                    {displayNumber}
                   </span>
 
                   <span
@@ -722,7 +811,9 @@ function DetailsStep({
   errors,
 }: {
   form: FormData
-  update: <K extends keyof FormData>(
+  update: <
+    K extends keyof FormData,
+  >(
     key: K,
     value: FormData[K],
   ) => void
@@ -741,7 +832,10 @@ function DetailsStep({
           label="Full Name"
           value={form.fullName}
           onChange={(value) =>
-            update('fullName', value)
+            update(
+              'fullName',
+              value,
+            )
           }
           placeholder="Ayrton Senna"
           required
@@ -754,7 +848,10 @@ function DetailsStep({
           type="email"
           value={form.email}
           onChange={(value) =>
-            update('email', value)
+            update(
+              'email',
+              value,
+            )
           }
           placeholder="you@email.com"
           required
@@ -768,7 +865,10 @@ function DetailsStep({
             type="tel"
             value={form.phone}
             onChange={(value) =>
-              update('phone', value)
+              update(
+                'phone',
+                value,
+              )
             }
             placeholder="+234 801 234 5678"
             required
@@ -780,7 +880,10 @@ function DetailsStep({
             label="City"
             value={form.city}
             onChange={(value) =>
-              update('city', value)
+              update(
+                'city',
+                value,
+              )
             }
             placeholder="Lagos"
             required
@@ -799,7 +902,9 @@ function ParticipationStep({
   errors,
 }: {
   form: FormData
-  update: <K extends keyof FormData>(
+  update: <
+    K extends keyof FormData,
+  >(
     key: K,
     value: FormData[K],
   ) => void
@@ -816,51 +921,56 @@ function ParticipationStep({
       <div className="mt-6 grid gap-5">
         <div>
           <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
-            {PARTICIPANT_TYPES.filter(
-              (type) => type !== 'VIP',
-            ).map((type) => {
-              const Icon =
-                PARTICIPANT_ICONS[type]
+            {PARTICIPANT_TYPES
+              .filter(
+                (type) =>
+                  type !== 'VIP',
+              )
+              .map((type) => {
+                const Icon =
+                  PARTICIPANT_ICONS[
+                    type
+                  ]
 
-              const active =
-                form.participantType ===
-                type
+                const active =
+                  form.participantType ===
+                  type
 
-              return (
-                <button
-                  key={type}
-                  type="button"
-                  aria-pressed={active}
-                  onClick={() =>
-                    update(
-                      'participantType',
-                      type,
-                    )
-                  }
-                  className={cn(
-                    'group flex min-h-[108px] flex-col items-center justify-center gap-3 rounded-xl border px-3 py-4 text-center transition-all duration-200',
-                    active
-                      ? 'border-primary bg-primary/10 text-foreground shadow-[0_0_0_1px_rgba(255,255,255,0.03)]'
-                      : 'border-border bg-secondary/20 text-muted-foreground hover:border-accent/40 hover:bg-secondary/40 hover:text-foreground',
-                  )}
-                >
-                  <span
+                return (
+                  <button
+                    key={type}
+                    type="button"
+                    aria-pressed={active}
+                    onClick={() =>
+                      update(
+                        'participantType',
+                        type,
+                      )
+                    }
                     className={cn(
-                      'flex size-9 items-center justify-center rounded-full border transition-colors',
+                      'group flex min-h-[108px] flex-col items-center justify-center gap-3 rounded-xl border px-3 py-4 text-center transition-all duration-200',
                       active
-                        ? 'border-primary/40 bg-primary/10 text-primary'
-                        : 'border-border bg-background text-accent group-hover:border-accent/40',
+                        ? 'border-primary bg-primary/10 text-foreground shadow-[0_0_0_1px_rgba(255,255,255,0.03)]'
+                        : 'border-border bg-secondary/20 text-muted-foreground hover:border-accent/40 hover:bg-secondary/40 hover:text-foreground',
                     )}
                   >
-                    <Icon className="size-4" />
-                  </span>
+                    <span
+                      className={cn(
+                        'flex size-9 items-center justify-center rounded-full border transition-colors',
+                        active
+                          ? 'border-primary/40 bg-primary/10 text-primary'
+                          : 'border-border bg-background text-accent group-hover:border-accent/40',
+                      )}
+                    >
+                      <Icon className="size-4" />
+                    </span>
 
-                  <span className="text-xs font-semibold">
-                    {type}
-                  </span>
-                </button>
-              )
-            })}
+                    <span className="text-xs font-semibold">
+                      {type}
+                    </span>
+                  </button>
+                )
+              })}
           </div>
 
           {errors.participantType && (
@@ -895,9 +1005,7 @@ function ParticipationStep({
             </div>
 
             <p className="mt-2 max-w-lg text-xs leading-relaxed text-muted-foreground sm:text-sm">
-              Request access to elevated viewing,
-              dedicated access and our premium
-              hospitality experience.
+              Request access to elevated viewing, dedicated access and our premium hospitality experience.
             </p>
 
             <button
@@ -969,15 +1077,15 @@ function ParticipationStep({
                   </p>
 
                   <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
-                    VIP access is curated. Give
-                    us a little context so the
-                    team can review your request.
+                    VIP access is curated. Give us a little context so the team can review your request.
                   </p>
                 </div>
 
                 <SelectField
                   label="What best describes you?"
-                  value={form.vipCategory}
+                  value={
+                    form.vipCategory
+                  }
                   onChange={(value) =>
                     update(
                       'vipCategory',
@@ -991,30 +1099,39 @@ function ParticipationStep({
                   <option value="">
                     Select a category
                   </option>
+
                   <option value="Business Executive">
                     Business Executive
                   </option>
+
                   <option value="Sponsor / Brand Representative">
                     Sponsor / Brand Representative
                   </option>
+
                   <option value="Motorsport Professional">
                     Motorsport Professional
                   </option>
+
                   <option value="Automotive Industry">
                     Automotive Industry
                   </option>
+
                   <option value="Content Creator / Media">
                     Content Creator / Media
                   </option>
+
                   <option value="Celebrity / Public Figure">
                     Celebrity / Public Figure
                   </option>
+
                   <option value="Investor">
                     Investor
                   </option>
+
                   <option value="TOR'Q Community">
                     TOR&apos;Q Community
                   </option>
+
                   <option value="Other">
                     Other
                   </option>
@@ -1037,7 +1154,9 @@ function ParticipationStep({
 
                   <Field
                     label="Your Role"
-                    value={form.vipRole}
+                    value={
+                      form.vipRole
+                    }
                     onChange={(value) =>
                       update(
                         'vipRole',
@@ -1064,7 +1183,9 @@ function ParticipationStep({
 
                 <TextareaField
                   label="Why would you like to experience TOR’Q as a VIP?"
-                  value={form.vipReason}
+                  value={
+                    form.vipReason
+                  }
                   onChange={(value) =>
                     update(
                       'vipReason',
@@ -1073,7 +1194,9 @@ function ParticipationStep({
                   }
                   placeholder="Tell us briefly why you'd like VIP access..."
                   rows={4}
-                  error={errors.vipReason}
+                  error={
+                    errors.vipReason
+                  }
                 />
 
                 <SelectField
@@ -1094,24 +1217,31 @@ function ParticipationStep({
                   <option value="">
                     Select an option
                   </option>
+
                   <option value="Previous TOR'Q">
                     Previous TOR&apos;Q
                   </option>
+
                   <option value="Friend / Referral">
                     Friend / Referral
                   </option>
+
                   <option value="Sponsor">
                     Sponsor
                   </option>
+
                   <option value="Social Media">
                     Social Media
                   </option>
+
                   <option value="Media">
                     Media
                   </option>
+
                   <option value="Partner">
                     Partner
                   </option>
+
                   <option value="Other">
                     Other
                   </option>
@@ -1135,20 +1265,6 @@ function ParticipationStep({
             )}
           </div>
         </div>
-
-        <Field
-          label="Emergency Contact"
-          value={form.emergencyContact}
-          onChange={(value) =>
-            update(
-              'emergencyContact',
-              value,
-            )
-          }
-          placeholder="Name & phone number"
-          required
-          error={errors.emergencyContact}
-        />
       </div>
     </section>
   )
@@ -1159,7 +1275,9 @@ function MachineStep({
   update,
 }: {
   form: FormData
-  update: <K extends keyof FormData>(
+  update: <
+    K extends keyof FormData,
+  >(
     key: K,
     value: FormData[K],
   ) => void
@@ -1169,7 +1287,7 @@ function MachineStep({
       <StepHeading
         eyebrow="Step 03"
         title="Tell us about your machine."
-        description="Vehicle details help us understand the machines joining the spectacle."
+        description="Vehicle details are collected only from TOR’Q Drivers."
       />
 
       <div className="mt-6 grid gap-4">
@@ -1185,9 +1303,7 @@ function MachineStep({
               </p>
 
               <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
-                Vehicle details are optional for
-                spectators, sim racers and VIP
-                guests.
+                These details help us identify and prepare the machines joining TOR’Q.
               </p>
             </div>
           </div>
@@ -1196,7 +1312,9 @@ function MachineStep({
         <div className="grid gap-4 sm:grid-cols-2">
           <Field
             label="Vehicle Make"
-            value={form.vehicleMake}
+            value={
+              form.vehicleMake
+            }
             onChange={(value) =>
               update(
                 'vehicleMake',
@@ -1208,7 +1326,9 @@ function MachineStep({
 
           <Field
             label="Vehicle Model"
-            value={form.vehicleModel}
+            value={
+              form.vehicleModel
+            }
             onChange={(value) =>
               update(
                 'vehicleModel',
@@ -1229,7 +1349,6 @@ function MachineStep({
             )
           }
           placeholder="@yourhandle"
-          type="text"
         />
       </div>
     </section>
@@ -1240,18 +1359,34 @@ function ConfirmStep({
   form,
   update,
   errors,
+  isDriver,
 }: {
   form: FormData
-  update: <K extends keyof FormData>(
+  update: <
+    K extends keyof FormData,
+  >(
     key: K,
     value: FormData[K],
   ) => void
   errors: Record<string, string>
+  isDriver: boolean
 }) {
+  const vehicle =
+    [
+      form.vehicleMake,
+      form.vehicleModel,
+    ]
+      .filter(Boolean)
+      .join(' ') || '—'
+
   return (
     <section>
       <StepHeading
-        eyebrow="Step 04"
+        eyebrow={
+          isDriver
+            ? 'Step 04'
+            : 'Step 03'
+        }
         title="Check your details."
         description="Everything looks good? Confirm your registration below."
       />
@@ -1293,24 +1428,22 @@ function ConfirmStep({
               }
             />
 
-            <SummaryRow
-              label="Vehicle"
-              value={
-                [
-                  form.vehicleMake,
-                  form.vehicleModel,
-                ]
-                  .filter(Boolean)
-                  .join(' ') || '—'
-              }
-            />
+            {isDriver && (
+              <SummaryRow
+                label="Vehicle"
+                value={vehicle}
+              />
+            )}
           </div>
         </div>
 
         <CheckboxField
           checked={form.agree}
           onChange={(checked) =>
-            update('agree', checked)
+            update(
+              'agree',
+              checked,
+            )
           }
           title="I agree to abide by the TOR’Q safety rules."
           description="I understand that motorsport carries inherent risk and agree to follow event safety instructions."
@@ -1360,14 +1493,22 @@ function Field({
 }: {
   label: string
   value: string
-  onChange: (value: string) => void
+  onChange: (
+    value: string,
+  ) => void
   placeholder?: string
   type?: string
   required?: boolean
   error?: string
   autoComplete?: string
 }) {
-  const hasError = Boolean(error)
+  const hasError =
+    Boolean(error)
+
+  const errorId =
+    `${label
+      .toLowerCase()
+      .replace(/\s+/g, '-')}-error`
 
   return (
     <label className="grid gap-2">
@@ -1389,9 +1530,7 @@ function Field({
         aria-invalid={hasError}
         aria-describedby={
           hasError
-            ? `${label
-                .toLowerCase()
-                .replace(/\s+/g, '-')}-error`
+            ? errorId
             : undefined
         }
         onChange={(event) =>
@@ -1407,11 +1546,7 @@ function Field({
       />
 
       {error && (
-        <FieldError
-          id={`${label
-            .toLowerCase()
-            .replace(/\s+/g, '-')}-error`}
-        >
+        <FieldError id={errorId}>
           {error}
         </FieldError>
       )}
@@ -1428,7 +1563,9 @@ function SelectField({
 }: {
   label: string
   value: string
-  onChange: (value: string) => void
+  onChange: (
+    value: string,
+  ) => void
   children: ReactNode
   error?: string
 }) {
@@ -1440,7 +1577,9 @@ function SelectField({
 
       <select
         value={value}
-        aria-invalid={Boolean(error)}
+        aria-invalid={Boolean(
+          error,
+        )}
         onChange={(event) =>
           onChange(
             event.target.value,
@@ -1474,7 +1613,9 @@ function TextareaField({
 }: {
   label: string
   value: string
-  onChange: (value: string) => void
+  onChange: (
+    value: string,
+  ) => void
   placeholder?: string
   rows?: number
   error?: string
@@ -1489,7 +1630,9 @@ function TextareaField({
         value={value}
         rows={rows}
         placeholder={placeholder}
-        aria-invalid={Boolean(error)}
+        aria-invalid={Boolean(
+          error,
+        )}
         onChange={(event) =>
           onChange(
             event.target.value,
@@ -1520,7 +1663,9 @@ function CheckboxField({
   accent = 'gold',
 }: {
   checked: boolean
-  onChange: (checked: boolean) => void
+  onChange: (
+    checked: boolean,
+  ) => void
   title: string
   description: string
   error?: string
@@ -1632,7 +1777,9 @@ function SuccessView({
 }: {
   regNumber: string
   name: string
-  participantType: ParticipantType | ''
+  participantType:
+    | ParticipantType
+    | ''
   copied: boolean
   onCopy: () => void
   onClose: () => void
@@ -1693,19 +1840,14 @@ function SuccessView({
               {firstName
                 ? `Welcome, ${firstName}. `
                 : ''}
-              Your request for the TOR&apos;Q
-              VIP experience has been
-              successfully received.
+              Your request for the TOR&apos;Q VIP experience has been successfully received.
             </>
           ) : (
             <>
               {firstName
                 ? `You’re in, ${firstName}. `
                 : ''}
-              Your registration has been
-              successfully received and a
-              confirmation has been sent to
-              your email.
+              Your registration has been successfully received and a confirmation has been sent to your email.
             </>
           )}
         </p>
@@ -1723,10 +1865,7 @@ function SuccessView({
                 </p>
 
                 <p className="mt-1.5 text-xs leading-relaxed text-muted-foreground">
-                  VIP access is limited and
-                  subject to approval. Our team
-                  will review your request and
-                  contact you with the outcome.
+                  VIP access is limited and subject to approval. Our team will review your request and contact you with the outcome.
                 </p>
               </div>
             </div>
