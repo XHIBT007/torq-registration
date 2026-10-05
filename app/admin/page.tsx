@@ -48,7 +48,6 @@ vip_assessed_by?: string | null
   vehicle_make: string | null
   vehicle_model: string | null
   instagram: string | null
-  emergency_contact: string | null
   registration_number: string | null
   created_at: string
 
@@ -1321,15 +1320,6 @@ const arrivalActivity = Object.entries(arrivalByHour)
           </p>
           <p className="mt-1 text-sm font-medium text-white">
             {selectedRegistration.participant_type || '—'}
-          </p>
-        </div>
-
-        <div className="rounded-xl border border-white/10 bg-white/[0.03] p-4 sm:col-span-2">
-          <p className="text-xs uppercase tracking-wider text-white/40">
-            Emergency Contact
-          </p>
-          <p className="mt-1 text-sm text-white">
-            {selectedRegistration.emergency_contact || '—'}
           </p>
         </div>
 
