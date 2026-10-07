@@ -249,7 +249,6 @@ export function Experiences() {
             torq-scroll-rail
             overflow-x-auto
             overscroll-x-contain
-            overscroll-y-none
             px-6
             pb-5
             [scrollbar-width:none]
@@ -270,10 +269,8 @@ export function Experiences() {
                   }}
                   className={`
                     group
+                    torq-carousel-card
                     relative
-                    h-[430px]
-                    w-[82vw]
-                    max-w-[380px]
                     shrink-0
                     snap-center
                     overflow-hidden
@@ -281,16 +278,8 @@ export function Experiences() {
                     border
                     bg-neutral-950
 
-                    sm:h-[460px]
-                    sm:w-[66vw]
-                    sm:max-w-[500px]
-
-                    md:h-[500px]
-                    md:w-[62vw]
-                    md:max-w-[780px]
-
                     transition-[transform,opacity,border-color]
-                    duration-500
+                    duration-350
                     ease-out
                     motion-reduce:transition-none
 

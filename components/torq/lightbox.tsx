@@ -156,14 +156,14 @@ export function Lightbox({
       <div
         key={activeIndex}
         onClick={(event) => event.stopPropagation()}
-        className="relative flex max-h-[calc(100dvh-32px)] w-full max-w-[1500px] flex-col items-center justify-center animate-in fade-in zoom-in-[0.98] duration-200 sm:max-h-[calc(100dvh-48px)]"
+        className="relative flex max-h-[min(88dvh,860px)] w-full max-w-[1200px] flex-col items-center justify-center animate-in fade-in zoom-in-[0.98] duration-200"
       >
         {/* Image */}
-        <div className="relative flex max-h-[calc(100dvh-120px)] max-w-[calc(100vw-24px)] items-center justify-center overflow-hidden rounded-xl border border-white/10 bg-black/40 shadow-2xl sm:max-h-[calc(100dvh-140px)] sm:max-w-[calc(100vw-96px)]">
+        <div className="relative flex max-h-[min(78dvh,760px)] max-w-[min(92vw,1120px)] items-center justify-center overflow-hidden rounded-xl border border-white/10 bg-black/40 shadow-2xl">
           <img
             src={current.src || '/placeholder.svg'}
             alt={current.alt}
-            className="block max-h-[calc(100dvh-120px)] max-w-full object-contain sm:max-h-[calc(100dvh-140px)]"
+            className="block max-h-[min(78dvh,760px)] max-w-full object-contain"
             draggable={false}
           />
         </div>

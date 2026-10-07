@@ -15,7 +15,7 @@ import { TorqInMotion } from '@/components/torq/torq-in-motion'
 export function HomePage() {
   return (
     <RegistrationProvider>
-      <div className="relative min-h-screen bg-background">
+      <div className="torq-site relative min-h-screen bg-background">
         <Navbar />
 
         <main>

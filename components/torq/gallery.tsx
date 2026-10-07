@@ -341,10 +341,8 @@ function GalleryCard({
     <article
       className="
         group
+        torq-carousel-card
         relative
-        h-[430px]
-        w-[82vw]
-        max-w-[360px]
         shrink-0
         snap-start
         overflow-hidden
@@ -352,14 +350,6 @@ function GalleryCard({
         border
         border-white/10
         bg-neutral-950
-        sm:h-[470px]
-        sm:w-[62vw]
-        sm:max-w-[420px]
-        md:h-[520px]
-        md:w-[38vw]
-        md:max-w-[500px]
-        lg:w-[34vw]
-        lg:max-w-[520px]
       "
     >
       <button

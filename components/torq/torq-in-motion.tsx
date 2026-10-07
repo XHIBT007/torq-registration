@@ -10,21 +10,25 @@ const REELS = [
   {
     id: 'Dcq_kQcsCMB',
     href: 'https://www.instagram.com/reel/Dcq_kQcsCMB/',
+    image: '/images/reels/torq-reel-1.jpg',
     label: 'TOR’Q Reel',
   },
   {
     id: 'Daw8--TMDQ6',
     href: 'https://www.instagram.com/reel/Daw8--TMDQ6/',
+    image: '/images/reels/torq-reel-2.jpg',
     label: 'TOR’Q Reel',
   },
   {
     id: 'DFiDqjECUz8',
     href: 'https://www.instagram.com/reel/DFiDqjECUz8/',
+    image: '/images/reels/torq-reel-3.jpg',
     label: 'TOR’Q Reel',
   },
   {
     id: 'C14Tx1koOG8',
     href: 'https://www.instagram.com/reel/C14Tx1koOG8/',
+    image: '/images/reels/torq-reel-4.jpg',
     label: 'TOR’Q Reel',
   },
 ]
@@ -244,7 +248,6 @@ export function TorqInMotion() {
             torq-scroll-rail
             overflow-x-auto
             overscroll-x-contain
-            overscroll-y-none
             px-6
             pb-5
             [scrollbar-width:none]
@@ -262,11 +265,9 @@ export function TorqInMotion() {
                 aria-label={`Watch TOR’Q Instagram Reel ${index + 1}`}
                 className="
                   group
+                  torq-carousel-card
                   relative
                   block
-                  h-[430px]
-                  w-[82vw]
-                  max-w-[380px]
                   shrink-0
                   snap-start
                   overflow-hidden
@@ -281,24 +282,20 @@ export function TorqInMotion() {
                   focus-visible:border-red-500
                   focus-visible:ring-2
                   focus-visible:ring-red-500
-                  sm:h-[470px]
-                  sm:w-[62vw]
-                  sm:max-w-[440px]
-                  md:h-[520px]
-                  md:w-[34vw]
-                  md:max-w-[520px]
                 "
               >
+                <img
+                  src={reel.image}
+                  alt=""
+                  aria-hidden="true"
+                  loading="lazy"
+                  decoding="async"
+                  className="absolute inset-0 h-full w-full object-cover opacity-70 transition-transform duration-500 group-hover:scale-[1.03]"
+                />
+
                 <div
                   aria-hidden="true"
-                  className="
-                    absolute
-                    inset-0
-                    bg-gradient-to-br
-                    from-neutral-900
-                    via-black
-                    to-neutral-950
-                  "
+                  className="absolute inset-0 bg-gradient-to-t from-black/45 via-black/10 to-black/20"
                 />
 
                 <div

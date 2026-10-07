@@ -23,6 +23,7 @@ import {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
   type ReactNode,
 } from 'react'
@@ -149,27 +150,65 @@ function RegistrationDialog({
   const isDriver =
     form.participantType === 'Driver'
 
+  const dialogRef = useRef<HTMLDivElement>(null)
+  const submittingRef = useRef(submitting)
+  submittingRef.current = submitting
+
   useEffect(() => {
+    const dialog = dialogRef.current
+    const previouslyFocused =
+      document.activeElement instanceof HTMLElement
+        ? document.activeElement
+        : null
+    const focusableSelector =
+      'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+
+    requestAnimationFrame(() => {
+      dialog?.querySelector<HTMLElement>('input:not([disabled]), select:not([disabled]), textarea:not([disabled]), button:not([disabled])')?.focus()
+    })
+
     const handleKeyDown = (event: KeyboardEvent) => {
-      if (
-        event.key === 'Escape' &&
-        !submitting
-      ) {
+      if (event.key === 'Escape' && !submittingRef.current) {
         onClose()
+        return
+      }
+
+      if (event.key !== 'Tab' || !dialog) return
+
+      const controls: HTMLElement[] = Array.from(
+        dialog.querySelectorAll<HTMLElement>(focusableSelector),
+      )
+      const first = controls[0]
+      const last = controls[controls.length - 1]
+
+      if (!first || !last) return
+
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault()
+        last.focus()
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault()
+        first.focus()
       }
     }
 
-    window.addEventListener(
-      'keydown',
-      handleKeyDown,
-    )
+    window.addEventListener('keydown', handleKeyDown)
 
-    return () =>
-      window.removeEventListener(
-        'keydown',
-        handleKeyDown,
-      )
-  }, [onClose, submitting])
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown)
+      previouslyFocused?.focus()
+    }
+  }, [onClose])
+
+  useEffect(() => {
+    requestAnimationFrame(() => {
+      dialogRef.current
+        ?.querySelector<HTMLElement>(
+          '[data-registration-step] input:not([disabled]), [data-registration-step] select:not([disabled]), [data-registration-step] textarea:not([disabled]), [data-registration-step] button:not([disabled])',
+        )
+        ?.focus()
+    })
+  }, [step])
 
   const update = <
     K extends keyof FormData,
@@ -525,15 +564,13 @@ function RegistrationDialog({
   }
 
   return (
-    <div
-      className="torq-modal-backdrop fixed inset-0 z-[100] flex items-start justify-center overflow-y-auto p-3 sm:p-6"
-      role="dialog"
-      aria-modal="true"
-      aria-label="Register for TOR'Q"
-    >
+    <div className="torq-modal-backdrop fixed inset-0 z-[100] flex items-start justify-center overflow-y-auto p-3 sm:p-6">
       <button
         type="button"
         aria-label="Close registration"
+        aria-hidden="true"
+        tabIndex={-1}
+        disabled={submitting}
         onClick={() => {
           if (!submitting) {
             onClose()
@@ -542,7 +579,14 @@ function RegistrationDialog({
         className="fixed inset-0 cursor-default"
       />
 
-      <div className="torq-modal-shell relative z-10 my-auto w-full max-w-xl overflow-hidden">
+      <div
+        ref={dialogRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="torq-registration-title"
+        tabIndex={-1}
+        className="torq-modal-shell relative z-10 my-auto w-full max-w-xl overflow-hidden"
+      >
         <div className="h-[2px] w-full bg-gradient-to-r from-primary via-ember to-gold" />
 
         <button
@@ -574,7 +618,7 @@ function RegistrationDialog({
                   TOR’Q 2026
                 </p>
 
-                <h2 className="font-display mt-2 text-2xl font-bold tracking-wide text-foreground sm:text-3xl">
+                <h2 id="torq-registration-title" className="font-display mt-2 text-2xl font-bold tracking-wide text-foreground sm:text-3xl">
                   Secure your place.
                 </h2>
 
@@ -590,6 +634,7 @@ function RegistrationDialog({
 
               <div
                 key={step}
+                data-registration-step
                 className="animate-in fade-in slide-in-from-right-2 duration-300"
               >
                 <div className="mt-7 min-h-[260px]">
