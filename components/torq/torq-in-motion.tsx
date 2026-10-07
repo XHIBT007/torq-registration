@@ -22,13 +22,13 @@ const REELS = [
   {
     id: 'DFiDqjECUz8',
     href: 'https://www.instagram.com/reel/DFiDqjECUz8/',
-    image: '/images/reels/torq-reel-3.jpg',
+    image: '/images/reels/torq-reel-4.jpg',
     label: 'TOR’Q Reel',
   },
   {
     id: 'C14Tx1koOG8',
     href: 'https://www.instagram.com/reel/C14Tx1koOG8/',
-    image: '/images/reels/torq-reel-4.jpg',
+    image: '/images/reels/torq-reel-3.jpg',
     label: 'TOR’Q Reel',
   },
 ]
