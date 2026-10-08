@@ -168,12 +168,8 @@ export function Lightbox({
           />
         </div>
 
-        {/* Caption / metadata */}
-        <div className="mt-3 flex w-full max-w-3xl items-center justify-between gap-4 px-2 sm:mt-4">
-          <p className="min-w-0 flex-1 truncate text-xs font-medium uppercase tracking-[0.16em] text-white/60 sm:text-sm">
-            {current.alt}
-          </p>
-
+        {/* Image position */}
+        <div className="mt-3 flex w-full max-w-3xl items-center justify-end gap-4 px-2 sm:mt-4">
           <div
             className="shrink-0 text-xs font-medium tabular-nums tracking-[0.16em] text-white/40"
             aria-label={`Image ${activeIndex + 1} of ${images.length}`}

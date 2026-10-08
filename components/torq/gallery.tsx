@@ -482,88 +482,9 @@ function GalleryCard({
         </div>
       </div>
 
-      {/* ==========================================================
-          CONTENT
-          ========================================================== */}
-
-      <div
-        className="
-          pointer-events-none
-          absolute
-          inset-x-0
-          bottom-0
-          z-10
-          flex
-          items-end
-          justify-between
-          gap-5
-          p-5
-          sm:p-6
-          md:p-7
-        "
-      >
-        <div className="min-w-0 max-w-[78%]">
-          <p
-            className="
-              mb-2
-              text-[9px]
-              font-bold
-              uppercase
-              tracking-[0.3em]
-              text-red-500
-            "
-          >
-            TOR&apos;Q Archive
-          </p>
-
-          <p
-            className="
-              line-clamp-2
-              text-sm
-              font-bold
-              uppercase
-              leading-snug
-              tracking-[0.04em]
-              text-white
-              sm:text-base
-            "
-          >
-            {img.alt}
-          </p>
-        </div>
-
-        <div
-          aria-hidden="true"
-          className="
-            flex
-            h-11
-            w-11
-            shrink-0
-            items-center
-            justify-center
-            rounded-full
-            border
-            border-white/20
-            bg-white/[0.06]
-            text-white
-            backdrop-blur-md
-            transition-all
-            duration-300
-            motion-reduce:transition-none
-            group-hover:border-white/35
-            group-hover:bg-white/[0.14]
-          "
-        >
-          <ArrowUpRight
-            className="
-              h-4
-              w-4
-              transition-transform
-              duration-300
-              motion-reduce:transition-none
-              group-hover:rotate-45
-            "
-          />
+      <div className="pointer-events-none absolute inset-x-0 bottom-0 z-10 flex justify-end p-5 sm:p-6 md:p-7">
+        <div aria-hidden="true" className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-white/20 bg-white/[0.06] text-white backdrop-blur-md transition-all duration-300 motion-reduce:transition-none group-hover:border-white/35 group-hover:bg-white/[0.14]">
+          <ArrowUpRight className="h-4 w-4 transition-transform duration-300 motion-reduce:transition-none group-hover:rotate-45" />
         </div>
       </div>
 
