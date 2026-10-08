@@ -82,33 +82,28 @@ export const EXPERIENCES: Experience[] = [
 
 export const GALLERY = [
   {
-    src: "/images/gallery-1.png",
-    alt: "Crowd experiencing TOR'Q at golden hour",
+    src: "/images/torq-originals/mustang-crowd.jpg",
+    alt: "White Mustang performing a smoky burnout before the crowd",
   },
-
   {
-    src: "/images/gallery-2.png",
-    alt: "Close up of a performance car livery",
+    src: "/images/torq-originals/red-bmw-smoke.jpg",
+    alt: "Red BMW drifting through smoke at the event",
   },
-
   {
-    src: "/images/gallery-3.png",
-    alt: "TOR'Q illuminated at night",
+    src: "/images/torq-originals/fire-performance.jpg",
+    alt: "Live fire performance before the event crowd",
   },
-
   {
-    src: "/images/gallery-4.png",
-    alt: "Technical preparation around a performance car",
+    src: "/images/torq-originals/cultural-performance.jpg",
+    alt: "Traditional dancers performing on the event stage",
   },
-
   {
-    src: "/images/gallery-5.png",
-    alt: "Aerial view of the TOR'Q experience at dusk",
+    src: "/images/torq-originals/motorcycle-gathering.jpg",
+    alt: "Motorcycles and spectators gathered at the event",
   },
-
   {
-    src: "/images/gallery-6.png",
-    alt: "Drifting car surrounded by smoke",
+    src: "/images/torq-originals/blue-bmw-drift.jpg",
+    alt: "Blue BMW drifting across the track",
   },
 ]
 
