@@ -141,6 +141,9 @@ function RegistrationDialog({
   const [step, setStep] = useState(0)
   const [form, setForm] = useState<FormData>(EMPTY_FORM)
   const [submitted, setSubmitted] = useState(false)
+  const [confirmationEmailSent, setConfirmationEmailSent] = useState(false)
+  const [confirmationEmailError, setConfirmationEmailError] = useState('')
+  const [resendingConfirmation, setResendingConfirmation] = useState(false)
   const [regNumber, setRegNumber] = useState('')
   const [copied, setCopied] = useState(false)
   const [submitting, setSubmitting] = useState(false)
@@ -510,16 +513,16 @@ function RegistrationDialog({
             },
           )
 
-        if (!emailResponse.ok) {
-          const emailError =
-            await emailResponse.json()
-
-          console.error(
-            'Confirmation email error:',
-            emailError,
-          )
+        const emailResult = await emailResponse.json()
+        if (!emailResponse.ok || !emailResult.success) {
+          console.error('Confirmation email error:', emailResult)
+          setConfirmationEmailError('We could not send the email. Please try again.')
+        } else {
+          setConfirmationEmailSent(true)
+          setConfirmationEmailError('')
         }
       } catch (emailError) {
+        setConfirmationEmailError('We could not send the email. Please try again.')
         console.error(
           'Failed to send confirmation email:',
           emailError,
@@ -542,6 +545,38 @@ function RegistrationDialog({
       )
     } finally {
       setSubmitting(false)
+    }
+  }
+
+  const handleResendConfirmation = async () => {
+    if (resendingConfirmation || !regNumber) return
+
+    setResendingConfirmation(true)
+    try {
+      const response = await fetch('/api/send-confirmation', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: form.email,
+          fullName: form.fullName,
+          registrationNumber: regNumber,
+          participantType: form.participantType,
+          retry: true,
+        }),
+      })
+      const result = await response.json()
+      if (!response.ok || !result.success) {
+        console.error('Confirmation email resend error:', result)
+        setConfirmationEmailError(result.error || 'We could not send the email. Please try again.')
+        return
+      }
+      setConfirmationEmailSent(true)
+      setConfirmationEmailError('')
+    } catch (resendError) {
+      setConfirmationEmailError('We could not send the email. Please try again.')
+      console.error('Confirmation email resend failed:', resendError)
+    } finally {
+      setResendingConfirmation(false)
     }
   }
 
@@ -609,6 +644,10 @@ function RegistrationDialog({
             copied={copied}
             onCopy={copyNumber}
             onClose={onClose}
+            confirmationEmailSent={confirmationEmailSent}
+            confirmationEmailError={confirmationEmailError}
+            resendingConfirmation={resendingConfirmation}
+            onResendConfirmation={handleResendConfirmation}
           />
         ) : (
           <div className="torq-modal-scroll max-h-[calc(100svh-24px)] overflow-y-auto">
@@ -1819,6 +1858,10 @@ function SuccessView({
   copied,
   onCopy,
   onClose,
+  confirmationEmailSent,
+  confirmationEmailError,
+  resendingConfirmation,
+  onResendConfirmation,
 }: {
   regNumber: string
   name: string
@@ -1828,6 +1871,10 @@ function SuccessView({
   copied: boolean
   onCopy: () => void
   onClose: () => void
+  confirmationEmailSent: boolean
+  confirmationEmailError: string
+  resendingConfirmation: boolean
+  onResendConfirmation: () => void
 }) {
   const isVip =
     participantType === 'VIP'
@@ -1892,10 +1939,29 @@ function SuccessView({
               {firstName
                 ? `You’re in, ${firstName}. `
                 : ''}
-              Your registration has been successfully received and a confirmation has been sent to your email.
+              {confirmationEmailSent
+                ? 'Your registration has been received and a confirmation email was sent.'
+                : 'Your registration has been received, but the confirmation email could not be sent.'}
             </>
           )}
         </p>
+
+        {!confirmationEmailSent && (
+          <div className="mt-4 rounded-lg border border-destructive/30 bg-destructive/5 p-4 text-left">
+            <p className="text-xs leading-relaxed text-muted-foreground" role="status">
+              {confirmationEmailError || 'You can keep your registration number. Check your inbox and spam folder, then try sending the confirmation again.'}
+            </p>
+            <Button
+              type="button"
+              variant="outline"
+              className="mt-3 w-full"
+              disabled={resendingConfirmation}
+              onClick={onResendConfirmation}
+            >
+              {resendingConfirmation ? 'Sending…' : 'Resend confirmation email'}
+            </Button>
+          </div>
+        )}
 
         {isVip && (
           <div className="mt-6 rounded-xl border border-gold/30 bg-gradient-to-br from-gold/10 via-background to-gold/5 p-5 text-left">
