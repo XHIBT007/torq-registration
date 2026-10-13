@@ -70,30 +70,49 @@ export const EXPERIENCES: Experience[] = [
    GALLERY
    ================================================================ */
 
-export const GALLERY = [
+export const GALLERY_ALBUMS = [
   {
-    src: "/images/torq-originals/mustang-crowd.jpg",
-    alt: "White Mustang performing a smoky burnout before the crowd",
+    id: 'cars-bikes',
+    title: 'Cars & Bikes at TOR’Q',
+    description: 'Machines, builds and two-wheel action from the TOR’Q archive.',
+    images: [
+      { src: '/images/torq-originals/mustang-crowd.jpg', alt: 'White Mustang performing a smoky burnout before the crowd' },
+      { src: '/images/torq-originals/red-bmw-smoke.jpg', alt: 'Red BMW drifting through smoke at the event' },
+      { src: '/images/torq-originals/motorcycle-gathering.jpg', alt: 'Motorcycles and spectators gathered at TOR’Q' },
+      { src: '/images/torq-originals/blue-bmw-drift.jpg', alt: 'Blue BMW drifting across the track' },
+      { src: '/images/cars-bikes/torq-24-red-mustang-display.jpg', alt: 'Red Mustang on display at TOR’Q 2024' },
+      { src: '/images/cars-bikes/torq-24-mustang-drift.jpg', alt: 'Mustang drifting across the TOR’Q arena' },
+      { src: '/images/cars-bikes/torq-24-blue-car-drift.jpg', alt: 'Blue car drifting through a cloud of tyre smoke' },
+      { src: '/images/cars-bikes/torq-24-teal-bmw-burnout.jpg', alt: 'Teal BMW performing a smoky burnout' },
+      { src: '/images/cars-bikes/torq-24-white-mustang-smoke.jpg', alt: 'White Mustang emerging through smoke during a driving display' },
+      { src: '/images/cars-bikes/torq-24-motorcycle-stunt.jpg', alt: 'Motorcycle stunt rider performing in the arena' },
+      { src: '/images/cars-bikes/torq-24-corvette-steering-detail.jpg', alt: 'Close-up of a classic Corvette steering wheel' },
+      { src: '/images/cars-bikes/torq-24-classic-headlight-detail.jpg', alt: 'Close-up detail of a classic car headlight' },
+      { src: '/images/cars-bikes/torq-24-dodge-display.jpg', alt: 'Dodge muscle car displayed at TOR’Q' },
+      { src: '/images/cars-bikes/torq-25-bike-wheelie.jpg', alt: 'Motorcycle rider lifting the front wheel at TOR’Q 2025' },
+      { src: '/images/cars-bikes/torq-25-motorcycle-enthusiast.jpg', alt: 'Motorcycle enthusiast with a sport bike at TOR’Q 2025' },
+    ],
   },
   {
-    src: "/images/torq-originals/red-bmw-smoke.jpg",
-    alt: "Red BMW drifting through smoke at the event",
+    id: 'celebrities',
+    title: 'Celebrities at TOR’Q',
+    description: 'Artists, public figures and special guests in the TOR’Q crowd.',
+    images: [
+      { src: '/images/celebrities/torq-guest-crowd-2025.jpg', alt: 'Special guest greeting fans at TOR’Q' },
+      { src: '/images/celebrities/torq-cultural-guest-2025.jpg', alt: 'Special guest speaking in traditional attire at TOR’Q' },
+      { src: '/images/celebrities/torq-guest-2024-01.jpg', alt: 'Guest attending a TOR’Q event in 2024' },
+      { src: '/images/celebrities/torq-guest-2024-02.jpg', alt: 'Guest enjoying the TOR’Q event atmosphere in 2024' },
+    ],
   },
   {
-    src: "/images/torq-originals/fire-performance.jpg",
-    alt: "Live fire performance before the event crowd",
-  },
-  {
-    src: "/images/torq-originals/cultural-performance.jpg",
-    alt: "Traditional dancers performing on the event stage",
-  },
-  {
-    src: "/images/torq-originals/motorcycle-gathering.jpg",
-    alt: "Motorcycles and spectators gathered at the event",
-  },
-  {
-    src: "/images/torq-originals/blue-bmw-drift.jpg",
-    alt: "Blue BMW drifting across the track",
+    id: 'enthusiasts',
+    title: 'The Enthusiasts',
+    description: 'The people, performances and shared moments that make TOR’Q.',
+    images: [
+      { src: '/images/torq-originals/fire-performance.jpg', alt: 'Live fire performance before the TOR’Q crowd' },
+      { src: '/images/torq-originals/cultural-performance.jpg', alt: 'Traditional dancers performing on the event stage' },
+      { src: '/images/torq-originals/mustang-crowd.jpg', alt: 'TOR’Q enthusiasts gathered around a performance car' },
+    ],
   },
 ]
 

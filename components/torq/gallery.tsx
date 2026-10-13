@@ -3,12 +3,14 @@
 import { useState } from 'react'
 import { ArrowRight, ArrowUpRight } from 'lucide-react'
 
-import { GALLERY } from '@/lib/torq-data'
+import { GALLERY_ALBUMS } from '@/lib/torq-data'
 import { Reveal } from './reveal'
 import { Lightbox } from './lightbox'
 
 export function Gallery() {
   const [activeIndex, setActiveIndex] = useState<number | null>(null)
+  const [activeAlbumId, setActiveAlbumId] = useState(GALLERY_ALBUMS[0].id)
+  const activeAlbum = GALLERY_ALBUMS.find((album) => album.id === activeAlbumId) ?? GALLERY_ALBUMS[0]
 
   return (
     <section
@@ -106,12 +108,48 @@ export function Gallery() {
                 md:text-xl
               "
             >
-              A visual archive of performance, engineering,
-              adrenaline and the people who make TOR&apos;Q
-              more than just an event.
+              Explore TOR&apos;Q through three photo albums: the cars
+              and bikes, special guests, and the enthusiasts who
+              bring the experience to life.
             </p>
           </div>
         </Reveal>
+      </div>
+
+      <div className="relative mx-auto mt-10 max-w-7xl px-6 md:mt-14 md:px-10">
+        <div role="tablist" aria-label="TOR’Q photo albums" className="flex gap-2 overflow-x-auto pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+          {GALLERY_ALBUMS.map((album) => {
+            const selected = album.id === activeAlbum.id
+            return (
+              <button
+                key={album.id}
+                id={`gallery-tab-${album.id}`}
+                type="button"
+                role="tab"
+                aria-selected={selected}
+                aria-controls="gallery-album-panel"
+                onClick={() => {
+                  setActiveAlbumId(album.id)
+                  setActiveIndex(null)
+                }}
+                className={`inline-flex shrink-0 items-center gap-3 rounded-full border px-4 py-3 text-left text-[10px] font-bold uppercase tracking-[0.13em] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 sm:px-5 sm:text-xs ${selected ? 'border-red-500/60 bg-red-500/10 text-white' : 'border-white/10 bg-white/[0.02] text-white/50 hover:border-white/25 hover:text-white/80'}`}
+              >
+                <span>{album.title}</span>
+                <span className={`text-[9px] tabular-nums ${selected ? 'text-red-300' : 'text-white/30'}`}>{String(album.images.length).padStart(2, '0')}</span>
+              </button>
+            )
+          })}
+        </div>
+      </div>
+
+      <div id="gallery-album-panel" role="tabpanel" aria-labelledby={`gallery-tab-${activeAlbum.id}`} className="relative mt-7">
+        <div className="mx-auto flex max-w-7xl items-end justify-between gap-6 px-6 md:px-10">
+          <div>
+            <h3 className="text-xl font-black uppercase tracking-[-0.02em] sm:text-2xl">{activeAlbum.title}</h3>
+            <p className="mt-2 max-w-xl text-sm leading-6 text-white/40">{activeAlbum.description}</p>
+          </div>
+          <span className="hidden shrink-0 text-[9px] font-semibold uppercase tracking-[0.2em] text-white/30 sm:block">{activeAlbum.images.length} photos</span>
+        </div>
       </div>
 
       {/* ==========================================================
@@ -170,12 +208,12 @@ export function Gallery() {
           "
         >
           <div className="flex w-max snap-x snap-mandatory gap-4 sm:gap-5 md:gap-6">
-            {GALLERY.map((img, index) => (
+            {activeAlbum.images.map((img, index) => (
               <GalleryCard
                 key={`${img.src}-${index}`}
                 img={img}
                 index={index}
-                total={GALLERY.length}
+                total={activeAlbum.images.length}
                 onOpen={() => setActiveIndex(index)}
               />
             ))}
@@ -213,7 +251,7 @@ export function Gallery() {
               sm:text-[10px]
             "
           >
-            Swipe to explore
+            Swipe to explore this album
           </span>
 
           <ArrowRight
@@ -309,7 +347,7 @@ export function Gallery() {
 
       {activeIndex !== null && (
         <Lightbox
-          images={GALLERY}
+          images={activeAlbum.images}
           activeIndex={activeIndex}
           onClose={() => setActiveIndex(null)}
           onNavigate={setActiveIndex}
@@ -329,7 +367,7 @@ function GalleryCard({
   total,
   onOpen,
 }: {
-  img: (typeof GALLERY)[number]
+  img: (typeof GALLERY_ALBUMS)[number]['images'][number]
   index: number
   total: number
   onOpen: () => void
