@@ -14,7 +14,7 @@ export function IbadanEdition() {
       <div aria-hidden="true" className="absolute inset-0 -z-10 bg-gradient-to-r from-black/90 via-black/75 to-black/55" />
       <div aria-hidden="true" className="absolute inset-0 -z-10 bg-gradient-to-b from-black/25 via-transparent to-black/55" />
 
-      <div className="mx-auto grid min-h-[440px] max-w-7xl items-center gap-10 px-6 py-16 md:min-h-[500px] md:grid-cols-[1.1fr_0.9fr] md:gap-12 md:px-10 md:py-20">
+      <div className="mx-auto flex min-h-[440px] max-w-7xl items-center px-6 py-16 md:min-h-[500px] md:px-10 md:py-20">
         <div className="max-w-3xl">
           <p className="mb-4 text-[10px] font-bold uppercase tracking-[0.32em] text-red-300 sm:text-xs">
             Lagos roots · One special Ibadan edition
@@ -34,22 +34,6 @@ export function IbadanEdition() {
           </a>
         </div>
 
-        <div className="grid grid-cols-2 gap-3 sm:gap-4">
-          <figure className="overflow-hidden rounded-xl border border-white/20 shadow-2xl shadow-black/40">
-            <img
-              src="/images/torq-23-crowd.jpg"
-              alt="TOR’Q crowd gathered around a live stage performance"
-              className="aspect-[4/3] w-full object-cover"
-            />
-          </figure>
-          <figure className="mt-8 overflow-hidden rounded-xl border border-white/20 shadow-2xl shadow-black/40 sm:mt-12">
-            <img
-              src="/images/torq-23-bikes.jpg"
-              alt="Motorcycle riders at a previous TOR’Q event"
-              className="aspect-[4/3] w-full object-cover"
-            />
-          </figure>
-        </div>
       </div>
     </section>
   )
