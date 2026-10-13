@@ -7,6 +7,7 @@ import { Faq } from '@/components/torq/faq'
 import { Footer } from '@/components/torq/footer'
 import { Gallery } from '@/components/torq/gallery'
 import { Hero } from '@/components/torq/hero'
+import { IbadanEdition } from '@/components/torq/ibadan-edition'
 import { Navbar } from '@/components/torq/navbar'
 import { RegistrationProvider } from '@/components/torq/registration'
 import { Sponsors } from '@/components/torq/sponsors'
@@ -20,6 +21,7 @@ export function HomePage() {
 
         <main>
           <Hero />
+          <IbadanEdition />
 
           {/* VISUAL IMPACT */}
           <Gallery />
