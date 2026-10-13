@@ -117,7 +117,12 @@ export function Gallery() {
       </div>
 
       <div className="relative mx-auto mt-10 max-w-7xl px-6 md:mt-14 md:px-10">
-        <div role="tablist" aria-label="TOR’Q photo albums" className="flex gap-2 overflow-x-auto pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        <div className="rounded-2xl border border-white/10 bg-white/[0.025] p-3 sm:p-4">
+          <div className="mb-3 flex items-center justify-between gap-4 px-2 sm:mb-4">
+            <p className="text-[10px] font-bold uppercase tracking-[0.24em] text-white/45 sm:text-[11px]">Explore the albums</p>
+            <p className="text-[10px] font-medium uppercase tracking-[0.16em] text-white/30">{String(GALLERY_ALBUMS.length).padStart(2, '0')} collections</p>
+          </div>
+          <div role="tablist" aria-label="TOR’Q photo albums" className="grid gap-2 sm:grid-cols-3">
           {GALLERY_ALBUMS.map((album) => {
             const selected = album.id === activeAlbum.id
             return (
@@ -132,13 +137,17 @@ export function Gallery() {
                   setActiveAlbumId(album.id)
                   setActiveIndex(null)
                 }}
-                className={`inline-flex shrink-0 items-center gap-3 rounded-full border px-4 py-3 text-left text-[10px] font-bold uppercase tracking-[0.13em] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 sm:px-5 sm:text-xs ${selected ? 'border-red-500/60 bg-red-500/10 text-white' : 'border-white/10 bg-white/[0.02] text-white/50 hover:border-white/25 hover:text-white/80'}`}
+                className={`group inline-flex min-h-14 w-full items-center justify-between gap-3 rounded-xl border px-4 py-3 text-left text-[11px] font-extrabold uppercase tracking-[0.1em] transition duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 sm:px-5 sm:text-xs ${selected ? 'border-red-500/55 bg-red-500/[0.11] text-white shadow-[inset_3px_0_0_0_rgb(239_68_68)]' : 'border-white/[0.08] bg-black/25 text-white/55 hover:border-white/20 hover:bg-white/[0.04] hover:text-white/85'}`}
               >
-                <span>{album.title}</span>
-                <span className={`text-[9px] tabular-nums ${selected ? 'text-red-300' : 'text-white/30'}`}>{String(album.images.length).padStart(2, '0')}</span>
+                <span className="flex min-w-0 items-center gap-3">
+                  <span className={`font-mono text-[10px] tracking-normal ${selected ? 'text-red-300' : 'text-white/25'}`}>{String(GALLERY_ALBUMS.indexOf(album) + 1).padStart(2, '0')}</span>
+                  <span className="truncate">{album.title}</span>
+                </span>
+                <span className={`shrink-0 rounded-full px-2 py-1 text-[9px] font-bold tabular-nums ${selected ? 'bg-red-500/20 text-red-200' : 'bg-white/[0.05] text-white/35'}`}>{String(album.images.length).padStart(2, '0')}</span>
               </button>
             )
           })}
+          </div>
         </div>
       </div>
 
