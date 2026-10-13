@@ -812,7 +812,7 @@ export function Hero() {
                 atmosphereOpacity,
 
               background:
-                'linear-gradient(to bottom,rgba(0,0,0,.72),rgba(0,0,0,.20) 48%,rgba(0,0,0,.80))',
+                'linear-gradient(to bottom,rgba(0,0,0,.64),rgba(0,0,0,.16) 48%,rgba(0,0,0,.76))',
             }}
           />
 
@@ -882,7 +882,7 @@ export function Hero() {
             className="absolute inset-0"
             style={{
               background:
-                'radial-gradient(ellipse at center,transparent 25%,rgba(0,0,0,.72) 100%)',
+                'radial-gradient(ellipse at center,transparent 25%,rgba(0,0,0,.58) 100%)',
             }}
           />
         </div>
@@ -964,7 +964,7 @@ export function Hero() {
                 <div className="h-px w-7 bg-red-500 sm:w-12" />
 
                 <span className="text-[8px] font-semibold uppercase tracking-[.38em] text-white/65 sm:text-xs">
-                  TOR&apos;Q 2026
+                  LAGOS ROOTS · ONE-TIME IBADAN EDITION
                 </span>
               </div>
 
@@ -972,7 +972,7 @@ export function Hero() {
 
               <div className="overflow-visible">
                 <h1
-                  className="font-black uppercase leading-[.84] tracking-[-.055em] text-white"
+                  className="font-black uppercase leading-[.9] tracking-[-.04em] text-[#f3efe8]"
                   style={{
                     fontSize:
                       headlineSize,
@@ -997,7 +997,7 @@ export function Hero() {
                         : 'left center',
 
                     textShadow:
-                      '0 4px 30px rgba(0,0,0,.55)',
+                      '0 3px 24px rgba(0,0,0,.45)',
 
                     willChange:
                       'transform,opacity',
@@ -1083,17 +1083,21 @@ export function Hero() {
                             : undefined
                   }
                 >
-                  A cinematic celebration of performance,
-                  sound and precision where drifting legends,
-                  stunt riders, performance cars and motorsport
-                  culture come together for one unforgettable
-                  experience.
+                  From its Lagos roots, TOR’Q brings automotive
+                  performance, culture and entertainment to Ibadan
+                  for one special December edition.
                 </p>
 
-                {/* CTA */}
+                <div className="mt-5 flex flex-wrap items-center gap-x-5 gap-y-2 text-[9px] font-semibold uppercase tracking-[.14em] text-white/75 sm:mt-6 sm:text-xs">
+                  <span>{EVENT.dateLabel}</span>
+                  <span aria-hidden="true" className="hidden h-3 w-px bg-white/35 sm:block" />
+                  <span className="inline-flex items-center gap-2"><MapPin className="h-3.5 w-3.5 text-red-400" />{EVENT.location} · Venue to be announced</span>
+                </div>
+
+                {/* PRIMARY CTA */}
 
                 <div
-                  className="mt-5 flex flex-col gap-3 sm:mt-8 sm:flex-row sm:items-center"
+                  className="mt-5 flex flex-col gap-3 sm:mt-7 sm:flex-row sm:items-center"
                   style={
                     isVeryShortLandscape
                       ? {
@@ -1120,25 +1124,20 @@ export function Hero() {
                   <Button
                     size="lg"
                     onClick={open}
-                    className="h-11 w-full rounded-full bg-red-600 px-6 text-xs font-bold text-white shadow-[0_0_35px_rgba(220,38,38,.25)] hover:bg-red-500 sm:h-14 sm:w-auto sm:px-8 sm:text-base"
+                    className="h-11 w-full rounded-full bg-red-600 px-6 text-xs font-bold text-white shadow-lg shadow-black/30 transition-colors hover:bg-red-500 sm:h-14 sm:w-auto sm:px-8 sm:text-base"
                   >
                     <Ticket className="mr-2 h-4 w-4 sm:h-5 sm:w-5" />
 
                     REGISTER NOW
                   </Button>
 
-                  <div className="flex items-center gap-2 text-xs text-white/75 sm:text-base">
-                    <MapPin className="h-4 w-4 text-red-500 sm:h-5 sm:w-5" />
-
-                    {EVENT.location}
-                  </div>
                 </div>
               </div>
 
               {/* STATS */}
 
               <div
-                className="mt-6 grid grid-cols-4 gap-2 border-t border-white/15 pt-5 sm:mt-9 sm:gap-6 sm:pt-7"
+                className="mt-5 grid grid-cols-1 border-t border-white/20 pt-4 sm:mt-7 sm:pt-5"
                 style={{
                   opacity:
                     lowerProgress,
@@ -1169,39 +1168,9 @@ export function Hero() {
                 }}
               >
                 <HeroStat
-                  value="100+"
-                  label="Performance Cars"
-                  compact={
-                    isCompactLandscape ||
-                    isPortrait
-                  }
-                />
-
-                <HeroStat
-                  value="50+"
-                  label="Drivers & Riders"
-                  compact={
-                    isCompactLandscape ||
-                    isPortrait
-                  }
-                />
-
-                <HeroStat
-                  value="1"
-                  label="Day of Action"
-                  compact={
-                    isCompactLandscape ||
-                    isPortrait
-                  }
-                />
-
-                <HeroStat
-                  value="1"
-                  label="Epic Experience"
-                  compact={
-                    isCompactLandscape ||
-                    isPortrait
-                  }
+                  value="2,000+"
+                  label="Motorsport Enthusiasts"
+                  compact={false}
                 />
               </div>
 
@@ -1908,7 +1877,7 @@ function HeroStat({
       </p>
 
       <p
-        className="mt-2 max-w-[120px] uppercase tracking-[.18em] text-white/45"
+        className="mt-2 max-w-[220px] uppercase tracking-[.18em] text-white/55"
         style={{
           fontSize:
             compact
