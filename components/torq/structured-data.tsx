@@ -6,7 +6,7 @@ export function StructuredData() {
     name: "TOR'Q 2026",
 
     description:
-      "TOR'Q is a premium motorsport spectacle in Lagos, Nigeria, bringing together drifting, burnouts, power bike stunts, performance cars, sim racing, music and immersive automotive experiences.",
+      "TOR'Q is a premium motorsport spectacle in Ibadan, Nigeria, bringing together drifting, burnouts, power bike stunts, performance cars, sim racing, music and immersive automotive experiences.",
 
     startDate: '2026-12-06',
 
@@ -17,10 +17,10 @@ export function StructuredData() {
 
     location: {
       '@type': 'Place',
-      name: 'Lagos, Nigeria',
+      name: 'Ibadan, Nigeria',
       address: {
         '@type': 'PostalAddress',
-        addressLocality: 'Lagos',
+        addressLocality: 'Ibadan',
         addressCountry: 'NG',
       },
     },

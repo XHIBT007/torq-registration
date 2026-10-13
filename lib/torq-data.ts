@@ -6,7 +6,7 @@ export const EVENT = {
 
   dateLabel: "December 6, 2026",
 
-  location: "Lagos, Nigeria",
+  location: "Ibadan, Nigeria",
 }
 
 
@@ -28,34 +28,24 @@ export const EXPERIENCES: Experience[] = [
     number: "01",
     title: "Cars on the Runway",
     description:
-      "A curated exhibition where engineering meets artistry. Discover remarkable machines up close and experience automotive design as a form of expression.",
+      "A curated exhibition where engineering meets artistry, brought to life with live theatre performance. Discover remarkable machines up close and experience automotive design as a form of expression.",
     image: "/images/exp-supercar.png",
-    category: "AUTOMOTIVE ARTISTRY",
-    label: "Cars & Design",
+    category: "AUTOMOTIVE ARTISTRY & LIVE THEATRE",
+    label: "Cars, Design & Theatre",
   },
 
   {
     number: "02",
-    title: "Drift Theatre",
+    title: "Drift & Burnout Arena",
     description:
-      "Professional drift drivers deliver precision smoke shows, controlled burnouts and synchronized drifting in a spectacle built for the senses.",
+      "Professional drift drivers deliver precision smoke shows, controlled burnouts and synchronized drifting alongside high-energy power bike stunt performances.",
     image: "/images/exp-drift.png",
-    category: "DRIFT & BURNOUT",
+    category: "DRIFT, BURNOUT & POWER BIKE STUNTS",
     label: "Live Performance",
   },
 
   {
     number: "03",
-    title: "Stunt District",
-    description:
-      "High-energy motorcycle stunt performances featuring wheelies, stoppies and freestyle tricks from some of the country's most fearless riders.",
-    image: "/images/exp-bike.png",
-    category: "POWER BIKE STUNTS",
-    label: "Live Performance",
-  },
-
-  {
-    number: "04",
     title: "TOR'Q Lounge",
     description:
       "A premium hospitality experience with elevated views, curated refreshments, networking opportunities and an exclusive way to experience TOR'Q.",
@@ -65,7 +55,7 @@ export const EXPERIENCES: Experience[] = [
   },
 
   {
-    number: "05",
+    number: "04",
     title: "Simulator Championship",
     description:
       "Nigeria's best sim racers compete in a live esports motorsport championship, bringing the intensity of virtual competition into the heart of TOR'Q.",
@@ -135,7 +125,7 @@ export const FAQS: FAQItem[] = [
       "When and where does TOR'Q take place?",
 
     answer:
-      "TOR'Q 2026 takes place on December 6, 2026 in Lagos, Nigeria. Full venue and access details will be communicated to registered participants ahead of the event.",
+      "TOR'Q 2026 takes place on December 6, 2026 in Ibadan, Nigeria. Full venue and access details will be communicated to registered participants ahead of the event.",
   },
 
   {

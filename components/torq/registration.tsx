@@ -662,7 +662,7 @@ function RegistrationDialog({
                 </h2>
 
                 <p className="mt-2 max-w-md text-sm leading-relaxed text-muted-foreground">
-                  Register for Africa&apos;s biggest motorsport spectacle in Lagos.
+                  Register for Africa&apos;s biggest motorsport spectacle in Ibadan.
                 </p>
               </header>
 
@@ -969,7 +969,7 @@ function DetailsStep({
                 value,
               )
             }
-            placeholder="Lagos"
+            placeholder="e.g. Ibadan"
             required
             error={errors.city}
             autoComplete="address-level2"

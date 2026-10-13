@@ -42,7 +42,7 @@ const DETAILS = [
   {
     icon: MapPin,
     label: 'Location',
-    value: 'Lagos, Nigeria',
+    value: 'Ibadan, Nigeria',
   },
   {
     icon: AtSign,

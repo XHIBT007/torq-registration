@@ -174,8 +174,8 @@ export async function POST(request: Request) {
       : "TOR'Q 2026 — Registration Confirmed"
 
     const text = isVip
-      ? `TOR'Q 2026 — VIP Registration Received\n\nHello ${registration.full_name},\n\nYour VIP registration request for TOR'Q 2026 has been received successfully.\n\nRegistration number: ${registration.registration_number}\n\nYour VIP request is currently under review. A separate communication will be sent regarding your VIP approval status.\n\nRegistered email: ${registration.email}\n\nTOR'Q 2026 • Lagos, Nigeria`
-      : `TOR'Q 2026 — Registration Confirmed\n\nHello ${registration.full_name},\n\nYour registration for TOR'Q 2026 has been received successfully.\n\nRegistration number: ${registration.registration_number}\n\nPlease keep your registration number safe. You may need it for event access and check-in.\n\nRegistered email: ${registration.email}\n\nTOR'Q 2026 • Lagos, Nigeria`
+      ? `TOR'Q 2026 — VIP Registration Received\n\nHello ${registration.full_name},\n\nYour VIP registration request for TOR'Q 2026 has been received successfully.\n\nRegistration number: ${registration.registration_number}\n\nYour VIP request is currently under review. A separate communication will be sent regarding your VIP approval status.\n\nRegistered email: ${registration.email}\n\nTOR'Q 2026 • Ibadan, Nigeria`
+      : `TOR'Q 2026 — Registration Confirmed\n\nHello ${registration.full_name},\n\nYour registration for TOR'Q 2026 has been received successfully.\n\nRegistration number: ${registration.registration_number}\n\nPlease keep your registration number safe. You may need it for event access and check-in.\n\nRegistered email: ${registration.email}\n\nTOR'Q 2026 • Ibadan, Nigeria`
 
     const html = isVip
       ? `
@@ -225,7 +225,7 @@ export async function POST(request: Request) {
               </div>
 
               <p style="text-align:center;color:#777777;font-size:12px;margin-top:28px;">
-                TOR'Q 2026 • Lagos, Nigeria
+                TOR'Q 2026 • Ibadan, Nigeria
               </p>
             </div>
           </body>
@@ -278,7 +278,7 @@ export async function POST(request: Request) {
               </div>
 
               <p style="text-align:center;color:#777777;font-size:12px;margin-top:28px;">
-                TOR'Q 2026 • Lagos, Nigeria
+                TOR'Q 2026 • Ibadan, Nigeria
               </p>
             </div>
           </body>

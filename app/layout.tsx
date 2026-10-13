@@ -25,7 +25,7 @@ export const metadata: Metadata = {
   },
 
   description:
-    "TOR'Q is a premium motorsport spectacle in Lagos, Nigeria, bringing together drifting, burnouts, power bike stunts, performance cars, sim racing, music and immersive automotive experiences.",
+    "TOR'Q is a premium motorsport spectacle in Ibadan, Nigeria, bringing together drifting, burnouts, power bike stunts, performance cars, sim racing, music and immersive automotive experiences.",
 
   applicationName: "TOR'Q",
 
@@ -35,10 +35,11 @@ export const metadata: Metadata = {
     "TOR'Q 2026",
     "motorsport Nigeria",
     "motorsport Lagos",
+    "motorsport Ibadan",
     "motorsport event Nigeria",
-    "Lagos motorsport",
+    "Ibadan motorsport",
     "drifting Nigeria",
-    "drift event Lagos",
+    "drift event Ibadan",
     "bike stunts Nigeria",
     "sim racing Nigeria",
     "Cars on the Runway",
@@ -68,7 +69,7 @@ export const metadata: Metadata = {
     siteName: "TOR'Q",
     title: "TOR'Q 2026 — Artistry in Motorsport",
     description:
-      "Africa's motorsport spectacle. Experience drifting, power bike stunts, performance cars, sim racing and premium automotive experiences in Lagos, Nigeria.",
+      "Africa's motorsport spectacle. Experience drifting, power bike stunts, performance cars, sim racing and premium automotive experiences in Ibadan, Nigeria.",
     images: [
       {
         url: "/images/Hero-mustang-03.jpg",
@@ -83,7 +84,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "TOR'Q 2026 — Artistry in Motorsport",
     description:
-      "Experience drifting, power bike stunts, performance cars, sim racing and immersive automotive experiences in Lagos, Nigeria.",
+      "Experience drifting, power bike stunts, performance cars, sim racing and immersive automotive experiences in Ibadan, Nigeria.",
     images: ["/images/Hero-mustang-03.jpg"],
   },
 

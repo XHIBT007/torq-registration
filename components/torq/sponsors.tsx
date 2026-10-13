@@ -5,9 +5,8 @@ import { ArrowRight, ArrowUpRight, CheckCircle2, Handshake, Sparkles } from 'luc
 import { Reveal } from './reveal'
 
 const EXPERIENCES = [
-  { name: 'Drift & Burnout Arena', category: 'Performance, energy & automotive', image: '/images/exp-drift.png', description: 'Put your brand alongside tire smoke, precision driving and high-energy automotive action.' },
-  { name: 'Power Bike Stunts', category: 'Extreme sports, lifestyle & entertainment', image: '/images/exp-bike.png', description: 'Connect with an audience through skill, spectacle and a bold lifestyle experience.' },
-  { name: 'Cars on the Runway', category: 'Automotive, luxury & lifestyle', image: '/images/exp-supercar.png', description: 'Place your brand in a polished showcase of automotive design, style and culture.' },
+  { name: 'Drift & Burnout Arena + Power Bike Stunts', category: 'Motorsport, energy & live performance', image: '/images/exp-drift.png', description: 'Bring your brand into one high-energy arena combining precision drifting, controlled burnouts and power bike stunts.' },
+  { name: 'Cars on the Runway + Live Theatre', category: 'Automotive, luxury, lifestyle & theatre', image: '/images/exp-supercar.png', description: 'Pair automotive design and style with live theatre performance in a distinctive runway experience.' },
   { name: 'TOR’Q Lounge', category: 'Hospitality, beverages & consumer experiences', image: '/images/exp-vip.png', description: 'Create a premium meeting point for guests, customers and the TOR’Q community.' },
   { name: 'Sim Racing Championship', category: 'Technology, gaming, telecoms & youth', image: '/images/exp-sim.png', description: 'Bring technology and competitive gaming into an interactive audience experience.' },
 ]
@@ -59,7 +58,7 @@ export function Sponsors() {
       <div className="relative mx-auto max-w-7xl px-6 md:px-10">
         <Reveal>
           <div className="max-w-4xl">
-            <p className="mb-5 text-xs font-bold uppercase tracking-[0.34em] text-red-500 sm:text-sm">Partnerships · December 6, 2026 · Lagos</p>
+            <p className="mb-5 text-xs font-bold uppercase tracking-[0.34em] text-red-500 sm:text-sm">Partnerships · December 6, 2026 · Ibadan</p>
             <h2 className="text-5xl font-black uppercase leading-[0.88] tracking-[-0.045em] sm:text-6xl md:text-7xl">Don’t just sponsor<br />the show. <span className="text-red-500">Own the experience.</span></h2>
             <p className="mt-7 max-w-2xl text-base leading-7 text-white/55 md:text-lg">TOR’Q brings automotive performance, culture and entertainment together. Partner with an experience your brand can activate, participate in and amplify—on site and through content.</p>
           </div>
@@ -88,7 +87,7 @@ export function Sponsors() {
           <Reveal delay={260}>
             <div className="flex h-full min-h-[300px] flex-col justify-between rounded-2xl border border-white/10 bg-white/[0.025] p-6 sm:p-8">
               <div><Sparkles className="h-5 w-5 text-red-500" /><h3 className="mt-6 text-2xl font-black uppercase">A platform to activate</h3><p className="mt-4 text-sm leading-6 text-white/50">Build a tailored partnership across live experiences, hospitality, culture and digital content. Tell us what your brand wants to achieve.</p></div>
-              <p className="mt-8 text-xs font-semibold uppercase tracking-[0.18em] text-white/35">TOR’Q 2026 · Lagos, Nigeria</p>
+              <p className="mt-8 text-xs font-semibold uppercase tracking-[0.18em] text-white/35">TOR’Q 2026 · Ibadan, Nigeria</p>
             </div>
           </Reveal>
         </div>
@@ -101,7 +100,7 @@ export function Sponsors() {
                 <p className="mt-7 text-[10px] font-bold uppercase tracking-[0.3em] text-red-400">Start a conversation</p>
                 <h3 className="mt-3 text-3xl font-black uppercase leading-tight sm:text-4xl">Let’s build a partnership that moves.</h3>
                 <p className="mt-5 text-sm leading-6 text-white/50">Share a little about your brand and goals. Our partnerships team will get back to you to explore the right fit.</p>
-                <p className="mt-5 text-xs leading-5 text-white/35">Event date: December 6, 2026<br />Location: Lagos, Nigeria</p>
+                <p className="mt-5 text-xs leading-5 text-white/35">Event date: December 6, 2026<br />Location: Ibadan, Nigeria</p>
               </div>
               <form onSubmit={submitEnquiry} className="space-y-5">
                 <div className="grid gap-5 sm:grid-cols-2">

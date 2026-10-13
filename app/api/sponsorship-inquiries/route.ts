@@ -16,9 +16,8 @@ const MAX_LENGTHS = {
   goals: 3000,
 } as const
 const EXPERIENCES = [
-  'Drift & Burnout Arena',
-  'Power Bike Stunts',
-  'Cars on the Runway',
+  'Drift & Burnout Arena + Power Bike Stunts',
+  'Cars on the Runway + Live Theatre',
   'TOR’Q Lounge',
   'Sim Racing Championship',
 ]
