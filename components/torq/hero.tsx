@@ -10,7 +10,7 @@ import { EVENT } from '@/lib/torq-data'
 const STAGE_WIDTH = 790
 const STAGE_HEIGHT = 316
 const INITIAL_RELEASE = 0.32
-const MUSTANG_SRC = '/images/Hero-mustang-03.jpg'
+const MUSTANG_SRC = '/images/torq-23-crowd-performance.jpg'
 
 type ComponentData = {
   x: number
