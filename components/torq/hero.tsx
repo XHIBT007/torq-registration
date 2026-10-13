@@ -1137,7 +1137,7 @@ export function Hero() {
               {/* STATS */}
 
               <div
-                className="mt-5 grid grid-cols-1 border-t border-white/20 pt-4 sm:mt-7 sm:pt-5"
+                className="mt-6 grid grid-cols-4 gap-2 border-t border-white/15 pt-5 sm:mt-9 sm:gap-6 sm:pt-7"
                 style={{
                   opacity:
                     lowerProgress,
@@ -1170,7 +1170,37 @@ export function Hero() {
                 <HeroStat
                   value="2,000+"
                   label="Motorsport Enthusiasts"
-                  compact={false}
+                  compact={
+                    isCompactLandscape ||
+                    isPortrait
+                  }
+                />
+
+                <HeroStat
+                  value="50+"
+                  label="Drivers & Riders"
+                  compact={
+                    isCompactLandscape ||
+                    isPortrait
+                  }
+                />
+
+                <HeroStat
+                  value="1"
+                  label="Day of Action"
+                  compact={
+                    isCompactLandscape ||
+                    isPortrait
+                  }
+                />
+
+                <HeroStat
+                  value="1"
+                  label="Epic Experience"
+                  compact={
+                    isCompactLandscape ||
+                    isPortrait
+                  }
                 />
               </div>
 
@@ -1877,7 +1907,7 @@ function HeroStat({
       </p>
 
       <p
-        className="mt-2 max-w-[220px] uppercase tracking-[.18em] text-white/55"
+        className="mt-2 max-w-[120px] uppercase tracking-[.18em] text-white/45"
         style={{
           fontSize:
             compact
