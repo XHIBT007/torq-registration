@@ -102,6 +102,10 @@ export const GALLERY_ALBUMS = [
       { src: '/images/celebrities/torq-cultural-guest-2025.jpg', alt: 'Special guest speaking in traditional attire at TOR’Q' },
       { src: '/images/celebrities/torq-guest-2024-01.jpg', alt: 'Guest attending a TOR’Q event in 2024' },
       { src: '/images/celebrities/torq-guest-2024-02.jpg', alt: 'Guest enjoying the TOR’Q event atmosphere in 2024' },
+      { src: '/images/celebrities/torq-23-performer-crowd.jpg', alt: 'Guest performer on stage with the TOR’Q crowd' },
+      { src: '/images/celebrities/torq-23-musician-performance.jpg', alt: 'Musician performing at TOR’Q 2023' },
+      { src: '/images/celebrities/torq-23-performer-crowd-bw.jpg', alt: 'Performer connecting with the audience at TOR’Q 2023' },
+      { src: '/images/celebrities/torq-23-guest-motorcycle.jpg', alt: 'Guest seated on a motorcycle at TOR’Q 2023' },
     ],
   },
   {
