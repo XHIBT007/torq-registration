@@ -4,8 +4,8 @@ import { Reveal } from './reveal'
 
 const STATS = [
   {
-    value: '100+',
-    label: 'Performance Cars',
+    value: '2,000+',
+    label: 'Motorsport Enthusiasts',
   },
   {
     value: '50+',
