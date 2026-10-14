@@ -91,6 +91,12 @@ export const GALLERY_ALBUMS = [
       { src: '/images/cars-bikes/torq-24-dodge-display.jpg', alt: 'Dodge muscle car displayed at TOR’Q' },
       { src: '/images/cars-bikes/torq-25-bike-wheelie.jpg', alt: 'Motorcycle rider lifting the front wheel at TOR’Q 2025' },
       { src: '/images/cars-bikes/torq-25-motorcycle-enthusiast.jpg', alt: 'Motorcycle enthusiast with a sport bike at TOR’Q 2025' },
+      { src: '/images/cars-bikes/torq-car-club-bmw-lineup.jpg', alt: 'BMW cars lined up at a TOR’Q meet' },
+      { src: '/images/cars-bikes/torq-25-mustang-taillights-smoke.jpg', alt: 'Mustang taillights glowing through smoke at TOR’Q 2025' },
+      { src: '/images/cars-bikes/torq-23-motorcycle-rider.jpg', alt: 'Rider approaching on a sport motorcycle at TOR’Q 2023' },
+      { src: '/images/cars-bikes/torq-23-white-drift-car-smoke.jpg', alt: 'White drift car spinning through smoke at TOR’Q 2023' },
+      { src: '/images/cars-bikes/torq-23-bmw-engine-display.jpg', alt: 'BMW engine displayed with the hood open' },
+      { src: '/images/cars-bikes/torq-23-night-drift-display.jpg', alt: 'Car drifting through smoke during the night display' },
     ],
   },
   {
