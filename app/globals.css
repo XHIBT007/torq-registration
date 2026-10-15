@@ -849,6 +849,14 @@ html[data-theme='light'] .torq-site #top [class~='bg-black'] {
   background-color: #080807 !important;
 }
 
+html[data-theme='light'] .torq-site #ibadan-edition {
+  color: #fff !important;
+}
+
+html[data-theme='light'] .torq-site #experiences .torq-carousel-card {
+  box-shadow: none !important;
+}
+
 html[data-theme='light'] .torq-site [class~='bg-neutral-900'] {
   background-color: #e9e6e0 !important;
 }
