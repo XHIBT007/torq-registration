@@ -140,6 +140,7 @@ export function Contact() {
             ref={imageRef}
             className="
               group
+              torq-photo-surface
               relative
               overflow-hidden
               rounded-2xl

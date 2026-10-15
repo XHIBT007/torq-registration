@@ -2,7 +2,7 @@
 
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
-import { Menu, X } from 'lucide-react'
+import { Menu, Moon, Sun, X } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { useRegistration } from './registration'
 
@@ -21,6 +21,27 @@ export function Navbar() {
   const [scrolled, setScrolled] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
   const [visible, setVisible] = useState(0)
+  const [lightMode, setLightMode] = useState(false)
+
+  useEffect(() => {
+    setLightMode(document.documentElement.dataset.theme === 'light')
+  }, [])
+
+  const toggleTheme = () => {
+    const nextTheme = lightMode ? 'dark' : 'light'
+    document.documentElement.dataset.theme = nextTheme
+    document.documentElement.style.colorScheme = nextTheme
+    try {
+      window.localStorage.setItem('torq-theme', nextTheme)
+    } catch {
+      // Keep the current choice for this page view when storage is unavailable.
+    }
+
+    const themeColor = document.querySelector<HTMLMetaElement>('meta[name="theme-color"]')
+    if (themeColor) themeColor.content = nextTheme === 'light' ? '#f5f3ef' : '#0d0b0a'
+
+    setLightMode(nextTheme === 'light')
+  }
 
   useEffect(() => {
     let frame = 0
@@ -278,6 +299,20 @@ export function Navbar() {
           >
             Register Now
           </Button>
+
+          <button
+            type="button"
+            onClick={toggleTheme}
+            aria-label={`Switch to ${lightMode ? 'dark' : 'light'} mode`}
+            aria-pressed={lightMode}
+            title={`Switch to ${lightMode ? 'dark' : 'light'} mode`}
+            className="inline-flex h-10 items-center justify-center gap-2 rounded-full border border-white/15 bg-black/40 px-3 text-white/80 backdrop-blur-md transition-[background-color,border-color,color] duration-300 hover:border-white/30 hover:bg-white/[0.08] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 sm:h-11 sm:px-3.5"
+          >
+            {lightMode ? <Moon className="h-4 w-4" /> : <Sun className="h-4 w-4" />}
+            <span className="hidden text-[10px] font-semibold uppercase tracking-[0.14em] lg:inline">
+              {lightMode ? 'Dark' : 'Light'}
+            </span>
+          </button>
 
           {/* MOBILE MENU */}
 

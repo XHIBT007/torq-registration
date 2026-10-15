@@ -424,9 +424,9 @@ function AlbumCard({
       type="button"
       onClick={onOpen}
       aria-label={`Open ${album.title}, ${album.images.length} photographs`}
-      className="group w-full overflow-hidden rounded-2xl border border-white/10 bg-[#11100f] text-left transition-[transform,border-color,box-shadow] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] hover:-translate-y-1 hover:border-white/25 hover:shadow-[0_24px_70px_rgba(0,0,0,0.38)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 motion-reduce:transition-none motion-reduce:hover:translate-y-0"
+      className="torq-album-card group w-full overflow-hidden rounded-2xl border border-white/10 bg-[#11100f] text-left transition-[transform,border-color,box-shadow] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] hover:-translate-y-1 hover:border-white/25 hover:shadow-[0_24px_70px_rgba(0,0,0,0.38)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 motion-reduce:transition-none motion-reduce:hover:translate-y-0"
     >
-      <div className="relative aspect-[1.15] overflow-hidden bg-neutral-900">
+      <div className="torq-album-cover relative aspect-[1.15] overflow-hidden bg-neutral-900">
         <img
           src={cover.src || '/placeholder.svg'}
           alt=""

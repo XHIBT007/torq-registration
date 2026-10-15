@@ -808,6 +808,203 @@
   text-wrap: pretty;
 }
 
+/* =========================================================
+   TOR'Q — LIGHT THEME
+   ========================================================= */
+
+html[data-theme='light'] {
+  color-scheme: light;
+  --background: oklch(0.975 0.008 80);
+  --foreground: oklch(0.22 0.008 55);
+  --card: oklch(0.995 0.003 80);
+  --card-foreground: oklch(0.22 0.008 55);
+  --popover: oklch(0.995 0.003 80);
+  --popover-foreground: oklch(0.22 0.008 55);
+  --primary-foreground: oklch(0.99 0.005 80);
+  --secondary: oklch(0.94 0.008 75);
+  --secondary-foreground: oklch(0.27 0.008 55);
+  --muted: oklch(0.94 0.008 75);
+  --muted-foreground: oklch(0.49 0.012 60);
+  --accent: oklch(0.7 0.15 44);
+  --accent-foreground: oklch(0.99 0.005 80);
+  --border: oklch(0.84 0.01 65);
+  --input: oklch(0.88 0.01 65);
+  --ring: oklch(0.57 0.22 27);
+  --sidebar: oklch(0.96 0.006 75);
+  --sidebar-foreground: oklch(0.22 0.008 55);
+  --sidebar-border: oklch(0.84 0.01 65);
+}
+
+html[data-theme='light'] body,
+html[data-theme='light'] .torq-site {
+  background-color: var(--background);
+  color: var(--foreground);
+}
+
+html[data-theme='light'] .torq-site [class~='bg-black'] {
+  background-color: var(--background) !important;
+}
+
+html[data-theme='light'] .torq-site #top [class~='bg-black'] {
+  background-color: #080807 !important;
+}
+
+html[data-theme='light'] .torq-site [class~='bg-neutral-900'] {
+  background-color: #e9e6e0 !important;
+}
+
+html[data-theme='light'] .torq-site .torq-album-card {
+  border-color: rgb(32 30 27 / 0.12) !important;
+  background-color: #fff !important;
+  box-shadow: 0 12px 40px rgb(32 30 27 / 0.06);
+}
+
+html[data-theme='light'] .torq-site :is(
+  [class~='text-white/20'],
+  [class~='text-white/25'],
+  [class~='text-white/30']
+) {
+  color: rgb(32 30 27 / 0.3) !important;
+}
+
+html[data-theme='light'] .torq-site :is(
+  [class~='text-white/35'],
+  [class~='text-white/40'],
+  [class~='text-white/45']
+) {
+  color: rgb(32 30 27 / 0.46) !important;
+}
+
+html[data-theme='light'] .torq-site :is(
+  [class~='text-white/50'],
+  [class~='text-white/55'],
+  [class~='text-white/60']
+) {
+  color: rgb(32 30 27 / 0.6) !important;
+}
+
+html[data-theme='light'] .torq-site :is(
+  [class~='text-white/65'],
+  [class~='text-white/70'],
+  [class~='text-white/75']
+) {
+  color: rgb(32 30 27 / 0.74) !important;
+}
+
+html[data-theme='light'] .torq-site :is(
+  [class~='text-white/80'],
+  [class~='text-white/85'],
+  [class~='text-white/90']
+) {
+  color: rgb(32 30 27 / 0.88) !important;
+}
+
+html[data-theme='light'] .torq-site [class~='text-white'] {
+  color: #201e1b !important;
+}
+
+html[data-theme='light'] .torq-site [class*='border-white/'] {
+  border-color: rgb(32 30 27 / 0.12) !important;
+}
+
+html[data-theme='light'] .torq-site [class*='bg-white/'] {
+  background-color: rgb(32 30 27 / 0.045) !important;
+}
+
+html[data-theme='light'] .torq-site :is([class~='text-red-300'], [class~='text-red-400']) {
+  color: #ae2d23 !important;
+}
+
+html[data-theme='light'] .torq-site [class~='focus-visible:ring-offset-black'] {
+  --tw-ring-offset-color: #f7f5f1;
+}
+
+html[data-theme='light'] .torq-site header {
+  border-color: rgb(32 30 27 / 0.1) !important;
+  background-color: rgb(248 246 242 / 0.9) !important;
+  box-shadow: 0 8px 32px rgb(32 30 27 / 0.08);
+}
+
+html[data-theme='light'] .torq-site header button:not([class*='bg-red']):not([class*='bg-primary']) {
+  border-color: rgb(32 30 27 / 0.14) !important;
+  background-color: rgb(32 30 27 / 0.045) !important;
+  color: #201e1b !important;
+}
+
+html[data-theme='light'] .torq-site header > div {
+  border-color: rgb(32 30 27 / 0.1) !important;
+  background-color: rgb(248 246 242 / 0.97) !important;
+}
+
+/* Keep the event photography and hero immersive in both themes. */
+html[data-theme='light'] .torq-site :is(#top, #ibadan-edition, .torq-carousel-card, .torq-photo-surface, .torq-album-cover) :is(
+  [class~='text-white/20'],
+  [class~='text-white/25'],
+  [class~='text-white/30']
+) {
+  color: rgb(255 255 255 / 0.3) !important;
+}
+
+html[data-theme='light'] .torq-site :is(#top, #ibadan-edition, .torq-carousel-card, .torq-photo-surface, .torq-album-cover) :is(
+  [class~='text-white/35'],
+  [class~='text-white/40'],
+  [class~='text-white/45']
+) {
+  color: rgb(255 255 255 / 0.46) !important;
+}
+
+html[data-theme='light'] .torq-site :is(#top, #ibadan-edition, .torq-carousel-card, .torq-photo-surface, .torq-album-cover) :is(
+  [class~='text-white/50'],
+  [class~='text-white/55'],
+  [class~='text-white/60']
+) {
+  color: rgb(255 255 255 / 0.6) !important;
+}
+
+html[data-theme='light'] .torq-site :is(#top, #ibadan-edition, .torq-carousel-card, .torq-photo-surface, .torq-album-cover) :is(
+  [class~='text-white/65'],
+  [class~='text-white/70'],
+  [class~='text-white/75']
+) {
+  color: rgb(255 255 255 / 0.74) !important;
+}
+
+html[data-theme='light'] .torq-site :is(#top, #ibadan-edition, .torq-carousel-card, .torq-photo-surface, .torq-album-cover) :is(
+  [class~='text-white/80'],
+  [class~='text-white/85'],
+  [class~='text-white/90']
+) {
+  color: rgb(255 255 255 / 0.88) !important;
+}
+
+html[data-theme='light'] .torq-site :is(#top, #ibadan-edition, .torq-carousel-card, .torq-photo-surface, .torq-album-cover) :is([class~='text-red-300'], [class~='text-red-400']) {
+  color: #ff7569 !important;
+}
+
+html[data-theme='light'] .torq-site :is(#top, #ibadan-edition, .torq-carousel-card, .torq-photo-surface) [class~='text-white'] {
+  color: #fff !important;
+}
+
+html[data-theme='light'] .torq-site :is(#top, #ibadan-edition, .torq-carousel-card, .torq-photo-surface) [class*='border-white/'] {
+  border-color: rgb(255 255 255 / 0.16) !important;
+}
+
+html[data-theme='light'] .torq-site :is(#top, #ibadan-edition, .torq-carousel-card, .torq-photo-surface) [class*='bg-white/'] {
+  background-color: rgb(255 255 255 / 0.08) !important;
+}
+
+html[data-theme='light'] .torq-site .torq-album-cover [class~='text-white'] {
+  color: #fff !important;
+}
+
+html[data-theme='light'] .torq-site .torq-album-cover [class*='border-white/'] {
+  border-color: rgb(255 255 255 / 0.16) !important;
+}
+
+html[data-theme='light'] .torq-site .torq-album-cover [class*='bg-white/'] {
+  background-color: rgb(255 255 255 / 0.08) !important;
+}
+
 .torq-site :where(section[id]) {
   scroll-margin-top: 5rem;
 }

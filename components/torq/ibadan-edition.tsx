@@ -5,6 +5,7 @@ import { Reveal } from './reveal'
 export function IbadanEdition() {
   return (
     <section
+      id="ibadan-edition"
       aria-labelledby="ibadan-edition-title"
       className="relative isolate overflow-hidden border-y border-white/10 bg-neutral-950 text-white"
     >

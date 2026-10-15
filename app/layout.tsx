@@ -102,7 +102,7 @@ export const metadata: Metadata = {
 }
 
 export const viewport: Viewport = {
-  colorScheme: 'dark',
+  colorScheme: 'dark light',
   themeColor: '#0d0b0a',
   width: 'device-width',
   initialScale: 1,
@@ -117,7 +117,15 @@ export default function RootLayout({
     <html
       lang="en-NG"
       className={`dark ${geist.variable} ${oswald.variable}`}
+      suppressHydrationWarning
     >
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `try { if (localStorage.getItem('torq-theme') === 'light') { document.documentElement.dataset.theme = 'light'; document.documentElement.style.colorScheme = 'light'; const themeColor = document.querySelector('meta[name="theme-color"]'); if (themeColor) themeColor.content = '#f5f3ef'; } } catch {}`,
+          }}
+        />
+      </head>
       <body className="bg-background font-sans antialiased">
   <StructuredData />
   <ScrollProgress />
