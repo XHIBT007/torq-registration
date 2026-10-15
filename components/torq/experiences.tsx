@@ -29,6 +29,7 @@ export function Experiences() {
   const cardRefs = useRef<(HTMLElement | null)[]>([])
 
   const [activeIndex, setActiveIndex] = useState(0)
+  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null)
 
   /* ================================================================
      ACTIVE CARD DETECTION
@@ -41,7 +42,7 @@ export function Experiences() {
 
     const observer = new IntersectionObserver(
       (entries) => {
-        let strongestIndex = activeIndex
+        let strongestIndex = -1
         let strongestRatio = 0
 
         entries.forEach((entry) => {
@@ -59,7 +60,7 @@ export function Experiences() {
           }
         })
 
-        if (strongestRatio > 0.55) {
+        if (strongestIndex !== -1 && strongestRatio > 0.55) {
           setActiveIndex(strongestIndex)
         }
       },
@@ -74,7 +75,7 @@ export function Experiences() {
     })
 
     return () => observer.disconnect()
-  }, [activeIndex])
+  }, [])
 
   return (
     <section
@@ -260,7 +261,7 @@ export function Experiences() {
           <div className="flex w-max snap-x snap-mandatory gap-4 sm:gap-5 md:gap-6">
             {EXPERIENCES.map((experience, index) => {
               const Icon = ICONS[index] ?? Flame
-              const isActive = index === activeIndex
+              const isActive = index === (hoveredIndex ?? activeIndex)
 
               return (
                 <article
@@ -268,6 +269,8 @@ export function Experiences() {
                   ref={(element) => {
                     cardRefs.current[index] = element
                   }}
+                  onPointerEnter={() => setHoveredIndex(index)}
+                  onPointerLeave={() => setHoveredIndex(null)}
                   className={`
                     group
                     torq-carousel-card
@@ -279,15 +282,15 @@ export function Experiences() {
                     border
                     bg-neutral-950
 
-                    transition-[transform,opacity,border-color]
-                    duration-350
-                    ease-out
+                    transition-[transform,opacity,border-color,box-shadow]
+                    duration-[520ms]
+                    ease-[cubic-bezier(0.22,1,0.36,1)]
                     motion-reduce:transition-none
 
                     ${
                       isActive
-                        ? 'scale-100 border-white/20 opacity-100'
-                        : 'scale-[0.985] border-white/10 opacity-65 md:scale-[0.975]'
+                        ? 'scale-100 border-red-500/40 opacity-100 shadow-[0_18px_60px_rgba(0,0,0,0.28)]'
+                        : 'scale-[0.975] border-white/10 opacity-65 md:scale-[0.965]'
                     }
                   `}
                 >
@@ -302,8 +305,8 @@ export function Experiences() {
                       inset-0
                       bg-cover
                       bg-center
-                      opacity-50
-                      transition-transform
+                      ${isActive ? 'opacity-65' : 'opacity-40'}
+                      transition-[transform,opacity]
                       duration-700
                       ease-out
                       motion-reduce:transition-none
