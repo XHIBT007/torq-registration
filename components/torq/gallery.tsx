@@ -1,7 +1,7 @@
 'use client'
 
-import { useState } from 'react'
-import { ArrowRight, ArrowUpRight } from 'lucide-react'
+import { useEffect, useState } from 'react'
+import { ArrowLeft, ArrowRight, ArrowUpRight, Images } from 'lucide-react'
 
 import { GALLERY_ALBUMS } from '@/lib/torq-data'
 import { Reveal } from './reveal'
@@ -9,8 +9,19 @@ import { Lightbox } from './lightbox'
 
 export function Gallery() {
   const [activeIndex, setActiveIndex] = useState<number | null>(null)
-  const [activeAlbumId, setActiveAlbumId] = useState(GALLERY_ALBUMS[0].id)
-  const activeAlbum = GALLERY_ALBUMS.find((album) => album.id === activeAlbumId) ?? GALLERY_ALBUMS[0]
+  const [activeAlbumId, setActiveAlbumId] = useState<string | null>(null)
+  const activeAlbum = GALLERY_ALBUMS.find((album) => album.id === activeAlbumId) ?? null
+  const totalPhotos = GALLERY_ALBUMS.reduce((total, album) => total + album.images.length, 0)
+
+  useEffect(() => {
+    if (!activeAlbumId) return
+
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    document.getElementById('gallery-album-content')?.scrollIntoView({
+      behavior: prefersReducedMotion ? 'auto' : 'smooth',
+      block: 'start',
+    })
+  }, [activeAlbumId])
 
   return (
     <section
@@ -108,64 +119,91 @@ export function Gallery() {
                 md:text-xl
               "
             >
-              Explore TOR&apos;Q through three photo albums: the cars
-              and bikes, special guests, and the enthusiasts who
-              bring the experience to life.
+              Open a collection to explore the machines, special guests, and people
+              who bring TOR&apos;Q to life. Every album leads to the full photo archive.
             </p>
           </div>
         </Reveal>
       </div>
 
-      <div className="relative mx-auto mt-10 max-w-7xl px-6 md:mt-14 md:px-10">
-        <div className="rounded-2xl border border-white/10 bg-white/[0.025] p-3 sm:p-4">
-          <div className="mb-3 flex items-center justify-between gap-4 px-2 sm:mb-4">
-            <p className="text-[10px] font-bold uppercase tracking-[0.24em] text-white/45 sm:text-[11px]">Explore the albums</p>
-            <p className="text-[10px] font-medium uppercase tracking-[0.16em] text-white/30">{String(GALLERY_ALBUMS.length).padStart(2, '0')} collections</p>
+      {!activeAlbum ? (
+        <div className="relative mx-auto mt-10 max-w-7xl px-6 md:mt-14 md:px-10">
+          <div className="mb-6 flex flex-wrap items-end justify-between gap-4 sm:mb-8">
+            <div>
+              <p className="text-[10px] font-bold uppercase tracking-[0.28em] text-red-400 sm:text-[11px]">
+                Choose a collection
+              </p>
+              <p className="mt-2 text-sm text-white/45">
+                Open an album to browse its photographs.
+              </p>
+            </div>
+            <span className="inline-flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.18em] text-white/35">
+              <Images className="h-4 w-4 text-red-400" />
+              {GALLERY_ALBUMS.length} albums · {totalPhotos} photographs
+            </span>
           </div>
-          <div role="tablist" aria-label="TOR’Q photo albums" className="grid gap-2 sm:grid-cols-3">
-          {GALLERY_ALBUMS.map((album) => {
-            const selected = album.id === activeAlbum.id
-            return (
-              <button
-                key={album.id}
-                id={`gallery-tab-${album.id}`}
-                type="button"
-                role="tab"
-                aria-selected={selected}
-                aria-controls="gallery-album-panel"
-                onClick={() => {
-                  setActiveAlbumId(album.id)
-                  setActiveIndex(null)
-                }}
-                className={`group inline-flex min-h-14 w-full items-center justify-between gap-3 rounded-xl border px-4 py-3 text-left text-[11px] font-extrabold uppercase tracking-[0.1em] transition duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 sm:px-5 sm:text-xs ${selected ? 'border-red-500/55 bg-red-500/[0.11] text-white shadow-[inset_3px_0_0_0_rgb(239_68_68)]' : 'border-white/[0.08] bg-black/25 text-white/55 hover:border-white/20 hover:bg-white/[0.04] hover:text-white/85'}`}
-              >
-                <span className="flex min-w-0 items-center gap-3">
-                  <span className={`font-mono text-[10px] tracking-normal ${selected ? 'text-red-300' : 'text-white/25'}`}>{String(GALLERY_ALBUMS.indexOf(album) + 1).padStart(2, '0')}</span>
-                  <span className="truncate">{album.title}</span>
-                </span>
-                <span className={`shrink-0 rounded-full px-2 py-1 text-[9px] font-bold tabular-nums ${selected ? 'bg-red-500/20 text-red-200' : 'bg-white/[0.05] text-white/35'}`}>{String(album.images.length).padStart(2, '0')}</span>
-              </button>
-            )
-          })}
-          </div>
-        </div>
-      </div>
 
-      <div id="gallery-album-panel" role="tabpanel" aria-labelledby={`gallery-tab-${activeAlbum.id}`} className="relative mt-7">
-        <div className="mx-auto flex max-w-7xl items-end justify-between gap-6 px-6 md:px-10">
-          <div>
-            <h3 className="text-xl font-black uppercase tracking-[-0.02em] sm:text-2xl">{activeAlbum.title}</h3>
-            <p className="mt-2 max-w-xl text-sm leading-6 text-white/40">{activeAlbum.description}</p>
+          <div className="grid gap-4 md:grid-cols-3 md:gap-5">
+            {GALLERY_ALBUMS.map((album, index) => (
+              <Reveal key={album.id} delay={index * 90}>
+                <AlbumCard
+                  album={album}
+                  index={index}
+                  onOpen={() => {
+                    setActiveAlbumId(album.id)
+                    setActiveIndex(null)
+                  }}
+                />
+              </Reveal>
+            ))}
           </div>
-          <span className="hidden shrink-0 text-[9px] font-semibold uppercase tracking-[0.2em] text-white/30 sm:block">{activeAlbum.images.length} photos</span>
+
+          <p className="mt-6 flex items-center justify-center gap-2 text-center text-[9px] font-semibold uppercase tracking-[0.22em] text-white/30 sm:text-[10px]">
+            Select any album to unlock the full photo gallery
+            <ArrowRight aria-hidden="true" className="h-3.5 w-3.5 text-red-400" />
+          </p>
         </div>
-      </div>
+      ) : (
+        <Reveal key={activeAlbum.id} className="relative mx-auto mt-10 max-w-7xl px-6 md:mt-14 md:px-10">
+          <button
+            id="gallery-album-content"
+            type="button"
+            onClick={() => {
+              setActiveAlbumId(null)
+              setActiveIndex(null)
+            }}
+            className="group scroll-mt-24 inline-flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.2em] text-white/55 transition-colors hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500"
+          >
+            <ArrowLeft className="h-4 w-4 transition-transform group-hover:-translate-x-1" />
+            All albums
+          </button>
+          <div className="mt-6 flex flex-wrap items-end justify-between gap-5 border-b border-white/10 pb-6">
+            <div>
+              <p className="text-[10px] font-bold uppercase tracking-[0.26em] text-red-400">
+                Collection {String(GALLERY_ALBUMS.findIndex((album) => album.id === activeAlbum.id) + 1).padStart(2, '0')}
+              </p>
+              <h3 className="mt-2 text-2xl font-black uppercase tracking-[-0.025em] sm:text-3xl">
+                {activeAlbum.title}
+              </h3>
+              <p className="mt-2 max-w-xl text-sm leading-6 text-white/45">
+                {activeAlbum.description}
+              </p>
+            </div>
+            <span className="text-right text-[10px] font-semibold uppercase tracking-[0.16em] text-white/40">
+              {String(activeAlbum.images.length).padStart(2, '0')} photographs
+              <span className="mt-2 block text-[9px] font-medium tracking-[0.12em] text-white/30">
+                Select a photo to expand
+              </span>
+            </span>
+          </div>
+        </Reveal>
+      )}
 
       {/* ==========================================================
           GALLERY RAIL
           ========================================================== */}
 
-      <div className="relative mt-14 md:mt-20">
+      {activeAlbum && <div className="relative mt-10 md:mt-14">
         {/* DESKTOP EDGE FADES */}
 
         <div
@@ -228,13 +266,13 @@ export function Gallery() {
             ))}
           </div>
         </div>
-      </div>
+      </div>}
 
       {/* ==========================================================
           MOVEMENT CUE
           ========================================================== */}
 
-      <div
+      {activeAlbum && <div
         className="
           mx-auto
           mt-5
@@ -260,7 +298,7 @@ export function Gallery() {
               sm:text-[10px]
             "
           >
-            Swipe to explore this album
+            Scroll or swipe through the album · Select any photo to expand
           </span>
 
           <ArrowRight
@@ -270,7 +308,7 @@ export function Gallery() {
         </div>
 
         <div className="h-px flex-1 bg-white/10" />
-      </div>
+      </div>}
 
       {/* ==========================================================
           CLOSING STATEMENT
@@ -354,7 +392,7 @@ export function Gallery() {
           LIGHTBOX
           ========================================================== */}
 
-      {activeIndex !== null && (
+      {activeIndex !== null && activeAlbum && (
         <Lightbox
           images={activeAlbum.images}
           activeIndex={activeIndex}
@@ -363,6 +401,86 @@ export function Gallery() {
         />
       )}
     </section>
+  )
+}
+
+/* ================================================================
+   ALBUM ENTRY CARD
+   ================================================================ */
+
+function AlbumCard({
+  album,
+  index,
+  onOpen,
+}: {
+  album: (typeof GALLERY_ALBUMS)[number]
+  index: number
+  onOpen: () => void
+}) {
+  const [cover, ...previews] = album.images
+
+  return (
+    <button
+      type="button"
+      onClick={onOpen}
+      aria-label={`Open ${album.title}, ${album.images.length} photographs`}
+      className="group w-full overflow-hidden rounded-2xl border border-white/10 bg-[#11100f] text-left transition-[transform,border-color,box-shadow] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] hover:-translate-y-1 hover:border-white/25 hover:shadow-[0_24px_70px_rgba(0,0,0,0.38)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 motion-reduce:transition-none motion-reduce:hover:translate-y-0"
+    >
+      <div className="relative aspect-[1.15] overflow-hidden bg-neutral-900">
+        <img
+          src={cover.src || '/placeholder.svg'}
+          alt=""
+          aria-hidden="true"
+          loading={index === 0 ? 'eager' : 'lazy'}
+          className="h-full w-full object-cover transition-transform duration-1000 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.045] motion-reduce:transition-none"
+        />
+        <div aria-hidden="true" className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/10 to-black/20" />
+
+        <div className="absolute inset-x-0 top-0 flex items-start justify-between gap-3 p-4 sm:p-5">
+          <span className="rounded-full border border-white/15 bg-black/35 px-3 py-1.5 text-[9px] font-bold uppercase tracking-[0.2em] text-white/80 backdrop-blur-md">
+            Collection {String(index + 1).padStart(2, '0')}
+          </span>
+          <span className="rounded-full border border-white/15 bg-black/35 px-3 py-1.5 text-[9px] font-semibold uppercase tracking-[0.16em] text-white/80 backdrop-blur-md">
+            {String(album.images.length).padStart(2, '0')} photos
+          </span>
+        </div>
+
+        <div className="absolute inset-x-0 bottom-0 flex items-end justify-between gap-3 p-4 sm:p-5">
+          <div className="min-w-0 pb-1">
+            <p className="mb-2 text-[9px] font-semibold uppercase tracking-[0.24em] text-red-300">
+              TOR’Q archive
+            </p>
+            <h3 className="text-xl font-black uppercase leading-[0.95] tracking-[-0.025em] text-white sm:text-2xl">
+              {album.title}
+            </h3>
+          </div>
+          <div aria-hidden="true" className="flex shrink-0 -space-x-3 pb-1">
+            {previews.slice(0, 2).map((image) => (
+              <img
+                key={image.src}
+                src={image.src}
+                alt=""
+                className="h-12 w-9 rounded-md border border-white/60 object-cover shadow-lg sm:h-14 sm:w-10"
+              />
+            ))}
+          </div>
+        </div>
+      </div>
+
+      <div className="p-4 sm:p-5">
+        <p className="min-h-10 text-xs leading-5 text-white/50 sm:text-sm sm:leading-6">
+          {album.description}
+        </p>
+        <div className="mt-5 flex items-center justify-between border-t border-white/10 pt-4">
+          <span className="text-[9px] font-bold uppercase tracking-[0.22em] text-white/65">
+            Open album
+          </span>
+          <span aria-hidden="true" className="flex h-9 w-9 items-center justify-center rounded-full border border-white/15 bg-white/[0.04] text-white/75 transition-[background-color,border-color,color,transform] duration-300 group-hover:translate-x-0.5 group-hover:border-red-400/50 group-hover:bg-red-500 group-hover:text-white">
+            <ArrowUpRight className="h-4 w-4 transition-transform duration-300 group-hover:rotate-45" />
+          </span>
+        </div>
+      </div>
+    </button>
   )
 }
 
