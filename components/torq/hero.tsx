@@ -1519,7 +1519,7 @@ export function Hero() {
               <div className="flex flex-col items-center">
                 <div className="h-5 w-px bg-gradient-to-b from-white/50 to-transparent sm:h-7" />
 
-                <ChevronDown className="mt-1 h-3 w-3 animate-bounce text-white/50 sm:h-4 sm:w-4" />
+                <ChevronDown className="mt-1 h-3 w-3 animate-scroll-pulse text-white/50 sm:h-4 sm:w-4" />
               </div>
             </div>
           </div>

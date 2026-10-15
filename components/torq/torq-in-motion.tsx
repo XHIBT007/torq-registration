@@ -5,6 +5,7 @@ import {
   ArrowUpRight,
   Play,
 } from 'lucide-react'
+import { Reveal } from './reveal'
 
 const REELS = [
   {
@@ -101,7 +102,7 @@ export function TorqInMotion() {
       />
 
       <div className="relative mx-auto max-w-7xl px-6 md:px-10">
-        <div className="flex flex-col gap-8 md:flex-row md:items-end md:justify-between">
+        <Reveal className="flex flex-col gap-8 md:flex-row md:items-end md:justify-between">
           <div className="max-w-3xl">
             <p
               className="
@@ -203,7 +204,7 @@ export function TorqInMotion() {
               "
             />
           </a>
-        </div>
+        </Reveal>
       </div>
 
       <div className="relative mt-14 md:mt-20">
@@ -290,7 +291,8 @@ export function TorqInMotion() {
                   aria-hidden="true"
                   loading="lazy"
                   decoding="async"
-                  className="absolute inset-0 h-full w-full object-cover opacity-70 transition-transform duration-500 group-hover:scale-[1.03]"
+                  data-motion="editorial"
+                  className="absolute inset-0 h-full w-full object-cover opacity-70"
                 />
 
                 <div

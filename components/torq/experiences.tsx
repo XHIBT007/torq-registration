@@ -12,6 +12,7 @@ import {
 } from 'lucide-react'
 
 import { EXPERIENCES } from '@/lib/torq-data'
+import { Reveal } from './reveal'
 
 const ICONS = [
   Flame,
@@ -112,7 +113,7 @@ export function Experiences() {
           ========================================================== */}
 
       <div className="relative mx-auto max-w-7xl px-6 md:px-10">
-        <div className="flex items-end justify-between gap-8">
+        <Reveal className="flex items-end justify-between gap-8">
           <div className="max-w-3xl">
             <p
               className="
@@ -197,7 +198,7 @@ export function Experiences() {
               </span>
             </p>
           </div>
-        </div>
+        </Reveal>
       </div>
 
       {/* ==========================================================
