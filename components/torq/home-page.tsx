@@ -9,6 +9,7 @@ import { Gallery } from '@/components/torq/gallery'
 import { Hero } from '@/components/torq/hero'
 import { IbadanEdition } from '@/components/torq/ibadan-edition'
 import { Navbar } from '@/components/torq/navbar'
+import { Partners } from '@/components/torq/partners'
 import { RegistrationProvider } from '@/components/torq/registration'
 import { Sponsors } from '@/components/torq/sponsors'
 import { TorqInMotion } from '@/components/torq/torq-in-motion'
@@ -31,6 +32,7 @@ export function HomePage() {
 
           <About />
           <Experiences />
+          <Partners />
           <Sponsors />
           <Faq />
           <Contact />
