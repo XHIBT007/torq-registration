@@ -145,7 +145,7 @@ export function Gallery() {
 
           <div className="grid gap-4 md:grid-cols-3 md:gap-5">
             {GALLERY_ALBUMS.map((album, index) => (
-              <Reveal key={album.id} delay={index * 110} variant="card">
+              <Reveal key={album.id} delay={index * 170} variant="card">
                 <AlbumCard
                   album={album}
                   index={index}
@@ -436,10 +436,7 @@ function AlbumCard({
         />
         <div aria-hidden="true" className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/10 to-black/20" />
 
-        <div className="absolute inset-x-0 top-0 flex items-start justify-between gap-3 p-4 sm:p-5">
-          <span className="rounded-full border border-white/15 bg-black/35 px-3 py-1.5 text-[9px] font-bold uppercase tracking-[0.2em] text-white/80 backdrop-blur-md">
-            Collection {String(index + 1).padStart(2, '0')}
-          </span>
+        <div className="absolute inset-x-0 top-0 flex items-start justify-end gap-3 p-4 sm:p-5">
           <span className="rounded-full border border-white/15 bg-black/35 px-3 py-1.5 text-[9px] font-semibold uppercase tracking-[0.16em] text-white/80 backdrop-blur-md">
             {String(album.images.length).padStart(2, '0')} photos
           </span>
