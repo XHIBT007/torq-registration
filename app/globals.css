@@ -697,6 +697,14 @@
   filter: blur(0);
 }
 
+.reveal-card {
+  transform: translate3d(0, 42px, 0) scale(0.965);
+}
+
+.reveal-card.is-visible {
+  transform: translate3d(0, 0, 0) scale(1);
+}
+
 @media (hover: hover) and (prefers-reduced-motion: no-preference) {
   .torq-site a,
   .torq-site button {

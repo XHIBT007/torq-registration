@@ -11,12 +11,14 @@ type RevealProps = {
   children: ReactNode
   className?: string
   delay?: number
+  variant?: 'default' | 'card'
 }
 
 export function Reveal({
   children,
   className = '',
   delay = 0,
+  variant = 'default',
 }: RevealProps) {
   const ref = useRef<HTMLDivElement>(null)
   const [visible, setVisible] = useState(false)
@@ -47,7 +49,7 @@ export function Reveal({
   return (
     <div
       ref={ref}
-      className={`reveal ${visible ? 'is-visible' : ''} ${className}`}
+      className={`reveal ${variant === 'card' ? 'reveal-card' : ''} ${visible ? 'is-visible' : ''} ${className}`}
       style={{
         transitionDelay: `${delay}ms`,
       }}

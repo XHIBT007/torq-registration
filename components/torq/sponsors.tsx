@@ -66,7 +66,7 @@ export function Sponsors() {
 
         <div className="mt-14 grid gap-5 sm:grid-cols-2 lg:mt-20 lg:grid-cols-3">
           {EXPERIENCES.map((experience, index) => (
-            <Reveal key={experience.name} delay={index * 60}>
+            <Reveal key={experience.name} delay={index * 90} variant="card">
               <article className="group h-full overflow-hidden rounded-2xl border border-white/10 bg-white/[0.025] transition-colors hover:border-red-500/40">
                 <div className="relative aspect-[16/10] overflow-hidden bg-white/5">
                   <img src={experience.image} alt="" className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" />
@@ -84,7 +84,7 @@ export function Sponsors() {
               </article>
             </Reveal>
           ))}
-          <Reveal delay={260}>
+          <Reveal delay={540} variant="card">
             <div className="flex h-full min-h-[300px] flex-col justify-between rounded-2xl border border-white/10 bg-white/[0.025] p-6 sm:p-8">
               <div><Sparkles className="h-5 w-5 text-red-500" /><h3 className="mt-6 text-2xl font-black uppercase">A platform to activate</h3><p className="mt-4 text-sm leading-6 text-white/50">Build a tailored partnership across live experiences, hospitality, culture and digital content. Tell us what your brand wants to achieve.</p></div>
               <p className="mt-8 text-xs font-semibold uppercase tracking-[0.18em] text-white/35">TOR’Q 2026 · Ibadan, Nigeria</p>

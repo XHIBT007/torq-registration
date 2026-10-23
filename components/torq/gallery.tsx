@@ -145,7 +145,7 @@ export function Gallery() {
 
           <div className="grid gap-4 md:grid-cols-3 md:gap-5">
             {GALLERY_ALBUMS.map((album, index) => (
-              <Reveal key={album.id} delay={index * 90}>
+              <Reveal key={album.id} delay={index * 110} variant="card">
                 <AlbumCard
                   album={album}
                   index={index}
