@@ -71,6 +71,7 @@ export default function AdminPage() {
   const [selectedRegistration, setSelectedRegistration] =
   useState<Registration | null>(null)
   const [selectedIds, setSelectedIds] = useState<string[]>([])
+  const [bulkUpdateProgress, setBulkUpdateProgress] = useState<{ done: number; total: number } | null>(null)
   
   async function handleLogout() {
   await supabase.auth.signOut()
@@ -169,48 +170,63 @@ async function bulkUpdateStatus(
       return
     }
 
-    for (const registrationId of selectedIds) {
-      const response = await fetch('/api/admin/registrations', {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${session.access_token}`,
-        },
-        body: JSON.stringify({
-          registrationId,
-          status,
-        }),
-      })
+    const idsToUpdate = [...selectedIds]
+    const failedIds: string[] = []
+    let nextIndex = 0
+    let completed = 0
+    setBulkUpdateProgress({ done: 0, total: idsToUpdate.length })
 
-      if (!response.ok) {
-        const data = await response.json()
-        throw new Error(
-          data.error || 'Unable to update registration'
-        )
-      }
-    }
+    // Keep a small number of requests in flight. Approval sends a QR pass by
+    // email, so parallelizing a handful at a time avoids serial wait time
+    // while keeping pressure on the mail provider bounded.
+    await Promise.all(
+      Array.from({ length: Math.min(3, idsToUpdate.length) }, async () => {
+        while (nextIndex < idsToUpdate.length) {
+          const registrationId = idsToUpdate[nextIndex++]
+          try {
+            const response = await fetch('/api/admin/registrations', {
+              method: 'PATCH',
+              headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${session.access_token}`,
+              },
+              body: JSON.stringify({ registrationId, status }),
+            })
+
+            if (!response.ok) {
+              const data = await response.json()
+              throw new Error(data.error || 'Unable to update registration')
+            }
+          } catch (error) {
+            console.error(`Unable to update registration ${registrationId}`, error)
+            failedIds.push(registrationId)
+          } finally {
+            completed += 1
+            setBulkUpdateProgress({ done: completed, total: idsToUpdate.length })
+          }
+        }
+      })
+    )
 
     setRegistrations((current) =>
       current.map((registration) =>
-        selectedIds.includes(registration.id)
+        idsToUpdate.includes(registration.id) && !failedIds.includes(registration.id)
           ? { ...registration, status }
           : registration
       )
     )
 
     setSelectedRegistration((current) =>
-      current && selectedIds.includes(current.id)
+      current && idsToUpdate.includes(current.id) && !failedIds.includes(current.id)
         ? { ...current, status }
         : current
     )
 
-    setSelectedIds([])
+    setSelectedIds(failedIds)
 
-    alert(
-      `${selectedIds.length} registration${
-        selectedIds.length === 1 ? '' : 's'
-      } updated to ${status}.`
-    )
+    alert(failedIds.length === 0
+      ? `${idsToUpdate.length} registration${idsToUpdate.length === 1 ? '' : 's'} updated to ${status}.`
+      : `${idsToUpdate.length - failedIds.length} updated to ${status}; ${failedIds.length} failed and remain selected for retry.`)
   } catch (error) {
     console.error(error)
     alert(
@@ -218,6 +234,8 @@ async function bulkUpdateStatus(
         ? error.message
         : 'Unable to update selected registrations'
     )
+  } finally {
+    setBulkUpdateProgress(null)
   }
 }
 
@@ -807,26 +825,34 @@ const arrivalActivity = Object.entries(arrivalByHour)
     <p className="text-sm font-semibold text-white">
       {selectedIds.length} registration
       {selectedIds.length === 1 ? '' : 's'} selected
+      {bulkUpdateProgress && (
+        <span className="ml-2 font-normal text-white/60" role="status" aria-live="polite">
+          Updating {bulkUpdateProgress.done} of {bulkUpdateProgress.total}…
+        </span>
+      )}
     </p>
 
     <div className="flex flex-wrap gap-2">
       <button
         onClick={() => bulkUpdateStatus('Approved')}
-        className="rounded-xl bg-green-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-green-500"
+        disabled={bulkUpdateProgress !== null}
+        className="rounded-xl bg-green-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-green-500 disabled:cursor-wait disabled:opacity-50"
       >
         Approve
       </button>
 
       <button
         onClick={() => bulkUpdateStatus('Rejected')}
-        className="rounded-xl bg-red-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-red-500"
+        disabled={bulkUpdateProgress !== null}
+        className="rounded-xl bg-red-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-red-500 disabled:cursor-wait disabled:opacity-50"
       >
         Reject
       </button>
 
       <button
         onClick={() => bulkUpdateStatus('Pending')}
-        className="rounded-xl border border-white/10 px-4 py-2 text-sm font-semibold text-white/70 transition hover:bg-white/10 hover:text-white"
+        disabled={bulkUpdateProgress !== null}
+        className="rounded-xl border border-white/10 px-4 py-2 text-sm font-semibold text-white/70 transition hover:bg-white/10 hover:text-white disabled:cursor-wait disabled:opacity-50"
       >
         Set Pending
       </button>
