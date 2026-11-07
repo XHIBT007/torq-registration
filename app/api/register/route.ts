@@ -501,6 +501,21 @@ export async function POST(request: Request) {
         continue
       }
 
+      if (
+        participantType === 'VIP' &&
+        result.error.code === 'P0001' &&
+        result.error.message.includes('VIP_REGISTRATION_CLOSED')
+      ) {
+        return NextResponse.json(
+          {
+            code: 'VIP_REGISTRATION_CLOSED',
+            error:
+              'The VIP grid is full. VIP requests are now closed, but other registration categories remain open.',
+          },
+          { status: 409 },
+        )
+      }
+
       console.error(
         'Registration insert error:',
         result.error,

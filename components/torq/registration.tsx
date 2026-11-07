@@ -64,6 +64,8 @@ type FormData = {
   vipWebsite: string
 }
 
+type VipAvailability = 'checking' | 'open' | 'closed' | 'error'
+
 const EMPTY_FORM: FormData = {
   fullName: '',
   email: '',
@@ -149,6 +151,47 @@ function RegistrationDialog({
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState('')
   const [attempted, setAttempted] = useState(false)
+  const [vipAvailability, setVipAvailability] =
+    useState<VipAvailability>('checking')
+
+  useEffect(() => {
+    if (step !== 1) return
+
+    let active = true
+
+    const refreshVipAvailability = async () => {
+      try {
+        const response = await fetch('/api/register/vip-availability', {
+          cache: 'no-store',
+        })
+        if (!response.ok) throw new Error('VIP availability check failed')
+
+        const result = await response.json()
+        if (active) {
+          const isAvailable = result.available === true
+          setVipAvailability(isAvailable ? 'open' : 'closed')
+          if (!isAvailable) {
+            setForm((current) =>
+              current.participantType === 'VIP'
+                ? { ...current, participantType: '' }
+                : current,
+            )
+          }
+        }
+      } catch (availabilityError) {
+        console.error(availabilityError)
+        if (active) setVipAvailability('error')
+      }
+    }
+
+    refreshVipAvailability()
+    const interval = setInterval(refreshVipAvailability, 15000)
+
+    return () => {
+      active = false
+      clearInterval(interval)
+    }
+  }, [step])
 
   const isDriver =
     form.participantType === 'Driver'
@@ -460,6 +503,11 @@ function RegistrationDialog({
           result,
         )
 
+        if (result.code === 'VIP_REGISTRATION_CLOSED') {
+          setVipAvailability('closed')
+          setForm((current) => ({ ...current, participantType: '' }))
+        }
+
         setError(
           result.error ||
             'We could not complete your registration. Please try again.',
@@ -693,6 +741,7 @@ function RegistrationDialog({
                     <ParticipationStep
                       form={form}
                       update={update}
+                      vipAvailability={vipAvailability}
                       errors={
                         attempted
                           ? validation
@@ -983,6 +1032,7 @@ function DetailsStep({
 function ParticipationStep({
   form,
   update,
+  vipAvailability,
   errors,
 }: {
   form: FormData
@@ -992,6 +1042,7 @@ function ParticipationStep({
     key: K,
     value: FormData[K],
   ) => void
+  vipAvailability: VipAvailability
   errors: Record<string, string>
 }) {
   return (
@@ -1084,16 +1135,21 @@ function ParticipationStep({
               </div>
 
               <span className="hidden rounded-full border border-gold/25 bg-gold/10 px-2.5 py-1 text-[8px] font-bold tracking-[0.18em] text-gold uppercase sm:block">
-                Limited
+                {vipAvailability === 'closed' ? 'Grid Closed' : 'Limited Seats'}
               </span>
             </div>
 
             <p className="mt-2 max-w-lg text-xs leading-relaxed text-muted-foreground sm:text-sm">
-              Request access to elevated viewing, dedicated access and our premium hospitality experience.
+              {vipAvailability === 'closed'
+                ? 'The VIP grid is full and requests are now closed. Other registration categories remain open.'
+                : vipAvailability === 'error'
+                  ? 'VIP availability is temporarily unavailable. Please try again shortly.'
+                  : 'Limited seats on the VIP grid. Request access to elevated viewing, dedicated access and premium hospitality while applications are open.'}
             </p>
 
             <button
               type="button"
+              disabled={vipAvailability !== 'open'}
               aria-pressed={
                 form.participantType ===
                 'VIP'
@@ -1106,6 +1162,7 @@ function ParticipationStep({
               }
               className={cn(
                 'mt-5 flex w-full items-center justify-between rounded-lg border px-4 py-3.5 text-left transition-all',
+                vipAvailability !== 'open' && 'cursor-not-allowed opacity-60',
                 form.participantType ===
                   'VIP'
                   ? 'border-gold bg-gold/15'
@@ -1148,7 +1205,13 @@ function ParticipationStep({
                 {form.participantType ===
                 'VIP'
                   ? 'Selected'
-                  : 'Request'}
+                  : vipAvailability === 'closed'
+                    ? 'Closed'
+                    : vipAvailability === 'checking'
+                      ? 'Checking'
+                      : vipAvailability === 'error'
+                        ? 'Unavailable'
+                        : 'Request'}
               </span>
             </button>
 
