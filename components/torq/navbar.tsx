@@ -9,6 +9,7 @@ import { useRegistration } from './registration'
 const LINKS = [
   { label: 'About', href: '#about' },
   { label: 'Experiences', href: '#experiences' },
+  { label: 'VIP Access', href: '#vip-access' },
   { label: 'Gallery', href: '#gallery' },
   { label: 'Partners', href: '#partners' },
   { label: 'FAQ', href: '#faq' },

@@ -28,7 +28,10 @@ import {
   type ReactNode,
 } from 'react'
 
-type RegistrationContextValue = { open: () => void }
+type RegistrationContextValue = {
+  open: () => void
+  openVip: () => void
+}
 
 const RegistrationContext =
   createContext<RegistrationContextValue | null>(null)
@@ -106,11 +109,19 @@ export function RegistrationProvider({
   children: ReactNode
 }) {
   const [isOpen, setIsOpen] = useState(false)
+  const [vipFlow, setVipFlow] = useState(false)
 
-  const open = useCallback(() => setIsOpen(true), [])
+  const open = useCallback(() => {
+    setVipFlow(false)
+    setIsOpen(true)
+  }, [])
+  const openVip = useCallback(() => {
+    setVipFlow(true)
+    setIsOpen(true)
+  }, [])
   const close = useCallback(() => setIsOpen(false), [])
 
-  const value = useMemo(() => ({ open }), [open])
+  const value = useMemo(() => ({ open, openVip }), [open, openVip])
 
   useEffect(() => {
     if (!isOpen) return
@@ -129,7 +140,7 @@ export function RegistrationProvider({
       {children}
 
       {isOpen && (
-        <RegistrationDialog onClose={close} />
+        <RegistrationDialog onClose={close} vipFlow={vipFlow} />
       )}
     </RegistrationContext.Provider>
   )
@@ -137,11 +148,15 @@ export function RegistrationProvider({
 
 function RegistrationDialog({
   onClose,
+  vipFlow,
 }: {
   onClose: () => void
+  vipFlow: boolean
 }) {
   const [step, setStep] = useState(0)
-  const [form, setForm] = useState<FormData>(EMPTY_FORM)
+  const [form, setForm] = useState<FormData>(() =>
+    vipFlow ? { ...EMPTY_FORM, participantType: 'VIP' } : EMPTY_FORM,
+  )
   const [submitted, setSubmitted] = useState(false)
   const [confirmationEmailSent, setConfirmationEmailSent] = useState(false)
   const [confirmationEmailError, setConfirmationEmailError] = useState('')
@@ -717,6 +732,7 @@ function RegistrationDialog({
               <Stepper
                 step={step}
                 isDriver={isDriver}
+                vipFlow={vipFlow}
               />
 
               <div
@@ -742,6 +758,7 @@ function RegistrationDialog({
                       form={form}
                       update={update}
                       vipAvailability={vipAvailability}
+                      vipOnly={vipFlow}
                       errors={
                         attempted
                           ? validation
@@ -807,7 +824,10 @@ function RegistrationDialog({
                     onClick={
                       handleContinue
                     }
-                    disabled={submitting}
+                    disabled={
+                      submitting ||
+                      (vipFlow && step === 1 && vipAvailability !== 'open')
+                    }
                     className="min-w-[120px]"
                   >
                     Continue
@@ -846,16 +866,25 @@ function RegistrationDialog({
 function Stepper({
   step,
   isDriver,
+  vipFlow,
 }: {
   step: number
   isDriver: boolean
+  vipFlow: boolean
 }) {
-  const visibleSteps = isDriver
-    ? STEPS
-    : STEPS.filter(
-        (item) =>
-          item.label !== 'Machine',
-      )
+  const visibleSteps = vipFlow
+    ? [
+        { label: 'Details', actualIndex: 0 },
+        { label: 'VIP Application', actualIndex: 1 },
+        { label: 'Confirm', actualIndex: 3 },
+      ]
+    : (isDriver
+        ? STEPS
+        : STEPS.filter((item) => item.label !== 'Machine')
+      ).map(({ label }) => ({
+        label,
+        actualIndex: STEPS.findIndex((item) => item.label === label),
+      }))
 
   return (
     <nav
@@ -865,22 +894,16 @@ function Stepper({
       <div
         className={cn(
           'grid gap-2',
-          isDriver
+          isDriver && !vipFlow
             ? 'grid-cols-4'
             : 'grid-cols-3',
         )}
       >
         {visibleSteps.map(
           (
-            { label },
+            { label, actualIndex },
             visibleIndex,
           ) => {
-            const actualIndex =
-              STEPS.findIndex(
-                (item) =>
-                  item.label === label,
-              )
-
             const active =
               actualIndex <= step
 
@@ -1033,6 +1056,7 @@ function ParticipationStep({
   form,
   update,
   vipAvailability,
+  vipOnly,
   errors,
 }: {
   form: FormData
@@ -1043,18 +1067,23 @@ function ParticipationStep({
     value: FormData[K],
   ) => void
   vipAvailability: VipAvailability
+  vipOnly: boolean
   errors: Record<string, string>
 }) {
   return (
     <section>
       <StepHeading
         eyebrow="Step 02"
-        title="Choose your way in."
-        description="Tell us how you’ll experience the TOR’Q spectacle."
+        title={vipOnly ? 'Your VIP application.' : 'Choose your way in.'}
+        description={
+          vipOnly
+            ? 'Tell us what makes the TOR’Q VIP experience right for you.'
+            : 'Tell us how you’ll experience the TOR’Q spectacle.'
+        }
       />
 
       <div className="mt-6 grid gap-5">
-        <div>
+        {!vipOnly && <div>
           <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
             {PARTICIPANT_TYPES
               .filter(
@@ -1113,9 +1142,9 @@ function ParticipationStep({
               {errors.participantType}
             </FieldError>
           )}
-        </div>
+        </div>}
 
-        <div className="relative overflow-hidden rounded-xl border border-gold/25 bg-gradient-to-br from-gold/10 via-background to-primary/5 p-5 sm:p-6">
+        {vipOnly && <div className="relative overflow-hidden rounded-xl border border-gold/25 bg-gradient-to-br from-gold/10 via-background to-primary/5 p-5 sm:p-6">
           <div className="pointer-events-none absolute -right-16 -top-16 size-40 rounded-full bg-gold/10 blur-3xl" />
 
           <div className="relative">
@@ -1130,7 +1159,7 @@ function ParticipationStep({
                 </div>
 
                 <h3 className="font-display mt-2 text-lg font-bold tracking-wide sm:text-xl">
-                  Experience TOR&apos;Q differently.
+                  {vipOnly ? 'Join the VIP grid.' : 'Experience TOR\'Q differently.'}
                 </h3>
               </div>
 
@@ -1147,7 +1176,7 @@ function ParticipationStep({
                   : 'Limited seats on the VIP grid. Request access to elevated viewing, dedicated access and premium hospitality while applications are open.'}
             </p>
 
-            <button
+            {!vipOnly && <button
               type="button"
               disabled={vipAvailability !== 'open'}
               aria-pressed={
@@ -1213,7 +1242,7 @@ function ParticipationStep({
                         ? 'Unavailable'
                         : 'Request'}
               </span>
-            </button>
+            </button>}
 
             {form.participantType ===
               'VIP' && (
@@ -1411,7 +1440,7 @@ function ParticipationStep({
               </div>
             )}
           </div>
-        </div>
+        </div>}
       </div>
     </section>
   )

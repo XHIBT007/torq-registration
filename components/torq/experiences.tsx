@@ -6,13 +6,16 @@ import {
   ArrowUpRight,
   Bike,
   Car,
+  Crown,
   Flame,
   Gamepad2,
   Music2,
 } from 'lucide-react'
 
 import { EXPERIENCES } from '@/lib/torq-data'
+import { Button } from '@/components/ui/button'
 import { Reveal } from './reveal'
+import { useRegistration } from './registration'
 
 const ICONS = [
   Flame,
@@ -24,6 +27,7 @@ const ICONS = [
 ]
 
 export function Experiences() {
+  const { openVip } = useRegistration()
   const railRef = useRef<HTMLDivElement>(null)
 
   const cardRefs = useRef<(HTMLElement | null)[]>([])
@@ -590,6 +594,29 @@ export function Experiences() {
         </div>
 
         <div className="h-px flex-1 bg-white/10" />
+      </div>
+
+      <div id="vip-access" className="relative mx-auto mt-16 max-w-7xl scroll-mt-28 px-6 md:px-10">
+        <div className="flex flex-col gap-7 overflow-hidden rounded-2xl border border-amber-300/20 bg-gradient-to-br from-amber-300/[0.08] via-neutral-950 to-red-950/30 p-6 sm:p-8 md:flex-row md:items-center md:justify-between md:p-10">
+          <div className="max-w-2xl">
+            <div className="flex items-center gap-2 text-amber-200">
+              <Crown className="size-4" />
+              <p className="text-[10px] font-bold uppercase tracking-[0.28em]">
+                VIP & Hospitality · Limited seats
+              </p>
+            </div>
+            <h3 className="mt-3 text-2xl font-black uppercase tracking-tight text-white sm:text-3xl">
+              Take your place on the VIP grid.
+            </h3>
+            <p className="mt-3 text-sm leading-6 text-white/55 sm:text-base">
+              Curated access, elevated viewing and premium hospitality. Apply for VIP access while the grid is open.
+            </p>
+          </div>
+          <Button size="lg" onClick={openVip} className="shrink-0">
+            Apply for VIP access
+            <ArrowRight className="ml-2 size-4" />
+          </Button>
+        </div>
       </div>
     </section>
   )
