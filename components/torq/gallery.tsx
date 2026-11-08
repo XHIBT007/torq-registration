@@ -172,10 +172,10 @@ export function Gallery() {
               setActiveAlbumId(null)
               setActiveIndex(null)
             }}
-            className="group scroll-mt-24 inline-flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.2em] text-white/55 transition-colors hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500"
+            className="group scroll-mt-24 inline-flex min-h-11 items-center gap-2 rounded-full border border-red-500/60 bg-red-600 px-5 py-3 text-xs font-bold uppercase tracking-[0.14em] text-white shadow-lg shadow-red-950/30 transition-colors hover:border-red-400 hover:bg-red-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-black"
           >
             <ArrowLeft className="h-4 w-4 transition-transform group-hover:-translate-x-1" />
-            All albums
+            Go back to all albums
           </button>
           <div className="mt-6 flex flex-wrap items-end justify-between gap-5 border-b border-white/10 pb-6">
             <div>
