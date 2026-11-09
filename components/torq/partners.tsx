@@ -1,7 +1,26 @@
 import { ArrowUpRight } from 'lucide-react'
 
 const PARTNERS = [
-  { name: 'Fearless Energy Drink', logo: '/images/partners-fearless-energy-drink.webp' },
+  {
+    name: 'Fearless Energy Drink',
+    logo: '/images/partners-fearless-energy-drink.webp',
+    logoClass: 'h-[138px] w-[124px] object-contain mix-blend-screen sm:h-[154px] sm:w-[138px]',
+  },
+  {
+    name: 'BSA',
+    logo: '/images/partners/bsa.png',
+    logoClass: 'h-[138px] w-[138px] object-contain sm:h-[154px] sm:w-[154px]',
+  },
+  {
+    name: 'Tulcan Energy',
+    logo: '/images/partners/tulcan-energy.png',
+    logoClass: 'h-[112px] w-[178px] object-contain sm:h-[124px] sm:w-[190px]',
+  },
+  {
+    name: 'ASTA',
+    logo: '/images/partners/asta-white.png',
+    logoClass: 'h-[76px] w-[178px] object-contain mix-blend-screen sm:h-[88px] sm:w-[190px]',
+  },
 ]
 
 export function Partners() {
@@ -20,7 +39,7 @@ export function Partners() {
         <div className="mx-auto grid min-h-[176px] max-w-7xl grid-cols-[repeat(auto-fit,minmax(150px,180px))] items-center justify-center gap-x-8 px-6 py-5 sm:min-h-[196px] sm:gap-x-12 sm:px-10">
           {PARTNERS.map((partner) => (
             <div key={partner.name} className="flex h-[148px] items-center justify-center transition duration-300 hover:brightness-125 sm:h-[164px]">
-              <img src={partner.logo} alt={partner.name} className="h-[138px] w-[124px] object-contain mix-blend-screen sm:h-[154px] sm:w-[138px]" />
+              <img src={partner.logo} alt={partner.name} className={partner.logoClass} />
             </div>
           ))}
         </div>
