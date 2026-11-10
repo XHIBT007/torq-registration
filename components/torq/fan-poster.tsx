@@ -3,189 +3,235 @@
 import { Download, ImagePlus, MapPin, Share2, Sparkles } from 'lucide-react'
 import { useEffect, useRef, useState, type ChangeEvent } from 'react'
 
-const POSTER_WIDTH = 1080
-const POSTER_HEIGHT = 1350
+const IMAGE_WIDTH = 1080
+const IMAGE_HEIGHT = 1920
 const MAX_FILE_SIZE = 10 * 1024 * 1024
 
-function drawPoster(
-  canvas: HTMLCanvasElement,
-  photoUrl: string | null,
-  fanName: string,
-  onReady: () => void,
-  onError: () => void,
-) {
-  const context = canvas.getContext('2d')
-  if (!context) {
-    onError()
-    return () => {}
-  }
+const LENSES = [
+  { id: 'race-day', name: 'Race day', badge: 'RACE DAY READY', accent: '#f3292d', glow: 'rgba(243,41,45,.6)' },
+  { id: 'pit-crew', name: 'Pit crew', badge: 'PIT CREW PASS', accent: '#ffc344', glow: 'rgba(255,195,68,.52)' },
+  { id: 'ibadan', name: 'Ibadan takeover', badge: 'IBADAN TAKEOVER', accent: '#ff5938', glow: 'rgba(255,89,56,.58)' },
+] as const
 
-  const ctx = context
+type LensId = (typeof LENSES)[number]['id']
+
+function drawCapsule(ctx: CanvasRenderingContext2D, x: number, y: number, width: number, height: number, color: string) {
+  ctx.beginPath()
+  ctx.roundRect(x, y, width, height, height / 2)
+  ctx.fillStyle = color
+  ctx.fill()
+}
+
+function drawLens(ctx: CanvasRenderingContext2D, photoUrl: string | null, fanName: string, lensId: LensId, onReady: () => void, onError: () => void) {
   let cancelled = false
-  const background = ctx.createLinearGradient(0, 0, POSTER_WIDTH, POSTER_HEIGHT)
-  background.addColorStop(0, '#1c1c20')
-  background.addColorStop(0.56, '#101014')
-  background.addColorStop(1, '#09090b')
-  ctx.fillStyle = background
-  ctx.fillRect(0, 0, POSTER_WIDTH, POSTER_HEIGHT)
+  const lens = LENSES.find((item) => item.id === lensId) ?? LENSES[0]
 
-  ctx.fillStyle = '#e52226'
-  ctx.fillRect(0, 0, 18, POSTER_HEIGHT)
-  ctx.fillRect(62, 64, 94, 10)
+  const drawOverlay = () => {
+    const topShade = ctx.createLinearGradient(0, 0, 0, 600)
+    topShade.addColorStop(0, 'rgba(3,3,5,.78)')
+    topShade.addColorStop(0.68, 'rgba(3,3,5,.16)')
+    topShade.addColorStop(1, 'rgba(3,3,5,0)')
+    ctx.fillStyle = topShade
+    ctx.fillRect(0, 0, IMAGE_WIDTH, 600)
 
-  ctx.fillStyle = '#f5f1eb'
-  ctx.font = '900 68px Arial, sans-serif'
-  ctx.fillText('TOR’Q', 62, 162)
-  ctx.fillStyle = '#b7b3b0'
-  ctx.font = '700 22px Arial, sans-serif'
-  ctx.letterSpacing = '7px'
-  ctx.fillText('ARTISTRY IN MOTORSPORT', 64, 202)
-  ctx.letterSpacing = '0px'
+    const bottomShade = ctx.createLinearGradient(0, 1080, 0, IMAGE_HEIGHT)
+    bottomShade.addColorStop(0, 'rgba(3,3,5,0)')
+    bottomShade.addColorStop(0.29, 'rgba(3,3,5,.66)')
+    bottomShade.addColorStop(1, 'rgba(3,3,5,.96)')
+    ctx.fillStyle = bottomShade
+    ctx.fillRect(0, 1080, IMAGE_WIDTH, IMAGE_HEIGHT - 1080)
 
-  const photoX = 62
-  const photoY = 248
-  const photoWidth = 956
-  const photoHeight = 650
+    const glow = ctx.createRadialGradient(IMAGE_WIDTH * 0.5, 1330, 50, IMAGE_WIDTH * 0.5, 1330, 690)
+    glow.addColorStop(0, lens.glow)
+    glow.addColorStop(1, 'rgba(0,0,0,0)')
+    ctx.fillStyle = glow
+    ctx.fillRect(0, 780, IMAGE_WIDTH, 800)
 
-  if (photoUrl) {
-    const image = new Image()
-    image.onload = () => {
-      if (cancelled) return
-      const scale = Math.max(photoWidth / image.width, photoHeight / image.height)
-      const width = image.width * scale
-      const height = image.height * scale
-      const cropOffset = (height - photoHeight) * 0.35
-      ctx.save()
-      ctx.beginPath()
-      ctx.roundRect(photoX, photoY, photoWidth, photoHeight, 8)
-      ctx.clip()
-      ctx.drawImage(image, photoX + (photoWidth - width) / 2, photoY + (photoHeight - height) / 2 - cropOffset, width, height)
-      const shade = ctx.createLinearGradient(0, photoY + photoHeight * 0.45, 0, photoY + photoHeight)
-      shade.addColorStop(0, 'rgba(5,5,7,0)')
-      shade.addColorStop(1, 'rgba(5,5,7,.58)')
-      ctx.fillStyle = shade
-      ctx.fillRect(photoX, photoY, photoWidth, photoHeight)
-      ctx.restore()
-      ctx.strokeStyle = 'rgba(255,255,255,.22)'
-      ctx.lineWidth = 2
-      ctx.beginPath()
-      ctx.roundRect(photoX, photoY, photoWidth, photoHeight, 8)
-      ctx.stroke()
-      drawPosterDetails(ctx, fanName)
-      onReady()
-    }
-    image.onerror = () => {
-      if (cancelled) return
-      ctx.save()
-      ctx.beginPath()
-      ctx.roundRect(photoX, photoY, photoWidth, photoHeight, 8)
-      ctx.clip()
-      ctx.fillStyle = '#24242a'
-      ctx.fillRect(photoX, photoY, photoWidth, photoHeight)
-      ctx.restore()
-      drawPosterDetails(ctx, fanName)
-      onError()
-    }
-    image.src = photoUrl
-  } else {
+    // Lens frame and angular light streaks sit over the photo like a camera filter.
     ctx.save()
+    ctx.strokeStyle = lens.accent
+    ctx.globalAlpha = 0.88
+    ctx.lineWidth = 8
     ctx.beginPath()
-    ctx.roundRect(photoX, photoY, photoWidth, photoHeight, 8)
-    ctx.clip()
-    const placeholder = ctx.createLinearGradient(photoX, photoY, photoX + photoWidth, photoY + photoHeight)
-    placeholder.addColorStop(0, '#3c1719')
-    placeholder.addColorStop(0.5, '#17171c')
-    placeholder.addColorStop(1, '#29292f')
-    ctx.fillStyle = placeholder
-    ctx.fillRect(photoX, photoY, photoWidth, photoHeight)
-    ctx.strokeStyle = 'rgba(229,34,38,.55)'
+    ctx.moveTo(52, 292); ctx.lineTo(52, 108); ctx.lineTo(218, 108)
+    ctx.moveTo(1028, 292); ctx.lineTo(1028, 108); ctx.lineTo(862, 108)
+    ctx.moveTo(52, 1538); ctx.lineTo(52, 1812); ctx.lineTo(218, 1812)
+    ctx.moveTo(1028, 1538); ctx.lineTo(1028, 1812); ctx.lineTo(862, 1812)
+    ctx.stroke()
+
+    ctx.globalAlpha = 0.44
     ctx.lineWidth = 3
     ctx.beginPath()
-    ctx.moveTo(photoX + 48, photoY + photoHeight - 58)
-    ctx.lineTo(photoX + photoWidth - 48, photoY + 88)
+    ctx.ellipse(540, 770, 486, 630, -0.12, Math.PI * 1.05, Math.PI * 1.95)
     ctx.stroke()
-    ctx.fillStyle = 'rgba(255,255,255,.1)'
+    ctx.restore()
+
+    // TOR’Q wordmark and lens label.
+    ctx.fillStyle = lens.accent
     ctx.beginPath()
-    ctx.arc(photoX + photoWidth * 0.5, photoY + photoHeight * 0.43, 138, 0, Math.PI * 2)
+    ctx.arc(100, 206, 36, 0, Math.PI * 2)
     ctx.fill()
     ctx.fillStyle = '#fff'
     ctx.font = '900 34px Arial, sans-serif'
     ctx.textAlign = 'center'
-    ctx.fillText('YOUR PHOTO GOES HERE', POSTER_WIDTH / 2, photoY + photoHeight - 64)
+    ctx.fillText('Q', 100, 218)
     ctx.textAlign = 'left'
-    ctx.restore()
-    ctx.strokeStyle = 'rgba(255,255,255,.22)'
+    ctx.fillStyle = '#fff'
+    ctx.font = '900 68px Arial, sans-serif'
+    ctx.fillText('TOR’Q', 154, 218)
+    ctx.fillStyle = 'rgba(255,255,255,.74)'
+    ctx.font = '700 21px Arial, sans-serif'
+    ctx.letterSpacing = '6px'
+    ctx.fillText('OFFICIAL EVENT LENS', 158, 258)
+    ctx.letterSpacing = '0px'
+
+    // The pill reads like a playful camera sticker.
+    drawCapsule(ctx, 62, 334, 346, 64, 'rgba(5,5,7,.68)')
+    ctx.strokeStyle = lens.accent
     ctx.lineWidth = 2
     ctx.beginPath()
-    ctx.roundRect(photoX, photoY, photoWidth, photoHeight, 8)
+    ctx.roundRect(62, 334, 346, 64, 32)
     ctx.stroke()
-    drawPosterDetails(ctx, fanName)
+    ctx.fillStyle = lens.accent
+    ctx.beginPath()
+    ctx.arc(96, 366, 8, 0, Math.PI * 2)
+    ctx.fill()
+    ctx.fillStyle = '#fff'
+    ctx.font = '900 24px Arial, sans-serif'
+    ctx.fillText(lens.badge, 120, 375)
+
+    // Decorative racing checks in the upper corner.
+    const checkSize = 22
+    ctx.save()
+    ctx.globalAlpha = 0.85
+    for (let row = 0; row < 4; row += 1) {
+      for (let col = 0; col < 6; col += 1) {
+        ctx.fillStyle = (row + col) % 2 === 0 ? '#fff' : 'rgba(255,255,255,.12)'
+        ctx.fillRect(872 + col * checkSize, 326 + row * checkSize, checkSize, checkSize)
+      }
+    }
+    ctx.restore()
+
+    // Event copy sits low enough to keep the face clear in a typical selfie.
+    ctx.fillStyle = 'rgba(255,255,255,.76)'
+    ctx.font = '800 24px Arial, sans-serif'
+    ctx.letterSpacing = '8px'
+    ctx.fillText('TOR’Q 2026  ·  DECEMBER 6', 74, 1452)
+    ctx.letterSpacing = '0px'
+
+    ctx.save()
+    ctx.shadowColor = 'rgba(0,0,0,.4)'
+    ctx.shadowBlur = 20
+    ctx.fillStyle = '#fff'
+    ctx.font = 'italic 900 112px Arial, sans-serif'
+    const headline = fanName.trim() ? fanName.trim().slice(0, 18).toUpperCase() : 'I’M GOING'
+    ctx.fillText(headline, 68, 1584, 920)
+    ctx.restore()
+
+    ctx.fillStyle = lens.accent
+    ctx.fillRect(74, 1630, 932, 5)
+    ctx.fillStyle = '#fff'
+    ctx.font = '900 46px Arial, sans-serif'
+    ctx.fillText('THE IBADAN CIVIC CENTRE', 74, 1706, 930)
+
+    // Small location pin mark.
+    ctx.fillStyle = lens.accent
+    ctx.beginPath()
+    ctx.arc(88, 1764, 11, 0, Math.PI * 2)
+    ctx.fill()
+    ctx.fillStyle = '#fff'
+    ctx.font = '700 27px Arial, sans-serif'
+    ctx.fillText('IBADAN, NIGERIA', 114, 1773)
+
+    drawCapsule(ctx, 738, 1734, 270, 66, lens.accent)
+    ctx.fillStyle = lens.id === 'pit-crew' ? '#1b1710' : '#fff'
+    ctx.font = '900 23px Arial, sans-serif'
+    ctx.textAlign = 'center'
+    ctx.fillText('#TORQ2026', 873, 1777)
+    ctx.textAlign = 'left'
+    ctx.fillStyle = 'rgba(255,255,255,.72)'
+    ctx.font = '700 19px Arial, sans-serif'
+    ctx.letterSpacing = '5px'
+    ctx.fillText('ARTISTRY IN MOTORSPORT', 74, 1850)
+    ctx.letterSpacing = '0px'
+  }
+
+  ctx.clearRect(0, 0, IMAGE_WIDTH, IMAGE_HEIGHT)
+  ctx.fillStyle = '#141418'
+  ctx.fillRect(0, 0, IMAGE_WIDTH, IMAGE_HEIGHT)
+
+  if (!photoUrl) {
+    const backdrop = ctx.createLinearGradient(0, 0, IMAGE_WIDTH, IMAGE_HEIGHT)
+    backdrop.addColorStop(0, '#502023')
+    backdrop.addColorStop(0.52, '#25252c')
+    backdrop.addColorStop(1, '#100f12')
+    ctx.fillStyle = backdrop
+    ctx.fillRect(0, 0, IMAGE_WIDTH, IMAGE_HEIGHT)
+    ctx.save()
+    ctx.globalAlpha = 0.24
+    ctx.strokeStyle = lens.accent
+    ctx.lineWidth = 4
+    for (let line = -600; line < 1800; line += 180) {
+      ctx.beginPath()
+      ctx.moveTo(line, 0)
+      ctx.lineTo(line + 900, IMAGE_HEIGHT)
+      ctx.stroke()
+    }
+    ctx.restore()
+    ctx.fillStyle = 'rgba(5,5,7,.42)'
+    ctx.fillRect(0, 0, IMAGE_WIDTH, IMAGE_HEIGHT)
+    ctx.fillStyle = 'rgba(255,255,255,.88)'
+    ctx.textAlign = 'center'
+    ctx.font = '900 44px Arial, sans-serif'
+    ctx.fillText('ADD YOUR SELFIE TO TRY THE LENS', IMAGE_WIDTH / 2, 950, 880)
+    ctx.textAlign = 'left'
+    drawOverlay()
+    onReady()
+    return () => { cancelled = true }
+  }
+
+  const image = new Image()
+  image.onload = () => {
+    if (cancelled) return
+    const scale = Math.max(IMAGE_WIDTH / image.width, IMAGE_HEIGHT / image.height)
+    const width = image.width * scale
+    const height = image.height * scale
+    const cropTop = Math.max(0, (height - IMAGE_HEIGHT) * 0.34)
+    ctx.drawImage(image, (IMAGE_WIDTH - width) / 2, (IMAGE_HEIGHT - height) / 2 - cropTop, width, height)
+    drawOverlay()
     onReady()
   }
-
-  return () => { cancelled = true }
-}
-
-function drawPosterDetails(ctx: CanvasRenderingContext2D, fanName: string) {
-  ctx.fillStyle = '#e52226'
-  ctx.fillRect(62, 954, 12, 288)
-
-  const name = fanName.trim().slice(0, 30)
-  if (name) {
-    ctx.fillStyle = '#f3b1a9'
-    ctx.font = '700 22px Arial, sans-serif'
-    ctx.letterSpacing = '6px'
-    ctx.fillText('TOR’Q FAN', 98, 1010)
-    ctx.letterSpacing = '0px'
-    ctx.fillStyle = '#fff'
-    ctx.font = '900 54px Arial, sans-serif'
-    ctx.fillText(name.toUpperCase(), 96, 1080, 860)
-  } else {
-    ctx.fillStyle = '#fff'
-    ctx.font = '900 66px Arial, sans-serif'
-    ctx.fillText('I’LL BE THERE.', 96, 1070)
+  image.onerror = () => {
+    if (cancelled) return
+    onError()
   }
-
-  ctx.fillStyle = '#e52226'
-  ctx.fillRect(96, 1124, 890, 2)
-  ctx.fillStyle = '#fff'
-  ctx.font = '900 36px Arial, sans-serif'
-  ctx.fillText('THE IBADAN CIVIC CENTRE', 96, 1192, 880)
-  ctx.fillStyle = '#c8c4c1'
-  ctx.font = '700 25px Arial, sans-serif'
-  ctx.letterSpacing = '3px'
-  ctx.fillText('IBADAN, NIGERIA  ·  DECEMBER 6, 2026', 98, 1240, 870)
-  ctx.letterSpacing = '0px'
-  ctx.fillStyle = '#f3f0ec'
-  ctx.font = '700 20px Arial, sans-serif'
-  ctx.fillText('TORQ.NG', 96, 1300)
-  ctx.textAlign = 'right'
-  ctx.fillStyle = '#e52226'
-  ctx.fillText('#TORQ2026', 986, 1300)
-  ctx.textAlign = 'left'
+  image.src = photoUrl
+  return () => { cancelled = true }
 }
 
 export function FanPoster() {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const [photoUrl, setPhotoUrl] = useState<string | null>(null)
   const [fanName, setFanName] = useState('')
+  const [lensId, setLensId] = useState<LensId>('race-day')
   const [status, setStatus] = useState('')
-  const [posterReady, setPosterReady] = useState(false)
+  const [lensReady, setLensReady] = useState(false)
 
   useEffect(() => {
     if (!canvasRef.current) return
-    setPosterReady(false)
-    return drawPoster(
+    setLensReady(false)
+    return drawLens(
       canvasRef.current,
       photoUrl,
       fanName,
-      () => setPosterReady(true),
+      lensId,
+      () => setLensReady(true),
       () => {
         setStatus('That photo could not be opened. Try another image.')
-        setPosterReady(true)
+        setLensReady(true)
       },
     )
-  }, [photoUrl, fanName])
+  }, [photoUrl, fanName, lensId])
 
   useEffect(() => () => {
     if (photoUrl) URL.revokeObjectURL(photoUrl)
@@ -195,7 +241,7 @@ export function FanPoster() {
     const file = event.target.files?.[0]
     if (!file) return
     if (!file.type.startsWith('image/')) {
-      setStatus('Choose an image file to personalize your poster.')
+      setStatus('Choose an image file to try the lens.')
       event.target.value = ''
       return
     }
@@ -208,35 +254,35 @@ export function FanPoster() {
     setPhotoUrl(URL.createObjectURL(file))
   }
 
-  function downloadPoster() {
+  function downloadLens() {
     const canvas = canvasRef.current
     if (!canvas) return
     const link = document.createElement('a')
-    link.download = 'my-torq-moment.png'
+    link.download = 'my-torq-lens.png'
     link.href = canvas.toDataURL('image/png')
     link.click()
-    setStatus('Your TOR’Q poster is ready to share.')
+    setStatus('Your TOR’Q lens image is ready to share.')
   }
 
-  async function sharePoster() {
+  async function shareLens() {
     const canvas = canvasRef.current
     if (!canvas) return
     const blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, 'image/png'))
     if (!blob) {
-      setStatus('Could not prepare the poster. Please download it instead.')
+      setStatus('Could not prepare the image. Please download it instead.')
       return
     }
-    const file = new File([blob], 'my-torq-moment.png', { type: 'image/png' })
+    const file = new File([blob], 'my-torq-lens.png', { type: 'image/png' })
     if (navigator.share && navigator.canShare?.({ files: [file] })) {
       try {
-        await navigator.share({ files: [file], title: 'My TOR’Q moment', text: 'See you at TOR’Q 2026!' })
-        setStatus('Your poster was shared.')
+        await navigator.share({ files: [file], title: 'My TOR’Q lens', text: 'See you at TOR’Q 2026!' })
+        setStatus('Your TOR’Q lens image was shared.')
       } catch (error) {
         if (error instanceof Error && error.name === 'AbortError') return
-        setStatus('Sharing isn’t available here. Download your poster and share it from your gallery.')
+        setStatus('Sharing isn’t available here. Download the image and share it from your gallery.')
       }
     } else {
-      setStatus('Image sharing isn’t supported in this browser. Download your poster and share it from your gallery.')
+      setStatus('Image sharing isn’t supported in this browser. Download the image and share it from your gallery.')
     }
   }
 
@@ -244,24 +290,33 @@ export function FanPoster() {
     <section id="fan-moment" aria-labelledby="fan-moment-title" className="border-y border-white/10 bg-[#111114] text-white">
       <div className="mx-auto grid max-w-7xl gap-10 px-6 py-16 sm:px-10 sm:py-20 lg:grid-cols-[0.85fr_1.15fr] lg:items-center lg:gap-16 lg:py-24">
         <div>
-          <p className="mb-4 inline-flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.3em] text-red-300 sm:text-xs"><Sparkles className="h-4 w-4" /> Make it your moment</p>
-          <h2 id="fan-moment-title" className="max-w-xl text-4xl font-black uppercase leading-[0.92] tracking-[-0.045em] sm:text-5xl md:text-6xl">Put yourself in the <span className="text-red-500">TOR’Q story.</span></h2>
-          <p className="mt-5 max-w-lg text-sm leading-6 text-white/65 sm:text-base sm:leading-7">Create a personal event poster, then download it or share it with your crew.</p>
+          <p className="mb-4 inline-flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.3em] text-red-300 sm:text-xs"><Sparkles className="h-4 w-4" /> Official TOR’Q lens</p>
+          <h2 id="fan-moment-title" className="max-w-xl text-4xl font-black uppercase leading-[0.92] tracking-[-0.045em] sm:text-5xl md:text-6xl">Get the <span className="text-red-500">TOR’Q look.</span></h2>
+          <p className="mt-5 max-w-lg text-sm leading-6 text-white/65 sm:text-base sm:leading-7">Add your selfie, pick a lens style and share your TOR’Q moment with the crew.</p>
 
-          <label className="mt-7 block text-xs font-bold uppercase tracking-[0.16em] text-white/75" htmlFor="fan-poster-name">Your name <span className="font-normal normal-case tracking-normal text-white/35">(optional)</span></label>
-          <input id="fan-poster-name" value={fanName} maxLength={30} onChange={(event) => setFanName(event.target.value)} placeholder="Type your name" className="mt-2 w-full max-w-md rounded-lg border border-white/15 bg-white/[0.04] px-4 py-3 text-base text-white outline-none placeholder:text-white/30 focus:border-red-500 focus:ring-1 focus:ring-red-500" />
+          <p className="mt-7 text-xs font-bold uppercase tracking-[0.16em] text-white/75">Pick your lens style</p>
+          <div className="mt-3 flex flex-wrap gap-2" role="group" aria-label="Lens style">
+            {LENSES.map((lens) => (
+              <button key={lens.id} type="button" aria-pressed={lensId === lens.id} onClick={() => setLensId(lens.id)} className={`min-h-10 rounded-full border px-4 py-2 text-xs font-bold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400 ${lensId === lens.id ? 'border-red-500 bg-red-600 text-white' : 'border-white/15 bg-white/[0.04] text-white/70 hover:border-white/40 hover:text-white'}`}>
+                {lens.name}
+              </button>
+            ))}
+          </div>
+
+          <label className="mt-5 block text-xs font-bold uppercase tracking-[0.16em] text-white/75" htmlFor="fan-poster-name">Your name <span className="font-normal normal-case tracking-normal text-white/35">(optional)</span></label>
+          <input id="fan-poster-name" value={fanName} maxLength={18} onChange={(event) => setFanName(event.target.value)} placeholder="Type your name" className="mt-2 w-full max-w-md rounded-lg border border-white/15 bg-white/[0.04] px-4 py-3 text-base text-white outline-none placeholder:text-white/30 focus:border-red-500 focus:ring-1 focus:ring-red-500" />
 
           <label htmlFor="fan-poster-photo" className="mt-4 inline-flex min-h-12 w-full max-w-md cursor-pointer items-center justify-center gap-2 rounded-lg border border-white/20 bg-white/[0.04] px-4 py-3 text-sm font-semibold text-white transition hover:border-red-400 hover:bg-white/[0.07] focus-within:outline-none focus-within:ring-2 focus-within:ring-red-400">
-            <ImagePlus className="h-4 w-4 text-red-400" /> {photoUrl ? 'Choose a different photo' : 'Add a photo'}
+            <ImagePlus className="h-4 w-4 text-red-400" /> {photoUrl ? 'Choose a different selfie' : 'Add your selfie'}
           </label>
           <input id="fan-poster-photo" type="file" accept="image/*" onChange={handlePhotoChange} className="sr-only" />
-          <p className="mt-2 max-w-md text-xs leading-5 text-white/40">A portrait selfie works best. Your photo stays on this device and is never uploaded.</p>
+          <p className="mt-2 max-w-md text-xs leading-5 text-white/40">Portrait photos work best. Your photo stays on this device and is never uploaded.</p>
 
           <div className="mt-5 flex flex-col gap-3 min-[420px]:flex-row">
-            <button type="button" onClick={downloadPoster} disabled={!posterReady} className="inline-flex min-h-12 items-center justify-center gap-2 rounded-lg bg-red-600 px-5 py-3 text-sm font-bold text-white transition hover:bg-red-500 disabled:cursor-wait disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-300 focus-visible:ring-offset-2 focus-visible:ring-offset-[#111114]">
-              <Download className="h-4 w-4" /> Download poster
+            <button type="button" onClick={downloadLens} disabled={!lensReady} className="inline-flex min-h-12 items-center justify-center gap-2 rounded-lg bg-red-600 px-5 py-3 text-sm font-bold text-white transition hover:bg-red-500 disabled:cursor-wait disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-300 focus-visible:ring-offset-2 focus-visible:ring-offset-[#111114]">
+              <Download className="h-4 w-4" /> Download filter
             </button>
-            <button type="button" onClick={sharePoster} disabled={!posterReady} className="inline-flex min-h-12 items-center justify-center gap-2 rounded-lg border border-white/20 px-5 py-3 text-sm font-bold text-white transition hover:bg-white/10 disabled:cursor-wait disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-[#111114]">
+            <button type="button" onClick={shareLens} disabled={!lensReady} className="inline-flex min-h-12 items-center justify-center gap-2 rounded-lg border border-white/20 px-5 py-3 text-sm font-bold text-white transition hover:bg-white/10 disabled:cursor-wait disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-[#111114]">
               <Share2 className="h-4 w-4" /> Share image
             </button>
           </div>
@@ -269,8 +324,8 @@ export function FanPoster() {
           <p className="mt-1 flex items-center gap-2 text-xs text-white/40"><MapPin className="h-3.5 w-3.5 text-red-400" /> The Ibadan civic centre · December 6, 2026</p>
         </div>
 
-        <div className="mx-auto w-full max-w-[460px] rounded-2xl border border-white/10 bg-white/[0.035] p-3 shadow-2xl sm:p-4">
-          <canvas ref={canvasRef} width={POSTER_WIDTH} height={POSTER_HEIGHT} role="img" aria-label={`Preview of your TOR’Q 2026 poster${fanName ? ` for ${fanName}` : ''}`} className="h-auto w-full rounded-lg" />
+        <div className="mx-auto w-full max-w-[400px] rounded-2xl border border-white/10 bg-white/[0.035] p-3 shadow-2xl sm:p-4">
+          <canvas ref={canvasRef} width={IMAGE_WIDTH} height={IMAGE_HEIGHT} role="img" aria-label={`Preview of your TOR’Q official lens image${fanName ? ` for ${fanName}` : ''}`} className="h-auto w-full rounded-lg" />
         </div>
       </div>
     </section>

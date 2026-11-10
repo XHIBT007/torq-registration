@@ -49,7 +49,7 @@ export function IbadanEdition() {
           <Reveal delay={300}>
             <div className="mt-7 flex flex-wrap items-center gap-x-6 gap-y-4">
               <a href="#fan-moment" className="inline-flex min-h-11 items-center gap-2 rounded-md bg-red-600 px-4 py-3 text-xs font-bold uppercase tracking-[0.12em] text-white transition hover:bg-red-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-300">
-                Make your TOR’Q poster <Sparkles className="h-4 w-4" />
+                Try the TOR’Q lens <Sparkles className="h-4 w-4" />
               </a>
               <a href="#experiences" className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.16em] text-red-300 transition hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400">
                 Explore the experience <ArrowDown className="h-4 w-4" />
