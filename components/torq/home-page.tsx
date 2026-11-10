@@ -3,7 +3,6 @@
 import { About } from '@/components/torq/about'
 import { Contact } from '@/components/torq/contact'
 import { Experiences } from '@/components/torq/experiences'
-import { FanPoster } from '@/components/torq/fan-poster'
 import { Faq } from '@/components/torq/faq'
 import { Footer } from '@/components/torq/footer'
 import { Gallery } from '@/components/torq/gallery'
@@ -24,7 +23,6 @@ export function HomePage() {
         <main>
           <Hero />
           <IbadanEdition />
-          <FanPoster />
 
           {/* VISUAL IMPACT */}
           <Gallery />
