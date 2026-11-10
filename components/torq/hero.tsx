@@ -1088,10 +1088,17 @@ export function Hero() {
                   for one special December edition.
                 </p>
 
-                <div className="mt-5 flex flex-wrap items-center gap-x-5 gap-y-2 text-[9px] font-semibold uppercase tracking-[.14em] text-white/75 sm:mt-6 sm:text-xs">
+                <div className="mt-4 inline-flex max-w-full items-center gap-3 border-l-4 border-red-500 bg-black/65 px-3 py-2.5 shadow-[0_8px_32px_rgba(0,0,0,0.35)] backdrop-blur-sm sm:mt-5 sm:gap-4 sm:px-5 sm:py-3">
+                  <MapPin aria-hidden="true" className="h-5 w-5 shrink-0 text-red-400 sm:h-6 sm:w-6" />
+                  <div className="min-w-0">
+                    <span className="block text-[8px] font-black uppercase tracking-[.28em] text-red-300 sm:text-[10px]">Official venue</span>
+                    <span className="block text-[15px] font-black uppercase leading-tight tracking-[-.02em] text-white sm:text-xl md:text-2xl">The Ibadan civic centre</span>
+                    <span className="block pt-0.5 text-[8px] font-semibold uppercase tracking-[.18em] text-white/65 sm:text-[10px]">Ibadan, Nigeria</span>
+                  </div>
+                </div>
+
+                <div className="mt-3 text-[9px] font-semibold uppercase tracking-[.14em] text-white/75 sm:mt-4 sm:text-xs">
                   <span>{EVENT.dateLabel}</span>
-                  <span aria-hidden="true" className="hidden h-3 w-px bg-white/35 sm:block" />
-                  <span className="inline-flex items-center gap-2"><MapPin className="h-3.5 w-3.5 text-red-400" />{EVENT.location}</span>
                 </div>
 
                 {/* PRIMARY CTA */}

@@ -35,9 +35,15 @@ export function IbadanEdition() {
             </p>
           </Reveal>
           <Reveal delay={240}>
-            <div className="mt-6 flex flex-wrap items-center gap-x-6 gap-y-3 text-xs font-semibold uppercase tracking-[0.12em] text-white sm:text-sm">
-              <span>December 6, 2026</span>
-              <span className="inline-flex items-center gap-2 text-white/85"><MapPin className="h-4 w-4 text-red-300" />The Ibadan civic centre, Ibadan, Nigeria</span>
+            <div className="mt-7 inline-flex max-w-full items-center gap-4 border border-white/20 bg-black/65 p-4 shadow-2xl backdrop-blur-sm sm:mt-8 sm:gap-5 sm:p-5">
+              <span className="flex h-11 w-11 shrink-0 items-center justify-center bg-red-600 text-white sm:h-14 sm:w-14">
+                <MapPin className="h-5 w-5 sm:h-6 sm:w-6" />
+              </span>
+              <span className="min-w-0">
+                <span className="block text-[9px] font-bold uppercase tracking-[0.3em] text-red-300 sm:text-[10px]">Your destination · December 6, 2026</span>
+                <span className="mt-1 block text-xl font-black uppercase leading-none tracking-[-0.03em] text-white sm:text-3xl md:text-4xl">The Ibadan civic centre</span>
+                <span className="mt-1 block text-[10px] font-semibold uppercase tracking-[0.18em] text-white/65 sm:text-xs">Ibadan, Nigeria</span>
+              </span>
             </div>
           </Reveal>
           <Reveal delay={300}>
