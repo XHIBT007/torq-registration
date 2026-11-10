@@ -22,8 +22,13 @@ function drawCapsule(ctx: CanvasRenderingContext2D, x: number, y: number, width:
   ctx.fill()
 }
 
-function drawLens(ctx: CanvasRenderingContext2D, photoUrl: string | null, fanName: string, lensId: LensId, onReady: () => void, onError: () => void) {
+function drawLens(canvas: HTMLCanvasElement, photoUrl: string | null, fanName: string, lensId: LensId, onReady: () => void, onError: () => void) {
   let cancelled = false
+  const ctx = canvas.getContext('2d')
+  if (!ctx) {
+    onError()
+    return () => {}
+  }
   const lens = LENSES.find((item) => item.id === lensId) ?? LENSES[0]
 
   const drawOverlay = () => {
