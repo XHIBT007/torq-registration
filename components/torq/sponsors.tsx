@@ -87,7 +87,7 @@ export function Sponsors() {
           <Reveal delay={540} variant="card">
             <div className="flex h-full min-h-[300px] flex-col justify-between rounded-2xl border border-white/10 bg-white/[0.025] p-6 sm:p-8">
               <div><Sparkles className="h-5 w-5 text-red-500" /><h3 className="mt-6 text-2xl font-black uppercase">A platform to activate</h3><p className="mt-4 text-sm leading-6 text-white/50">Build a tailored partnership across live experiences, hospitality, culture and digital content. Tell us what your brand wants to achieve.</p></div>
-              <p className="mt-8 text-xs font-semibold uppercase tracking-[0.18em] text-white/35">TOR’Q 2026 · Ibadan, Nigeria</p>
+              <p className="mt-8 text-xs font-semibold uppercase tracking-[0.18em] text-white/35">TOR’Q 2026 · The Ibadan civic centre, Ibadan</p>
             </div>
           </Reveal>
         </div>
@@ -100,7 +100,7 @@ export function Sponsors() {
                 <p className="mt-7 text-[10px] font-bold uppercase tracking-[0.3em] text-red-400">Start a conversation</p>
                 <h3 className="mt-3 text-3xl font-black uppercase leading-tight sm:text-4xl">Let’s build a partnership that moves.</h3>
                 <p className="mt-5 text-sm leading-6 text-white/50">Share a little about your brand and goals. Our partnerships team will get back to you to explore the right fit.</p>
-                <p className="mt-5 text-xs leading-5 text-white/35">Event date: December 6, 2026<br />Location: Ibadan, Nigeria</p>
+                <p className="mt-5 text-xs leading-5 text-white/35">Event date: December 6, 2026<br />Location: The Ibadan civic centre, Ibadan, Nigeria</p>
               </div>
               <form onSubmit={submitEnquiry} className="space-y-5">
                 <div className="grid gap-5 sm:grid-cols-2">

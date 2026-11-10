@@ -1091,7 +1091,7 @@ export function Hero() {
                 <div className="mt-5 flex flex-wrap items-center gap-x-5 gap-y-2 text-[9px] font-semibold uppercase tracking-[.14em] text-white/75 sm:mt-6 sm:text-xs">
                   <span>{EVENT.dateLabel}</span>
                   <span aria-hidden="true" className="hidden h-3 w-px bg-white/35 sm:block" />
-                  <span className="inline-flex items-center gap-2"><MapPin className="h-3.5 w-3.5 text-red-400" />{EVENT.location} · Venue to be announced</span>
+                  <span className="inline-flex items-center gap-2"><MapPin className="h-3.5 w-3.5 text-red-400" />{EVENT.location}</span>
                 </div>
 
                 {/* PRIMARY CTA */}

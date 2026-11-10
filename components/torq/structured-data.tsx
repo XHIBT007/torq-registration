@@ -17,10 +17,11 @@ export function StructuredData() {
 
     location: {
       '@type': 'Place',
-      name: 'Ibadan, Nigeria',
+      name: 'The Ibadan civic centre',
       address: {
         '@type': 'PostalAddress',
         addressLocality: 'Ibadan',
+        name: 'The Ibadan civic centre',
         addressCountry: 'NG',
       },
     },

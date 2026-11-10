@@ -37,7 +37,7 @@ export function IbadanEdition() {
           <Reveal delay={240}>
             <div className="mt-6 flex flex-wrap items-center gap-x-6 gap-y-3 text-xs font-semibold uppercase tracking-[0.12em] text-white sm:text-sm">
               <span>December 6, 2026</span>
-              <span className="inline-flex items-center gap-2 text-white/85"><MapPin className="h-4 w-4 text-red-300" />Ibadan, Nigeria · Venue to be announced</span>
+              <span className="inline-flex items-center gap-2 text-white/85"><MapPin className="h-4 w-4 text-red-300" />The Ibadan civic centre, Ibadan, Nigeria</span>
             </div>
           </Reveal>
           <Reveal delay={300}>

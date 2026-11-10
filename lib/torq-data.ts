@@ -6,7 +6,7 @@ export const EVENT = {
 
   dateLabel: "December 6, 2026",
 
-  location: "Ibadan, Nigeria",
+  location: "The Ibadan civic centre, Ibadan, Nigeria",
 }
 
 
@@ -181,7 +181,7 @@ export const FAQS: FAQItem[] = [
       "When and where does TOR'Q take place?",
 
     answer:
-      "TOR'Q 2026 takes place on December 6, 2026 in Ibadan, Nigeria. Full venue and access details will be communicated to registered participants ahead of the event.",
+      "TOR'Q 2026 takes place on December 6, 2026 at The Ibadan civic centre in Ibadan, Nigeria.",
   },
 
   {

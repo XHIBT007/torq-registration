@@ -42,7 +42,7 @@ const DETAILS = [
   {
     icon: MapPin,
     label: 'Location',
-    value: 'Ibadan, Nigeria',
+    value: EVENT.location,
   },
   {
     icon: AtSign,
