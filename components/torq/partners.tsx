@@ -21,6 +21,11 @@ const PARTNERS = [
     logo: '/images/partners/asta-white.png',
     logoClass: 'h-[60px] w-[136px] object-contain mix-blend-screen sm:h-[88px] sm:w-[190px]',
   },
+  {
+    name: 'Partner logo',
+    logo: '/images/partners/new-partner-logo.webp',
+    logoClass: 'h-[92px] w-[92px] object-contain sm:h-[154px] sm:w-[154px]',
+  },
 ]
 
 export function Partners() {
