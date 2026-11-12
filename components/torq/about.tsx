@@ -8,7 +8,7 @@ const STATS = [
     label: 'Motorsport Enthusiasts',
   },
   {
-    value: '50+',
+    value: '200+',
     label: 'Drivers & Riders',
   },
   {

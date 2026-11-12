@@ -1184,7 +1184,7 @@ export function Hero() {
                 />
 
                 <HeroStat
-                  value="50+"
+                  value="200+"
                   label="Drivers & Riders"
                   compact={
                     isCompactLandscape ||
